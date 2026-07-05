@@ -11,6 +11,7 @@ import {
   isIntroCompleted,
   markIntroCompleted,
 } from '../../utils/intro';
+import { isPageOverlayHidden } from '../../utils/page-overlay';
 import {
   CAT_DISPLAY_SIZE,
   defaultOverlayPosition,
@@ -26,7 +27,7 @@ import {
   requestPresentation,
   requestSettings,
 } from '../../utils/runtime-client';
-import type { CatPresentation, OverlayPosition } from '../../utils/types';
+import type { CatPresentation, ExtensionSettings, OverlayPosition } from '../../utils/types';
 import { STORAGE_KEYS } from '../../utils/types';
 import './style.css';
 
@@ -36,6 +37,7 @@ const DRAG_THRESHOLD_PX = 4;
 
 class TabbyOverlay {
   private presentation: CatPresentation | null = null;
+  private pageOverlayHidden = false;
   private menuOpen = false;
   private moreOpen = false;
   private pendingAction: InteractionAction | null = null;
@@ -45,32 +47,53 @@ class TabbyOverlay {
   private pageTextInterval: ReturnType<typeof setInterval> | null = null;
   private root: HTMLElement | null = null;
   private outsideClickListener: ((event: Event) => void) | null = null;
+  private storageListenerBound = false;
+  private showOverlayEnabled = true;
 
   async initialize(): Promise<void> {
     await pingBackground();
     const settings = await requestSettings();
+    this.showOverlayEnabled = settings.showOverlay;
 
-    if (!settings.showOverlay) {
+    if (!this.showOverlayEnabled) {
+      this.teardownOverlay();
+      this.bindStorageListenerIfNeeded();
       return;
     }
 
     await this.loadPosition();
     await this.loadIntroState();
+    await this.syncPageOverlayHidden();
     await this.refreshPresentation();
     this.beginIntroIfNeeded();
 
-    if (settings.readPageContent) {
+    if (settings.readPageContent && !this.pageTextInterval) {
       await this.reportPageText(settings.pageTextMaxChars);
       this.pageTextInterval = setInterval(() => {
         void this.reportPageText(settings.pageTextMaxChars);
       }, 30_000);
     }
 
+    if (this.storageListenerBound) {
+      return;
+    }
+    this.bindStorageListenerIfNeeded();
+  }
+
+  private bindStorageListenerIfNeeded(): void {
+    if (this.storageListenerBound) {
+      return;
+    }
+    this.storageListenerBound = true;
+
     browser.storage.onChanged.addListener((changes, area) => {
       if (area !== 'local') {
         return;
       }
       if ('presentation' in changes) {
+        if (!this.showOverlayEnabled) {
+          return;
+        }
         const next = changes.presentation?.newValue as CatPresentation | undefined;
         if (next && !this.pendingAction) {
           const previousSpeech = this.presentation?.speech ?? null;
@@ -82,7 +105,34 @@ class TabbyOverlay {
           this.render();
         }
       }
+      if (STORAGE_KEYS.hiddenPageKeys in changes) {
+        if (!this.showOverlayEnabled) {
+          return;
+        }
+        void this.syncPageOverlayHidden().then(() => this.render());
+      }
+      if (STORAGE_KEYS.settings in changes) {
+        const next = changes[STORAGE_KEYS.settings]?.newValue as ExtensionSettings | undefined;
+        if (!next) {
+          return;
+        }
+        this.showOverlayEnabled = next.showOverlay;
+        if (!next.showOverlay) {
+          this.teardownOverlay();
+        } else {
+          void (async () => {
+            await this.syncPageOverlayHidden();
+            if (!this.presentation) {
+              await this.refreshPresentation();
+            }
+            this.render();
+          })();
+        }
+      }
       if (STORAGE_KEYS.introCompleted in changes) {
+        if (!this.showOverlayEnabled) {
+          return;
+        }
         const completed = changes[STORAGE_KEYS.introCompleted]?.newValue === true;
         this.introCompleted = completed;
         if (!completed) {
@@ -104,6 +154,28 @@ class TabbyOverlay {
         clearInterval(this.pageTextInterval);
       }
     });
+  }
+
+  private async syncPageOverlayHidden(): Promise<void> {
+    this.pageOverlayHidden = await isPageOverlayHidden(location.href);
+  }
+
+  private teardownOverlay(): void {
+    this.removeOutsideClickListener();
+    if (this.pageTextInterval) {
+      clearInterval(this.pageTextInterval);
+      this.pageTextInterval = null;
+    }
+    if (this.root) {
+      this.root.remove();
+      this.root = null;
+    }
+  }
+
+  private isOverlayVisible(): boolean {
+    return (
+      this.showOverlayEnabled && !!this.presentation && !this.pageOverlayHidden
+    );
   }
 
   private async loadPosition(): Promise<void> {
@@ -147,7 +219,7 @@ class TabbyOverlay {
   }
 
   private beginIntroIfNeeded(): void {
-    if (this.introCompleted || !this.presentation || this.presentation.overlayHidden) {
+    if (this.introCompleted || !this.isOverlayVisible()) {
       return;
     }
     this.introStep = 0;
@@ -227,7 +299,7 @@ class TabbyOverlay {
   }
 
   private render(): void {
-    if (!this.presentation || this.presentation.overlayHidden) {
+    if (!this.isOverlayVisible()) {
       this.removeOutsideClickListener();
       if (this.root) {
         this.root.remove();
@@ -240,7 +312,7 @@ class TabbyOverlay {
       this.root.remove();
     }
 
-    this.root = this.buildRoot(this.presentation);
+    this.root = this.buildRoot(this.presentation!);
     document.documentElement.appendChild(this.root);
     this.applyPosition();
   }

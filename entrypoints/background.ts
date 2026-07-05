@@ -9,12 +9,15 @@ import {
   ensureCatExists,
   evaluateAndPresent,
   getCurrentPresentation,
+  getPageOverlayState,
   handleCareAction,
+  hideOverlayOnPage,
   loadOrchestratorState,
   recordBrowsingSession,
   runMinuteTick,
   showOverlayOnPage,
 } from '../utils/orchestrator';
+import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
 import { preloadSpeechEngine } from '../utils/speech-service';
 import { ensureSettingsExist, getSettings, saveSettings, effectiveAppearanceLimits } from '../utils/settings';
 import {
@@ -36,6 +39,14 @@ let latestPageTextSnippet = '';
 
 let taskQueue = Promise.resolve();
 
+async function activeTabContext(): Promise<{ url?: string; title?: string }> {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  return {
+    url: tab?.url || activeSnapshot.url || undefined,
+    title: tab?.title || activeSnapshot.title || undefined,
+  };
+}
+
 function enqueueTask(task: () => Promise<void>): void {
   taskQueue = taskQueue.then(task).catch((error) => {
     console.error('[Tabby]', error);
@@ -49,10 +60,11 @@ async function scheduleTickAlarm(): Promise<void> {
 
 async function updateToolbarFromPresentation(): Promise<void> {
   const presentation = await getCurrentPresentation();
+  const hiddenOnActiveTab = await isPageOverlayHidden(activeSnapshot.url);
   const badge =
     presentation.mood === 'starving'
       ? '!'
-      : presentation.speech && !presentation.overlayHidden
+      : presentation.speech && !hiddenOnActiveTab
         ? '•'
         : '';
   await browser.action.setBadgeText({ text: badge });
@@ -106,6 +118,19 @@ function activePageContext(): { title?: string } {
   return { title: activeSnapshot.title || undefined };
 }
 
+async function ensureOverlayIfEnabled(
+  tab: { id?: number; url?: string } | undefined,
+): Promise<void> {
+  if (!tab?.id) {
+    return;
+  }
+  const settings = await getSettings(IS_DEV_BUILD);
+  if (!settings.showOverlay) {
+    return;
+  }
+  await ensureOverlayOnTab(tab);
+}
+
 async function bootstrap(): Promise<void> {
   await ensureSettingsExist(IS_DEV_BUILD);
   if (IS_DEV_BUILD) {
@@ -114,8 +139,6 @@ async function bootstrap(): Promise<void> {
     } catch (error) {
       console.error('[Tabby] Could not register overlay script.', error);
     }
-    // Runtime registration only applies to new navigations — inject open tabs too.
-    await ensureOverlayOnAllTabs({ injectIfNeeded: true });
   }
   await ensureCatExists(Date.now());
   void preloadSpeechEngine();
@@ -126,7 +149,7 @@ async function bootstrap(): Promise<void> {
   });
   await scheduleTickAlarm();
   await updateToolbarFromPresentation();
-  if (!IS_DEV_BUILD) {
+  if (state.settings.showOverlay) {
     await ensureOverlayOnAllTabs();
   }
 
@@ -175,7 +198,7 @@ export default defineBackground(() => {
   browser.tabs.onActivated.addListener((activeInfo) => {
     enqueueTask(async () => {
       const tab = await browser.tabs.get(activeInfo.tabId);
-      await ensureOverlayOnTab(tab, { injectIfNeeded: IS_DEV_BUILD });
+      await ensureOverlayIfEnabled(tab);
       await syncFocusToTab(tab);
     });
   });
@@ -192,7 +215,7 @@ export default defineBackground(() => {
         active: true,
         windowId,
       });
-      await ensureOverlayOnTab(activeTab, { injectIfNeeded: IS_DEV_BUILD });
+      await ensureOverlayIfEnabled(activeTab);
       await syncFocusToTab(activeTab);
     });
   });
@@ -200,7 +223,7 @@ export default defineBackground(() => {
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete') {
       enqueueTask(async () => {
-        await ensureOverlayOnTab({ id: tabId, url: tab.url }, { injectIfNeeded: IS_DEV_BUILD });
+        await ensureOverlayIfEnabled({ id: tabId, url: tab.url });
       });
     }
 
@@ -242,13 +265,20 @@ export default defineBackground(() => {
             return;
           }
           case 'saveSettings': {
+            const before = await getSettings(IS_DEV_BUILD);
             const data = await saveSettings(message.settings, IS_DEV_BUILD);
+            if (data.showOverlay && !before.showOverlay) {
+              await clearAllPageOverlayHides();
+              await ensureOverlayOnAllTabs();
+            }
             const state = await loadOrchestratorState();
-            await evaluateAndPresent(
-              { ...state, settings: data },
-              Date.now(),
-              { forceDevSpeech: data.devModeEnabled },
-            );
+            if (data.showOverlay) {
+              await evaluateAndPresent(
+                { ...state, settings: data },
+                Date.now(),
+                { forceDevSpeech: data.devModeEnabled },
+              );
+            }
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             return;
@@ -265,18 +295,45 @@ export default defineBackground(() => {
               {
                 title: activeSnapshot.title || undefined,
                 topic: undefined,
+                url: activeSnapshot.url || undefined,
               },
             );
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             return;
           }
+          case 'getPageOverlayState': {
+            const settings = await getSettings(IS_DEV_BUILD);
+            const tab = await activeTabContext();
+            const data = await getPageOverlayState(message.url ?? tab.url, settings);
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
           case 'showOverlay': {
+            const tab = await activeTabContext();
             const data = await showOverlayOnPage(Date.now(), {
-              title: activeSnapshot.title || undefined,
+              title: message.title ?? tab.title,
+              url: message.url ?? tab.url,
             });
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'hideOverlay': {
+            const tab = await activeTabContext();
+            const data = await hideOverlayOnPage({
+              url: message.url ?? tab.url,
+            });
+            await updateToolbarFromPresentation();
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'ensureOverlays': {
+            const settings = await getSettings(IS_DEV_BUILD);
+            if (settings.showOverlay) {
+              await ensureOverlayOnAllTabs();
+            }
+            sendResponse({ ok: true } satisfies RuntimeResponse);
             return;
           }
           case 'resetIntro': {

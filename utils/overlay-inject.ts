@@ -13,6 +13,18 @@ const BLOCKED_PREFIXES = [
   'https://chromewebstore.google.com',
 ];
 
+const OVERLAY_CONTENT_SCRIPT = {
+  id: OVERLAY_SCRIPT_ID,
+  matches: ['http://*/*', 'https://*/*', 'file://*/*'],
+  excludeMatches: [
+    '*://chrome.google.com/webstore/*',
+    '*://chromewebstore.google.com/*',
+  ],
+  js: [CONTENT_SCRIPT_JS],
+  css: [CONTENT_SCRIPT_CSS],
+  runAt: 'document_idle' as const,
+};
+
 /** Pages where Tabby can appear as a floating companion. */
 export function canShowOverlayOnUrl(url: string | undefined): boolean {
   if (!url) {
@@ -22,6 +34,11 @@ export function canShowOverlayOnUrl(url: string | undefined): boolean {
     return true;
   }
   return !BLOCKED_PREFIXES.some((prefix) => url.startsWith(prefix));
+}
+
+function isDuplicateScriptError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('Duplicate script ID');
 }
 
 /**
@@ -37,27 +54,26 @@ export async function registerPageOverlayScript(): Promise<void> {
     return;
   }
 
-  try {
-    await browser.scripting.unregisterContentScripts({
-      ids: [OVERLAY_SCRIPT_ID],
-    });
-  } catch {
-    // Nothing to clean up.
+  const registered = await browser.scripting.getRegisteredContentScripts();
+  if (registered.some((script) => script.id === OVERLAY_SCRIPT_ID)) {
+    if (browser.scripting.updateContentScripts) {
+      try {
+        await browser.scripting.updateContentScripts([OVERLAY_CONTENT_SCRIPT]);
+      } catch {
+        // Existing registration is good enough.
+      }
+    }
+    return;
   }
 
-  await browser.scripting.registerContentScripts([
-    {
-      id: OVERLAY_SCRIPT_ID,
-      matches: ['http://*/*', 'https://*/*', 'file://*/*'],
-      excludeMatches: [
-        '*://chrome.google.com/webstore/*',
-        '*://chromewebstore.google.com/*',
-      ],
-      js: [CONTENT_SCRIPT_JS],
-      css: [CONTENT_SCRIPT_CSS],
-      runAt: 'document_idle',
-    },
-  ]);
+  try {
+    await browser.scripting.registerContentScripts([OVERLAY_CONTENT_SCRIPT]);
+  } catch (error) {
+    if (isDuplicateScriptError(error)) {
+      return;
+    }
+    throw error;
+  }
 }
 
 /** Inject into tabs that need a manual overlay (runtime dev registration, about:blank). */
@@ -80,22 +96,18 @@ export async function injectPageOverlay(tabId: number): Promise<void> {
   }
 }
 
+/** Inject the overlay into a tab when Tabby is allowed on that URL. */
 export async function ensureOverlayOnTab(
   tab: { id?: number; url?: string },
-  options: { injectIfNeeded?: boolean } = {},
 ): Promise<void> {
   if (!tab.id || !canShowOverlayOnUrl(tab.url)) {
     return;
   }
 
-  if (options.injectIfNeeded || tab.url === 'about:blank') {
-    await injectPageOverlay(tab.id);
-  }
+  await injectPageOverlay(tab.id);
 }
 
-export async function ensureOverlayOnAllTabs(
-  options: { injectIfNeeded?: boolean } = {},
-): Promise<void> {
+export async function ensureOverlayOnAllTabs(): Promise<void> {
   const tabs = await browser.tabs.query({});
-  await Promise.all(tabs.map((tab) => ensureOverlayOnTab(tab, options)));
+  await Promise.all(tabs.map((tab) => ensureOverlayOnTab(tab)));
 }

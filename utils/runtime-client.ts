@@ -2,6 +2,7 @@ import type {
   CareAction,
   CatPresentation,
   ExtensionSettings,
+  PageOverlayState,
   RuntimeMessage,
   RuntimeResponse,
 } from './types';
@@ -40,6 +41,22 @@ export function requestCareAction(action: CareAction): Promise<CatPresentation> 
 
 export function requestResetIntro(): Promise<void> {
   return sendMessage<void>({ type: 'resetIntro' });
+}
+
+export function requestPageOverlayState(url?: string): Promise<PageOverlayState> {
+  return sendMessage<PageOverlayState>({ type: 'getPageOverlayState', url });
+}
+
+export function requestShowOverlayOnPage(url?: string, title?: string): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'showOverlay', url, title });
+}
+
+export function requestHideOverlayOnPage(url?: string): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'hideOverlay', url });
+}
+
+export function requestEnsureOverlays(): Promise<void> {
+  return sendMessage<void>({ type: 'ensureOverlays' });
 }
 
 export async function pingBackground(): Promise<void> {

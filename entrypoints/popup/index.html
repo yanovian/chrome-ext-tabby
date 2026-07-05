@@ -18,17 +18,41 @@
 
       <section class="settings__section">
         <h2>Tabby on your page</h2>
-        <button id="show-on-page" type="button" class="settings__button">
-          Show Tabby on this page
-        </button>
-        <label class="settings__row">
-          <span>Show floating cat on pages</span>
-          <input id="show-overlay" type="checkbox" />
-        </label>
-        <p class="settings__hint">
-          If you chose <strong>Hide Tabby</strong> in her menu, tap the button above to bring
-          her back on this tab.
-        </p>
+        <div class="settings__overlay-actions">
+          <button
+            id="show-all-btn"
+            type="button"
+            class="settings__button settings__button--show"
+            hidden
+          >
+            Show Tabby in all pages
+          </button>
+          <button
+            id="hide-all-btn"
+            type="button"
+            class="settings__button settings__button--hide"
+            hidden
+          >
+            Hide Tabby from all pages
+          </button>
+          <button
+            id="show-page-btn"
+            type="button"
+            class="settings__button settings__button--show"
+            hidden
+          >
+            Show Tabby on this page
+          </button>
+          <button
+            id="hide-page-btn"
+            type="button"
+            class="settings__button settings__button--hide"
+            hidden
+          >
+            Hide Tabby on this page
+          </button>
+        </div>
+        <p class="settings__hint" id="page-overlay-hint"></p>
       </section>
 
       <section class="settings__section">
@@ -108,7 +132,7 @@
             <option value="adult">Grown-up cat</option>
           </select>
         </label>
-        <button id="force-tick" type="button" class="settings__button">Force tick &amp; speech</button>
+        <button id="force-tick" type="button" class="settings__button settings__button--legacy">Force tick &amp; speech</button>
         <p id="force-tick-hint" class="settings__hint settings__hint--dev">
           Dev only: simulates the once-a-minute background tick and makes Tabby speak if her
           mood rules allow it (or forces a dev test line when dev mode is on).

@@ -18,6 +18,7 @@ import {
   saveCatState,
 } from './db';
 import { evaluateEmotionalTrigger } from './emotional-triggers';
+import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
 import { buildPresentation } from './presentation';
 import { generateTabbySpeech } from './speech-service';
 import type { SpeechContext } from './speech-types';
@@ -29,6 +30,7 @@ import type {
   CatState,
   ExtensionSettings,
   MemorySeed,
+  PageOverlayState,
 } from './types';
 import { STORAGE_KEYS } from './types';
 
@@ -44,6 +46,7 @@ export interface OrchestratorState {
 export interface PageContext {
   title?: string;
   topic?: string;
+  url?: string;
 }
 
 export async function loadOrchestratorState(): Promise<OrchestratorState> {
@@ -164,7 +167,6 @@ export async function handleCareAction(
 ): Promise<CatPresentation> {
   const state = await loadOrchestratorState();
   let cat = state.cat;
-  let overlayHidden = state.lastPresentation?.overlayHidden ?? false;
   let triggerKind = state.lastPresentation?.triggerKind ?? null;
   let moodOverride: CatMood | undefined;
 
@@ -178,7 +180,7 @@ export async function handleCareAction(
   const speechKind = careSpeechKind(action);
 
   if (action === 'dismiss') {
-    overlayHidden = true;
+    await hidePageOverlay(page.url);
     triggerKind = null;
   } else if (action === 'ask') {
     moodOverride = resolveAskMood(cat.vitals, derivedMood);
@@ -217,7 +219,7 @@ export async function handleCareAction(
     isUserIdle: state.isUserIdle,
     speech,
     triggerKind,
-    overlayHidden,
+    overlayHidden: false,
     moodOverride: action === 'ask' ? moodOverride : undefined,
     lastCareAction: mapCareActionToInteraction(action),
   });
@@ -247,7 +249,6 @@ export async function evaluateAndPresent(
   });
 
   let cat = state.cat;
-  const overlayHidden = state.lastPresentation?.overlayHidden ?? false;
 
   if (trigger.shouldAppear && trigger.triggerKind) {
     cat = recordAppearance(cat, now);
@@ -277,7 +278,7 @@ export async function evaluateAndPresent(
     isUserIdle: state.isUserIdle,
     speech,
     triggerKind: trigger.triggerKind,
-    overlayHidden,
+    overlayHidden: false,
     lastCareAction: state.lastPresentation?.lastCareAction ?? null,
   });
 
@@ -324,6 +325,7 @@ export async function showOverlayOnPage(
   now: number,
   page: PageContext = {},
 ): Promise<CatPresentation> {
+  await showPageOverlay(page.url);
   const state = await loadOrchestratorState();
   const stage = resolveLifeStage(
     state.cat.adoptedAt,
@@ -357,6 +359,23 @@ export async function showOverlayOnPage(
   });
   await persistPresentation(presentation);
   return presentation;
+}
+
+export async function hideOverlayOnPage(page: PageContext = {}): Promise<CatPresentation> {
+  await hidePageOverlay(page.url);
+  return getCurrentPresentation();
+}
+
+export async function getPageOverlayState(
+  url: string | undefined,
+  settings?: ExtensionSettings,
+): Promise<PageOverlayState> {
+  const resolved = settings ?? (await getSettings(IS_DEV_BUILD));
+  if (!resolved.showOverlay || !pageOverlayKey(url)) {
+    return { applicable: false, visible: false };
+  }
+  const hidden = await isPageOverlayHidden(url);
+  return { applicable: true, visible: !hidden };
 }
 
 export async function getCurrentPresentation(): Promise<CatPresentation> {

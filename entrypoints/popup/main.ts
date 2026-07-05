@@ -1,9 +1,13 @@
 import {
   publicAssetUrl,
+  requestEnsureOverlays,
+  requestHideOverlayOnPage,
+  requestPageOverlayState,
   requestPresentation,
   requestResetIntro,
   requestSaveSettings,
   requestSettings,
+  requestShowOverlayOnPage,
 } from '../../utils/runtime-client';
 import type { ExtensionSettings } from '../../utils/types';
 
@@ -12,7 +16,6 @@ const IS_DEV_BUILD = import.meta.env.DEV;
 const fields = {
   readPageContent: document.getElementById('read-page-content') as HTMLInputElement,
   pageTextMaxChars: document.getElementById('page-text-max-chars') as HTMLInputElement,
-  showOverlay: document.getElementById('show-overlay') as HTMLInputElement,
   localSpeechEnabled: document.getElementById('local-speech-enabled') as HTMLInputElement,
   quietStart: document.getElementById('quiet-start') as HTMLInputElement,
   quietEnd: document.getElementById('quiet-end') as HTMLInputElement,
@@ -32,9 +35,21 @@ const devBuildHint = document.getElementById('dev-build-hint') as HTMLParagraphE
 const forceTickButton = document.getElementById('force-tick') as HTMLButtonElement;
 const forceTickHint = document.getElementById('force-tick-hint') as HTMLParagraphElement;
 const resetIntroButton = document.getElementById('reset-intro') as HTMLButtonElement;
-const showOnPageButton = document.getElementById('show-on-page') as HTMLButtonElement;
+const showAllButton = document.getElementById('show-all-btn') as HTMLButtonElement;
+const hideAllButton = document.getElementById('hide-all-btn') as HTMLButtonElement;
+const showPageButton = document.getElementById('show-page-btn') as HTMLButtonElement;
+const hidePageButton = document.getElementById('hide-page-btn') as HTMLButtonElement;
+const pageOverlayHint = document.getElementById('page-overlay-hint') as HTMLParagraphElement;
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let overlayActionBusy = false;
+let cachedSettings: ExtensionSettings;
+
+interface ActiveTabInfo {
+  id?: number;
+  url?: string;
+  title?: string;
+}
 
 function showStatus(message: string): void {
   statusEl.textContent = message;
@@ -45,10 +60,62 @@ function showStatus(message: string): void {
   }, 2000);
 }
 
+async function getActiveTab(): Promise<ActiveTabInfo> {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  return {
+    id: tab?.id,
+    url: tab?.url,
+    title: tab?.title,
+  };
+}
+
+async function ensureOverlayOnActiveTab(tabId?: number): Promise<void> {
+  if (!tabId) {
+    return;
+  }
+  await browser.scripting
+    .insertCSS({
+      target: { tabId },
+      files: ['/content-scripts/content.css'],
+    })
+    .catch(() => undefined);
+  await browser.scripting
+    .executeScript({
+      target: { tabId },
+      files: ['/content-scripts/content.js'],
+    })
+    .catch(() => undefined);
+}
+
+async function refreshOverlayButtons(settings = cachedSettings): Promise<void> {
+  cachedSettings = settings;
+  const tab = await getActiveTab();
+
+  showAllButton.hidden = settings.showOverlay;
+  hideAllButton.hidden = !settings.showOverlay;
+  showPageButton.hidden = true;
+  hidePageButton.hidden = true;
+
+  if (!settings.showOverlay) {
+    pageOverlayHint.textContent = 'Tabby is hidden on every page.';
+    return;
+  }
+
+  const state = await requestPageOverlayState(tab.url);
+  if (!state.applicable) {
+    pageOverlayHint.textContent = 'Open a normal web page to show or hide Tabby here.';
+    return;
+  }
+
+  pageOverlayHint.textContent = '';
+  showPageButton.hidden = state.visible;
+  hidePageButton.hidden = !state.visible;
+}
+
 function fillForm(settings: ExtensionSettings): void {
+  cachedSettings = settings;
   fields.readPageContent.checked = settings.readPageContent;
   fields.pageTextMaxChars.value = String(settings.pageTextMaxChars);
-  fields.showOverlay.checked = settings.showOverlay;
   fields.localSpeechEnabled.checked = settings.localSpeechEnabled;
   fields.quietStart.value = String(settings.quietHoursStart);
   fields.quietEnd.value = String(settings.quietHoursEnd);
@@ -66,7 +133,7 @@ function readPartialSettings(): Partial<ExtensionSettings> {
   return {
     readPageContent: fields.readPageContent.checked,
     pageTextMaxChars: Number(fields.pageTextMaxChars.value),
-    showOverlay: fields.showOverlay.checked,
+    showOverlay: cachedSettings.showOverlay,
     localSpeechEnabled: fields.localSpeechEnabled.checked,
     quietHoursStart: Number(fields.quietStart.value),
     quietHoursEnd: Number(fields.quietEnd.value),
@@ -89,9 +156,62 @@ function scheduleSave(): void {
     void (async () => {
       const saved = await requestSaveSettings(readPartialSettings());
       fillForm(saved);
+      await refreshOverlayButtons(saved);
       showStatus('Saved.');
     })();
   }, 350);
+}
+
+async function setGlobalOverlayVisible(show: boolean): Promise<void> {
+  cachedSettings = await requestSaveSettings({
+    ...readPartialSettings(),
+    showOverlay: show,
+  });
+  fillForm(cachedSettings);
+  if (show) {
+    await requestEnsureOverlays();
+  }
+  await refreshOverlayButtons(cachedSettings);
+  showStatus(show ? 'Tabby is on all pages.' : 'Tabby is hidden on every page.');
+}
+
+async function setPageOverlayVisible(show: boolean): Promise<void> {
+  const tab = await getActiveTab();
+  if (show) {
+    await requestShowOverlayOnPage(tab.url, tab.title);
+    await ensureOverlayOnActiveTab(tab.id);
+    showStatus('Tabby is on this page.');
+  } else {
+    await requestHideOverlayOnPage(tab.url);
+    showStatus('Tabby is hidden on this page.');
+  }
+  const next = await requestPresentation();
+  previewCat.src = publicAssetUrl(next.sprite);
+  await refreshOverlayButtons();
+}
+
+function bindOverlayButton(
+  button: HTMLButtonElement,
+  action: () => Promise<void>,
+): void {
+  button.addEventListener('click', () => {
+    if (overlayActionBusy) {
+      return;
+    }
+    void (async () => {
+      overlayActionBusy = true;
+      button.disabled = true;
+      try {
+        await action();
+      } catch (error) {
+        showStatus(error instanceof Error ? error.message : 'Could not update Tabby.');
+        await refreshOverlayButtons();
+      } finally {
+        button.disabled = false;
+        overlayActionBusy = false;
+      }
+    })();
+  });
 }
 
 async function initialize(): Promise<void> {
@@ -106,31 +226,24 @@ async function initialize(): Promise<void> {
 
   fillForm(settings);
   previewCat.src = publicAssetUrl(presentation.sprite);
+  if (settings.showOverlay) {
+    try {
+      await requestEnsureOverlays();
+    } catch {
+      // Overlay sync is best-effort; still render controls below.
+    }
+  }
+  await refreshOverlayButtons(settings);
 
   for (const element of Object.values(fields)) {
     element.addEventListener('change', scheduleSave);
     element.addEventListener('input', scheduleSave);
   }
 
-  showOnPageButton.addEventListener('click', () => {
-    void (async () => {
-      const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
-      await browser.runtime.sendMessage({ type: 'showOverlay' });
-      if (activeTab?.id) {
-        await browser.scripting.insertCSS({
-          target: { tabId: activeTab.id },
-          files: ['/content-scripts/content.css'],
-        }).catch(() => undefined);
-        await browser.scripting.executeScript({
-          target: { tabId: activeTab.id },
-          files: ['/content-scripts/content.js'],
-        }).catch(() => undefined);
-      }
-      const next = await requestPresentation();
-      previewCat.src = publicAssetUrl(next.sprite);
-      showStatus('Tabby is back on this page.');
-    })();
-  });
+  bindOverlayButton(showAllButton, () => setGlobalOverlayVisible(true));
+  bindOverlayButton(hideAllButton, () => setGlobalOverlayVisible(false));
+  bindOverlayButton(showPageButton, () => setPageOverlayVisible(true));
+  bindOverlayButton(hidePageButton, () => setPageOverlayVisible(false));
 
   forceTickButton.hidden = !IS_DEV_BUILD;
   forceTickHint.hidden = !IS_DEV_BUILD;

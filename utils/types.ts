@@ -171,6 +171,8 @@ export const STORAGE_KEYS = {
   presentation: 'presentation',
   overlayPosition: 'overlayPosition',
   introCompleted: 'introCompleted',
+  /** Page keys (hostname + path) where the user chose Hide Tabby. */
+  hiddenPageKeys: 'hiddenPageKeys',
 } as const;
 
 export const ALARM_NAMES = {
@@ -178,6 +180,14 @@ export const ALARM_NAMES = {
 } as const;
 
 export type CareAction = 'pet' | 'treat' | 'play' | 'ask' | 'dismiss';
+
+/** Whether Tabby is visible on the active tab (settings popup). */
+export interface PageOverlayState {
+  /** Tabby can be shown or hidden on this tab. */
+  applicable: boolean;
+  /** Tabby is currently visible on this tab. */
+  visible: boolean;
+}
 
 export type TabObservationInput = Omit<
   TabObservation,
@@ -190,7 +200,10 @@ export type RuntimeMessage =
   | { type: 'saveSettings'; settings: Partial<ExtensionSettings> }
   | { type: 'observeTab'; observation: TabObservationInput }
   | { type: 'careAction'; action: CareAction }
-  | { type: 'showOverlay' }
+  | { type: 'showOverlay'; url?: string; title?: string }
+  | { type: 'hideOverlay'; url?: string }
+  | { type: 'getPageOverlayState'; url?: string }
+  | { type: 'ensureOverlays' }
   | { type: 'tick' }
   | { type: 'resetIntro' }
   | { type: 'ping' };

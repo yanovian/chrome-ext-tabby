@@ -2,6 +2,10 @@ import { generateSpeechWithModel, warmSpeechModel } from '../../utils/speech-mod
 import type { SpeechContext } from '../../utils/speech-types';
 
 browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type !== 'speech:warm' && message?.type !== 'speech:generate') {
+    return false;
+  }
+
   void (async () => {
     try {
       if (message?.type === 'speech:warm') {
@@ -16,8 +20,6 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         sendResponse({ ok: true, text });
         return;
       }
-
-      sendResponse({ ok: false, error: 'Unknown offscreen message' });
     } catch (error) {
       sendResponse({
         ok: false,
