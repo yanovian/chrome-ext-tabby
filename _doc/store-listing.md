@@ -1,8 +1,5 @@
 # Chrome Web Store listing descriptions
 
-Copy the block for each language into the Chrome Web Store developer dashboard.
-"Tabby" is a brand name and stays the same in most locales. In RTL languages (Arabic, Persian, Hebrew) use native words for the cat instead of "Tabby".
-
 ## English (en)
 
 ```text
