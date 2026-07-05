@@ -23,6 +23,10 @@ function removeRedundantWasm(dir: string): void {
 export default defineConfig({
   hooks: {
     'build:done'(wxt) {
+      // Dev rebuilds must keep bundled WASM reachable; strip duplicates on release only.
+      if (wxt.config.command === 'serve') {
+        return;
+      }
       removeRedundantWasm(wxt.config.outDir);
     },
   },

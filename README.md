@@ -19,16 +19,15 @@ Keep that command running. WXT watches your files and hot-reloads the extension:
 - **Manual reload** → `Alt+R` in the dev browser (or press `o` + Enter in the terminal to reopen it)
 
 On first run, WXT opens a Chrome window with Tabby already loaded from `.output/chrome-mv3-dev`.
+Prefer that window for day-to-day dev — hot reload is most reliable there.
 
-If you prefer your own Chrome profile instead:
+If you load **`.output/chrome-mv3-dev`** manually in your `chrome://extensions` instead:
 
-1. Keep `make dev` running.
-2. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**.
-3. Select **`.output/chrome-mv3-dev`** (not `chrome-mv3` — that is the production build).
-4. Visit any normal website — Tabby appears in the bottom-right corner.
-5. Click the Tabby toolbar icon for settings.
+1. Keep `make dev` running in a terminal (required for hot reload).
+2. Load **`.output/chrome-mv3-dev`** only — not `chrome-mv3` (production).
+3. After a save, wait for the terminal to show `Reloaded:` — then refresh the page if Tabby did not return on her own.
 
-After that, saves apply automatically while the dev server is running — no need to stop and restart `make dev`.
+Tabby re-registers her content script on every dev service-worker restart, so she should stay installed even when the extension reloads itself.
 
 ### Dev mode tips
 

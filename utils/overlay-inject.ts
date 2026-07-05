@@ -1,5 +1,6 @@
-const LEGACY_OVERLAY_SCRIPT_ID = 'tabby-page-overlay';
+const OVERLAY_SCRIPT_ID = 'tabby-page-overlay';
 
+/** Paths relative to the extension root (Chrome scripting API). */
 const CONTENT_SCRIPT_JS = '/content-scripts/content.js' as const;
 const CONTENT_SCRIPT_CSS = '/content-scripts/content.css' as const;
 
@@ -24,21 +25,39 @@ export function canShowOverlayOnUrl(url: string | undefined): boolean {
 }
 
 /**
- * Remove the old runtime content-script registration so WXT dev hot reload
- * can manage content scripts without duplicate injections.
+ * Register the overlay content script at runtime.
+ *
+ * WXT omits manifest content scripts in MV3 dev builds and normally re-injects
+ * them over a dev-server WebSocket. That breaks when the service worker reloads
+ * before the socket reconnects (or when loading unpacked manually). Runtime
+ * registration keeps Tabby on the page through extension reloads.
  */
-export async function unregisterLegacyPageOverlayScript(): Promise<void> {
-  if (!browser.scripting?.unregisterContentScripts) {
+export async function registerPageOverlayScript(): Promise<void> {
+  if (!browser.scripting?.registerContentScripts) {
     return;
   }
 
   try {
     await browser.scripting.unregisterContentScripts({
-      ids: [LEGACY_OVERLAY_SCRIPT_ID],
+      ids: [OVERLAY_SCRIPT_ID],
     });
   } catch {
     // Nothing to clean up.
   }
+
+  await browser.scripting.registerContentScripts([
+    {
+      id: OVERLAY_SCRIPT_ID,
+      matches: ['http://*/*', 'https://*/*', 'file://*/*'],
+      excludeMatches: [
+        '*://chrome.google.com/webstore/*',
+        '*://chromewebstore.google.com/*',
+      ],
+      js: [CONTENT_SCRIPT_JS],
+      css: [CONTENT_SCRIPT_CSS],
+      runAt: 'document_idle',
+    },
+  ]);
 }
 
 /** Inject into tabs that manifest content scripts skip (e.g. about:blank). Safe to call repeatedly. */

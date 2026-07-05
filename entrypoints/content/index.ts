@@ -651,6 +651,8 @@ export default defineContentScript({
     '*://chromewebstore.google.com/*',
   ],
   runAt: 'document_idle',
+  // Dev: register from the service worker so reload survives without WXT's socket.
+  registration: import.meta.env.DEV ? 'runtime' : 'manifest',
 
   main() {
     if (window.top !== window.self) {

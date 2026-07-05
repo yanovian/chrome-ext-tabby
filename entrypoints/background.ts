@@ -3,7 +3,7 @@ import { markIntroCompleted, resetIntro } from '../utils/intro';
 import {
   ensureOverlayOnAllTabs,
   ensureOverlayOnTab,
-  unregisterLegacyPageOverlayScript,
+  registerPageOverlayScript,
 } from '../utils/overlay-inject';
 import {
   ensureCatExists,
@@ -104,7 +104,9 @@ async function syncFocusToTab(
 
 async function bootstrap(): Promise<void> {
   await ensureSettingsExist(IS_DEV_BUILD);
-  await unregisterLegacyPageOverlayScript();
+  if (IS_DEV_BUILD) {
+    await registerPageOverlayScript();
+  }
   await ensureCatExists(Date.now());
   void preloadSpeechEngine();
   const state = await loadOrchestratorState();
@@ -127,12 +129,19 @@ export default defineBackground(() => {
 
   browser.runtime.onInstalled.addListener((details) => {
     if (details.reason === 'update') {
-      void markIntroCompleted();
+      if (!IS_DEV_BUILD) {
+        void markIntroCompleted();
+      }
+      // Dev reloads already run bootstrap(); skip duplicate work.
+      if (!IS_DEV_BUILD) {
+        enqueueTask(() => bootstrap());
+      }
+      return;
     }
     if (details.reason === 'install') {
       void resetIntro();
+      enqueueTask(() => bootstrap());
     }
-    enqueueTask(() => bootstrap());
   });
 
   browser.runtime.onStartup.addListener(() => {
