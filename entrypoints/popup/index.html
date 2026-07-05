@@ -31,7 +31,7 @@
           <input id="show-overlay" type="checkbox" />
         </label>
         <label class="settings__row">
-          <span>Varied local speech (bundled AI, offline)</span>
+          <span>Varied local speech</span>
           <input id="local-speech-enabled" type="checkbox" />
         </label>
       </section>
@@ -96,6 +96,10 @@
           Show Tabby on this page
         </button>
         <button id="force-tick" type="button" class="settings__button">Force tick &amp; speech</button>
+        <p id="force-tick-hint" class="settings__hint settings__hint--dev">
+          Dev only: simulates the once-a-minute background tick and makes Tabby speak if her
+          mood rules allow it (or forces a dev test line when dev mode is on).
+        </p>
         <button id="reset-intro" type="button" class="settings__button settings__button--secondary">
           Reset intro tour
         </button>

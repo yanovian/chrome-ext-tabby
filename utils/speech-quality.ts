@@ -9,10 +9,27 @@ const BAD_SPEECH_PATTERNS = [
   /\b(Google|Microsoft|Apple|Facebook|Meta)\s+is\b/i,
   /\b(little girl|little boy|baby who|wants to make)\b/i,
   /\b(picture of|photo of|image of|drawing of|screenshot of)\b/i,
+  /\b(story about|a story|once upon|there was a|in a park|in the park)\b/i,
+  /\babout a (kitten|cat|tabby)\b/i,
+  /\b(the most important|in the life of|defined as|refers to)\b/i,
 ];
 
+const FIRST_PERSON_HINT =
+  /\b(I|me|my|mine|I'm|I've|I'd|we|us|our)\b/i;
+
+const CAT_MURMUR_HINT =
+  /\b(mew|mrrp|prrr|purr|meow|mrow|nya|meee+w+)\b/i;
+
 const CAT_VOICE_HINT =
-  /\b(I|me|my|I'm|I've|we|you|purrr|purr|mew|whisk|tummy|nap|pounce|cozy|tabby|kitten|cat)\b/i;
+  /\b(I|me|my|I'm|I've|we|you|purrr|purr|mew|whisk|tummy|nap|pounce|cozy|tabby|kitten)\b/i;
+
+const DIRECT_RESPONSE_KINDS = new Set<SpeechContext['kind']>([
+  'ask',
+  'dismiss',
+  'care_pet',
+  'care_treat',
+  'care_play',
+]);
 
 const GENERIC_HOME_TITLES =
   /^(google|google search|bing|yahoo|duckduckgo|facebook|twitter|x|reddit|youtube|home)$/i;
@@ -63,7 +80,16 @@ export function isAcceptableTabbySpeech(
     }
   }
 
-  if (context.kind !== 'dev' && !CAT_VOICE_HINT.test(normalized)) {
+  if (context.kind !== 'dev' && DIRECT_RESPONSE_KINDS.has(context.kind)) {
+    if (!FIRST_PERSON_HINT.test(normalized) && !CAT_MURMUR_HINT.test(normalized)) {
+      return false;
+    }
+  } else if (
+    context.kind !== 'dev' &&
+    !FIRST_PERSON_HINT.test(normalized) &&
+    !CAT_MURMUR_HINT.test(normalized) &&
+    !CAT_VOICE_HINT.test(normalized)
+  ) {
     return false;
   }
 

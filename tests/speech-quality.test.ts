@@ -49,6 +49,25 @@ describe('isAcceptableTabbySpeech', () => {
     ).toBe(false);
   });
 
+  it('rejects story-style drift even when it mentions kittens', () => {
+    expect(
+      isAcceptableTabbySpeech('a story about a kitten in a park', baseContext),
+    ).toBe(false);
+  });
+
+  it('rejects philosophical drift that only mentions cats in the third person', () => {
+    expect(
+      isAcceptableTabbySpeech(
+        'the most important thing in the life of the cat',
+        { kind: 'hungry', mood: 'hungry', stage: 'newborn', seed: 1 },
+      ),
+    ).toBe(false);
+  });
+
+  it('accepts short murmurs', () => {
+    expect(isAcceptableTabbySpeech('Mew mew?', baseContext)).toBe(true);
+  });
+
   it('accepts first-person cat lines', () => {
     expect(isAcceptableTabbySpeech('I feel cozy right here with you.', baseContext)).toBe(
       true,

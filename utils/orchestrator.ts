@@ -190,20 +190,17 @@ export async function handleCareAction(
   let speech: string | null = null;
 
   if (speechKind) {
-    const context: SpeechContext = {
-      kind: speechKind,
-      mood,
-      stage,
-      seed: now,
-      pageTopic: page.topic,
-    };
-
     if (action === 'ask') {
-      speech = await generateTabbySpeech(context, {
-        enabled: state.settings.localSpeechEnabled,
-        fallback: () => explainCurrentMood(mood, cat.vitals, stage),
-      });
+      // Direct check-ins need mood-accurate lines, not open-ended generation.
+      speech = explainCurrentMood(mood, cat.vitals, stage, now);
     } else {
+      const context: SpeechContext = {
+        kind: speechKind,
+        mood,
+        stage,
+        seed: now,
+        pageTopic: page.topic,
+      };
       // Care taps need reliable, action-specific lines — not open-ended generation.
       speech = fallbackSpeech(context);
     }
@@ -258,9 +255,14 @@ export async function evaluateAndPresent(
 
   let speech: string | null = null;
   if (trigger.speechContext) {
-    speech = await generateTabbySpeech(trigger.speechContext, {
-      enabled: state.settings.localSpeechEnabled,
-    });
+    if (state.settings.localSpeechEnabled) {
+      speech = await generateTabbySpeech(trigger.speechContext, {
+        enabled: true,
+        fallback: () => fallbackSpeech(trigger.speechContext!),
+      });
+    } else {
+      speech = fallbackSpeech(trigger.speechContext);
+    }
   }
 
   const presentation = buildPresentation({
@@ -330,17 +332,14 @@ export async function showOverlayOnPage(
     settings: state.settings,
     isUserIdle: state.isUserIdle,
   });
-  const speech = await generateTabbySpeech(
-    {
-      kind: 'happy',
-      mood,
-      stage,
-      seed: now,
-      pageTitle: page.title,
-      pageTopic: page.topic,
-    },
-    { enabled: state.settings.localSpeechEnabled },
-  );
+  const speech = fallbackSpeech({
+    kind: 'happy',
+    mood,
+    stage,
+    seed: now,
+    pageTitle: page.title,
+    pageTopic: page.topic,
+  });
   const presentation = buildPresentation({
     cat: state.cat,
     vitals: state.cat.vitals,

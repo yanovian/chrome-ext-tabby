@@ -60,7 +60,7 @@ export async function registerPageOverlayScript(): Promise<void> {
   ]);
 }
 
-/** Inject into tabs that manifest content scripts skip (e.g. about:blank). Safe to call repeatedly. */
+/** Inject into tabs that need a manual overlay (runtime dev registration, about:blank). */
 export async function injectPageOverlay(tabId: number): Promise<void> {
   if (!browser.scripting?.insertCSS || !browser.scripting?.executeScript) {
     return;
@@ -82,17 +82,20 @@ export async function injectPageOverlay(tabId: number): Promise<void> {
 
 export async function ensureOverlayOnTab(
   tab: { id?: number; url?: string },
+  options: { injectIfNeeded?: boolean } = {},
 ): Promise<void> {
   if (!tab.id || !canShowOverlayOnUrl(tab.url)) {
     return;
   }
 
-  if (tab.url === 'about:blank') {
+  if (options.injectIfNeeded || tab.url === 'about:blank') {
     await injectPageOverlay(tab.id);
   }
 }
 
-export async function ensureOverlayOnAllTabs(): Promise<void> {
+export async function ensureOverlayOnAllTabs(
+  options: { injectIfNeeded?: boolean } = {},
+): Promise<void> {
   const tabs = await browser.tabs.query({});
-  await Promise.all(tabs.map((tab) => ensureOverlayOnTab(tab)));
+  await Promise.all(tabs.map((tab) => ensureOverlayOnTab(tab, options)));
 }

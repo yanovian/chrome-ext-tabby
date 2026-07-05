@@ -143,58 +143,191 @@ export function buildSecondaryInteractionOptions(): SecondaryInteractionOption[]
   return [{ action: 'dismiss', label: 'Hide Tabby', enabled: true }];
 }
 
+function pickMoodLine(lines: string[], seed: number): string {
+  if (lines.length === 0) {
+    return '';
+  }
+  const index = Math.abs(seed) % lines.length;
+  return lines[index] ?? lines[0] ?? '';
+}
+
 /** Tabby explains her mood warmly — never guilt, never metrics. */
 export function explainCurrentMood(
   mood: CatMood,
   vitals: CatVitals,
   stage: CatLifeStage = 'adult',
+  seed: number = Date.now(),
 ): string {
   switch (mood) {
     case 'stressed':
       if (stage === 'newborn') {
-        return 'Everything feels big and loud. I’m not scared of you — it’s just a lot.';
+        return pickMoodLine(
+          [
+            'Everything feels big and loud. I’m not scared of you — it’s just a lot.',
+            'So much noise today. I’m okay — just a tiny bit overwhelmed.',
+            'The internet feels huge right now. Stay close?',
+          ],
+          seed,
+        );
       }
       if (stage === 'playful') {
-        return 'Too much spicy stuff today. I need something calmer to chase.';
+        return pickMoodLine(
+          [
+            'Too much spicy stuff today. I need something calmer to chase.',
+            'My whiskers are buzzing. Something gentler would help.',
+            'Lots of loud tabs. I could use a softer page.',
+          ],
+          seed,
+        );
       }
-      return 'Lots of angry pages out there. Not mad at you — just noisy.';
+      return pickMoodLine(
+        [
+          'Lots of angry pages out there. Not mad at you — just noisy.',
+          'Everything’s a bit much today. I’m not upset with you.',
+          'The feed feels spicy. I’m fine — just need something calmer.',
+        ],
+        seed,
+      );
     case 'starving':
       if (stage === 'newborn') {
-        return 'Tiny tummy’s empty. I need something gentle and interesting.';
+        return pickMoodLine(
+          [
+            'Tiny tummy’s empty. I need something gentle and interesting.',
+            'I’m running on empty. Got something small and good?',
+            'Baby hunger. Something cozy to read would help.',
+          ],
+          seed,
+        );
       }
       if (stage === 'playful') {
-        return 'Nothing fun to pounce on. Feed me something worth learning.';
+        return pickMoodLine(
+          [
+            'Nothing fun to pounce on. Feed me something worth learning.',
+            'My curiosity’s hungry. Point me at something good?',
+            'Empty bowl, empty brain. I need a tasty page.',
+          ],
+          seed,
+        );
       }
-      return 'Haven’t seen anything interesting in a while. Got something good?';
+      return pickMoodLine(
+        [
+          'Haven’t seen anything interesting in a while. Got something good?',
+          'I’m starving for something worth reading. Help me out?',
+          'It’s been dry out there. Got a page I’d like?',
+        ],
+        seed,
+      );
     case 'hungry':
       if (stage === 'newborn') {
-        return 'A little peckish. Something small and interesting would help.';
+        return pickMoodLine(
+          [
+            'A little peckish. Something small and interesting would help.',
+            'Not starving — just could use a snack-sized read.',
+            'Tiny hunger. Something gentle would hit the spot.',
+          ],
+          seed,
+        );
       }
-      return 'Running low on good stuff today. One nice read would hit the spot.';
+      return pickMoodLine(
+        [
+          'Running low on good stuff today. One nice read would hit the spot.',
+          'A little hungry for something new. Got a lead?',
+          'Could use one interesting page. What’ve you got?',
+        ],
+        seed,
+      );
     case 'sleepy':
       if (stage === 'newborn') {
-        return 'Baby kittens nap a lot. I’m cozy — keep going, I’m nearby.';
+        return pickMoodLine(
+          [
+            'Baby kittens nap a lot. I’m cozy — keep going, I’m nearby.',
+            'So sleepy. I’ll watch from a little nap pile.',
+            'Yawn. I’m here — just half dreaming.',
+          ],
+          seed,
+        );
       }
-      return 'You went quiet, so I curled up. Wake me if you want company.';
+      return pickMoodLine(
+        [
+          'You went quiet, so I curled up. Wake me if you want company.',
+          'I’m drowsy. Still here — just napping nearby.',
+          'Low energy mode. I’ll keep you company from a cozy spot.',
+        ],
+        seed,
+      );
     case 'happy':
       if (stage === 'playful') {
-        return 'Feeling good. Today’s a fun one.';
+        return pickMoodLine(
+          [
+            'Feeling good. Today’s a fun one.',
+            'I’m bouncing. Good browsing energy.',
+            'Mood: pounce-ready. I like today.',
+          ],
+          seed,
+        );
       }
-      return 'Nice pace today. I like it.';
+      return pickMoodLine(
+        [
+          'Nice pace today. I like it.',
+          'Good rhythm so far. I’m content.',
+          'Today feels steady. I’m here for it.',
+          'Pretty good day. I’m glad we’re browsing together.',
+        ],
+        seed,
+      );
     case 'curious':
       if (stage === 'playful') {
-        return 'That looks pounce-worthy. What is it?';
+        return pickMoodLine(
+          [
+            'That looks pounce-worthy. What is it?',
+            'Ooh — something fun on this page.',
+            'My ears are up. Tell me about this one.',
+          ],
+          seed,
+        );
       }
-      return 'Something here caught my eye.';
+      return pickMoodLine(
+        [
+          'Something here caught my eye.',
+          'This page smells interesting.',
+          'I’m sniffing around. What are we looking at?',
+        ],
+        seed,
+      );
     case 'content':
       if (isBored(vitals, mood) || needsPlayAttention(vitals, mood)) {
         return stage === 'playful'
-          ? 'I’m bored. That’s dangerous for a kitten.'
-          : 'It’s been quiet. Got anything fun?';
+          ? pickMoodLine(
+              [
+                'I’m bored. That’s dangerous for a kitten.',
+                'Not much to chase today. Got something fun?',
+                'Quiet hours. I need a toy — or a tab.',
+              ],
+              seed,
+            )
+          : pickMoodLine(
+              [
+                'It’s been quiet. Got anything fun?',
+                'A little restless. Something new would help.',
+                'I’m okay — just wish something interesting would show up.',
+              ],
+              seed,
+            );
       }
-      return 'Cozy. I’m right here if you need me.';
+      return pickMoodLine(
+        [
+          'Cozy. I’m right here if you need me.',
+          'All good. Just hanging out with you.',
+          'Comfortable. Ask me anything.',
+          'I’m settled in. What’s on your mind?',
+        ],
+        seed,
+      );
     default:
-      return 'I’m okay. Just hanging out.';
+      return pickMoodLine(
+        ['I’m okay. Just hanging out.', 'Doing fine. Here if you need me.', 'All good on my end.'],
+        seed,
+      );
   }
 }
 

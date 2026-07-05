@@ -75,7 +75,7 @@ Transformers.js + ONNX), running in an offscreen document. **No network calls at
 runtime** — models are downloaded at build/install time into `public/models/` and
 `public/ort/` (same pattern as the Breadcrumb extension).
 
-- Toggle **Varied local speech** in settings to switch between AI lines and curated fallbacks
+- Toggle **Varied local speech** in settings to use the bundled offline model (with curated fallbacks when needed)
 - First load may take a few seconds while the model warms up
 - If generation fails or times out, Tabby falls back to hand-written lines
 

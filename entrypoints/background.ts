@@ -105,7 +105,13 @@ async function syncFocusToTab(
 async function bootstrap(): Promise<void> {
   await ensureSettingsExist(IS_DEV_BUILD);
   if (IS_DEV_BUILD) {
-    await registerPageOverlayScript();
+    try {
+      await registerPageOverlayScript();
+    } catch (error) {
+      console.error('[Tabby] Could not register overlay script.', error);
+    }
+    // Runtime registration only applies to new navigations — inject open tabs too.
+    await ensureOverlayOnAllTabs({ injectIfNeeded: true });
   }
   await ensureCatExists(Date.now());
   void preloadSpeechEngine();
@@ -115,7 +121,9 @@ async function bootstrap(): Promise<void> {
   });
   await scheduleTickAlarm();
   await updateToolbarFromPresentation();
-  await ensureOverlayOnAllTabs();
+  if (!IS_DEV_BUILD) {
+    await ensureOverlayOnAllTabs();
+  }
 
   const [activeTab] = await browser.tabs.query({
     active: true,
@@ -162,7 +170,7 @@ export default defineBackground(() => {
   browser.tabs.onActivated.addListener((activeInfo) => {
     enqueueTask(async () => {
       const tab = await browser.tabs.get(activeInfo.tabId);
-      await ensureOverlayOnTab(tab);
+      await ensureOverlayOnTab(tab, { injectIfNeeded: IS_DEV_BUILD });
       await syncFocusToTab(tab);
     });
   });
@@ -179,7 +187,7 @@ export default defineBackground(() => {
         active: true,
         windowId,
       });
-      await ensureOverlayOnTab(activeTab);
+      await ensureOverlayOnTab(activeTab, { injectIfNeeded: IS_DEV_BUILD });
       await syncFocusToTab(activeTab);
     });
   });
@@ -187,7 +195,7 @@ export default defineBackground(() => {
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete') {
       enqueueTask(async () => {
-        await ensureOverlayOnTab({ id: tabId, url: tab.url });
+        await ensureOverlayOnTab({ id: tabId, url: tab.url }, { injectIfNeeded: IS_DEV_BUILD });
       });
     }
 

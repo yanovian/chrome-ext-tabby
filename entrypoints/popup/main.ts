@@ -30,6 +30,7 @@ const statusEl = document.getElementById('status') as HTMLParagraphElement;
 const previewCat = document.getElementById('preview-cat') as HTMLImageElement;
 const devBuildHint = document.getElementById('dev-build-hint') as HTMLParagraphElement;
 const forceTickButton = document.getElementById('force-tick') as HTMLButtonElement;
+const forceTickHint = document.getElementById('force-tick-hint') as HTMLParagraphElement;
 const resetIntroButton = document.getElementById('reset-intro') as HTMLButtonElement;
 const showOnPageButton = document.getElementById('show-on-page') as HTMLButtonElement;
 
@@ -132,6 +133,7 @@ async function initialize(): Promise<void> {
   });
 
   forceTickButton.hidden = !IS_DEV_BUILD;
+  forceTickHint.hidden = !IS_DEV_BUILD;
   resetIntroButton.hidden = !IS_DEV_BUILD;
   forceTickButton.addEventListener('click', () => {
     void (async () => {

@@ -124,33 +124,42 @@ describe('buildInteractionOptions', () => {
 
 describe('explainCurrentMood', () => {
   it('explains stress without blaming the user', () => {
-    const line = explainCurrentMood('stressed', {
-      hunger: 30,
-      happiness: 40,
-      stress: 85,
-      energy: 40,
-    });
+    const line = explainCurrentMood(
+      'stressed',
+      { hunger: 30, happiness: 40, stress: 85, energy: 40 },
+      'adult',
+      0,
+    );
 
-    expect(line).toMatch(/not mad at you/i);
-    expect(line).toMatch(/noisy/i);
+    expect(line).toMatch(/not mad at you|not upset with you|I'm fine/i);
+    expect(line).toMatch(/noisy|much|spicy|loud/i);
   });
 
   it('explains extreme hunger in a funny warm way', () => {
-    const line = explainCurrentMood('starving', {
-      hunger: 95,
-      happiness: 35,
-      stress: 15,
-      energy: 40,
-    });
+    const line = explainCurrentMood(
+      'starving',
+      { hunger: 95, happiness: 35, stress: 15, energy: 40 },
+      'adult',
+      0,
+    );
 
-    expect(line).toMatch(/interesting|good/i);
+    expect(line).toMatch(/interesting|good|dry|starving|page/i);
   });
 
   it('still sounds bored after a pet only cheered Tabby up a little', () => {
     const vitals = { hunger: 35, happiness: 52, stress: 20, energy: 55 };
-    const line = explainCurrentMood('content', vitals, 'playful');
+    const line = explainCurrentMood('content', vitals, 'playful', 0);
 
-    expect(line).toMatch(/bored/i);
+    expect(line).toMatch(/bored|fun|quiet|restless|interesting/i);
+  });
+
+  it('rotates happy check-in lines across taps', () => {
+    const vitals = { hunger: 20, happiness: 80, stress: 10, energy: 70 };
+    const lines = new Set(
+      [0, 1, 2, 3].map((seed) => explainCurrentMood('happy', vitals, 'adult', seed)),
+    );
+
+    expect(lines.size).toBeGreaterThan(1);
   });
 });
 

@@ -4,56 +4,101 @@ import type { SpeechTriggerKind } from './types';
 const FALLBACK_LINES: Record<SpeechKind, string[]> = {
   starving: [
     'I’m so hungry. Got anything good?',
-    'Empty tummy. Help me out?',
-    'I need something tasty to read.',
+    'Empty tummy. Mew. Help me out?',
+    'Mrrrp… I need something tasty to read.',
+    'Starving for a good page. Mew mew.',
+    'My bowl’s empty. Got a link for me?',
+    'Meeeew… anything interesting out there?',
+    'Tiny hunter needs prey. I mean… a nice article.',
   ],
   hungry: [
     'Find anything fun today?',
     'I could use a little something new.',
     'Got a page worth pouncing on?',
+    'Mew? Still hungry for something good.',
+    'Mrrp. One interesting tab would help.',
+    'Peckish. Point me at something fun?',
+    'My whiskers say “feed me content.”',
+    'Mew mew — got a snack-sized read?',
+    'Running low. What should we explore?',
   ],
   stressed: [
     'Everything feels loud. Somewhere quieter?',
     'This is a lot. Can we take it easy?',
     'My whiskers are buzzing. Softer tabs?',
+    'Mrrrp… too much noise today.',
+    'I need a calm corner of the internet.',
+    'Mew. Can we find something gentler?',
+    'Spicy feed today. I’m overstimulated.',
+    'Prrrt… let’s breathe for a sec.',
   ],
   lonely: [
     'It’s been quiet. Where should we go?',
     'I missed you. Explore something with me?',
     'Keep me company for a bit?',
+    'Mew? It’s lonely over here.',
+    'Mrrp… come browse with me?',
+    'I’ve been waiting. Got a tab for us?',
+    'Meeeew. Don’t leave me with the tabs.',
+    'Quiet house. I could use a friend.',
   ],
   happy: [
     'Hey. I’m in a good mood.',
     'Nice day, huh?',
     'Life feels cozy right now.',
+    'Prrrr. Today’s a good one.',
+    'Mew! I like this vibe.',
+    'Bouncy whiskers. I’m happy.',
+    'Mrrrp — feeling sunny.',
+    'I’m purring. Just so you know.',
   ],
   sleepy: [
     'I’ll nap nearby…',
     'Zzz… oh, hi.',
     'I’m drowsy but still here.',
+    'Mew… *yawn* …still watching.',
+    'Prrrt… five more minutes…',
+    'Curled up. Wake me if you need me.',
+    'Mrrp. Dreaming of warm tabs.',
+    'Zzz… mew… zzz…',
   ],
   curious: [
     'What’s this?',
     'Ooh, interesting.',
     'This page smells like fun.',
+    'Mew? What are we looking at?',
+    'Mrrrp — my ears are up.',
+    'Sniff sniff. Tell me about this.',
+    'Pounce-worthy? Maybe.',
+    'Mew mew — curious whiskers activated.',
   ],
   memory: [
     'This feels familiar.',
     'We’ve been here before, haven’t we?',
     'I remember this topic.',
+    'Mrrp… déjà vu.',
+    'My whiskers remember this place.',
+    'We looked at something like this before.',
+    'Mew — this rings a bell.',
   ],
   milestone: [
     'Do you know what day it is? Our day.',
     'Still us. Still here. I’m glad.',
     'Another little anniversary with you.',
+    'Prrrr. We’ve been together a while.',
+    'Mew! Look how far we’ve come.',
+    'I remember our first day. Do you?',
   ],
   dev: [
     'Dev mode — extra chatty for testing.',
     'Dev mode — tap something and see what happens.',
+    'Mew! Dev tick fired.',
+    'Prrrt — test speech from Tabby.',
   ],
   ask: [
     'I’m okay. Just hanging out.',
     'Still here with you.',
+    'Mew. All good.',
   ],
   care_pet: [
     'Mmm. That helped.',
@@ -61,11 +106,18 @@ const FALLBACK_LINES: Record<SpeechKind, string[]> = {
     'That was nice.',
     'Right there. Perfect.',
     'Soft pets. I needed that.',
+    'Prrrrrrrt…',
+    'Mew. Yes. More of that.',
+    'My purr motor’s running.',
   ],
   care_treat: [
     'Better. Thank you.',
     'Yum. That hit the spot.',
     'Much nicer now.',
+    'Mrrp! Tasty.',
+    'Mew mew — that helped a lot.',
+    'Fuller tummy. Prrrt.',
+    'You know what I like.',
   ],
   care_play: [
     'Again! …okay, I’m good.',
@@ -73,10 +125,15 @@ const FALLBACK_LINES: Record<SpeechKind, string[]> = {
     'Hehe. I needed that.',
     'Wheee! My paws are happy.',
     'You’re good at this game.',
+    'Mew! One more pounce!',
+    'Prrrt — zoomies achieved.',
+    'Mrrrp. Playtime success.',
   ],
   dismiss: [
     'Okay. I’ll be here.',
     'I’ll hide for now. Call me back anytime.',
+    'Mew. See you soon.',
+    'Prrt. I’ll nap under the tabs.',
   ],
 };
 
@@ -88,25 +145,30 @@ function pickLine(kind: SpeechKind, seed: number): string {
 
 export function fallbackSpeech(context: SpeechContext): string {
   if (context.kind === 'memory' && context.memoryTopic) {
-    return `We looked at ${context.memoryTopic} together before. I remember.`;
+    const memoryLines = [
+      `We looked at ${context.memoryTopic} together before. I remember.`,
+      `Mrrp… ${context.memoryTopic} again. My whiskers know this one.`,
+      `Mew — ${context.memoryTopic}. We've been here, right?`,
+    ];
+    return memoryLines[Math.abs(context.seed) % memoryLines.length] ?? memoryLines[0];
   }
 
   if (context.kind === 'milestone' && context.milestoneDays) {
     const days = context.milestoneDays;
     if (days === 1) {
-      return 'First day together. Hi — I’m Tabby.';
+      return 'First day together. Hi — I’m Tabby. Mew!';
     }
     if (days === 7) {
-      return 'A week already. I’m learning your rhythm.';
+      return 'A week already. I’m learning your rhythm. Prrrt.';
     }
     if (days === 30) {
-      return 'A month. We’ve got history now.';
+      return 'A month. We’ve got history now. Mew mew.';
     }
     if (days === 100) {
-      return '100 days. That’s a lot of exploring.';
+      return '100 days. That’s a lot of exploring. Prrrr.';
     }
     if (days === 365) {
-      return 'A whole year. I remember so much.';
+      return 'A whole year. I remember so much. Mew.';
     }
   }
 
