@@ -3,6 +3,8 @@ import type { SpeechContext } from './speech-types';
 import { SPEECH_GENERATION_TIMEOUT_MS } from './speech-types';
 
 const OFFSCREEN_PATH = 'offscreen.html';
+const WARM_RETRY_ATTEMPTS = 5;
+const WARM_RETRY_DELAY_MS = 250;
 
 async function hasOffscreenDocument(): Promise<boolean> {
   if (!chrome.offscreen?.hasDocument) {
@@ -27,6 +29,12 @@ export async function ensureOffscreenSpeechEngine(): Promise<void> {
   });
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, ms);
+  });
+}
+
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = globalThis.setTimeout(() => {
@@ -45,8 +53,35 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   });
 }
 
+async function warmOffscreenSpeechEngine(): Promise<void> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < WARM_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      await ensureOffscreenSpeechEngine();
+      const response = (await browser.runtime.sendMessage({
+        type: 'speech:warm',
+      })) as { ok?: boolean; error?: string };
+
+      if (response?.ok) {
+        return;
+      }
+
+      lastError = new Error(response?.error ?? 'Offscreen warm-up failed');
+    } catch (error) {
+      lastError = error;
+    }
+
+    if (attempt < WARM_RETRY_ATTEMPTS - 1) {
+      await sleep(WARM_RETRY_DELAY_MS * (attempt + 1));
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Offscreen warm-up failed');
+}
+
 async function requestOffscreenSpeech(context: SpeechContext): Promise<string | null> {
-  await ensureOffscreenSpeechEngine();
+  await warmOffscreenSpeechEngine();
 
   const response = (await browser.runtime.sendMessage({
     type: 'speech:generate',
@@ -91,8 +126,7 @@ export async function generateTabbySpeech(
 
 export async function preloadSpeechEngine(): Promise<void> {
   try {
-    await ensureOffscreenSpeechEngine();
-    await browser.runtime.sendMessage({ type: 'speech:warm' });
+    await warmOffscreenSpeechEngine();
   } catch (error) {
     console.warn('[Tabby] Could not preload speech engine.', error);
   }

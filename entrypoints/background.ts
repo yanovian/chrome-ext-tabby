@@ -3,7 +3,6 @@ import { markIntroCompleted, resetIntro } from '../utils/intro';
 import {
   ensureOverlayOnAllTabs,
   ensureOverlayOnTab,
-  registerPageOverlayScript,
 } from '../utils/overlay-inject';
 import {
   ensureCatExists,
@@ -133,16 +132,11 @@ async function ensureOverlayIfEnabled(
 
 async function bootstrap(): Promise<void> {
   await ensureSettingsExist(IS_DEV_BUILD);
-  if (IS_DEV_BUILD) {
-    try {
-      await registerPageOverlayScript();
-    } catch (error) {
-      console.error('[Tabby] Could not register overlay script.', error);
-    }
-  }
   await ensureCatExists(Date.now());
-  void preloadSpeechEngine();
   const state = await loadOrchestratorState();
+  if (state.settings.localSpeechEnabled) {
+    void preloadSpeechEngine();
+  }
   await evaluateAndPresent(state, Date.now(), {
     forceDevSpeech: IS_DEV_BUILD && state.settings.devModeEnabled,
     page: activePageContext(),

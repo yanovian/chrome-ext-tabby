@@ -172,6 +172,15 @@ class TabbyOverlay {
     }
   }
 
+  /** Tear down UI and timers when the script is replaced during dev reload. */
+  destroy(): void {
+    this.teardownOverlay();
+    this.presentation = null;
+    this.pendingAction = null;
+    this.menuOpen = false;
+    this.moreOpen = false;
+  }
+
   private isOverlayVisible(): boolean {
     return (
       this.showOverlayEnabled && !!this.presentation && !this.pageOverlayHidden
@@ -728,7 +737,7 @@ export default defineContentScript({
     '*://chromewebstore.google.com/*',
   ],
   runAt: 'document_idle',
-  // Dev: register from the service worker so reload survives without WXT's socket.
+  // WXT registers content scripts at runtime in dev for hot reload.
   registration: import.meta.env.DEV ? 'runtime' : 'manifest',
 
   main() {
@@ -736,16 +745,15 @@ export default defineContentScript({
       return;
     }
 
-    const existing = (window as unknown as Record<string, TabbyOverlay | undefined>)[
-      GLOBAL_KEY
-    ];
+    const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
+    const existing = globalWindow[GLOBAL_KEY];
     if (existing) {
-      void existing.initialize();
-      return;
+      existing.destroy();
+      delete globalWindow[GLOBAL_KEY];
     }
 
     const overlay = new TabbyOverlay();
-    (window as unknown as Record<string, TabbyOverlay>)[GLOBAL_KEY] = overlay;
+    globalWindow[GLOBAL_KEY] = overlay;
     void overlay.initialize();
   },
 });

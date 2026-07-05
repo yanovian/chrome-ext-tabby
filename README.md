@@ -14,20 +14,25 @@ make dev
 
 Keep that command running. WXT watches your files and hot-reloads the extension:
 
-- **Content script / CSS / popup changes** → matching tabs reload automatically
+- **Content script / CSS changes** → WXT reloads matching tabs automatically (dev only)
 - **Background changes** → the extension reloads itself
 - **Manual reload** → `Alt+R` in the dev browser (or press `o` + Enter in the terminal to reopen it)
 
 On first run, WXT opens a Chrome window with Tabby already loaded from `.output/chrome-mv3-dev`.
 Prefer that window for day-to-day dev — hot reload is most reliable there.
 
-If you load **`.output/chrome-mv3-dev`** manually in your `chrome://extensions` instead:
+If you load **`.output/chrome-mv3-dev`** manually in your own Chrome profile:
 
 1. Keep `make dev` running in a terminal (required for hot reload).
 2. Load **`.output/chrome-mv3-dev`** only — not `chrome-mv3` (production).
-3. After a save, wait for the terminal to show `Reloaded:` — then refresh the page if Tabby did not return on her own.
+3. After a save, wait for the terminal to show `Reloaded:` — open tabs should refresh on their own.
 
-Tabby re-registers her content script on every dev service-worker restart, so she should stay installed even when the extension reloads itself.
+**Dev console noise:** Messages like `[wxt] Content script is not registered yet` or speech preload
+warnings usually mean the extension reloaded mid-startup. They are common in dev and do not mean
+Tabby is broken on Mac. Production builds use manifest content scripts and rarely hit these races.
+
+**Speech engine:** Optional bundled AI (not Mac text-to-speech). If warm-up fails, Tabby uses curated
+fallback lines. Turn off **Varied local speech** in settings to skip the AI entirely.
 
 ### Dev mode tips
 
