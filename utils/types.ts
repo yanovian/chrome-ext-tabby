@@ -203,7 +203,8 @@ export type RuntimeMessage =
   | { type: 'showOverlay'; url?: string; title?: string }
   | { type: 'hideOverlay'; url?: string }
   | { type: 'getPageOverlayState'; url?: string }
-  | { type: 'ensureOverlays' }
+  | { type: 'syncActiveOverlay' }
+  | { type: 'isActiveOverlayTab' }
   | { type: 'tick' }
   | { type: 'resetIntro' }
   | { type: 'ping' };

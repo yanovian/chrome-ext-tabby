@@ -108,21 +108,18 @@ export async function recordBrowsingSession(input: {
   }
 
   await saveCatState(cat);
-  return evaluateAndPresent(
-    { ...state, cat },
-    input.now,
-    {
-      page: {
-        title: input.title,
-        topic: observation.topic ?? undefined,
-      },
-    },
-  );
+  return { ...state, cat };
 }
 
 export async function runMinuteTick(
   now: number,
-  options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
+  options: {
+    forceDevSpeech?: boolean;
+    forceTick?: boolean;
+    page?: PageContext;
+    /** When false, only update vitals — presentation waits for the active tab. */
+    present?: boolean;
+  } = {},
 ): Promise<OrchestratorState> {
   const state = await loadOrchestratorState();
   const cat = resetDailyNudgeCounter(state.cat, now);
@@ -135,7 +132,21 @@ export async function runMinuteTick(
 
   const nextCat = { ...cat, vitals };
   await saveCatState(nextCat);
-  return evaluateAndPresent({ ...state, cat: nextCat }, now, options);
+  const nextState = { ...state, cat: nextCat };
+  if (options.present === false) {
+    return nextState;
+  }
+  return evaluateAndPresent(nextState, now, options);
+}
+
+/** Recompute mood and speech for the tab the user is viewing right now. */
+export async function presentOnActiveTab(
+  now: number,
+  page: PageContext,
+  options: { forceDevSpeech?: boolean; forceTick?: boolean } = {},
+): Promise<OrchestratorState> {
+  const state = await loadOrchestratorState();
+  return evaluateAndPresent(state, now, { ...options, page });
 }
 
 export async function setUserIdle(isUserIdle: boolean): Promise<void> {

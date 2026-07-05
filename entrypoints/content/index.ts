@@ -1,4 +1,4 @@
-import { extractPageTextSnippet } from '../../utils/page-text';
+import { OVERLAY_TAB_MESSAGE } from '../../utils/active-overlay';
 import {
   mapInteractionToCareAction,
   type InteractionAction,
@@ -13,6 +13,7 @@ import {
 } from '../../utils/intro';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { isPageOverlayHidden } from '../../utils/page-overlay';
+import { extractPageTextSnippet } from '../../utils/page-text';
 import {
   CAT_DISPLAY_SIZE,
   defaultOverlayPosition,
@@ -25,6 +26,7 @@ import {
   pingBackground,
   publicAssetUrl,
   requestCareAction,
+  requestIsActiveOverlayTab,
   requestPresentation,
   requestSettings,
 } from '../../utils/runtime-client';
@@ -186,12 +188,6 @@ class TabbyOverlay {
       this.applyPosition();
     });
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        void this.syncPresentationWhenVisible();
-      }
-    });
-
     window.addEventListener('pagehide', () => {
       this.removeOutsideClickListener();
       if (this.pageTextInterval) {
@@ -246,31 +242,6 @@ class TabbyOverlay {
   private async refreshPresentation(): Promise<void> {
     this.presentation = await requestPresentation();
     this.render();
-  }
-
-  /** Re-fetch the global cat when this tab becomes visible (background tabs miss storage events). */
-  private async syncPresentationWhenVisible(): Promise<void> {
-    if (!this.isActiveInstance() || !this.showOverlayEnabled || this.pendingAction) {
-      return;
-    }
-
-    try {
-      const next = await requestPresentation();
-      if (!this.isActiveInstance() || this.pendingAction) {
-        return;
-      }
-      await this.syncPageOverlayHidden();
-      if (!this.isActiveInstance() || this.pendingAction) {
-        return;
-      }
-      this.presentation = next;
-      this.menuOpen = false;
-      this.moreOpen = false;
-      this.removeOutsideClickListener();
-      this.render();
-    } catch {
-      // Background may be asleep.
-    }
   }
 
   private async reportPageText(maxChars: number): Promise<void> {
@@ -878,6 +849,26 @@ export default defineContentScript({
 
     const overlay = new TabbyOverlay();
     globalWindow[GLOBAL_KEY] = overlay;
-    void overlay.initialize();
+
+    browser.runtime.onMessage.addListener((message) => {
+      if (message?.type === OVERLAY_TAB_MESSAGE.activate) {
+        overlay.destroy();
+        void overlay.initialize();
+        return;
+      }
+      if (message?.type === OVERLAY_TAB_MESSAGE.deactivate) {
+        overlay.destroy();
+      }
+    });
+
+    void requestIsActiveOverlayTab()
+      .then(({ active }) => {
+        if (active) {
+          void overlay.initialize();
+        }
+      })
+      .catch(() => {
+        // Background may be asleep.
+      });
   },
 });

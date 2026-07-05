@@ -1,6 +1,6 @@
 import {
   publicAssetUrl,
-  requestEnsureOverlays,
+  requestSyncActiveOverlay,
   requestHideOverlayOnPage,
   requestPageOverlayState,
   requestPresentation,
@@ -169,10 +169,10 @@ async function setGlobalOverlayVisible(show: boolean): Promise<void> {
   });
   fillForm(cachedSettings);
   if (show) {
-    await requestEnsureOverlays();
+    await requestSyncActiveOverlay();
   }
   await refreshOverlayButtons(cachedSettings);
-  showStatus(show ? 'Tabby is on all pages.' : 'Tabby is hidden on every page.');
+  showStatus(show ? 'Tabby is on the active tab.' : 'Tabby is hidden on every page.');
 }
 
 async function setPageOverlayVisible(show: boolean): Promise<void> {
@@ -228,7 +228,7 @@ async function initialize(): Promise<void> {
   previewCat.src = publicAssetUrl(presentation.sprite);
   if (settings.showOverlay) {
     try {
-      await requestEnsureOverlays();
+      await requestSyncActiveOverlay();
     } catch {
       // Overlay sync is best-effort; still render controls below.
     }

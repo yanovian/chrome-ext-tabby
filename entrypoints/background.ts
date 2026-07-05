@@ -1,9 +1,10 @@
 import { isTrackableUrl, parseHostname } from '../utils/classifier';
 import { markIntroCompleted, resetIntro } from '../utils/intro';
 import {
-  ensureOverlayOnAllTabs,
-  ensureOverlayOnTab,
-} from '../utils/overlay-inject';
+  notifyOverlayActivate,
+  notifyOverlayDeactivate,
+  resolveActiveOverlayTabId,
+} from '../utils/active-overlay';
 import {
   ensureCatExists,
   evaluateAndPresent,
@@ -12,9 +13,11 @@ import {
   handleCareAction,
   hideOverlayOnPage,
   loadOrchestratorState,
+  presentOnActiveTab,
   recordBrowsingSession,
   runMinuteTick,
   showOverlayOnPage,
+  type PageContext,
 } from '../utils/orchestrator';
 import { resolveCareActionPageUrl } from '../utils/care-action';
 import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
@@ -36,6 +39,9 @@ let activeSnapshot: ActiveTabSnapshot = createEmptySnapshot();
 
 /** Last page text snippet reported by the active tab's content script. */
 let latestPageTextSnippet = '';
+
+/** Tab that currently hosts the floating cat (at most one). */
+let activeOverlayTabId: number | null = null;
 
 let taskQueue = Promise.resolve();
 
@@ -96,7 +102,49 @@ async function flushActiveTab(now = Date.now()): Promise<void> {
     activeDurationMs,
     now,
   });
+}
+
+async function refreshPresentationForActiveTab(now = Date.now()): Promise<void> {
+  const settings = await getSettings(IS_DEV_BUILD);
+  if (!settings.showOverlay || !isTrackableUrl(activeSnapshot.url)) {
+    return;
+  }
+
+  await presentOnActiveTab(
+    now,
+    {
+      title: activeSnapshot.title || undefined,
+      url: activeSnapshot.url || undefined,
+    },
+    { forceDevSpeech: IS_DEV_BUILD && settings.devModeEnabled },
+  );
   await updateToolbarFromPresentation();
+}
+
+async function syncOverlayToTab(
+  tab: { id?: number; url?: string } | undefined,
+): Promise<void> {
+  const settings = await getSettings(IS_DEV_BUILD);
+  const nextTabId = resolveActiveOverlayTabId(tab, settings.showOverlay);
+
+  if (activeOverlayTabId !== null && activeOverlayTabId !== nextTabId) {
+    await notifyOverlayDeactivate(activeOverlayTabId);
+  }
+
+  activeOverlayTabId = nextTabId;
+
+  if (nextTabId !== null) {
+    await notifyOverlayActivate(nextTabId);
+  }
+}
+
+async function focusActiveTab(
+  tab: { id?: number; title?: string; url?: string } | undefined,
+  now = Date.now(),
+): Promise<void> {
+  await syncFocusToTab(tab, now);
+  await refreshPresentationForActiveTab(now);
+  await syncOverlayToTab(tab);
 }
 
 async function syncFocusToTab(
@@ -114,21 +162,11 @@ async function syncFocusToTab(
   activeSnapshot = beginFocus(createEmptySnapshot(), tab, now);
 }
 
-function activePageContext(): { title?: string } {
-  return { title: activeSnapshot.title || undefined };
-}
-
-async function ensureOverlayIfEnabled(
-  tab: { id?: number; url?: string } | undefined,
-): Promise<void> {
-  if (!tab?.id) {
-    return;
-  }
-  const settings = await getSettings(IS_DEV_BUILD);
-  if (!settings.showOverlay) {
-    return;
-  }
-  await ensureOverlayOnTab(tab);
+function activePageContext(): PageContext {
+  return {
+    title: activeSnapshot.title || undefined,
+    url: activeSnapshot.url || undefined,
+  };
 }
 
 async function bootstrap(): Promise<void> {
@@ -138,21 +176,16 @@ async function bootstrap(): Promise<void> {
   if (state.settings.localSpeechEnabled) {
     void preloadSpeechEngine();
   }
-  await evaluateAndPresent(state, Date.now(), {
-    forceDevSpeech: IS_DEV_BUILD && state.settings.devModeEnabled,
-    page: activePageContext(),
-  });
   await scheduleTickAlarm();
-  await updateToolbarFromPresentation();
-  if (state.settings.showOverlay) {
-    await ensureOverlayOnAllTabs();
-  }
 
   const [activeTab] = await browser.tabs.query({
     active: true,
     currentWindow: true,
   });
-  await syncFocusToTab(activeTab, Date.now());
+  await focusActiveTab(activeTab, Date.now());
+  if (!state.settings.showOverlay) {
+    await updateToolbarFromPresentation();
+  }
 }
 
 export default defineBackground(() => {
@@ -185,7 +218,7 @@ export default defineBackground(() => {
     }
 
     enqueueTask(async () => {
-      await runMinuteTick(Date.now(), { page: activePageContext() });
+      await runMinuteTick(Date.now(), { present: false });
       await updateToolbarFromPresentation();
     });
   });
@@ -193,8 +226,7 @@ export default defineBackground(() => {
   browser.tabs.onActivated.addListener((activeInfo) => {
     enqueueTask(async () => {
       const tab = await browser.tabs.get(activeInfo.tabId);
-      await ensureOverlayIfEnabled(tab);
-      await syncFocusToTab(tab);
+      await focusActiveTab(tab);
     });
   });
 
@@ -210,32 +242,31 @@ export default defineBackground(() => {
         active: true,
         windowId,
       });
-      await ensureOverlayIfEnabled(activeTab);
-      await syncFocusToTab(activeTab);
+      await focusActiveTab(activeTab);
     });
   });
 
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete') {
-      enqueueTask(async () => {
-        await ensureOverlayIfEnabled({ id: tabId, url: tab.url });
-      });
-    }
-
     if (!changeInfo.url && !changeInfo.title && changeInfo.status !== 'complete') {
       return;
     }
 
     enqueueTask(async () => {
-      if (tab.active && tab.id === activeSnapshot.tabId) {
-        if (isTrackableUrl(tab.url)) {
-          activeSnapshot = {
-            ...activeSnapshot,
-            title: tab.title ?? activeSnapshot.title,
-            url: tab.url ?? activeSnapshot.url,
-            hostname: parseHostname(tab.url ?? activeSnapshot.url),
-          };
+      if (tab.active && tab.id === activeSnapshot.tabId && isTrackableUrl(tab.url)) {
+        activeSnapshot = {
+          ...activeSnapshot,
+          title: tab.title ?? activeSnapshot.title,
+          url: tab.url ?? activeSnapshot.url,
+          hostname: parseHostname(tab.url ?? activeSnapshot.url),
+        };
+        if (changeInfo.url || changeInfo.status === 'complete') {
+          latestPageTextSnippet = '';
+          await refreshPresentationForActiveTab();
         }
+      }
+
+      if (changeInfo.status === 'complete' && tab.active) {
+        await syncOverlayToTab({ id: tabId, url: tab.url });
       }
     });
   });
@@ -264,14 +295,23 @@ export default defineBackground(() => {
             const data = await saveSettings(message.settings, IS_DEV_BUILD);
             if (data.showOverlay && !before.showOverlay) {
               await clearAllPageOverlayHides();
-              await ensureOverlayOnAllTabs();
-            }
-            const state = await loadOrchestratorState();
-            if (data.showOverlay) {
+              const [activeTab] = await browser.tabs.query({
+                active: true,
+                currentWindow: true,
+              });
+              await refreshPresentationForActiveTab();
+              await syncOverlayToTab(activeTab);
+            } else if (!data.showOverlay && before.showOverlay) {
+              if (activeOverlayTabId !== null) {
+                await notifyOverlayDeactivate(activeOverlayTabId);
+                activeOverlayTabId = null;
+              }
+            } else if (data.showOverlay) {
+              const state = await loadOrchestratorState();
               await evaluateAndPresent(
                 { ...state, settings: data },
                 Date.now(),
-                { forceDevSpeech: data.devModeEnabled },
+                { forceDevSpeech: data.devModeEnabled, page: activePageContext() },
               );
             }
             await updateToolbarFromPresentation();
@@ -315,6 +355,11 @@ export default defineBackground(() => {
               title: message.title ?? tab.title,
               url: message.url ?? tab.url,
             });
+            const [activeTab] = await browser.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            await syncOverlayToTab(activeTab);
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             return;
@@ -328,12 +373,23 @@ export default defineBackground(() => {
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             return;
           }
-          case 'ensureOverlays': {
+          case 'syncActiveOverlay': {
             const settings = await getSettings(IS_DEV_BUILD);
             if (settings.showOverlay) {
-              await ensureOverlayOnAllTabs();
+              const [activeTab] = await browser.tabs.query({
+                active: true,
+                currentWindow: true,
+              });
+              await syncOverlayToTab(activeTab);
             }
             sendResponse({ ok: true } satisfies RuntimeResponse);
+            return;
+          }
+          case 'isActiveOverlayTab': {
+            sendResponse({
+              ok: true,
+              data: { active: sender.tab?.id === activeOverlayTabId },
+            } satisfies RuntimeResponse);
             return;
           }
           case 'resetIntro': {

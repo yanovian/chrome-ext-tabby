@@ -60,10 +60,5 @@ export async function ensureOverlayOnTab(
   await injectPageOverlay(tab.id);
 }
 
-export async function ensureOverlayOnAllTabs(): Promise<void> {
-  const tabs = await browser.tabs.query({});
-  await Promise.all(tabs.map((tab) => ensureOverlayOnTab(tab)));
-}
-
 // Keep for tests / tooling that referenced the id.
 export { OVERLAY_SCRIPT_ID };

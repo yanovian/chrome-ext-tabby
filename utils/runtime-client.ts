@@ -58,8 +58,12 @@ export function requestHideOverlayOnPage(url?: string): Promise<CatPresentation>
   return sendMessage<CatPresentation>({ type: 'hideOverlay', url });
 }
 
-export function requestEnsureOverlays(): Promise<void> {
-  return sendMessage<void>({ type: 'ensureOverlays' });
+export function requestSyncActiveOverlay(): Promise<void> {
+  return sendMessage<void>({ type: 'syncActiveOverlay' });
+}
+
+export function requestIsActiveOverlayTab(): Promise<{ active: boolean }> {
+  return sendMessage<{ active: boolean }>({ type: 'isActiveOverlayTab' });
 }
 
 export async function pingBackground(): Promise<void> {
