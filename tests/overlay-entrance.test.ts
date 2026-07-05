@@ -3,6 +3,7 @@ import {
   COMPANION_ENTER_MS,
   COMPANION_EXIT_MS,
   preloadCompanionSprite,
+  shouldAnimateMoodTransition,
   shouldReactToSpeechTrigger,
 } from '../utils/overlay-entrance';
 
@@ -33,6 +34,35 @@ describe('shouldReactToSpeechTrigger', () => {
         previousSpeech: null,
         nextSpeech: 'Hello.',
         triggerKind: null,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('shouldAnimateMoodTransition', () => {
+  it('crossfades when the sprite changes on a visible overlay', () => {
+    expect(
+      shouldAnimateMoodTransition({
+        previousSprite: 'sprites/adult/content.png',
+        nextSprite: 'sprites/adult/hungry.png',
+        hasVisibleOverlay: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('skips the transition on first mount or when the sprite is unchanged', () => {
+    expect(
+      shouldAnimateMoodTransition({
+        previousSprite: null,
+        nextSprite: 'sprites/adult/content.png',
+        hasVisibleOverlay: true,
+      }),
+    ).toBe(false);
+    expect(
+      shouldAnimateMoodTransition({
+        previousSprite: 'sprites/adult/content.png',
+        nextSprite: 'sprites/adult/content.png',
+        hasVisibleOverlay: true,
       }),
     ).toBe(false);
   });

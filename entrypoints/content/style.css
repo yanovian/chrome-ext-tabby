@@ -12,79 +12,70 @@
 }
 
 @keyframes tabby-cat-enter {
-  0% {
+  from {
     opacity: 0;
-    transform: translateY(18px) scale(0.9);
+    transform: translateY(6px);
   }
 
-  65% {
+  to {
     opacity: 1;
-    transform: translateY(-3px) scale(1.03);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 @keyframes tabby-cat-exit {
-  0% {
+  from {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 
-  100% {
+  to {
     opacity: 0;
-    transform: translateY(10px) scale(0.92);
+    transform: translateY(4px);
   }
 }
 
 @keyframes tabby-cat-react {
   0%,
   100% {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 
-  35% {
-    transform: translateY(-5px) scale(1.04);
-  }
-
-  70% {
-    transform: translateY(1px) scale(0.99);
+  50% {
+    transform: translateY(-2px);
   }
 }
 
 @keyframes tabby-menu-enter {
-  0% {
+  from {
     opacity: 0;
-    transform: translateY(10px) scale(0.96);
+    transform: translateY(4px);
   }
 
-  100% {
+  to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 #tabby-companion-root.tabby-root--enter .tabby-cat-surface {
-  animation: tabby-cat-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tabby-cat-enter 360ms ease-out both;
 }
 
 #tabby-companion-root.tabby-root--exiting .tabby-cat-surface {
-  animation: tabby-cat-exit 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: tabby-cat-exit 240ms ease-in both;
 }
 
 #tabby-companion-root .tabby-cat--react {
-  animation: tabby-cat-react 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: tabby-cat-react 280ms ease-in-out;
 }
 
 #tabby-companion-root .tabby-menu-area--enter {
-  animation: tabby-menu-enter 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tabby-menu-enter 280ms ease-out both;
 }
 
 #tabby-companion-root.tabby-root--enter .tabby-menu-area--enter {
-  animation-delay: 180ms;
+  animation-delay: 100ms;
 }
 
 #tabby-companion-root.tabby-root--dragging {
@@ -130,11 +121,38 @@
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 8px 16px rgba(62, 39, 35, 0.22));
-  transition: transform 0.15s ease;
+  transition:
+    width 0.25s ease,
+    height 0.25s ease,
+    transform 0.15s ease;
+}
+
+@keyframes tabby-mood-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes tabby-mood-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+#tabby-companion-root .tabby-cat--mood-out {
+  animation: tabby-mood-out 140ms ease-in both;
+}
+
+#tabby-companion-root .tabby-cat--mood-in {
+  animation: tabby-mood-in 180ms ease-out both;
 }
 
 #tabby-companion-root .tabby-cat-surface:hover .tabby-cat:not(.tabby-cat--react) {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 /* Menu sits just above the cat. */
@@ -422,7 +440,13 @@
   #tabby-companion-root.tabby-root--enter .tabby-cat-surface,
   #tabby-companion-root.tabby-root--exiting .tabby-cat-surface,
   #tabby-companion-root .tabby-cat--react,
-  #tabby-companion-root .tabby-menu-area--enter {
+  #tabby-companion-root .tabby-menu-area--enter,
+  #tabby-companion-root .tabby-cat--mood-out,
+  #tabby-companion-root .tabby-cat--mood-in {
     animation: none;
+  }
+
+  #tabby-companion-root .tabby-cat {
+    transition: none;
   }
 }
