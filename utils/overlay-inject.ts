@@ -24,7 +24,12 @@ export function canShowOverlayOnUrl(url: string | undefined): boolean {
   return !BLOCKED_PREFIXES.some((prefix) => url.startsWith(prefix));
 }
 
-/** Inject into tabs that need a manual overlay (open tabs after extension reload). */
+/**
+ * Best-effort inject for tabs that were already open at install/reload.
+ * Requires host permissions we intentionally omit — usually a no-op. Tabby
+ * appears on those tabs after the user refreshes; manifest content scripts
+ * handle all normal navigation.
+ */
 export async function injectPageOverlay(tabId: number): Promise<void> {
   if (!browser.scripting?.insertCSS || !browser.scripting?.executeScript) {
     return;
@@ -40,7 +45,7 @@ export async function injectPageOverlay(tabId: number): Promise<void> {
       files: [CONTENT_SCRIPT_JS],
     });
   } catch {
-    // Tab cannot be scripted (Web Store, etc.) or script is already present.
+    // Expected without host_permissions, or tab cannot be scripted (Web Store, etc.).
   }
 }
 

@@ -39,13 +39,14 @@ and grows over time. Everything stays local.
 | `tabs` | Know which tab is active and read its title/URL for the cat simulation |
 | `storage` | Save settings, cat state, and per-page hide preferences locally |
 | `alarms` | Run a gentle once-per-minute care tick while you browse |
-| `scripting` | Inject the floating cat overlay into open tabs |
+| `scripting` | Reserved for best-effort inject into already-open tabs (usually a no-op without host permissions) |
 | `offscreen` | Run the bundled local speech model without blocking the service worker |
-| `<all_urls>` (host) | Show Tabby on pages and optionally read visible page text locally |
+
+Tabby runs on web pages via a **manifest content script** (not `host_permissions`). The cat and optional page text reading load on normal navigation. Tabs that were already open at install may need a **refresh** once.
 
 Cat progress, browsing observations, and memories live in **IndexedDB** on your device.
 
-**No backend. No analytics. No data uploaded.**
+**No broad host permissions. No backend. No analytics. No data uploaded.**
 
 **Privacy policy:** [PRIVACY.md](./PRIVACY.md) — we do not collect data; everything stays local on your device.  
 Public URL for the Chrome Web Store: https://github.com/yanovian/chrome-ext-tabby/blob/master/PRIVACY.md
@@ -59,6 +60,8 @@ pnpm dev
 
 1. Browse any normal web page — Tabby appears in the corner.
 2. Click the **Tabby icon** in the toolbar for settings, or tap the cat on the page to interact.
+
+After install or update, **refresh tabs that were already open** so Tabby can appear there too.
 
 See **[How to use Tabby →](./_doc/tutorial.md)** for a short walkthrough with screenshots.
 

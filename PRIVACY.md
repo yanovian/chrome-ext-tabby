@@ -55,8 +55,12 @@ You can export or delete this data from the settings popup.
 | `tabs` | Know which tab is active and read its title/URL |
 | `storage` | Save cat state and settings locally |
 | `alarms` | Gentle minute-by-minute care simulation while you browse |
+| `scripting` | Best-effort inject into already-open tabs (optional; manifest content scripts handle normal navigation) |
 | `offscreen` | Run the bundled local speech model without blocking the service worker |
-| `<all_urls>` (host) | Show Tabby on pages and optionally read visible text locally |
+
+**Page access:** Tabby uses a manifest **content script** on ordinary web pages (not broad
+`host_permissions`). It shows the floating cat and optionally reads a short visible-text
+snippet locally. Tabs open at install time may need a refresh once.
 
 ## Contact
 

@@ -822,8 +822,8 @@ export default defineContentScript({
     '*://chromewebstore.google.com/*',
   ],
   runAt: 'document_idle',
-  // WXT registers content scripts at runtime in dev for hot reload.
-  registration: import.meta.env.DEV ? 'runtime' : 'manifest',
+  // Manifest registration works without host_permissions (runtime registration does not).
+  registration: 'manifest',
 
   main() {
     if (window.top !== window.self) {

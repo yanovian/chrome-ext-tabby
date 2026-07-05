@@ -45,7 +45,9 @@ export default defineConfig({
     default_locale: 'en',
     description: '__MSG_extDescription__',
     permissions: ['tabs', 'storage', 'alarms', 'scripting', 'offscreen'],
-    host_permissions: ['<all_urls>'],
+    // No host_permissions — the content script is declared in the manifest (see
+    // entrypoints/content). That covers the floating cat and optional page text
+    // on normal navigation without broad host_permissions (Chrome Web Store).
     action: {
       default_title: '__MSG_actionTitle__',
     },
