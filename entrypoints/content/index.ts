@@ -50,9 +50,30 @@ class TabbyOverlay {
   private storageListenerBound = false;
   private showOverlayEnabled = true;
 
+  private isActiveInstance(): boolean {
+    const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
+    return globalWindow[GLOBAL_KEY] === this;
+  }
+
+  /** Remove every overlay root node — guards against duplicate cats after re-inject or races. */
+  private removeAllOverlayRoots(): void {
+    for (const node of document.querySelectorAll(`#${ROOT_ID}`)) {
+      node.remove();
+    }
+    if (this.root && !this.root.isConnected) {
+      this.root = null;
+    }
+  }
+
   async initialize(): Promise<void> {
     await pingBackground();
+    if (!this.isActiveInstance()) {
+      return;
+    }
     const settings = await requestSettings();
+    if (!this.isActiveInstance()) {
+      return;
+    }
     this.showOverlayEnabled = settings.showOverlay;
 
     if (!this.showOverlayEnabled) {
@@ -62,9 +83,21 @@ class TabbyOverlay {
     }
 
     await this.loadPosition();
+    if (!this.isActiveInstance()) {
+      return;
+    }
     await this.loadIntroState();
+    if (!this.isActiveInstance()) {
+      return;
+    }
     await this.syncPageOverlayHidden();
+    if (!this.isActiveInstance()) {
+      return;
+    }
     await this.refreshPresentation();
+    if (!this.isActiveInstance()) {
+      return;
+    }
     this.beginIntroIfNeeded();
 
     if (settings.readPageContent && !this.pageTextInterval) {
@@ -166,10 +199,8 @@ class TabbyOverlay {
       clearInterval(this.pageTextInterval);
       this.pageTextInterval = null;
     }
-    if (this.root) {
-      this.root.remove();
-      this.root = null;
-    }
+    this.removeAllOverlayRoots();
+    this.root = null;
   }
 
   /** Tear down UI and timers when the script is replaced during dev reload. */
@@ -308,22 +339,75 @@ class TabbyOverlay {
   }
 
   private render(): void {
-    if (!this.isOverlayVisible()) {
-      this.removeOutsideClickListener();
-      if (this.root) {
-        this.root.remove();
-        this.root = null;
-      }
+    if (!this.isActiveInstance()) {
       return;
     }
 
-    if (this.root) {
-      this.root.remove();
+    if (!this.isOverlayVisible()) {
+      this.removeOutsideClickListener();
+      this.removeAllOverlayRoots();
+      this.root = null;
+      return;
     }
 
+    if (this.root?.isConnected) {
+      for (const node of document.querySelectorAll(`#${ROOT_ID}`)) {
+        if (node !== this.root) {
+          node.remove();
+        }
+      }
+      this.patchRoot(this.presentation!);
+      this.applyPosition();
+      return;
+    }
+
+    this.removeAllOverlayRoots();
     this.root = this.buildRoot(this.presentation!);
     document.documentElement.appendChild(this.root);
     this.applyPosition();
+  }
+
+  private patchRoot(presentation: CatPresentation): void {
+    const root = this.root;
+    if (!root) {
+      return;
+    }
+
+    root.className = `tabby-root tabby-root--${presentation.stage}`;
+    if (this.menuOpen) {
+      root.classList.add('tabby-root--menu-open');
+    }
+    if (this.isIntroActive()) {
+      root.classList.add('tabby-root--intro');
+    }
+
+    const catImage = root.querySelector('.tabby-cat');
+    if (catImage instanceof HTMLImageElement) {
+      if (catImage.dataset.sprite !== presentation.sprite) {
+        catImage.dataset.sprite = presentation.sprite;
+        catImage.src = publicAssetUrl(presentation.sprite);
+      }
+    }
+
+    for (const menu of root.querySelectorAll('.tabby-menu-area')) {
+      menu.remove();
+    }
+
+    if (!this.menuOpen) {
+      delete root.dataset.menuPlacement;
+      return;
+    }
+
+    const panel = root.querySelector('.tabby-panel');
+    if (!(panel instanceof HTMLElement)) {
+      return;
+    }
+
+    panel.appendChild(
+      this.isIntroActive()
+        ? this.buildIntroMenuArea()
+        : this.buildCareMenuArea(presentation),
+    );
   }
 
   private buildRoot(presentation: CatPresentation): HTMLElement {
@@ -346,6 +430,7 @@ class TabbyOverlay {
     const catImage = document.createElement('img');
     catImage.className = 'tabby-cat';
     catImage.alt = 'Tabby';
+    catImage.dataset.sprite = presentation.sprite;
     catImage.src = publicAssetUrl(presentation.sprite);
     catImage.draggable = false;
     catImage.addEventListener('error', () => {
