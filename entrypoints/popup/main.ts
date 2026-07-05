@@ -128,7 +128,7 @@ async function initialize(): Promise<void> {
       }
       const next = await requestPresentation();
       previewCat.src = publicAssetUrl(next.sprite);
-      showStatus('Tabby is on your page — drag her by the ⋮⋮ handle.');
+      showStatus('Tabby is back on this page.');
     })();
   });
 

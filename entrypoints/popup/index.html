@@ -17,27 +17,23 @@
       </header>
 
       <section class="settings__section">
-        <h2>Privacy</h2>
-        <label class="settings__row">
-          <span>Read page text to understand tabs</span>
-          <input id="read-page-content" type="checkbox" />
-        </label>
-        <label class="settings__row">
-          <span>Max page text characters</span>
-          <input id="page-text-max-chars" type="number" min="500" max="8000" step="100" />
-        </label>
+        <h2>Tabby on your page</h2>
+        <button id="show-on-page" type="button" class="settings__button">
+          Show Tabby on this page
+        </button>
         <label class="settings__row">
           <span>Show floating cat on pages</span>
           <input id="show-overlay" type="checkbox" />
         </label>
-        <label class="settings__row">
-          <span>Varied local speech</span>
-          <input id="local-speech-enabled" type="checkbox" />
-        </label>
+        <p class="settings__hint">
+          If you chose <strong>Hide Tabby</strong> in her menu, tap the button above to bring
+          her back on this tab.
+        </p>
       </section>
 
       <section class="settings__section">
         <h2>Quiet hours</h2>
+        <p class="settings__hint">Tabby stays quiet during these hours — unprompted speech only.</p>
         <label class="settings__row">
           <span>Start hour (0–23)</span>
           <input id="quiet-start" type="number" min="0" max="23" />
@@ -49,14 +45,34 @@
       </section>
 
       <section class="settings__section">
-        <h2>Appearances (production)</h2>
+        <h2>Privacy</h2>
         <label class="settings__row">
-          <span>Max appearances per day</span>
-          <input id="max-appearances" type="number" min="1" max="20" />
+          <span>Read page text to understand tabs</span>
+          <input id="read-page-content" type="checkbox" />
         </label>
         <label class="settings__row">
-          <span>Cooldown between appearances (minutes)</span>
-          <input id="cooldown-minutes" type="number" min="5" max="240" />
+          <span>Max page text characters</span>
+          <input id="page-text-max-chars" type="number" min="500" max="8000" step="100" />
+        </label>
+        <label class="settings__row">
+          <span>Varied local speech</span>
+          <input id="local-speech-enabled" type="checkbox" />
+        </label>
+      </section>
+
+      <section class="settings__section">
+        <h2>When Tabby speaks up</h2>
+        <p class="settings__hint">
+          Unprompted lines while you browse — not when you tap her. Defaults aim for a few gentle
+          check-ins per day.
+        </p>
+        <label class="settings__row">
+          <span>Max times per day</span>
+          <input id="max-appearances" type="number" min="1" max="12" />
+        </label>
+        <label class="settings__row">
+          <span>Wait at least (minutes)</span>
+          <input id="cooldown-minutes" type="number" min="10" max="180" />
         </label>
       </section>
 
@@ -92,9 +108,6 @@
             <option value="adult">Grown-up cat</option>
           </select>
         </label>
-        <button id="show-on-page" type="button" class="settings__button settings__button--secondary">
-          Show Tabby on this page
-        </button>
         <button id="force-tick" type="button" class="settings__button">Force tick &amp; speech</button>
         <p id="force-tick-hint" class="settings__hint settings__hint--dev">
           Dev only: simulates the once-a-minute background tick and makes Tabby speak if her

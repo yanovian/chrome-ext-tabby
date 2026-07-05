@@ -54,14 +54,17 @@ export function mergeSettings(
     maxAppearancesPerDay: clampPositiveInt(
       Number(raw.maxAppearancesPerDay ?? DEFAULT_SETTINGS.maxAppearancesPerDay),
       DEFAULT_SETTINGS.maxAppearancesPerDay,
-      20,
+      12,
     ),
-    appearanceCooldownMinutes: clampPositiveInt(
-      Number(
-        raw.appearanceCooldownMinutes ?? DEFAULT_SETTINGS.appearanceCooldownMinutes,
+    appearanceCooldownMinutes: Math.max(
+      10,
+      clampPositiveInt(
+        Number(
+          raw.appearanceCooldownMinutes ?? DEFAULT_SETTINGS.appearanceCooldownMinutes,
+        ),
+        DEFAULT_SETTINGS.appearanceCooldownMinutes,
+        180,
       ),
-      DEFAULT_SETTINGS.appearanceCooldownMinutes,
-      240,
     ),
     devModeEnabled: isDevBuild
       ? typeof raw.devModeEnabled === 'boolean'

@@ -158,7 +158,7 @@ describe('evaluateEmotionalTrigger', () => {
   it('respects the daily appearance cap so Tabby does not spam the user', () => {
     const cat = {
       ...createInitialCat(NOW),
-      nudgesToday: 3,
+      nudgesToday: 5,
       nudgesDayKey: '2026-07-05',
       lastSpeechAt: 0,
     };
