@@ -1,0 +1,37 @@
+{
+  "name": "tabby",
+  "description": "Tabby — a cat lives in your browser and grows with your online life. Everything stays on your device.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm assets && wxt",
+    "build": "pnpm assets && wxt build",
+    "zip": "pnpm assets && wxt zip",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p .wxt/tsconfig.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check": "pnpm typecheck && pnpm lint && pnpm test",
+    "sprites": "python3 scripts/process-sprites.py",
+    "assets": "pnpm sync:ort && pnpm sync:speech-model",
+    "sync:ort": "node scripts/sync-ort-wasm.mjs",
+    "sync:speech-model": "node scripts/sync-speech-model.mjs",
+    "postinstall": "wxt prepare && pnpm assets"
+  },
+  "packageManager": "pnpm@10.33.4",
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/chrome": "^0.0.320",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vitest": "^3.2.6",
+    "wxt": "^0.20.27"
+  }
+}

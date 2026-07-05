@@ -1,0 +1,105 @@
+.settings {
+  width: 360px;
+  padding: 16px;
+  color: #3e2723;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(180deg, #fffaf5 0%, #fff3e8 100%);
+}
+
+.settings__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.settings__cat {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.settings h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.settings__tagline {
+  margin: 4px 0 0;
+  color: #8d6e63;
+  font-size: 13px;
+}
+
+.settings__section {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.settings__section h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.settings__section--dev {
+  border: 1px dashed #e07a5f;
+}
+
+.settings__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.settings__row input[type='number'] {
+  width: 72px;
+  padding: 4px 6px;
+  border: 1px solid #d7ccc8;
+  border-radius: 8px;
+}
+
+.settings__hint {
+  margin: 0 0 10px;
+  color: #8d6e63;
+  font-size: 12px;
+}
+
+.settings__button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 999px;
+  background: #e07a5f;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings__row select {
+  min-width: 140px;
+  padding: 4px 6px;
+  border: 1px solid #d7ccc8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.settings__button--secondary {
+  margin-top: 8px;
+  background: #8d6e63;
+}
+
+.settings__button--secondary:hover {
+  filter: brightness(0.96);
+}
+
+.settings__status {
+  min-height: 18px;
+  margin: 0;
+  color: #2e7d32;
+  font-size: 12px;
+}

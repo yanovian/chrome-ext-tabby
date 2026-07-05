@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabby — settings</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="settings">
+      <header class="settings__header">
+        <img id="preview-cat" class="settings__cat" alt="Tabby" />
+        <div>
+          <h1>Tabby</h1>
+          <p class="settings__tagline">Your browser cat. Everything stays local.</p>
+        </div>
+      </header>
+
+      <section class="settings__section">
+        <h2>Privacy</h2>
+        <label class="settings__row">
+          <span>Read page text to understand tabs</span>
+          <input id="read-page-content" type="checkbox" />
+        </label>
+        <label class="settings__row">
+          <span>Max page text characters</span>
+          <input id="page-text-max-chars" type="number" min="500" max="8000" step="100" />
+        </label>
+        <label class="settings__row">
+          <span>Show floating cat on pages</span>
+          <input id="show-overlay" type="checkbox" />
+        </label>
+        <label class="settings__row">
+          <span>Varied local speech (bundled AI, offline)</span>
+          <input id="local-speech-enabled" type="checkbox" />
+        </label>
+      </section>
+
+      <section class="settings__section">
+        <h2>Quiet hours</h2>
+        <label class="settings__row">
+          <span>Start hour (0–23)</span>
+          <input id="quiet-start" type="number" min="0" max="23" />
+        </label>
+        <label class="settings__row">
+          <span>End hour (0–23)</span>
+          <input id="quiet-end" type="number" min="0" max="23" />
+        </label>
+      </section>
+
+      <section class="settings__section">
+        <h2>Appearances (production)</h2>
+        <label class="settings__row">
+          <span>Max appearances per day</span>
+          <input id="max-appearances" type="number" min="1" max="20" />
+        </label>
+        <label class="settings__row">
+          <span>Cooldown between appearances (minutes)</span>
+          <input id="cooldown-minutes" type="number" min="5" max="240" />
+        </label>
+      </section>
+
+      <section class="settings__section settings__section--dev">
+        <h2>Developer mode</h2>
+        <p class="settings__hint" id="dev-build-hint"></p>
+        <label class="settings__row">
+          <span>Enable dev interactions</span>
+          <input id="dev-mode-enabled" type="checkbox" />
+        </label>
+        <label class="settings__row">
+          <span>Dev max appearances per day</span>
+          <input id="dev-max-appearances" type="number" min="1" max="200" />
+        </label>
+        <label class="settings__row">
+          <span>Dev cooldown (minutes)</span>
+          <input id="dev-cooldown-minutes" type="number" min="1" max="60" />
+        </label>
+        <label class="settings__row">
+          <span>Dev stat multiplier</span>
+          <input id="dev-stat-multiplier" type="number" min="1" max="20" />
+        </label>
+        <label class="settings__row">
+          <span>Dev min tab duration (ms)</span>
+          <input id="dev-min-tab-ms" type="number" min="500" max="10000" step="100" />
+        </label>
+        <label class="settings__row">
+          <span>Dev life stage override</span>
+          <select id="dev-force-life-stage">
+            <option value="auto">Auto (by age)</option>
+            <option value="newborn">Newborn kitten</option>
+            <option value="playful">Playful kitten</option>
+            <option value="adult">Grown-up cat</option>
+          </select>
+        </label>
+        <button id="show-on-page" type="button" class="settings__button settings__button--secondary">
+          Show Tabby on this page
+        </button>
+        <button id="force-tick" type="button" class="settings__button">Force tick &amp; speech</button>
+        <button id="reset-intro" type="button" class="settings__button settings__button--secondary">
+          Reset intro tour
+        </button>
+      </section>
+
+      <p id="status" class="settings__status" role="status"></p>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

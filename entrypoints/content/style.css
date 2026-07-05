@@ -1,0 +1,343 @@
+#tabby-companion-root.tabby-root {
+  position: fixed;
+  z-index: 2147483646;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#tabby-companion-root.tabby-root--dragging {
+  cursor: grabbing;
+}
+
+#tabby-companion-root .tabby-panel {
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  background: transparent;
+}
+
+#tabby-companion-root .tabby-cat-surface {
+  position: relative;
+  z-index: 2;
+  cursor: grab;
+  touch-action: none;
+  line-height: 0;
+}
+
+#tabby-companion-root.tabby-root--dragging .tabby-cat-surface {
+  cursor: grabbing;
+}
+
+#tabby-companion-root.tabby-root--newborn .tabby-cat {
+  width: 88px;
+  height: 88px;
+}
+
+#tabby-companion-root.tabby-root--playful .tabby-cat {
+  width: 112px;
+  height: 112px;
+}
+
+#tabby-companion-root.tabby-root--adult .tabby-cat {
+  width: 130px;
+  height: 130px;
+}
+
+#tabby-companion-root .tabby-cat {
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 16px rgba(62, 39, 35, 0.22));
+  transition: transform 0.15s ease;
+}
+
+#tabby-companion-root .tabby-cat-surface:hover .tabby-cat {
+  transform: scale(1.03);
+}
+
+/* Menu sits just above the cat. */
+#tabby-companion-root .tabby-menu-area {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  pointer-events: auto;
+}
+
+#tabby-companion-root .tabby-menu-area--top {
+  bottom: calc(100% + 6px);
+  left: 50%;
+  flex-direction: column;
+  width: var(--tabby-menu-width, 200px);
+  transform: translateX(calc(-50% + var(--tabby-menu-offset-x, 0px)));
+}
+
+#tabby-companion-root .tabby-menu-area--bottom {
+  top: calc(100% + 6px);
+  left: 50%;
+  flex-direction: column-reverse;
+  width: var(--tabby-menu-width, 200px);
+  transform: translateX(calc(-50% + var(--tabby-menu-offset-x, 0px)));
+}
+
+#tabby-companion-root .tabby-menu-area--left {
+  right: calc(100% + 8px);
+  top: 50%;
+  flex-direction: row;
+  width: auto;
+  max-width: min(240px, calc(100vw - 32px));
+  transform: translateY(-50%);
+}
+
+#tabby-companion-root .tabby-menu-area--right {
+  left: calc(100% + 8px);
+  top: 50%;
+  flex-direction: row-reverse;
+  width: auto;
+  max-width: min(240px, calc(100vw - 32px));
+  transform: translateY(-50%);
+}
+
+#tabby-companion-root .tabby-menu-area--left .tabby-card,
+#tabby-companion-root .tabby-menu-area--right .tabby-card {
+  width: 200px;
+}
+
+/* Action panel — buttons only, no tail. */
+#tabby-companion-root .tabby-card {
+  position: relative;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(93, 64, 55, 0.14);
+  border-radius: 14px;
+  background: #faf6f2;
+  box-shadow: 0 2px 12px rgba(62, 39, 35, 0.1);
+}
+
+#tabby-companion-root .tabby-menu-area--top,
+#tabby-companion-root .tabby-menu-area--bottom {
+  gap: 8px;
+}
+
+/* Tabby’s words — separate bubble near the cat. */
+#tabby-companion-root .tabby-speech-bubble {
+  position: relative;
+  width: 100%;
+  padding: 10px 12px 12px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(93, 64, 55, 0.1);
+  box-shadow: 0 4px 16px rgba(62, 39, 35, 0.14);
+}
+
+#tabby-companion-root .tabby-speech-bubble-text {
+  margin: 0;
+  color: #3e2723;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+#tabby-companion-root .tabby-menu-area--top .tabby-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%) rotate(45deg);
+  background: #ffffff;
+  border-right: 1px solid rgba(93, 64, 55, 0.1);
+  border-bottom: 1px solid rgba(93, 64, 55, 0.1);
+}
+
+#tabby-companion-root .tabby-menu-area--bottom .tabby-speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%) rotate(45deg);
+  background: #ffffff;
+  border-left: 1px solid rgba(93, 64, 55, 0.1);
+  border-top: 1px solid rgba(93, 64, 55, 0.1);
+}
+
+#tabby-companion-root .tabby-menu-area--left .tabby-speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -7px;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%) rotate(45deg);
+  background: #ffffff;
+  border-top: 1px solid rgba(93, 64, 55, 0.1);
+  border-right: 1px solid rgba(93, 64, 55, 0.1);
+}
+
+#tabby-companion-root .tabby-menu-area--right .tabby-speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -7px;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%) rotate(45deg);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(93, 64, 55, 0.1);
+  border-left: 1px solid rgba(93, 64, 55, 0.1);
+}
+
+#tabby-companion-root .tabby-card-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border: 1px solid rgba(93, 64, 55, 0.12);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5d4037;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#tabby-companion-root .tabby-card-close:hover {
+  background: #fff8f5;
+}
+
+#tabby-companion-root .tabby-card--actions:has(.tabby-card-close) {
+  padding-top: 8px;
+}
+
+#tabby-companion-root .tabby-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#tabby-companion-root .tabby-actions-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(93, 64, 55, 0.1);
+}
+
+#tabby-companion-root .tabby-btn {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid rgba(93, 64, 55, 0.14);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #3e2723;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+#tabby-companion-root .tabby-btn--suggested {
+  border-color: rgba(224, 122, 95, 0.45);
+  background: #fff8f5;
+}
+
+#tabby-companion-root .tabby-btn--active {
+  background: #e07a5f;
+  border-color: #d56a50;
+  color: #ffffff;
+}
+
+#tabby-companion-root .tabby-btn--ghost {
+  background: #faf7f4;
+  border-style: dashed;
+  border-color: rgba(93, 64, 55, 0.18);
+  color: #5d4037;
+  font-size: 12px;
+}
+
+#tabby-companion-root .tabby-btn--danger {
+  background: #fffafa;
+  border-color: rgba(183, 92, 92, 0.28);
+  color: #8d4a4a;
+  font-size: 12px;
+}
+
+#tabby-companion-root .tabby-btn--link {
+  min-height: 36px;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: #5d4037;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#tabby-companion-root .tabby-btn:hover:not(:disabled) {
+  background: #fff8f5;
+  border-color: rgba(224, 122, 95, 0.35);
+}
+
+#tabby-companion-root .tabby-btn--active:hover:not(:disabled) {
+  background: #d56a50;
+  border-color: #c96248;
+  color: #ffffff;
+}
+
+#tabby-companion-root .tabby-btn--link:hover:not(:disabled) {
+  background: transparent;
+  color: #3e2723;
+}
+
+#tabby-companion-root .tabby-btn--pending {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+#tabby-companion-root .tabby-btn:focus-visible {
+  outline: 2px solid rgba(224, 122, 95, 0.5);
+  outline-offset: 1px;
+}
+
+#tabby-companion-root .tabby-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#tabby-companion-root .tabby-intro-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+#tabby-companion-root .tabby-intro-step {
+  color: #8d6e63;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  text-transform: uppercase;
+}

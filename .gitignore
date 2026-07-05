@@ -1,0 +1,10 @@
+node_modules/
+.output/
+.wxt/
+dist/
+*.zip
+.DS_Store
+
+# Generated at build time (scripts/sync-ort-wasm.mjs, scripts/sync-speech-model.mjs):
+public/ort/
+public/models/
