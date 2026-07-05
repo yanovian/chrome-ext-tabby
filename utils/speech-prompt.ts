@@ -18,89 +18,100 @@ function trimHint(value: string | undefined, max = 80): string | undefined {
   return trimmed.length > max ? `${trimmed.slice(0, max - 1)}…` : trimmed;
 }
 
-function kindInstruction(kind: SpeechContext['kind']): string {
-  switch (kind) {
+/** One-line situation for the model — mood and need only, no open-ended story hooks. */
+function situationLine(context: SpeechContext): string {
+  switch (context.kind) {
     case 'starving':
-      return 'Tabby is very hungry for interesting browsing.';
+      return 'Tabby is very hungry for something interesting to read.';
     case 'hungry':
-      return 'Tabby wants something new and curious to explore.';
+      return 'Tabby is a little hungry and wants a fun new page.';
     case 'stressed':
-      return 'Tabby feels overwhelmed by loud pages and wants calm.';
+      return 'Tabby feels overwhelmed by loud, angry pages and wants calm.';
     case 'lonely':
-      return 'Tabby misses company and quiet exploration together.';
+      return 'Tabby misses company and quiet browsing together.';
     case 'happy':
-      return 'Tabby is cheerful and content with today.';
+      return 'Tabby is cheerful and content today.';
     case 'sleepy':
-      return 'Tabby is drowsy and keeping gentle watch.';
+      return 'Tabby is drowsy but keeping watch nearby.';
     case 'curious':
-      return 'Tabby is intrigued by the current page.';
+      return 'Tabby is curious about what the user is reading.';
     case 'memory':
-      return 'Tabby remembers exploring this topic together before.';
+      return 'Tabby remembers visiting this topic with the user before.';
     case 'milestone':
-      return 'Tabby celebrates time together with the user.';
-    case 'ask':
-      return 'The user asked how Tabby feels right now.';
-    case 'care_pet':
-      return 'The user petted Tabby and she responds warmly.';
-    case 'care_treat':
-      return 'The user fed Tabby something interesting.';
-    case 'care_play':
-      return 'The user played with Tabby.';
-    case 'dismiss':
-      return 'The user asked Tabby to hide for a while.';
+      return 'Tabby celebrates another day together with the user.';
     case 'dev':
-      return 'Dev mode test line.';
+      return 'Tabby is testing a short dev speech line.';
     default:
-      return 'Tabby speaks briefly.';
+      return 'Tabby wants to say something brief and cute.';
   }
 }
 
-function includePageContext(kind: SpeechContext['kind']): boolean {
-  return (
-    kind !== 'ask' &&
-    kind !== 'dismiss' &&
-    !kind.startsWith('care_')
-  );
+function speechRules(context: SpeechContext): string {
+  const rules = [
+    'First person only (I / me / my).',
+    'One short sentence, 6 to 16 words.',
+    'Sweet browser cat — never insult or blame the user.',
+    'No stories, facts, definitions, or third-person narration.',
+  ];
+
+  if (context.mood === 'stressed' || context.kind === 'stressed') {
+    rules.push(
+      'She may grumble about noisy pages with censored frustration like f*** — never at the user.',
+    );
+  } else {
+    rules.push('No profanity.');
+  }
+
+  return rules.join(' ');
 }
 
-/** Build a compact prompt for the local text model. */
+function includePageContext(kind: SpeechContext['kind']): boolean {
+  return kind !== 'ask' && kind !== 'dismiss' && !kind.startsWith('care_');
+}
+
+/**
+ * Compact FLAN-T5 prompt: task + situation + optional hints + completion prefix.
+ * Small text-to-text models behave better with explicit rules and a fixed prefix.
+ */
 export function buildSpeechPrompt(context: SpeechContext): string {
   const parts = [
-    `Question: What does Tabby the ${STAGE_LABEL[context.stage]} say in first person?`,
-    kindInstruction(context.kind),
-    `Mood: ${context.mood}.`,
-    'Answer in one cute sentence. No facts about companies or websites.',
+    'Task: Write Tabby\'s next speech bubble.',
+    `Rules: ${speechRules(context)}`,
+    `Tabby is a ${STAGE_LABEL[context.stage]}.`,
+    situationLine(context),
+    `Mood label: ${context.mood}.`,
   ];
 
   if (includePageContext(context.kind)) {
-    const pageTitle = sanitizePageTitleHint(context.pageTitle);
     const pageTopic = trimHint(context.pageTopic, 40);
+    const pageTitle = sanitizePageTitleHint(context.pageTitle);
     const memoryTopic = trimHint(context.memoryTopic, 40);
 
     if (pageTopic) {
-      parts.push(`Topic lately: ${pageTopic}.`);
+      parts.push(`Browsing topic lately: ${pageTopic}.`);
     } else if (pageTitle) {
-      parts.push(`Browsing: ${pageTitle}.`);
+      parts.push(`Current page title: ${pageTitle}.`);
     }
     if (memoryTopic) {
-      parts.push(`Recent memory: ${memoryTopic}.`);
+      parts.push(`Remembered topic: ${memoryTopic}.`);
     }
   }
 
   if (context.milestoneDays) {
-    parts.push(`Days together: ${context.milestoneDays}.`);
+    parts.push(`Days together with user: ${context.milestoneDays}.`);
   }
 
-  parts.push('Answer:');
+  parts.push('Tabby says:');
   return parts.join(' ');
 }
 
 /** Clean up model output for the speech bubble. */
-export function postProcessSpeech(raw: string): string | null {
+export function postProcessSpeech(raw: string, context?: SpeechContext): string | null {
   let text = raw
     .replace(/^[\s"'`]+|[\s"'`]+$/g, '')
     .replace(/^tabby:\s*/i, '')
     .replace(/^answer:\s*/i, '')
+    .replace(/^tabby says:\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -110,11 +121,48 @@ export function postProcessSpeech(raw: string): string | null {
 
   const sentences = text.match(/[^.!?]+[.!?]?/g)?.map((part) => part.trim()).filter(Boolean);
   if (sentences && sentences.length > 0) {
-    text = sentences.slice(0, 2).join(' ');
+    text = sentences[0] ?? text;
   }
 
-  if (text.length > 160) {
-    text = `${text.slice(0, 157).trim()}…`;
+  if (text.length > 140) {
+    text = `${text.slice(0, 137).trim()}…`;
+  }
+
+  if (context) {
+    const normalized = normalizeSpeechProfanity(text, context);
+    if (!normalized) {
+      return null;
+    }
+    text = normalized;
+  }
+
+  return text;
+}
+
+const UNCENSORED_PROFANITY =
+  /\b(fuck(?:ing|ed|er|s)?|shit(?:ty|s)?|bitch(?:es)?|asshole?s?|damn(?:ed)?|cunt|bastard)\b/i;
+
+const CENSORED_FRUSTRATION = /\bf\*{2,}|\bs\*{2,}/i;
+
+/** Censor or drop profanity based on mood. Stressed Tabby may use f*** about pages, not the user. */
+export function normalizeSpeechProfanity(text: string, context: SpeechContext): string | null {
+  const stressed = context.mood === 'stressed' || context.kind === 'stressed';
+
+  if (UNCENSORED_PROFANITY.test(text)) {
+    if (!stressed) {
+      return null;
+    }
+    text = text
+      .replace(/\bfuck(?:ing|ed|er|s)?\b/gi, 'f***')
+      .replace(/\bshit(?:ty|s)?\b/gi, 's***')
+      .replace(/\bdamn(?:ed)?\b/gi, 'd***');
+    if (UNCENSORED_PROFANITY.test(text)) {
+      return null;
+    }
+  }
+
+  if (!stressed && CENSORED_FRUSTRATION.test(text)) {
+    return null;
   }
 
   return text;

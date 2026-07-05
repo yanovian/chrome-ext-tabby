@@ -28,7 +28,7 @@ const FALLBACK_LINES: Record<SpeechKind, string[]> = {
     'My whiskers are buzzing. Softer tabs?',
     'Mrrrp… too much noise today.',
     'I need a calm corner of the internet.',
-    'Mew. Can we find something gentler?',
+    'So many loud pages. f*** this noise — not you, the tabs.',
     'Spicy feed today. I’m overstimulated.',
     'Prrrt… let’s breathe for a sec.',
   ],

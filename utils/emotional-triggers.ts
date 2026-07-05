@@ -19,6 +19,8 @@ export interface EmotionalTriggerInput {
   isUserIdle: boolean;
   recentMemory: MemorySeed | null;
   forceDevSpeech?: boolean;
+  /** Dev-only manual tick — bypass cooldown/quiet hours and always speak. */
+  forceTick?: boolean;
   pageTitle?: string;
   pageTopic?: string;
 }
@@ -105,11 +107,30 @@ export function evaluateEmotionalTrigger(
     isUserIdle,
     recentMemory,
     forceDevSpeech,
+    forceTick,
     pageTitle,
     pageTopic,
   } = input;
   const mood = deriveMoodFromVitals({ vitals, now, settings, isUserIdle });
   const limits = effectiveAppearanceLimits(settings);
+
+  if (forceTick) {
+    const primaryNeed = resolvePrimaryNeed(vitals, mood);
+    const triggerKind = primaryNeed ?? 'happy';
+    return {
+      shouldAppear: true,
+      mood,
+      speechContext: buildSpeechContext({
+        kind: triggerKindToSpeechKind(triggerKind),
+        mood,
+        stage: cat.stage,
+        seed: now,
+        pageTitle,
+        pageTopic,
+      }),
+      triggerKind,
+    };
+  }
 
   if (forceDevSpeech && settings.devModeEnabled) {
     return {

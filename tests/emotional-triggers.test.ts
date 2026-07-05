@@ -190,4 +190,21 @@ describe('evaluateEmotionalTrigger', () => {
     expect(result.triggerKind).toBe('dev');
     expect(speechFrom(result)).toMatch(/Dev mode/i);
   });
+
+  it('force tick bypasses cooldown and speaks for the current mood', () => {
+    const cat = createInitialCat(NOW);
+    const result = evaluateEmotionalTrigger({
+      cat: { ...cat, lastSpeechAt: NOW - 1000, nudgesToday: 99 },
+      vitals: { hunger: 70, happiness: 50, stress: 20, energy: 60 },
+      settings: productionSettings(),
+      now: NOW,
+      isUserIdle: false,
+      recentMemory: null,
+      forceTick: true,
+    });
+
+    expect(result.shouldAppear).toBe(true);
+    expect(result.triggerKind).toBe('hungry');
+    expect(result.speechContext).not.toBeNull();
+  });
 });

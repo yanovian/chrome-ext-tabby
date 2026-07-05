@@ -15,8 +15,10 @@ export interface ModelProgress {
 type ProgressHandler = (progress: ModelProgress) => void;
 
 const progressHandlers = new Set<ProgressHandler>();
+const MAX_GENERATION_ATTEMPTS = 3;
+
 let generatorFn: Promise<
-  (prompt: string, seed: number) => Promise<string>
+  (prompt: string, seed: number, attempt: number) => Promise<string>
 > | null = null;
 
 export function onSpeechModelProgress(handler: ProgressHandler): () => void {
@@ -36,7 +38,9 @@ function assetUrl(path: string): string {
   return (browser.runtime.getURL as (p: string) => string)(path);
 }
 
-async function loadSpeechGenerator(): Promise<(prompt: string, seed: number) => Promise<string>> {
+async function loadSpeechGenerator(): Promise<
+  (prompt: string, seed: number, attempt: number) => Promise<string>
+> {
   const { pipeline, env } = await import('@huggingface/transformers');
 
   env.allowLocalModels = true;
@@ -64,14 +68,14 @@ async function loadSpeechGenerator(): Promise<(prompt: string, seed: number) => 
     },
   });
 
-  return async (prompt: string, seed: number): Promise<string> => {
+  return async (prompt: string, seed: number, attempt: number): Promise<string> => {
     const output = await generator(prompt, {
-      max_new_tokens: 32,
-      do_sample: true,
-      temperature: 0.65,
-      top_p: 0.88,
-      repetition_penalty: 1.12,
-      seed: Math.abs(seed) % 2_147_483_647,
+      max_new_tokens: 22,
+      do_sample: attempt > 0,
+      temperature: 0.35,
+      top_p: 0.85,
+      repetition_penalty: 1.15,
+      seed: Math.abs(seed + attempt * 997) % 2_147_483_647,
     });
 
     const first = Array.isArray(output) ? output[0] : output;
@@ -85,7 +89,9 @@ async function loadSpeechGenerator(): Promise<(prompt: string, seed: number) => 
   };
 }
 
-export function getSpeechGenerator(): Promise<(prompt: string, seed: number) => Promise<string>> {
+export function getSpeechGenerator(): Promise<
+  (prompt: string, seed: number, attempt: number) => Promise<string>
+> {
   if (!generatorFn) {
     generatorFn = loadSpeechGenerator().catch((error) => {
       generatorFn = null;
@@ -98,12 +104,16 @@ export function getSpeechGenerator(): Promise<(prompt: string, seed: number) => 
 export async function generateSpeechWithModel(context: SpeechContext): Promise<string | null> {
   const generate = await getSpeechGenerator();
   const prompt = buildSpeechPrompt(context);
-  const raw = await generate(prompt, context.seed);
-  const text = postProcessSpeech(raw);
-  if (!text || !isAcceptableTabbySpeech(text, context)) {
-    return null;
+
+  for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
+    const raw = await generate(prompt, context.seed, attempt);
+    const text = postProcessSpeech(raw, context);
+    if (text && isAcceptableTabbySpeech(text, context)) {
+      return text;
+    }
   }
-  return text;
+
+  return null;
 }
 
 export async function warmSpeechModel(): Promise<void> {

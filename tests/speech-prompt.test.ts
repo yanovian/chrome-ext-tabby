@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildSpeechPrompt, postProcessSpeech } from '../utils/speech-prompt';
+import {
+  buildSpeechPrompt,
+  normalizeSpeechProfanity,
+  postProcessSpeech,
+} from '../utils/speech-prompt';
 
 describe('buildSpeechPrompt', () => {
-  it('includes mood, stage, and kind instructions', () => {
+  it('includes mood, stage, and completion prefix', () => {
     const prompt = buildSpeechPrompt({
       kind: 'hungry',
       mood: 'hungry',
@@ -13,7 +17,21 @@ describe('buildSpeechPrompt', () => {
     expect(prompt).toMatch(/Tabby/i);
     expect(prompt).toMatch(/hungry/i);
     expect(prompt).toMatch(/playful kitten/i);
-    expect(prompt).toMatch(/Answer:/);
+    expect(prompt).toMatch(/Tabby says:/);
+    expect(prompt).toMatch(/First person only/i);
+    expect(prompt).toMatch(/Never insult/i);
+  });
+
+  it('allows censored frustration rules when stressed', () => {
+    const prompt = buildSpeechPrompt({
+      kind: 'stressed',
+      mood: 'stressed',
+      stage: 'adult',
+      seed: 1,
+    });
+
+    expect(prompt).toMatch(/f\*\*\*/i);
+    expect(prompt).toMatch(/never at the user/i);
   });
 
   it('skips page titles for care actions', () => {
@@ -38,15 +56,15 @@ describe('buildSpeechPrompt', () => {
       memoryTopic: 'Kubernetes',
     });
 
-    expect(prompt).toContain('Topic lately: Kubernetes');
-    expect(prompt).toContain('Recent memory: Kubernetes');
+    expect(prompt).toContain('Browsing topic lately: Kubernetes');
+    expect(prompt).toContain('Remembered topic: Kubernetes');
   });
 });
 
 describe('postProcessSpeech', () => {
-  it('strips labels and keeps up to two sentences', () => {
+  it('strips labels and keeps the first sentence', () => {
     expect(postProcessSpeech('Tabby: Hello there!')).toBe('Hello there!');
-    expect(postProcessSpeech('Tabby: Hello there! More text.')).toBe('Hello there! More text.');
+    expect(postProcessSpeech('Tabby says: Hello there! More text.')).toBe('Hello there!');
   });
 
   it('returns null for empty output', () => {
@@ -54,9 +72,38 @@ describe('postProcessSpeech', () => {
   });
 
   it('truncates very long lines', () => {
-    const long = 'a'.repeat(200);
-    const result = postProcessSpeech(long);
+    const long = 'I feel '.concat('a'.repeat(200));
+    const result = postProcessSpeech(long, {
+      kind: 'happy',
+      mood: 'happy',
+      stage: 'adult',
+      seed: 1,
+    });
     expect(result).not.toBeNull();
-    expect(result!.length).toBeLessThanOrEqual(160);
+    expect(result!.length).toBeLessThanOrEqual(140);
+  });
+});
+
+describe('normalizeSpeechProfanity', () => {
+  it('censors uncensored frustration when stressed', () => {
+    expect(
+      normalizeSpeechProfanity('This feed is fucking loud.', {
+        kind: 'stressed',
+        mood: 'stressed',
+        stage: 'adult',
+        seed: 1,
+      }),
+    ).toBe('This feed is f*** loud.');
+  });
+
+  it('rejects profanity in calm moods', () => {
+    expect(
+      normalizeSpeechProfanity('This is fucking great.', {
+        kind: 'happy',
+        mood: 'happy',
+        stage: 'adult',
+        seed: 1,
+      }),
+    ).toBeNull();
   });
 });

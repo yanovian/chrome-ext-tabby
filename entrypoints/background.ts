@@ -102,6 +102,10 @@ async function syncFocusToTab(
   activeSnapshot = beginFocus(createEmptySnapshot(), tab, now);
 }
 
+function activePageContext(): { title?: string } {
+  return { title: activeSnapshot.title || undefined };
+}
+
 async function bootstrap(): Promise<void> {
   await ensureSettingsExist(IS_DEV_BUILD);
   if (IS_DEV_BUILD) {
@@ -118,6 +122,7 @@ async function bootstrap(): Promise<void> {
   const state = await loadOrchestratorState();
   await evaluateAndPresent(state, Date.now(), {
     forceDevSpeech: IS_DEV_BUILD && state.settings.devModeEnabled,
+    page: activePageContext(),
   });
   await scheduleTickAlarm();
   await updateToolbarFromPresentation();
@@ -162,7 +167,7 @@ export default defineBackground(() => {
     }
 
     enqueueTask(async () => {
-      await runMinuteTick(Date.now());
+      await runMinuteTick(Date.now(), { page: activePageContext() });
       await updateToolbarFromPresentation();
     });
   });
@@ -280,9 +285,9 @@ export default defineBackground(() => {
             return;
           }
           case 'tick': {
-            const state = await runMinuteTick(Date.now());
-            await evaluateAndPresent(state, Date.now(), {
-              forceDevSpeech: IS_DEV_BUILD,
+            await runMinuteTick(Date.now(), {
+              forceTick: IS_DEV_BUILD,
+              page: activePageContext(),
             });
             await updateToolbarFromPresentation();
             sendResponse({ ok: true } satisfies RuntimeResponse);

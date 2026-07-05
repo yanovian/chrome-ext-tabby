@@ -73,7 +73,12 @@ class TabbyOverlay {
       if ('presentation' in changes) {
         const next = changes.presentation?.newValue as CatPresentation | undefined;
         if (next && !this.pendingAction) {
+          const previousSpeech = this.presentation?.speech ?? null;
           this.presentation = next;
+          if (next.speech && next.triggerKind && next.speech !== previousSpeech) {
+            this.menuOpen = true;
+            this.bindOutsideClickListener();
+          }
           this.render();
         }
       }

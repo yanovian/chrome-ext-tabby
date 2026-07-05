@@ -117,7 +117,10 @@ export async function recordBrowsingSession(input: {
   );
 }
 
-export async function runMinuteTick(now: number): Promise<OrchestratorState> {
+export async function runMinuteTick(
+  now: number,
+  options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
+): Promise<OrchestratorState> {
   const state = await loadOrchestratorState();
   const cat = resetDailyNudgeCounter(state.cat, now);
   const vitals = applyMinuteTick(cat.vitals, {
@@ -129,7 +132,7 @@ export async function runMinuteTick(now: number): Promise<OrchestratorState> {
 
   const nextCat = { ...cat, vitals };
   await saveCatState(nextCat);
-  return evaluateAndPresent({ ...state, cat: nextCat }, now);
+  return evaluateAndPresent({ ...state, cat: nextCat }, now, options);
 }
 
 export async function setUserIdle(isUserIdle: boolean): Promise<void> {
@@ -226,7 +229,7 @@ export async function handleCareAction(
 export async function evaluateAndPresent(
   state: OrchestratorState,
   now: number,
-  options: { forceDevSpeech?: boolean; page?: PageContext } = {},
+  options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
 ): Promise<OrchestratorState> {
   const memories = await getMemories();
   const recentMemory = await pickRecallCandidate(memories, now, state.settings);
@@ -238,6 +241,7 @@ export async function evaluateAndPresent(
     isUserIdle: state.isUserIdle,
     recentMemory,
     forceDevSpeech: options.forceDevSpeech,
+    forceTick: options.forceTick,
     pageTitle: options.page?.title,
     pageTopic: options.page?.topic,
   });

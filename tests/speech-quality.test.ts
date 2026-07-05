@@ -19,8 +19,8 @@ describe('sanitizePageTitleHint', () => {
 
 describe('isAcceptableTabbySpeech', () => {
   const baseContext = {
-    kind: 'ask' as const,
-    mood: 'content' as const,
+    kind: 'hungry' as const,
+    mood: 'hungry' as const,
     stage: 'adult' as const,
     seed: 1,
   };
@@ -51,26 +51,57 @@ describe('isAcceptableTabbySpeech', () => {
 
   it('rejects story-style drift even when it mentions kittens', () => {
     expect(
-      isAcceptableTabbySpeech('a story about a kitten in a park', baseContext),
+      isAcceptableTabbySpeech('a story about a kitten in a park', {
+        kind: 'ask',
+        mood: 'content',
+        stage: 'adult',
+        seed: 1,
+      }),
     ).toBe(false);
   });
 
-  it('rejects philosophical drift that only mentions cats in the third person', () => {
+  it('rejects philosophical third-person drift', () => {
     expect(
-      isAcceptableTabbySpeech(
-        'the most important thing in the life of the cat',
-        { kind: 'hungry', mood: 'hungry', stage: 'newborn', seed: 1 },
-      ),
+      isAcceptableTabbySpeech('the most important thing in the life of the cat', baseContext),
+    ).toBe(false);
+  });
+
+  it('rejects insults directed at the user', () => {
+    expect(
+      isAcceptableTabbySpeech('You are stupid and annoying.', {
+        kind: 'stressed',
+        mood: 'stressed',
+        stage: 'adult',
+        seed: 1,
+      }),
     ).toBe(false);
   });
 
   it('accepts short murmurs', () => {
-    expect(isAcceptableTabbySpeech('Mew mew?', baseContext)).toBe(true);
+    expect(
+      isAcceptableTabbySpeech('Mew mew?', {
+        kind: 'ask',
+        mood: 'content',
+        stage: 'adult',
+        seed: 1,
+      }),
+    ).toBe(true);
   });
 
   it('accepts first-person cat lines', () => {
     expect(isAcceptableTabbySpeech('I feel cozy right here with you.', baseContext)).toBe(
       true,
     );
+  });
+
+  it('accepts censored frustration about pages when stressed', () => {
+    expect(
+      isAcceptableTabbySpeech('I swear these tabs are so f*** loud today.', {
+        kind: 'stressed',
+        mood: 'stressed',
+        stage: 'adult',
+        seed: 1,
+      }),
+    ).toBe(true);
   });
 });
