@@ -35,8 +35,11 @@ export function requestSaveSettings(
   return sendMessage<ExtensionSettings>({ type: 'saveSettings', settings });
 }
 
-export function requestCareAction(action: CareAction): Promise<CatPresentation> {
-  return sendMessage<CatPresentation>({ type: 'careAction', action });
+export function requestCareAction(
+  action: CareAction,
+  url?: string,
+): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'careAction', action, url });
 }
 
 export function requestResetIntro(): Promise<void> {

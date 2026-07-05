@@ -199,7 +199,7 @@ export type RuntimeMessage =
   | { type: 'getSettings' }
   | { type: 'saveSettings'; settings: Partial<ExtensionSettings> }
   | { type: 'observeTab'; observation: TabObservationInput }
-  | { type: 'careAction'; action: CareAction }
+  | { type: 'careAction'; action: CareAction; url?: string }
   | { type: 'showOverlay'; url?: string; title?: string }
   | { type: 'hideOverlay'; url?: string }
   | { type: 'getPageOverlayState'; url?: string }

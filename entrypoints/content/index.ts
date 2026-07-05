@@ -11,6 +11,7 @@ import {
   isIntroCompleted,
   markIntroCompleted,
 } from '../../utils/intro';
+import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { isPageOverlayHidden } from '../../utils/page-overlay';
 import {
   CAT_DISPLAY_SIZE,
@@ -223,9 +224,11 @@ class TabbyOverlay {
   }
 
   private isOverlayVisible(): boolean {
-    return (
-      this.showOverlayEnabled && !!this.presentation && !this.pageOverlayHidden
-    );
+    return isCompanionOverlayVisible({
+      showOverlayEnabled: this.showOverlayEnabled,
+      presentation: this.presentation,
+      pageOverlayHidden: this.pageOverlayHidden,
+    });
   }
 
   private async loadPosition(): Promise<void> {
@@ -253,6 +256,10 @@ class TabbyOverlay {
 
     try {
       const next = await requestPresentation();
+      if (!this.isActiveInstance() || this.pendingAction) {
+        return;
+      }
+      await this.syncPageOverlayHidden();
       if (!this.isActiveInstance() || this.pendingAction) {
         return;
       }
@@ -827,10 +834,11 @@ class TabbyOverlay {
 
     try {
       const careAction = mapInteractionToCareAction(action);
-      const next = await requestCareAction(careAction);
+      const next = await requestCareAction(careAction, location.href);
       this.presentation = next;
 
       if (action === 'dismiss') {
+        await this.syncPageOverlayHidden();
         this.menuOpen = false;
         this.moreOpen = false;
         this.removeOutsideClickListener();

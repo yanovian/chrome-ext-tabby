@@ -16,6 +16,7 @@ import {
   runMinuteTick,
   showOverlayOnPage,
 } from '../utils/orchestrator';
+import { resolveCareActionPageUrl } from '../utils/care-action';
 import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
 import { preloadSpeechEngine } from '../utils/speech-service';
 import { ensureSettingsExist, getSettings, saveSettings, effectiveAppearanceLimits } from '../utils/settings';
@@ -239,7 +240,7 @@ export default defineBackground(() => {
     });
   });
 
-  browser.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
+  browser.runtime.onMessage.addListener((message: RuntimeMessage, sender, sendResponse) => {
     const msgType = (message as { type?: string })?.type;
     if (msgType === 'speech:generate' || msgType === 'speech:warm') {
       return false;
@@ -283,13 +284,18 @@ export default defineBackground(() => {
             return;
           }
           case 'careAction': {
+            const pageUrl = resolveCareActionPageUrl(
+              message.url,
+              sender.tab?.url,
+              activeSnapshot.url || undefined,
+            );
             const data = await handleCareAction(
               message.action as CareAction,
               Date.now(),
               {
                 title: activeSnapshot.title || undefined,
                 topic: undefined,
-                url: activeSnapshot.url || undefined,
+                url: pageUrl,
               },
             );
             await updateToolbarFromPresentation();
