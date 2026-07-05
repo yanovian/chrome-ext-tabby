@@ -1,4 +1,4 @@
-.PHONY: help install prepare assets dev build zip sprites locales test test-watch \
+.PHONY: help install prepare assets dev build zip icons sprites locales test test-watch \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major
 
 PNPM ?= pnpm
@@ -24,6 +24,9 @@ build: ## Production build (Chrome)
 
 zip: build ## Build and package Chrome extension zip
 	$(PNPM) zip
+
+icons: ## Regenerate extension icons (public/icon/)
+	python3 scripts/generate-icons.py
 
 sprites: ## Process cat sprites (transparent backgrounds + optimize)
 	python3 scripts/process-sprites.py

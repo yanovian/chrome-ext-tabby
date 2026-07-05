@@ -59,6 +59,7 @@ To test moods quickly:
 | `make locales` | Regenerate Chrome Web Store locale files only |
 | `make check` | Typecheck + lint + test + build |
 | `make release-patch` | Bump patch version, tag, and push (triggers GitHub release) |
+| `make icons` | Regenerate toolbar/store icons (16–128 px) |
 | `make sprites` | Strip sprite backgrounds / optimize PNGs |
 | `make help` | Show all Makefile targets |
 

@@ -15,6 +15,7 @@
     "lint:fix": "eslint . --fix",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
     "locales": "node scripts/generate-locales.mjs",
+    "icons": "python3 scripts/generate-icons.py",
     "sprites": "python3 scripts/process-sprites.py",
     "assets": "pnpm sync:ort && pnpm sync:speech-model && pnpm locales",
     "sync:ort": "node scripts/sync-ort-wasm.mjs",
