@@ -134,6 +134,10 @@ class TabbyOverlay {
           if (next.speech && next.triggerKind && next.speech !== previousSpeech) {
             this.menuOpen = true;
             this.bindOutsideClickListener();
+          } else {
+            this.menuOpen = false;
+            this.moreOpen = false;
+            this.removeOutsideClickListener();
           }
           this.render();
         }
@@ -179,6 +183,12 @@ class TabbyOverlay {
 
     window.addEventListener('resize', () => {
       this.applyPosition();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        void this.syncPresentationWhenVisible();
+      }
     });
 
     window.addEventListener('pagehide', () => {
@@ -233,6 +243,27 @@ class TabbyOverlay {
   private async refreshPresentation(): Promise<void> {
     this.presentation = await requestPresentation();
     this.render();
+  }
+
+  /** Re-fetch the global cat when this tab becomes visible (background tabs miss storage events). */
+  private async syncPresentationWhenVisible(): Promise<void> {
+    if (!this.isActiveInstance() || !this.showOverlayEnabled || this.pendingAction) {
+      return;
+    }
+
+    try {
+      const next = await requestPresentation();
+      if (!this.isActiveInstance() || this.pendingAction) {
+        return;
+      }
+      this.presentation = next;
+      this.menuOpen = false;
+      this.moreOpen = false;
+      this.removeOutsideClickListener();
+      this.render();
+    } catch {
+      // Background may be asleep.
+    }
   }
 
   private async reportPageText(maxChars: number): Promise<void> {
