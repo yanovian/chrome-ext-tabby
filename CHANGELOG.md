@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 0.7.0 — Unreleased
+## 0.7.0
 
 - Fixed **Hide Tabby** in the care menu (More → Hide Tabby).
 - Tabby shows on the **active tab only** — lighter on battery and CPU.
