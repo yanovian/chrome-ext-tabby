@@ -12,6 +12,20 @@ import {
   markIntroCompleted,
 } from '../../utils/intro';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
+import {
+  CAT_REACT_CLASS,
+  COMPANION_ENTER_ANIMATION,
+  COMPANION_ENTER_MS,
+  COMPANION_EXIT_ANIMATION,
+  COMPANION_EXIT_MS,
+  COMPANION_REACT_MS,
+  MENU_ENTER_CLASS,
+  OVERLAY_ENTER_CLASS,
+  OVERLAY_EXIT_CLASS,
+  preloadCompanionSprite,
+  shouldReactToSpeechTrigger,
+  waitForOverlayAnimation,
+} from '../../utils/overlay-entrance';
 import { isPageOverlayHidden } from '../../utils/page-overlay';
 import { extractPageTextSnippet } from '../../utils/page-text';
 import {
@@ -52,6 +66,7 @@ class TabbyOverlay {
   private outsideClickListener: ((event: Event) => void) | null = null;
   private storageListenerBound = false;
   private showOverlayEnabled = true;
+  private exiting = false;
 
   private isActiveInstance(): boolean {
     const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
@@ -142,7 +157,12 @@ class TabbyOverlay {
             this.moreOpen = false;
             this.removeOutsideClickListener();
           }
-          this.render();
+          const shouldReact = shouldReactToSpeechTrigger({
+            previousSpeech,
+            nextSpeech: next.speech,
+            triggerKind: next.triggerKind,
+          });
+          this.render({ animateMenu: this.menuOpen, reactToTrigger: shouldReact });
         }
       }
       if (STORAGE_KEYS.hiddenPageKeys in changes) {
@@ -201,6 +221,7 @@ class TabbyOverlay {
   }
 
   private teardownOverlay(): void {
+    this.exiting = false;
     this.removeOutsideClickListener();
     if (this.pageTextInterval) {
       clearInterval(this.pageTextInterval);
@@ -241,7 +262,29 @@ class TabbyOverlay {
 
   private async refreshPresentation(): Promise<void> {
     this.presentation = await requestPresentation();
-    this.render();
+    if (this.presentation) {
+      await preloadCompanionSprite(publicAssetUrl, this.presentation.sprite);
+    }
+    if (!this.isActiveInstance()) {
+      return;
+    }
+
+    const shouldOpenTriggerMenu = Boolean(
+      this.presentation?.speech && this.presentation.triggerKind,
+    );
+    if (shouldOpenTriggerMenu) {
+      this.menuOpen = true;
+      this.bindOutsideClickListener();
+    }
+
+    this.render({
+      animateMenu: shouldOpenTriggerMenu,
+      reactToTrigger: shouldReactToSpeechTrigger({
+        previousSpeech: null,
+        nextSpeech: this.presentation?.speech ?? null,
+        triggerKind: this.presentation?.triggerKind ?? null,
+      }),
+    });
   }
 
   private async reportPageText(maxChars: number): Promise<void> {
@@ -273,7 +316,7 @@ class TabbyOverlay {
     }
     this.introStep = 0;
     this.menuOpen = true;
-    this.render();
+    this.render({ animateMenu: true });
     this.bindOutsideClickListener();
   }
 
@@ -347,15 +390,18 @@ class TabbyOverlay {
     }
   }
 
-  private render(): void {
+  private render(options: { animateMenu?: boolean; reactToTrigger?: boolean } = {}): void {
     if (!this.isActiveInstance()) {
       return;
     }
 
     if (!this.isOverlayVisible()) {
       this.removeOutsideClickListener();
-      this.removeAllOverlayRoots();
-      this.root = null;
+      if (this.root?.isConnected && !this.exiting) {
+        void this.exitOverlay();
+      } else if (!this.root?.isConnected) {
+        this.teardownOverlay();
+      }
       return;
     }
 
@@ -365,18 +411,69 @@ class TabbyOverlay {
           node.remove();
         }
       }
-      this.patchRoot(this.presentation!);
+      this.patchRoot(this.presentation!, options);
       this.applyPosition();
       return;
     }
 
     this.removeAllOverlayRoots();
-    this.root = this.buildRoot(this.presentation!);
+    this.root = this.buildRoot(this.presentation!, { animateMenu: options.animateMenu ?? this.menuOpen });
     document.documentElement.appendChild(this.root);
     this.applyPosition();
+    this.playEntrance(this.root);
+
+    if (options.reactToTrigger) {
+      this.animateCatReaction();
+    }
   }
 
-  private patchRoot(presentation: CatPresentation): void {
+  private playEntrance(root: HTMLElement): void {
+    root.classList.add(OVERLAY_ENTER_CLASS);
+    void waitForOverlayAnimation(root, COMPANION_ENTER_ANIMATION, COMPANION_ENTER_MS).then(
+      () => {
+        root.classList.remove(OVERLAY_ENTER_CLASS);
+      },
+    );
+  }
+
+  private async exitOverlay(): Promise<void> {
+    if (!this.root?.isConnected || this.exiting) {
+      return;
+    }
+
+    this.exiting = true;
+    this.root.classList.add(OVERLAY_EXIT_CLASS);
+    await waitForOverlayAnimation(this.root, COMPANION_EXIT_ANIMATION, COMPANION_EXIT_MS);
+
+    if (!this.isActiveInstance()) {
+      return;
+    }
+
+    this.exiting = false;
+    if (!this.isOverlayVisible()) {
+      this.teardownOverlay();
+    }
+  }
+
+  private animateCatReaction(): void {
+    const catImage = this.root?.querySelector('.tabby-cat');
+    if (!(catImage instanceof HTMLImageElement)) {
+      return;
+    }
+
+    catImage.classList.remove(CAT_REACT_CLASS);
+    // Restart the animation when the same trigger class is applied twice in a row.
+    void catImage.offsetWidth;
+    catImage.classList.add(CAT_REACT_CLASS);
+    window.setTimeout(() => {
+      catImage.classList.remove(CAT_REACT_CLASS);
+    }, COMPANION_REACT_MS);
+  }
+
+  private patchRoot(
+    presentation: CatPresentation,
+    options: { animateMenu?: boolean; reactToTrigger?: boolean } = {},
+  ): void {
     const root = this.root;
     if (!root) {
       return;
@@ -414,12 +511,19 @@ class TabbyOverlay {
 
     panel.appendChild(
       this.isIntroActive()
-        ? this.buildIntroMenuArea()
-        : this.buildCareMenuArea(presentation),
+        ? this.buildIntroMenuArea({ animate: options.animateMenu })
+        : this.buildCareMenuArea(presentation, { animate: options.animateMenu }),
     );
+
+    if (options.reactToTrigger) {
+      this.animateCatReaction();
+    }
   }
 
-  private buildRoot(presentation: CatPresentation): HTMLElement {
+  private buildRoot(
+    presentation: CatPresentation,
+    options: { animateMenu?: boolean } = {},
+  ): HTMLElement {
     const root = document.createElement('div');
     root.id = ROOT_ID;
     root.className = `tabby-root tabby-root--${presentation.stage}`;
@@ -452,8 +556,8 @@ class TabbyOverlay {
     if (this.menuOpen) {
       panel.appendChild(
         this.isIntroActive()
-          ? this.buildIntroMenuArea()
-          : this.buildCareMenuArea(presentation),
+          ? this.buildIntroMenuArea({ animate: options.animateMenu })
+          : this.buildCareMenuArea(presentation, { animate: options.animateMenu }),
       );
     }
 
@@ -472,9 +576,12 @@ class TabbyOverlay {
     return root;
   }
 
-  private buildIntroMenuArea(): HTMLElement {
+  private buildIntroMenuArea(options: { animate?: boolean } = {}): HTMLElement {
     const menuArea = document.createElement('div');
     menuArea.className = 'tabby-menu-area tabby-menu-area--top';
+    if (options.animate) {
+      menuArea.classList.add(MENU_ENTER_CLASS);
+    }
 
     const step = this.introStep ?? 0;
 
@@ -516,9 +623,15 @@ class TabbyOverlay {
     return menuArea;
   }
 
-  private buildCareMenuArea(presentation: CatPresentation): HTMLElement {
+  private buildCareMenuArea(
+    presentation: CatPresentation,
+    options: { animate?: boolean } = {},
+  ): HTMLElement {
     const menuArea = document.createElement('div');
     menuArea.className = 'tabby-menu-area tabby-menu-area--top';
+    if (options.animate) {
+      menuArea.classList.add(MENU_ENTER_CLASS);
+    }
 
     const card = document.createElement('div');
     card.className = 'tabby-card tabby-card--actions';

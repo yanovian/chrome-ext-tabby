@@ -11,6 +11,82 @@
   -webkit-user-select: none;
 }
 
+@keyframes tabby-cat-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.9);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.03);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tabby-cat-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+}
+
+@keyframes tabby-cat-react {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  35% {
+    transform: translateY(-5px) scale(1.04);
+  }
+
+  70% {
+    transform: translateY(1px) scale(0.99);
+  }
+}
+
+@keyframes tabby-menu-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+#tabby-companion-root.tabby-root--enter .tabby-cat-surface {
+  animation: tabby-cat-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+#tabby-companion-root.tabby-root--exiting .tabby-cat-surface {
+  animation: tabby-cat-exit 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+#tabby-companion-root .tabby-cat--react {
+  animation: tabby-cat-react 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#tabby-companion-root .tabby-menu-area--enter {
+  animation: tabby-menu-enter 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+#tabby-companion-root.tabby-root--enter .tabby-menu-area--enter {
+  animation-delay: 180ms;
+}
+
 #tabby-companion-root.tabby-root--dragging {
   cursor: grabbing;
 }
@@ -57,7 +133,7 @@
   transition: transform 0.15s ease;
 }
 
-#tabby-companion-root .tabby-cat-surface:hover .tabby-cat {
+#tabby-companion-root .tabby-cat-surface:hover .tabby-cat:not(.tabby-cat--react) {
   transform: scale(1.03);
 }
 
@@ -340,4 +416,13 @@
   letter-spacing: 0.03em;
   text-align: center;
   text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #tabby-companion-root.tabby-root--enter .tabby-cat-surface,
+  #tabby-companion-root.tabby-root--exiting .tabby-cat-surface,
+  #tabby-companion-root .tabby-cat--react,
+  #tabby-companion-root .tabby-menu-area--enter {
+    animation: none;
+  }
 }
