@@ -2,6 +2,9 @@
 
 **Last updated:** July 5, 2026
 
+**Privacy policy URL (for Chrome Web Store):**
+https://github.com/yanovian/chrome-ext-tabby/blob/master/PRIVACY.md
+
 ## Summary
 
 **Tabby does not collect your data.** There is no account, no analytics server, and no
