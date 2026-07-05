@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Котка живее в браузъра ви. Tabby реагира на това, което четете, и пази онлайн живота ви частен на устройството.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, вашата котка в браузъра",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

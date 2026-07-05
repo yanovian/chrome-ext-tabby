@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Egy macska él a böngésződben. Tabby reagál arra, amit olvasol, és az online életedet privátan tartja az eszközön.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, a böngészőmacskád",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

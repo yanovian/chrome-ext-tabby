@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Um gato mora no seu navegador. A Tabby reage ao que você lê e mantém sua vida online privada no seu dispositivo.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, sua gata do navegador",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

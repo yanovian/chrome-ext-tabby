@@ -54,8 +54,11 @@ To test moods quickly:
 |---------|-------------|
 | `make dev` | Dev server with hot reload — leave it running while you edit |
 | `make build` | Production build |
-| `make assets` | Download bundled ONNX runtime + local speech model (offline) |
+| `make zip` | Build and package Chrome extension zip (includes `_locales/`) |
+| `make assets` | Download ONNX runtime, speech model, and regenerate `_locales/` |
+| `make locales` | Regenerate Chrome Web Store locale files only |
 | `make check` | Typecheck + lint + test + build |
+| `make release-patch` | Bump patch version, tag, and push (triggers GitHub release) |
 | `make sprites` | Strip sprite backgrounds / optimize PNGs |
 | `make help` | Show all Makefile targets |
 

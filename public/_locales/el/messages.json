@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Μια γάτα ζει στον browser σου. Η Tabby αντιδρά σε ό,τι διαβάζεις και κρατά τη διαδικτυακή σου ζωή ιδιωτική στη συσκευή.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, η γάτα του browser σου",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

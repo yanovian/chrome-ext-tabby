@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "قطة تعيش في متصفحك. تتفاعل مع ما تقرأه وتحافظ على حياتك على الإنترنت بشكل خاص على جهازك.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "قطة متصفحك",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

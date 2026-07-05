@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build extension
+        run: pnpm build
+
+      - name: Verify zip artifact
+        run: pnpm zip
+
+      - name: Locate chrome zip
+        id: chrome_zip
+        run: |
+          file=$(ls .output/*-chrome.zip)
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          test -f "$file"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tabby-chrome-${{ github.sha }}
+          path: ${{ steps.chrome_zip.outputs.file }}
+          if-no-files-found: error

@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Seekor kucing tinggal di browser kamu. Tabby bereaksi pada yang kamu baca dan menjaga kehidupan online pribadi di perangkat.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, kucing browser-mu",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

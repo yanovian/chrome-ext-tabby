@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "یک گربه در مرورگر شما زندگی می‌کند. به آنچه می‌خوانید واکنش نشان می‌دهد و زندگی آنلاین شما را روی دستگاه خصوصی نگه می‌دارد.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "گربه مرورگر شما",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

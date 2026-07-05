@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Un chat vit dans votre navigateur. Tabby réagit à ce que vous lisez et garde votre vie en ligne privée sur votre appareil.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, votre chat de navigateur",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

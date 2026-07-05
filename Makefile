@@ -1,4 +1,5 @@
-.PHONY: help install prepare dev build zip sprites assets test test-watch typecheck lint lint-fix check package clean
+.PHONY: help install prepare assets dev build zip sprites locales test test-watch \
+	typecheck lint lint-fix check package clean release-patch release-minor release-major
 
 PNPM ?= pnpm
 
@@ -9,15 +10,14 @@ help: ## Show available commands
 install: ## Install dependencies (pnpm)
 	$(PNPM) install
 
+assets: ## Prepare bundled assets: ONNX runtime, speech model, and _locales
+	$(PNPM) assets
+
 prepare: ## Generate WXT types and prepare the project
 	$(PNPM) exec wxt prepare
 
-dev: ## Run dev server with hot reload (keep this running while you code)
-	$(PNPM) assets
+dev: ## Run Chrome dev server with hot reload
 	$(PNPM) dev
-
-assets: ## Download bundled ONNX runtime + local speech model (offline)
-	$(PNPM) assets
 
 build: ## Production build (Chrome)
 	$(PNPM) build
@@ -27,6 +27,9 @@ zip: build ## Build and package Chrome extension zip
 
 sprites: ## Process cat sprites (transparent backgrounds + optimize)
 	python3 scripts/process-sprites.py
+
+locales: ## Regenerate Chrome Web Store locale files (public/_locales/)
+	$(PNPM) locales
 
 test: ## Run unit tests once
 	$(PNPM) test
@@ -49,3 +52,15 @@ package: zip ## Build and zip for Chrome Web Store
 
 clean: ## Remove build output
 	rm -rf .output
+
+release-patch: check ## Bump patch version, tag vX.Y.Z, push (triggers GitHub release)
+	$(PNPM) version patch -m "Release v%s"
+	git push origin HEAD --follow-tags
+
+release-minor: check ## Bump minor version, tag vX.Y.Z, push (triggers GitHub release)
+	$(PNPM) version minor -m "Release v%s"
+	git push origin HEAD --follow-tags
+
+release-major: check ## Bump major version, tag vX.Y.Z, push (triggers GitHub release)
+	$(PNPM) version major -m "Release v%s"
+	git push origin HEAD --follow-tags

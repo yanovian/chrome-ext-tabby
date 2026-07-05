@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Eine Katze lebt in deinem Browser. Tabby reagiert auf das, was du liest, und hält dein Online-Leben privat auf deinem Gerät.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, deine Browser-Katze",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "Mačka živi u tvom pregledniku. Tabby reagira na ono što čitaš i drži tvoj online život privatan na uređaju.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, tvoja mačka u pregledniku",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

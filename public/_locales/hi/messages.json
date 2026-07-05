@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "आपके ब्राउज़र में एक बिल्ली रहती है। Tabby आपके पढ़ने पर प्रतिक्रिया देती है और आपकी ऑनलाइन ज़िंदगी को डिवाइस पर निजी रखती है।",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, आपकी ब्राउज़र बिल्ली",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}

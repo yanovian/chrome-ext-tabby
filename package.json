@@ -14,11 +14,12 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
+    "locales": "node scripts/generate-locales.mjs",
     "sprites": "python3 scripts/process-sprites.py",
-    "assets": "pnpm sync:ort && pnpm sync:speech-model",
+    "assets": "pnpm sync:ort && pnpm sync:speech-model && pnpm locales",
     "sync:ort": "node scripts/sync-ort-wasm.mjs",
     "sync:speech-model": "node scripts/sync-speech-model.mjs",
-    "postinstall": "wxt prepare && pnpm assets"
+    "postinstall": "wxt prepare && node scripts/sync-ort-wasm.mjs && node scripts/sync-speech-model.mjs && node scripts/generate-locales.mjs"
   },
   "packageManager": "pnpm@10.33.4",
   "dependencies": {

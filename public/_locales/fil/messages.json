@@ -1,0 +1,10 @@
+{
+  "extDescription": {
+    "message": "May pusa sa iyong browser. Tumutugon si Tabby sa binabasa mo at pinapanatiling pribado ang online life mo sa device.",
+    "description": "Extension description shown in the Chrome Web Store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Tabby, pusa sa browser mo",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  }
+}
