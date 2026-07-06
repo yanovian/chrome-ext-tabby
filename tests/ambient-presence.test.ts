@@ -3,6 +3,8 @@ import { createInitialCat } from '../utils/cat-sim';
 import {
   isAmbientPeekActive,
   isDaytime,
+  pickAmbientActivity,
+  pickAmbientPeekDurationMs,
   shouldStartAmbientPeek,
 } from '../utils/ambient-presence';
 import { DEFAULT_SETTINGS } from '../utils/types';
@@ -49,6 +51,24 @@ describe('shouldStartAmbientPeek', () => {
         peekUntil: null,
       }),
     ).toBe(true);
+  });
+});
+
+describe('pickAmbientActivity', () => {
+  it('rotates sleeping, grooming, and peeking', () => {
+    expect(pickAmbientActivity(0)).toBe('sleeping');
+    expect(pickAmbientActivity(1)).toBe('grooming');
+    expect(pickAmbientActivity(2)).toBe('peeking');
+  });
+});
+
+describe('pickAmbientPeekDurationMs', () => {
+  it('stays between one and fifteen minutes in production', () => {
+    const cat = createInitialCat(NOW);
+    const duration = pickAmbientPeekDurationMs(DEFAULT_SETTINGS, NOW, cat.adoptedAt);
+
+    expect(duration).toBeGreaterThanOrEqual(60_000);
+    expect(duration).toBeLessThanOrEqual(15 * 60_000);
   });
 });
 

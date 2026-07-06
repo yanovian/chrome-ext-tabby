@@ -8,7 +8,7 @@ import {
   resetDailyNudgeCounter,
   resolveLifeStage,
 } from './cat-sim';
-import { recordAmbientAppearance, effectiveAmbientLimits, pickAmbientActivity } from './ambient-presence';
+import { recordAmbientAppearance } from './ambient-presence';
 import {
   careActionToDoNotDisturb,
   clearDoNotDisturb,
@@ -18,7 +18,7 @@ import {
   setDoNotDisturb,
 } from './do-not-disturb';
 import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood } from './cat-interactions';
-import { isIntroCompleted } from './intro';
+import { isIntroCompleted, resetIntro } from './intro';
 import { fallbackSpeech } from './speech-fallback';
 import {
   appendObservation,
@@ -29,7 +29,7 @@ import {
 } from './db';
 import { evaluateEmotionalTrigger } from './emotional-triggers';
 import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
-import { buildPresentation } from './presentation';
+import { buildPresentation, moodOverrideWhileHiding } from './presentation';
 import { resolveCompanionPresence } from './presence';
 import type { SpeechContext } from './speech-types';
 import { effectiveAppearanceLimits, getSettings } from './settings';
@@ -354,8 +354,22 @@ export async function evaluateAndPresent(
   }
 
   let speech: string | null = null;
+  let triggerKind: CatPresentation['triggerKind'] = presence.recordSpeech
+    ? trigger.triggerKind
+    : null;
+
   if (presence.recordSpeech && trigger.speechContext) {
     speech = fallbackSpeech(trigger.speechContext);
+  } else if (presence.recordAmbient && presence.ambientActivity === 'peeking') {
+    const mood = deriveMoodFromVitals({
+      vitals: cat.vitals,
+      now,
+      settings: state.settings,
+      isUserIdle: state.isUserIdle,
+    });
+    const stage = resolveLifeStage(cat.adoptedAt, now, state.settings.devForceLifeStage);
+    speech = fallbackSpeech({ kind: 'peeking', mood, stage, seed: now });
+    triggerKind = 'curious';
   }
 
   const presentation = buildPresentation({
@@ -365,12 +379,16 @@ export async function evaluateAndPresent(
     now,
     isUserIdle: state.isUserIdle,
     speech,
-    triggerKind: presence.recordSpeech ? trigger.triggerKind : null,
+    triggerKind,
     overlayHidden: false,
     lastCareAction: state.lastPresentation?.lastCareAction ?? null,
     companionVisible: presence.companionVisible,
     ambientActivity: presence.ambientActivity,
     ambientPeekUntil: presence.ambientPeekUntil,
+    moodOverride: moodOverrideWhileHiding(
+      state.lastPresentation?.mood,
+      presence.companionVisible,
+    ),
   });
 
   await persistPresentation(presentation);
@@ -497,14 +515,28 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
   const cached = await readCachedPresentation();
   const now = Date.now();
   const doNotDisturb = await clearExpiredDoNotDisturb(now);
+  const introCompleted = await isIntroCompleted();
 
   if (cached) {
     if (isDoNotDisturbActive(doNotDisturb, now)) {
       return presentationDuringDoNotDisturb(cached);
     }
+    if (!introCompleted && !cached.companionVisible) {
+      const state = await loadOrchestratorState();
+      const result = await evaluateAndPresent(state, now);
+      return result.lastPresentation!;
+    }
     return cached;
   }
 
+  const state = await loadOrchestratorState();
+  const result = await evaluateAndPresent(state, now);
+  return result.lastPresentation!;
+}
+
+/** Dev/testing: clear intro progress and show the tour again. */
+export async function restartIntroSession(now: number): Promise<CatPresentation> {
+  await resetIntro();
   const state = await loadOrchestratorState();
   const result = await evaluateAndPresent(state, now);
   return result.lastPresentation!;
@@ -529,33 +561,20 @@ export async function enableDoNotDisturb(
   return handleCareAction(doNotDisturbDurationToCareAction(duration), now);
 }
 
-export type DevCompanionShowMode = 'ambient' | 'quiet';
-
 function assertDevCompanionAccess(settings: ExtensionSettings): void {
   if (!IS_DEV_BUILD || !settings.devModeEnabled) {
     throw new Error('Dev companion controls require dev mode in a dev build.');
   }
 }
 
-/** Dev-only: force Tabby to appear quietly (ambient peek or idle). */
-export async function devForceCompanionShow(
-  mode: DevCompanionShowMode,
-  now: number,
-): Promise<CatPresentation> {
+/** Dev-only: force Tabby to appear using the current dev mood override. */
+export async function devForceCompanionShow(now: number): Promise<CatPresentation> {
   const state = await loadOrchestratorState();
   assertDevCompanionAccess(state.settings);
 
-  const limits = effectiveAmbientLimits(state.settings);
-  let cat = state.cat;
-
-  if (mode === 'ambient') {
-    cat = recordAmbientAppearance(cat, now);
-    void saveCatState(cat);
-  }
-
   const presentation = buildPresentation({
-    cat,
-    vitals: cat.vitals,
+    cat: state.cat,
+    vitals: state.cat.vitals,
     settings: state.settings,
     now,
     isUserIdle: state.isUserIdle,
@@ -564,8 +583,8 @@ export async function devForceCompanionShow(
     overlayHidden: false,
     lastCareAction: state.lastPresentation?.lastCareAction ?? null,
     companionVisible: true,
-    ambientActivity: mode === 'ambient' ? pickAmbientActivity(now) : null,
-    ambientPeekUntil: mode === 'ambient' ? now + limits.peekDurationMs : null,
+    ambientActivity: null,
+    ambientPeekUntil: null,
   });
 
   await persistPresentation(presentation);
@@ -591,6 +610,7 @@ export async function devForceCompanionHide(now: number): Promise<CatPresentatio
     companionVisible: false,
     ambientActivity: null,
     ambientPeekUntil: null,
+    moodOverride: moodOverrideWhileHiding(base?.mood, false),
   });
 
   await persistPresentation(presentation);

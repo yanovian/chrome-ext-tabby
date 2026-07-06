@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveDisplayMood } from '../utils/presentation';
+import { resolveDisplayMood, moodOverrideWhileHiding } from '../utils/presentation';
 import { DEFAULT_SETTINGS } from '../utils/types';
 
 describe('resolveDisplayMood', () => {
@@ -21,7 +21,7 @@ describe('resolveDisplayMood', () => {
     ).toBe('stressed');
   });
 
-  it('prefers ambient peek mood over dev override', () => {
+  it('uses sleepy mood during a sleeping peek', () => {
     expect(
       resolveDisplayMood({
         settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' },
@@ -29,6 +29,22 @@ describe('resolveDisplayMood', () => {
         ambientActivity: 'sleeping',
       }),
     ).toBe('sleepy');
+  });
+
+  it('prefers ambient peek mood over dev override', () => {
+    expect(
+      resolveDisplayMood({
+        settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' },
+        derivedMood: 'content',
+        ambientActivity: 'peeking',
+      }),
+    ).toBe('peek');
+  });
+
+  it('keeps peek mood for one hide so duck-out can play', () => {
+    expect(moodOverrideWhileHiding('peek', false)).toBe('peek');
+    expect(moodOverrideWhileHiding('peek', true)).toBeUndefined();
+    expect(moodOverrideWhileHiding('happy', false)).toBeUndefined();
   });
 
   it('honors explicit mood overrides from care actions', () => {

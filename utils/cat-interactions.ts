@@ -310,6 +310,15 @@ export function explainCurrentMood(
         ],
         seed,
       );
+    case 'peek':
+      return pickMoodLine(
+        [
+          'Just peeking. Don’t mind me.',
+          'Mrrp. I’m down here.',
+          'Caught you looking. Hi.',
+        ],
+        seed,
+      );
     case 'content':
       if (isBored(vitals, mood) || needsPlayAttention(vitals, mood)) {
         return stage === 'playful'

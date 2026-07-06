@@ -23,6 +23,7 @@ function parseDevMood(value: unknown): DevMoodOverride {
     'starving',
     'stressed',
     'sleepy',
+    'peek',
   ];
   if (value === 'auto' || moods.includes(value as CatMood)) {
     return value as DevMoodOverride;

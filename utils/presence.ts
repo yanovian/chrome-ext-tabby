@@ -1,7 +1,7 @@
 import {
-  effectiveAmbientLimits,
   isAmbientPeekActive,
   pickAmbientActivity,
+  pickAmbientPeekDurationMs,
   shouldStartAmbientPeek,
   type AmbientActivity,
 } from './ambient-presence';
@@ -98,7 +98,6 @@ export function resolveCompanionPresence(input: {
     };
   }
 
-  const limits = effectiveAmbientLimits(input.settings);
   if (
     shouldStartAmbientPeek({
       cat: input.cat,
@@ -111,7 +110,9 @@ export function resolveCompanionPresence(input: {
     return {
       companionVisible: true,
       ambientActivity: pickAmbientActivity(input.now),
-      ambientPeekUntil: input.now + limits.peekDurationMs,
+      ambientPeekUntil:
+        input.now +
+        pickAmbientPeekDurationMs(input.settings, input.now, input.cat.adoptedAt),
       recordSpeech: false,
       recordAmbient: true,
     };

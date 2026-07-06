@@ -38,11 +38,12 @@ export class CompanionLottiePlayer {
     this.syncCanvasBuffer(bufferSize);
 
     const src = resolveUrl(assetPath);
+    const loop = !assetPath.endsWith('/peek.json') && !assetPath.endsWith('/peek_duck.json');
 
     const player = new DotLottie({
       canvas: this.canvas,
       src,
-      loop: true,
+      loop,
       autoplay: true,
       speed,
       backgroundColor: 'transparent',

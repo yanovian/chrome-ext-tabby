@@ -9,7 +9,8 @@ export type CatMood =
   | 'hungry'
   | 'starving'
   | 'stressed'
-  | 'sleepy';
+  | 'sleepy'
+  | 'peek';
 
 /** Visual life stage — each age has its own mood sprites. */
 export type CatLifeStage = 'newborn' | 'playful' | 'adult';
@@ -240,7 +241,7 @@ export type RuntimeMessage =
   | { type: 'isActiveOverlayTab' }
   | { type: 'tick' }
   | { type: 'resetIntro' }
-  | { type: 'devForceCompanionShow'; mode: 'ambient' | 'quiet' }
+  | { type: 'devForceCompanionShow' }
   | { type: 'devForceCompanionHide' }
   | { type: 'clearCompanionSpeech' }
   | { type: 'settleAfterIntro' }

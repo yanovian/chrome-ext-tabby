@@ -48,10 +48,8 @@ export function requestResetIntro(): Promise<void> {
   return sendMessage<void>({ type: 'resetIntro' });
 }
 
-export function requestDevForceCompanionShow(
-  mode: 'ambient' | 'quiet',
-): Promise<CatPresentation> {
-  return sendMessage<CatPresentation>({ type: 'devForceCompanionShow', mode });
+export function requestDevForceCompanionShow(): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'devForceCompanionShow' });
 }
 
 export function requestDevForceCompanionHide(): Promise<CatPresentation> {

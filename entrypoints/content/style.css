@@ -102,6 +102,18 @@
   opacity: 1;
 }
 
+#tabby-companion-root.tabby-root--mood-peek .tabby-panel {
+  align-items: flex-end;
+}
+
+#tabby-companion-root.tabby-root--mood-peek .tabby-menu-area--top {
+  bottom: calc(var(--tabby-peek-visible-ratio, 0.38) * 100% + 6px);
+}
+
+#tabby-companion-root.tabby-root--mood-peek .tabby-menu-area--bottom {
+  top: calc(var(--tabby-peek-visible-ratio, 0.38) * 100% + 6px);
+}
+
 #tabby-companion-root .tabby-menu-area--enter {
   animation: tabby-menu-enter 280ms ease-out both;
 }

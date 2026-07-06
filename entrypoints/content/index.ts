@@ -13,11 +13,13 @@ import {
 } from '../../utils/intro';
 import {
   hasOverlayChrome,
-  isNewTriggerSpeech,
+  hasUnpromptedSpeech,
+  shouldOpenSpeechBubbleForUpdate,
   shouldShowSpeechBubble as shouldShowSpeechBubbleState,
 } from '../../utils/overlay-chrome';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
+import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
 import {
   CAT_MOOD_IN_CLASS,
   CAT_MOOD_OUT_CLASS,
@@ -64,6 +66,7 @@ import './style.css';
 
 const ROOT_ID = 'tabby-companion-root';
 const GLOBAL_KEY = '__tabbyOverlayInstance';
+const PEEK_DUCK_EXIT_MS = 540;
 const DRAG_THRESHOLD_PX = 4;
 
 class TabbyOverlay {
@@ -185,14 +188,15 @@ class TabbyOverlay {
             ? { ...next, speech: null, triggerKind: null }
             : next;
           this.presentation = settled;
-          const newTriggerSpeech =
-            !this.introJustFinished &&
-            isNewTriggerSpeech({
-              previousSpeech,
-              nextSpeech: settled.speech,
-              triggerKind: settled.triggerKind,
-            });
-          if (newTriggerSpeech) {
+          const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
+            introJustFinished: this.introJustFinished,
+            isIntro: this.isIntroActive(),
+            previousSpeech,
+            nextSpeech: settled.speech,
+            triggerKind: settled.triggerKind,
+            speechBubbleOpen: this.speechBubbleOpen,
+          });
+          if (openSpeechBubble) {
             this.speechBubbleOpen = true;
             this.menuOpen = false;
             this.moreOpen = false;
@@ -206,7 +210,7 @@ class TabbyOverlay {
             triggerKind: settled.triggerKind,
           });
           this.render({
-            animateMenu: newTriggerSpeech || this.menuOpen,
+            animateMenu: openSpeechBubble || this.menuOpen,
             reactToTrigger: shouldReact,
             animateMood: shouldAnimateMoodTransition({
               previousSprite,
@@ -214,6 +218,9 @@ class TabbyOverlay {
               hasVisibleOverlay: Boolean(this.root?.isConnected),
             }),
           });
+          if (!this.introCompleted && this.isOverlayVisible() && this.introStep === null) {
+            this.beginIntroIfNeeded();
+          }
         }
       }
       if (STORAGE_KEYS.hiddenPageKeys in changes) {
@@ -244,13 +251,14 @@ class TabbyOverlay {
         if (!this.showOverlayEnabled) {
           return;
         }
-        const completed = changes[STORAGE_KEYS.introCompleted]?.newValue === true;
-        this.introCompleted = completed;
-        if (!completed) {
-          this.introStep = 0;
-          this.menuOpen = true;
-          this.render();
-          this.bindOutsideClickListener();
+        const nextCompleted = changes[STORAGE_KEYS.introCompleted]?.newValue === true;
+        this.introCompleted = nextCompleted;
+        if (!nextCompleted) {
+          void this.refreshPresentation().then(() => {
+            if (this.isActiveInstance()) {
+              this.beginIntroIfNeeded();
+            }
+          });
         }
       }
     });
@@ -336,23 +344,27 @@ class TabbyOverlay {
       return;
     }
 
-    const newTriggerSpeech = Boolean(
-      this.presentation?.speech && this.presentation.triggerKind,
-    );
-    if (newTriggerSpeech) {
+    const openSpeechBubble = hasUnpromptedSpeech({
+      speech: this.presentation?.speech ?? null,
+      triggerKind: this.presentation?.triggerKind ?? null,
+    });
+    if (openSpeechBubble) {
       this.speechBubbleOpen = true;
     }
 
     this.render({
-      animateMenu: newTriggerSpeech,
+      animateMenu: openSpeechBubble,
       reactToTrigger: shouldReactToSpeechTrigger({
         previousSpeech: null,
         nextSpeech: this.presentation?.speech ?? null,
         triggerKind: this.presentation?.triggerKind ?? null,
       }),
     });
-    if (newTriggerSpeech) {
+    if (openSpeechBubble) {
       this.syncOutsideClickListener();
+    }
+    if (!this.introCompleted && this.isOverlayVisible() && this.introStep === null) {
+      this.beginIntroIfNeeded();
     }
   }
 
@@ -544,6 +556,9 @@ class TabbyOverlay {
   }
 
   private playEntrance(root: HTMLElement): void {
+    if (root.classList.contains('tabby-root--mood-peek')) {
+      return;
+    }
     root.classList.add(OVERLAY_ENTER_CLASS);
     void waitForOverlayAnimation(root, COMPANION_ENTER_ANIMATION, COMPANION_ENTER_MS).then(
       () => {
@@ -559,7 +574,16 @@ class TabbyOverlay {
 
     this.exiting = true;
     this.root.classList.add(OVERLAY_EXIT_CLASS);
-    await waitForOverlayAnimation(this.root, COMPANION_EXIT_ANIMATION, COMPANION_EXIT_MS);
+    const peekMood = this.presentation?.mood === 'peek';
+    if (peekMood && this.catPlayer && this.presentation) {
+      const duckPath = peekDuckAnimationPath(this.presentation.stage);
+      await this.catPlayer.load(publicAnimationAssetUrl, duckPath);
+      await new Promise<void>((resolve) => {
+        globalThis.setTimeout(resolve, PEEK_DUCK_EXIT_MS);
+      });
+    } else {
+      await waitForOverlayAnimation(this.root, COMPANION_EXIT_ANIMATION, COMPANION_EXIT_MS);
+    }
 
     if (!this.isActiveInstance()) {
       return;
@@ -600,6 +624,15 @@ class TabbyOverlay {
       'tabby-root--ambient-grooming',
       presentation.ambientActivity === 'grooming' && !presentation.speech,
     );
+    root.classList.toggle('tabby-root--mood-peek', presentation.mood === 'peek');
+    if (presentation.mood === 'peek') {
+      root.style.setProperty(
+        '--tabby-peek-visible-ratio',
+        String(PEEK_VISIBLE_HEIGHT_RATIO),
+      );
+    } else {
+      root.style.removeProperty('--tabby-peek-visible-ratio');
+    }
   }
 
   private updateCatAnimation(
@@ -1098,11 +1131,17 @@ class TabbyOverlay {
 
     const menuWidth = menuArea.offsetWidth || 220;
     const menuHeight = menuArea.offsetHeight || 180;
+    const isPeek = this.presentation?.mood === 'peek';
+    const layoutCatHeight = isPeek
+      ? Math.round(catSize * PEEK_VISIBLE_HEIGHT_RATIO)
+      : catSize;
+    const layoutCatY = isPeek ? catPosition.y + catSize - layoutCatHeight : catPosition.y;
+
     const layout = resolveMenuLayout({
       catX: catPosition.x,
-      catY: catPosition.y,
+      catY: layoutCatY,
       catWidth: catSize,
-      catHeight: catSize,
+      catHeight: layoutCatHeight,
       menuWidth,
       menuHeight,
       viewportWidth: window.innerWidth,

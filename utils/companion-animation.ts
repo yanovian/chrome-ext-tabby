@@ -10,7 +10,8 @@ export type CompanionAnimationState =
   | 'stress'
   | 'sleep'
   | 'groom'
-  | 'play';
+  | 'play'
+  | 'peek';
 
 export const COMPANION_ANIMATION_SPEED = 0.82;
 
@@ -27,6 +28,9 @@ export const COMPANION_DISPLAY_SIZE: Record<CatLifeStage, number> = {
   playful: 162,
   adult: 192,
 };
+
+/** Share of the cat box that peek mood shows above the bottom edge. */
+export const PEEK_VISIBLE_HEIGHT_RATIO = 0.38;
 
 /** Composition pixel size for a companion animation asset path. */
 export function companionCanvasSizeFromPath(assetPath: string): number {
@@ -55,6 +59,8 @@ export function moodToAnimationState(mood: CatMood): CompanionAnimationState {
       return 'stress';
     case 'sleepy':
       return 'sleep';
+    case 'peek':
+      return 'peek';
     default:
       return 'idle';
   }
@@ -87,6 +93,11 @@ export function companionAnimationPath(
   return `animations/${stage}/${state}.json`;
 }
 
+/** Peek hide animation used when Tabby ducks below the edge. */
+export function peekDuckAnimationPath(stage: CatLifeStage): string {
+  return `animations/${stage}/peek_duck.json`;
+}
+
 /** Pick the animated companion asset for Tabby's age, mood, and activity. */
 export function resolveCompanionAnimation(input: {
   stage: CatLifeStage;
@@ -109,6 +120,7 @@ export function allCompanionAnimationPaths(): string[] {
     'sleep',
     'groom',
     'play',
+    'peek',
   ];
   return stages.flatMap((stage) =>
     states.map((state) => companionAnimationPath(stage, state)),

@@ -180,21 +180,19 @@
             <option value="starving">Starving</option>
             <option value="stressed">Stressed</option>
             <option value="sleepy">Sleepy</option>
+            <option value="peek">Peek</option>
           </select>
         </label>
         <div class="settings__action-stack settings__action-stack--dev">
-          <button id="dev-force-appear-ambient" type="button" class="settings__button settings__button--legacy">
-            Force appear (quiet peek)
-          </button>
-          <button id="dev-force-appear-quiet" type="button" class="settings__button settings__button--legacy">
-            Force appear (idle, no speech)
+          <button id="dev-force-appear" type="button" class="settings__button settings__button--legacy">
+            Force appear
           </button>
           <button id="dev-force-hide" type="button" class="settings__button settings__button--hide">
             Force hide
           </button>
         </div>
         <p id="dev-presence-hint" class="settings__hint settings__hint--dev">
-          Dev only: test daytime hide/show without waiting for random peeks or speech cooldowns.
+          Dev only: pick a mood above, then force appear or hide to test it without waiting for random visits.
         </p>
         <button id="force-tick" type="button" class="settings__button settings__button--legacy">Force tick &amp; speech</button>
         <p id="force-tick-hint" class="settings__hint settings__hint--dev">

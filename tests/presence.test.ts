@@ -140,6 +140,32 @@ describe('resolveCompanionPresence', () => {
     expect(result.recordSpeech).toBe(false);
   });
 
+  it('records dev force tick speech even before the intro tour finishes', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: { ...DEFAULT_SETTINGS, devModeEnabled: true },
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: true,
+        mood: 'hungry',
+        speechContext: {
+          kind: 'hungry',
+          mood: 'hungry',
+          stage: 'adult',
+          seed: NOW,
+        },
+        triggerKind: 'hungry',
+      },
+      doNotDisturb: { until: null },
+      introCompleted: false,
+      lastPresentation: null,
+      forceVisible: true,
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.recordSpeech).toBe(true);
+  });
+
   it('records speech when forceVisible and the trigger fired (dev tick)', () => {
     const result = resolveCompanionPresence({
       cat: createInitialCat(NOW),

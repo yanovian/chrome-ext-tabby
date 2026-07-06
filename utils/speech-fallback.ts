@@ -135,6 +135,15 @@ const FALLBACK_LINES: Record<SpeechKind, string[]> = {
     'Mew. See you soon.',
     'Prrt. I’ll nap under the tabs.',
   ],
+  peeking: [
+    'Mew? You can’t see me. …Only my eyes.',
+    'Prrt. Just peeking. Don’t look at me.',
+    'Hi. I’m mostly hidden. Mew.',
+    '…Did you see me? Mew mew.',
+    'Hiding! …Okay, you caught me.',
+    'Mrrp. I’m down here. Peek peek.',
+    'Mew mew — pretend you didn’t see me.',
+  ],
 };
 
 function pickLine(kind: SpeechKind, seed: number): string {

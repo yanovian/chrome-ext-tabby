@@ -11,6 +11,7 @@ import {
   presentOnActiveTab,
   recordPageVisit,
   runMinuteTick,
+  restartIntroSession,
   settleAfterIntro,
   showOverlayOnPage,
 } from '../utils/orchestrator';
@@ -150,9 +151,63 @@ describe('runMinuteTick', () => {
 
     expect(cached.speech).toBe('Still cached');
   });
+
+  it('force tick speaks and keeps Tabby visible for dev testing', async () => {
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, devModeEnabled: true };
+    store[STORAGE_KEYS.introCompleted] = true;
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const state = await runMinuteTick(NOW, { forceTick: true });
+
+    expect(state.lastPresentation?.companionVisible).toBe(true);
+    expect(state.lastPresentation?.speech).toBeTruthy();
+    expect(state.lastPresentation?.triggerKind).toBeTruthy();
+  });
 });
 
 describe('getCurrentPresentation', () => {
+  it('shows Tabby while the intro tour is pending even if cache hid her', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.companionVisible).toBe(true);
+  });
+
   it('keeps Tabby hidden while do not disturb is active', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -312,20 +367,32 @@ describe('devForceCompanionShow', () => {
     store[STORAGE_KEYS.introCompleted] = true;
   });
 
-  it('forces a quiet ambient peek without speech', async () => {
-    const presentation = await devForceCompanionShow('ambient', NOW);
+  it('forces Tabby visible using the dev mood override', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'curious',
+    };
+
+    const presentation = await devForceCompanionShow(NOW);
 
     expect(presentation.companionVisible).toBe(true);
+    expect(presentation.mood).toBe('curious');
     expect(presentation.speech).toBeNull();
-    expect(presentation.ambientActivity).toMatch(/sleeping|grooming/);
-    expect(presentation.ambientPeekUntil).toBeGreaterThan(NOW);
+    expect(presentation.ambientActivity).toBeNull();
   });
 
-  it('forces an idle visible state without ambient activity', async () => {
-    const presentation = await devForceCompanionShow('quiet', NOW);
+  it('uses peek rise and duck assets when peek is selected', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'peek',
+    };
 
-    expect(presentation.companionVisible).toBe(true);
-    expect(presentation.speech).toBeNull();
+    const presentation = await devForceCompanionShow(NOW);
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.sprite).toContain('peek.json');
     expect(presentation.ambientActivity).toBeNull();
   });
 });
@@ -355,6 +422,35 @@ describe('clearCompanionSpeech', () => {
 
     expect(presentation.speech).toBeNull();
     expect(presentation.triggerKind).toBeNull();
+  });
+});
+
+describe('restartIntroSession', () => {
+  it('clears intro completion and shows Tabby for the tour', async () => {
+    store[STORAGE_KEYS.introCompleted] = true;
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await restartIntroSession(NOW);
+
+    expect(store[STORAGE_KEYS.introCompleted]).toBeUndefined();
+    expect(presentation.companionVisible).toBe(true);
   });
 });
 
@@ -444,5 +540,31 @@ describe('devForceCompanionHide', () => {
     expect(presentation.companionVisible).toBe(false);
     expect(presentation.speech).toBeNull();
     expect(presentation.ambientActivity).toBeNull();
+  });
+
+  it('keeps peek mood while hiding so duck-out can play', async () => {
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/animations/adult/peek.json',
+      speech: 'Peek!',
+      triggerKind: 'curious',
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW + 60_000,
+    });
+
+    const presentation = await devForceCompanionHide(NOW);
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.mood).toBe('peek');
   });
 });

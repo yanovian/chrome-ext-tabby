@@ -1,5 +1,5 @@
 /**
- * Standing Tabby Lottie scaffolds (3 stages × 8 states).
+ * Standing Tabby Lottie scaffolds (3 stages × 9 states).
  * One connected orange silhouette: chunky head, neck, torso, legs, swaying tail, blink.
  * Run: node scripts/generate-scaffold-animations.mjs
  */
@@ -59,7 +59,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'stress', 'sleep', 'groom', 'play'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'stress', 'sleep', 'groom', 'play', 'peek'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -176,6 +176,15 @@ function motionFor(state, frames) {
         ]),
         face: 'sleep',
         blink: false,
+      };
+    case 'peek':
+      return {
+        body: staticValue([100, 100, 100]),
+        tail: staticValue([0]),
+        headR: loopKeys(frames, [-8, 8, -8]),
+        headP: staticValue([0, 0, 0]),
+        face: 'wide',
+        blink: true,
       };
     default:
       return {
@@ -621,7 +630,136 @@ function buildTail(layout) {
   return { baseLen, base, tip };
 }
 
+/** Head-only hide-and-peek: rises from below, playful eyes, body hidden. */
+function buildPeekCat(stageKey) {
+  const layout = STAGES[stageKey];
+  const size = layout.size;
+  const cx = size * 0.5;
+  const frames = 90;
+  const riseEnd = 22;
+  const restY = size * 0.94;
+  const startY = size * 1.24;
+
+  const headLayer = shapeLayer(
+    'Head',
+    2,
+    {
+      p: {
+        a: 1,
+        k: [
+          { t: 0, s: [cx, startY, 0] },
+          { t: riseEnd, s: [cx, restY, 0] },
+          { t: frames, s: [cx, restY, 0] },
+        ],
+      },
+      r: loopKeys(frames, [-7, 7, -7]),
+    },
+    [
+      group('Face', buildFace(layout, 'wide', true, frames), { p: staticValue([0, 0]) }),
+      group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
+    ],
+    frames,
+  );
+
+  const hiddenLayer = (name, index) =>
+    shapeLayer(name, index, { p: staticValue([cx, restY, 0]) }, [], frames);
+
+  const layers = [
+    headLayer,
+    { ...hiddenLayer('Body', 1), ks: { ...hiddenLayer('Body', 1).ks, o: staticValue(0) } },
+    {
+      ...shapeLayer('Shadow', 0, { p: staticValue([cx, size * 0.98, 0]) }, [], frames),
+      ks: {
+        o: staticValue(0),
+        r: staticValue(0),
+        p: staticValue([cx, size * 0.98, 0]),
+        a: staticValue([0, 0, 0]),
+        s: staticValue([100, 100, 100]),
+      },
+    },
+  ];
+
+  return {
+    v: '5.7.4',
+    fr: 30,
+    ip: 0,
+    op: frames,
+    w: size,
+    h: size,
+    nm: `tabby-${stageKey}-peek`,
+    ddd: 0,
+    assets: [],
+    layers,
+  };
+}
+
+/** Head ducks below the edge — reverse of peek in. */
+function buildPeekDuckCat(stageKey) {
+  const layout = STAGES[stageKey];
+  const size = layout.size;
+  const cx = size * 0.5;
+  const frames = 54;
+  const sinkEnd = 32;
+  const restY = size * 0.94;
+  const startY = size * 1.24;
+
+  const headLayer = shapeLayer(
+    'Head',
+    2,
+    {
+      p: {
+        a: 1,
+        k: [
+          { t: 0, s: [cx, restY, 0] },
+          { t: sinkEnd, s: [cx, startY, 0] },
+          { t: frames, s: [cx, startY, 0] },
+        ],
+      },
+      r: staticValue(0),
+    },
+    [
+      group('Face', buildFace(layout, 'wide', false, frames), { p: staticValue([0, 0]) }),
+      group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
+    ],
+    frames,
+  );
+
+  const hiddenLayer = (name, index) =>
+    shapeLayer(name, index, { p: staticValue([cx, restY, 0]) }, [], frames);
+
+  const layers = [
+    headLayer,
+    { ...hiddenLayer('Body', 1), ks: { ...hiddenLayer('Body', 1).ks, o: staticValue(0) } },
+    {
+      ...shapeLayer('Shadow', 0, { p: staticValue([cx, size * 0.98, 0]) }, [], frames),
+      ks: {
+        o: staticValue(0),
+        r: staticValue(0),
+        p: staticValue([cx, size * 0.98, 0]),
+        a: staticValue([0, 0, 0]),
+        s: staticValue([100, 100, 100]),
+      },
+    },
+  ];
+
+  return {
+    v: '5.7.4',
+    fr: 30,
+    ip: 0,
+    op: frames,
+    w: size,
+    h: size,
+    nm: `tabby-${stageKey}-peek_duck`,
+    ddd: 0,
+    assets: [],
+    layers,
+  };
+}
+
 function buildCat(stageKey, state) {
+  if (state === 'peek') {
+    return buildPeekCat(stageKey);
+  }
   const layout = STAGES[stageKey];
   const size = layout.size;
   const { cx, footY, torsoY, headOffsetY } = rigPositions(layout, size);
@@ -715,6 +853,8 @@ for (const stage of Object.keys(STAGES)) {
     writeFileSync(join(stageDir, `${state}.json`), JSON.stringify(buildCat(stage, state)));
     count += 1;
   }
+  writeFileSync(join(stageDir, 'peek_duck.json'), JSON.stringify(buildPeekDuckCat(stage)));
+  count += 1;
 }
 
 console.log(`[generate-scaffold-animations] wrote ${count} connected orange Tabby animations`);

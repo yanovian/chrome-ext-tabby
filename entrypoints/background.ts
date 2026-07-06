@@ -1,5 +1,5 @@
 import { isTrackableUrl, parseHostname } from '../utils/classifier';
-import { markIntroCompleted, resetIntro } from '../utils/intro';
+import { markIntroCompleted } from '../utils/intro';
 import {
   notifyOverlayActivate,
   notifyOverlayDeactivate,
@@ -20,6 +20,7 @@ import {
   loadOrchestratorState,
   presentOnActiveTab,
   recordPageVisit,
+  restartIntroSession,
   runMinuteTick,
   showOverlayOnPage,
   settleAfterIntro,
@@ -250,7 +251,6 @@ export default defineBackground(() => {
       return;
     }
     if (details.reason === 'install') {
-      void resetIntro();
       enqueueTask(() => bootstrap());
     }
   });
@@ -483,8 +483,9 @@ export default defineBackground(() => {
             return;
           }
           case 'resetIntro': {
-            await resetIntro();
-            sendResponse({ ok: true } satisfies RuntimeResponse);
+            const data = await restartIntroSession(Date.now());
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
             return;
           }
           case 'clearCompanionSpeech': {
@@ -514,7 +515,7 @@ export default defineBackground(() => {
               } satisfies RuntimeResponse);
               return;
             }
-            const data = await devForceCompanionShow(message.mode, Date.now());
+            const data = await devForceCompanionShow(Date.now());
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
             return;

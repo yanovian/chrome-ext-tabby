@@ -39,12 +39,7 @@ const previewHost = document.getElementById('preview-cat-host') as HTMLDivElemen
 const devBuildHint = document.getElementById('dev-build-hint') as HTMLParagraphElement;
 const forceTickButton = document.getElementById('force-tick') as HTMLButtonElement;
 const forceTickHint = document.getElementById('force-tick-hint') as HTMLParagraphElement;
-const devForceAppearAmbientButton = document.getElementById(
-  'dev-force-appear-ambient',
-) as HTMLButtonElement;
-const devForceAppearQuietButton = document.getElementById(
-  'dev-force-appear-quiet',
-) as HTMLButtonElement;
+const devForceAppearButton = document.getElementById('dev-force-appear') as HTMLButtonElement;
 const devForceHideButton = document.getElementById('dev-force-hide') as HTMLButtonElement;
 const devPresenceHint = document.getElementById('dev-presence-hint') as HTMLParagraphElement;
 const resetIntroButton = document.getElementById('reset-intro') as HTMLButtonElement;
@@ -325,8 +320,7 @@ async function initialize(): Promise<void> {
 
   forceTickButton.hidden = !IS_DEV_BUILD;
   forceTickHint.hidden = !IS_DEV_BUILD;
-  devForceAppearAmbientButton.hidden = !IS_DEV_BUILD;
-  devForceAppearQuietButton.hidden = !IS_DEV_BUILD;
+  devForceAppearButton.hidden = !IS_DEV_BUILD;
   devForceHideButton.hidden = !IS_DEV_BUILD;
   devPresenceHint.hidden = !IS_DEV_BUILD;
   resetIntroButton.hidden = !IS_DEV_BUILD;
@@ -337,13 +331,9 @@ async function initialize(): Promise<void> {
     showStatus(label);
   }
 
-  bindActionButton(devForceAppearAmbientButton, async () => {
-    const next = await requestDevForceCompanionShow('ambient');
-    afterDevCompanionChange(next, 'Quiet peek started (napping or grooming).');
-  });
-  bindActionButton(devForceAppearQuietButton, async () => {
-    const next = await requestDevForceCompanionShow('quiet');
-    afterDevCompanionChange(next, 'Tabby is visible, idle.');
+  bindActionButton(devForceAppearButton, async () => {
+    const next = await requestDevForceCompanionShow();
+    afterDevCompanionChange(next, `Tabby is visible (${next.mood}).`);
   });
   bindActionButton(devForceHideButton, async () => {
     const next = await requestDevForceCompanionHide();
@@ -375,7 +365,7 @@ async function initialize(): Promise<void> {
   resetIntroButton.addEventListener('click', () => {
     void (async () => {
       await requestResetIntro();
-      showStatus('Intro reset — reload the page or show Tabby to test.');
+      showStatus('Intro reset — the tour should appear on the active tab.');
     })();
   });
 }

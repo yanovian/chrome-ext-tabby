@@ -23,6 +23,7 @@ const SPEECH_KIND_HINTS: Partial<Record<SpeechKind, RegExp[]>> = {
   care_treat: [/\b(yum|treat|thank|better|tasty|spot|full|hungry)\b/i],
   care_play: [/\b(fun|play|again|pounce|zoom|good|whee|game)\b/i],
   dismiss: [/\b(hide|here|soon|okay|back|call|nap)\b/i],
+  peeking: [/\b(mew|peek|hide|hiding|eyes|see|look|mrrp|prrt|caught)\b/i],
 };
 
 /** Patterns that usually mean the model drifted into encyclopedia or story mode. */

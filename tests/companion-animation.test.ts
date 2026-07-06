@@ -5,6 +5,7 @@ import {
   companionAnimationPath,
   companionCanvasSizeFromPath,
   moodToAnimationState,
+  peekDuckAnimationPath,
   resolveCompanionAnimation,
   resolveCompanionAnimationState,
 } from '../utils/companion-animation';
@@ -19,6 +20,13 @@ describe('resolveCompanionAnimation', () => {
     );
   });
 
+  it('maps peek mood to peek animation', () => {
+    expect(moodToAnimationState('peek')).toBe('peek');
+    expect(resolveCompanionAnimation({ stage: 'adult', mood: 'peek' })).toBe(
+      'animations/adult/peek.json',
+    );
+  });
+
   it('prefers ambient activity over mood', () => {
     expect(
       resolveCompanionAnimation({
@@ -27,6 +35,13 @@ describe('resolveCompanionAnimation', () => {
         ambientActivity: 'grooming',
       }),
     ).toBe('animations/adult/groom.json');
+    expect(
+      resolveCompanionAnimation({
+        stage: 'adult',
+        mood: 'peek',
+        ambientActivity: 'peeking',
+      }),
+    ).toBe('animations/adult/peek.json');
   });
 
   it('uses play after a play care action', () => {
@@ -36,6 +51,10 @@ describe('resolveCompanionAnimation', () => {
         lastCareAction: 'play',
       }),
     ).toBe('play');
+  });
+
+  it('exposes a peek duck clip per stage', () => {
+    expect(peekDuckAnimationPath('adult')).toBe('animations/adult/peek_duck.json');
   });
 });
 

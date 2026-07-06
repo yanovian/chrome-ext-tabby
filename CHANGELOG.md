@@ -12,6 +12,11 @@ Updates for people who use Tabby. Newest first.
 - Skip intro keeps Tabby **visible**.
 - Mood speech uses **curated lines**, not the local model.
 - Hungry lines sound more like **mew and feed me**, less like links.
+- Ambient visits last a **random while** (1–15 min), then she hides again.
+- **Peek** is a new mood: head rises when she appears, ducks below the edge when she hides. Her speech sits closer while peeking.
+- **Force tick and speech** shows her words again after a dev tick, even if you dismissed the bubble earlier.
+- **Dev mood** testing uses one **Force appear** button that respects whichever mood you pick (including **Peek**).
+- **Reset intro tour** brings the first-meeting walkthrough back on the active tab.
 
 ## 0.8.0
 

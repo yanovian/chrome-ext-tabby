@@ -1,10 +1,13 @@
 import { isQuietHour } from './settings';
 import type { CatState, ExtensionSettings } from './types';
 
-export type AmbientActivity = 'sleeping' | 'grooming';
+export type AmbientActivity = 'sleeping' | 'grooming' | 'peeking';
 
-export const AMBIENT_PEEK_MS = 25_000;
-export const DEV_AMBIENT_PEEK_MS = 45_000;
+/** How long ambient visits last before Tabby hides again. */
+export const AMBIENT_PEEK_MIN_MS = 60_000;
+export const AMBIENT_PEEK_MAX_MS = 15 * 60_000;
+export const DEV_AMBIENT_PEEK_MIN_MS = 45_000;
+export const DEV_AMBIENT_PEEK_MAX_MS = 3 * 60_000;
 
 /** Daytime = outside quiet hours (when Tabby stays mostly hidden). */
 export function isDaytime(hour: number, settings: ExtensionSettings): boolean {
@@ -14,20 +17,17 @@ export function isDaytime(hour: number, settings: ExtensionSettings): boolean {
 export function effectiveAmbientLimits(settings: ExtensionSettings): {
   maxPerDay: number;
   cooldownMinutes: number;
-  peekDurationMs: number;
 } {
   if (settings.devModeEnabled) {
     return {
       maxPerDay: 48,
       cooldownMinutes: 1,
-      peekDurationMs: DEV_AMBIENT_PEEK_MS,
     };
   }
 
   return {
     maxPerDay: 12,
     cooldownMinutes: 10,
-    peekDurationMs: AMBIENT_PEEK_MS,
   };
 }
 
@@ -65,7 +65,27 @@ export function recordAmbientAppearance(cat: CatState, now: number): CatState {
 }
 
 export function pickAmbientActivity(seed: number): AmbientActivity {
-  return seed % 2 === 0 ? 'sleeping' : 'grooming';
+  const slot = Math.abs(seed) % 3;
+  if (slot === 0) {
+    return 'sleeping';
+  }
+  if (slot === 1) {
+    return 'grooming';
+  }
+  return 'peeking';
+}
+
+/** Random visit length between 1 and 15 minutes (shorter band in dev). */
+export function pickAmbientPeekDurationMs(
+  settings: ExtensionSettings,
+  now: number,
+  adoptedAt: number,
+): number {
+  const minMs = settings.devModeEnabled ? DEV_AMBIENT_PEEK_MIN_MS : AMBIENT_PEEK_MIN_MS;
+  const maxMs = settings.devModeEnabled ? DEV_AMBIENT_PEEK_MAX_MS : AMBIENT_PEEK_MAX_MS;
+  const spread = maxMs - minMs;
+  const roll = Math.abs(now + adoptedAt) % (spread + 1);
+  return minMs + roll;
 }
 
 export interface AmbientPeekInput {

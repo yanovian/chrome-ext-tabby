@@ -6,7 +6,13 @@ import type { AmbientActivity } from './ambient-presence';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
 
 export function moodForAmbient(activity: AmbientActivity): CatMood {
-  return activity === 'sleeping' ? 'sleepy' : 'content';
+  if (activity === 'sleeping') {
+    return 'sleepy';
+  }
+  if (activity === 'peeking') {
+    return 'peek';
+  }
+  return 'content';
 }
 
 /** Pick the mood shown on screen — dev override, ambient peek, or vitals. */
@@ -26,6 +32,17 @@ export function resolveDisplayMood(input: {
     return input.settings.devForceMood;
   }
   return input.derivedMood;
+}
+
+/** Keep peek mood for one hide so the duck-out clip can play. */
+export function moodOverrideWhileHiding(
+  lastMood: CatMood | undefined,
+  companionVisible: boolean,
+): CatMood | undefined {
+  if (companionVisible || lastMood !== 'peek') {
+    return undefined;
+  }
+  return 'peek';
 }
 
 export function buildPresentation(input: {

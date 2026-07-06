@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   hasOverlayChrome,
+  hasUnpromptedSpeech,
   isNewTriggerSpeech,
+  shouldOpenSpeechBubbleForUpdate,
   shouldShowSpeechBubble,
 } from '../utils/overlay-chrome';
 
@@ -24,6 +26,41 @@ describe('isNewTriggerSpeech', () => {
         triggerKind: 'happy',
       }),
     ).toBe(false);
+  });
+});
+
+describe('shouldOpenSpeechBubbleForUpdate', () => {
+  it('opens the bubble again after force tick even when the line repeats', () => {
+    expect(
+      shouldOpenSpeechBubbleForUpdate({
+        introJustFinished: false,
+        isIntro: false,
+        previousSpeech: 'Hello there.',
+        nextSpeech: 'Hello there.',
+        triggerKind: 'happy',
+        speechBubbleOpen: false,
+      }),
+    ).toBe(true);
+  });
+
+  it('does not open during the intro tour', () => {
+    expect(
+      shouldOpenSpeechBubbleForUpdate({
+        introJustFinished: false,
+        isIntro: true,
+        previousSpeech: null,
+        nextSpeech: 'Hi!',
+        triggerKind: 'happy',
+        speechBubbleOpen: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('hasUnpromptedSpeech', () => {
+  it('requires both speech and a trigger kind', () => {
+    expect(hasUnpromptedSpeech({ speech: 'Hi!', triggerKind: 'happy' })).toBe(true);
+    expect(hasUnpromptedSpeech({ speech: 'Hi!', triggerKind: null })).toBe(false);
   });
 });
 
