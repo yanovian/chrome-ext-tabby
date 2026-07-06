@@ -20,17 +20,24 @@ body text, never reads your browsing history, and never uploads anything.
   clipboard, or form fields
 
 Classification uses local site lists, title/URL keywords, and optionally the bundled
-on-device model. Mood changes only after you stay on a page for at least one minute.
+on-device model (title and URL only). Mood changes only after you stay on a page for
+at least one minute. Tabby's lines come from curated speech, not from reading pages.
 
 ## What Tabby stores locally
 
 - **Cat state** — hunger, happiness, stress, energy, age, mood (IndexedDB)
-- **Browsing observations** — title, URL, hostname, local category (IndexedDB)
+- **Browsing observations** — title, URL, hostname, local category (IndexedDB). No page body text.
 - **Recent visit keys** — last 10 page paths for dedup (`chrome.storage.local`)
 - **Memories** — topic summaries Tabby can recall (IndexedDB)
-- **Settings** (`chrome.storage.local`)
+- **Settings** — quiet hours, appearance limits, local AI toggle (`chrome.storage.local`)
+- **Per-page hide list** — pages where you chose Hide Tabby (`chrome.storage.local`)
+- **Do not disturb** — timer end and chosen duration (`chrome.storage.local`)
+- **Intro tour** — whether you finished the first-meeting tour (`chrome.storage.local`)
+- **Overlay position** — where you dragged Tabby (`chrome.storage.local`)
+- **Presentation cache** — last mood and speech snapshot for the floating cat (`chrome.storage.local`)
 
-You can export or delete this data from the settings popup.
+Remove Tabby's data by uninstalling the extension or clearing its storage in Chrome
+(`chrome://extensions` → Tabby → Details → Clear data).
 
 ## What we do not do
 
@@ -47,11 +54,11 @@ You can export or delete this data from the settings popup.
 |------------|-----|
 | `tabs` | Active tab title and URL only — not history |
 | `storage` | Cat state, visit dedup, settings |
-| `alarms` | Minute tick for dwell scoring and passive care |
+| `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Best-effort inject into already-open tabs |
-| `offscreen` | Bundled local model (speech + classification) |
+| `offscreen` | Bundled on-device model for optional page classification |
 
-**Page access:** manifest content script for the floating cat — not broad `host_permissions`.
+**Page access:** manifest content script for the floating cat and Lottie animations. No broad `host_permissions`. Animation files are bundled assets loaded from the extension, not fetched from the web.
 
 ## Contact
 
