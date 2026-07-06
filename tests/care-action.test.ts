@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resolveCareActionPageUrl } from '../utils/care-action';
 import { createInitialCat } from '../utils/cat-sim';
-import { handleCareAction } from '../utils/orchestrator';
+import { handleCareAction, persistPresentation } from '../utils/orchestrator';
 import { pageOverlayKey } from '../utils/page-overlay';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
 
@@ -99,5 +99,40 @@ describe('handleCareAction dismiss', () => {
     ] as string[];
 
     expect(hidden).toEqual([]);
+  });
+});
+
+describe('handleCareAction during peek', () => {
+  it('pet ends peek and shows a happy mood from vitals', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'peek',
+    };
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/animations/adult/peek.json',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: true,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW + 60_000,
+    });
+
+    const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
+
+    expect(presentation.mood).toBe('happy');
+    expect(presentation.ambientActivity).toBeNull();
+    expect(presentation.sprite).toContain('happy.json');
+    expect(presentation.speech).toBeTruthy();
   });
 });

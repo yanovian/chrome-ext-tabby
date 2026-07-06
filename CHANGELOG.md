@@ -14,6 +14,7 @@ Updates for people who use Tabby. Newest first.
 - Hungry lines sound more like **mew and feed me**, less like links.
 - Ambient visits last a **random while** (1–15 min), then she hides again.
 - **Peek** is a new mood: head rises when she appears, ducks below the edge when she hides.
+- **Pet, play, or treat** during a peek brings her out fully with her usual happy mood.
 - The **first-meeting tour** shows when you meet Tabby for the first time.
 
 ## 0.8.0

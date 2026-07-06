@@ -250,6 +250,8 @@ export async function handleCareAction(
   });
   const stage = resolveLifeStage(cat.adoptedAt, now, state.settings.devForceLifeStage);
   const speechKind = careSpeechKind(action);
+  const endsAmbientVisit =
+    action === 'pet' || action === 'treat' || action === 'play' || action === 'ask';
 
   if (action === 'dismiss') {
     await hidePageOverlay(page.url);
@@ -261,9 +263,20 @@ export async function handleCareAction(
     cat = applyCareAction(cat, action, now);
     triggerKind = null;
     await saveCatState(cat);
+    moodOverride = deriveMoodFromVitals({
+      vitals: cat.vitals,
+      now,
+      settings: state.settings,
+      isUserIdle: state.isUserIdle,
+    });
   }
 
-  const mood = moodOverride ?? derivedMood;
+  const mood = moodOverride ?? deriveMoodFromVitals({
+    vitals: cat.vitals,
+    now,
+    settings: state.settings,
+    isUserIdle: state.isUserIdle,
+  });
   let speech: string | null = null;
 
   if (speechKind) {
@@ -294,11 +307,17 @@ export async function handleCareAction(
     speech,
     triggerKind,
     overlayHidden: false,
-    moodOverride: action === 'ask' ? moodOverride : undefined,
+    moodOverride,
     lastCareAction: mapCareActionToInteraction(action),
     companionVisible: keepVisible,
-    ambientActivity: keepVisible ? state.lastPresentation?.ambientActivity ?? null : null,
-    ambientPeekUntil: keepVisible ? state.lastPresentation?.ambientPeekUntil ?? null : null,
+    ambientActivity:
+      keepVisible && !endsAmbientVisit
+        ? state.lastPresentation?.ambientActivity ?? null
+        : null,
+    ambientPeekUntil:
+      keepVisible && !endsAmbientVisit
+        ? state.lastPresentation?.ambientPeekUntil ?? null
+        : null,
   });
 
   await persistPresentation(presentation);
