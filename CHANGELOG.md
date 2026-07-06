@@ -2,12 +2,18 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 0.9.0 (unreleased)
+
+- Bug fixes
+
+
 ## 0.8.0
 
 - Tabby only uses the **tab title and web address** to react to what you're reading. She never reads page text or your browsing history.
 - Her mood changes only if you **stay on a page for about a minute**. Opening the same page again soon won't stack extra mood changes.
 - **Smarter guesses** for familiar kinds of sites (social feeds, learning pages, YouTube, shopping, and more).
 - The **Varied local speech** setting also helps when a page is hard to classify. Still fully on your device.
+
 - During the day Tabby **stays out of the way** and only **pops in quietly** now and then (napping or grooming, no chat).
 - Tap **More** for **Do not disturb** (30 minutes, 1 hour, or today) when you need focus on every tab.
 - Fixed Tabby **coming back** after do not disturb when you open the extension menu.

@@ -1,8 +1,6 @@
 import type { DoNotDisturbDuration, DoNotDisturbStatus } from './types';
 import { STORAGE_KEYS } from './types';
 
-export type { DoNotDisturbDuration };
-
 export interface DoNotDisturbState {
   until: number | null;
   duration?: DoNotDisturbDuration | null;
