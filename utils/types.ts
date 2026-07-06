@@ -144,8 +144,6 @@ export interface ExtensionSettings {
   devForceMood: DevMoodOverride;
   /** Show the floating cat overlay on web pages. */
   showOverlay: boolean;
-  /** Generate varied speech with the bundled local model (offline). */
-  localSpeechEnabled: boolean;
 }
 
 export const CAT_NAME = 'Tabby' as const;
@@ -163,7 +161,6 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   devForceLifeStage: 'auto',
   devForceMood: 'auto',
   showOverlay: true,
-  localSpeechEnabled: true,
 };
 
 export const DB = {

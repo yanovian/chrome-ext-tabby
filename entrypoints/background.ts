@@ -31,7 +31,6 @@ import {
 import { getDoNotDisturbStatus } from '../utils/do-not-disturb';
 import { resolveCareActionPageUrl } from '../utils/care-action';
 import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
-import { preloadSpeechEngine } from '../utils/speech-service';
 import { effectiveAppearanceLimits, ensureSettingsExist, getSettings, saveSettings } from '../utils/settings';
 import {
   beginFocus,
@@ -223,10 +222,6 @@ function activePageContext(): PageContext {
 async function bootstrap(): Promise<void> {
   await ensureSettingsExist(IS_DEV_BUILD);
   await ensureCatExists(Date.now());
-  const state = await loadOrchestratorState();
-  if (state.settings.localSpeechEnabled) {
-    void preloadSpeechEngine();
-  }
   await scheduleTickAlarm();
 
   const [activeTab] = await browser.tabs.query({
@@ -234,7 +229,8 @@ async function bootstrap(): Promise<void> {
     currentWindow: true,
   });
   await focusActiveTab(activeTab, Date.now());
-  if (!state.settings.showOverlay) {
+  const settings = await getSettings(IS_DEV_BUILD);
+  if (!settings.showOverlay) {
     await updateToolbarFromPresentation();
   }
 }
@@ -355,15 +351,6 @@ export default defineBackground(() => {
   });
 
   browser.runtime.onMessage.addListener((message: RuntimeMessage, sender, sendResponse) => {
-    const msgType = (message as { type?: string })?.type;
-    if (
-      msgType === 'speech:generate' ||
-      msgType === 'speech:warm' ||
-      msgType === 'classify:generate'
-    ) {
-      return false;
-    }
-
     void (async () => {
       try {
         switch (message?.type) {

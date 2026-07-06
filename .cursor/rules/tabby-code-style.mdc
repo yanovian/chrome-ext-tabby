@@ -15,7 +15,7 @@ alwaysApply: true
 ## Structure
 
 - **Small files, one job** (e.g. `visit-dedup.ts`, `site-registry.ts`, `youtube-classifier.ts`). Not a god `utils.ts`.
-- **Clear names**: `tryScoreActivePage`, `hasDwelledLongEnough`, `classifyTabWithAi`. Avoid `data`, `handle`, `process`.
+- **Clear names**: `tryScoreActivePage`, `hasDwelledLongEnough`, `classifyTab`. Avoid `data`, `handle`, `process`.
 - Match existing patterns: WXT entrypoints, Vitest tests beside `utils/`, TypeScript strict.
 
 ## Dependencies
@@ -28,7 +28,7 @@ alwaysApply: true
 
 - Background service worker stays light. Queue tab work; avoid blocking the SW.
 - One active overlay tab. Do not poll page DOM.
-- Local AI is optional and offscreen. Heuristics first; model only when needed.
+- Heuristics only for page classification (`utils/site-registry.ts`, `utils/classifier.ts`). No bundled ML models.
 
 ## When behavior changes
 

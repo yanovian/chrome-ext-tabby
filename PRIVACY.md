@@ -19,8 +19,7 @@ body text, never reads your browsing history, and never uploads anything.
 - **Not read:** page HTML or visible text, browsing history, bookmarks, closed tabs,
   clipboard, or form fields
 
-Classification uses local site lists, title/URL keywords, and optionally the bundled
-on-device model (title and URL only). Mood changes only after you stay on a page for
+Classification uses local site lists and title/URL keywords. Mood changes only after you stay on a page for
 at least one minute. Tabby's lines come from curated speech, not from reading pages.
 
 ## What Tabby stores locally
@@ -29,7 +28,7 @@ at least one minute. Tabby's lines come from curated speech, not from reading pa
 - **Browsing observations** — title, URL, hostname, local category (IndexedDB). No page body text.
 - **Recent visit keys** — last 10 page paths for dedup (`chrome.storage.local`)
 - **Memories** — topic summaries Tabby can recall (IndexedDB)
-- **Settings** — quiet hours, appearance limits, local AI toggle (`chrome.storage.local`)
+- **Settings** — quiet hours, appearance limits (`chrome.storage.local`)
 - **Per-page hide list** — pages where you chose Hide Tabby (`chrome.storage.local`)
 - **Do not disturb** — timer end and chosen duration (`chrome.storage.local`)
 - **Intro tour** — whether you finished the first-meeting tour (`chrome.storage.local`)
@@ -56,7 +55,6 @@ Remove Tabby's data by uninstalling the extension or clearing its storage in Chr
 | `storage` | Cat state, visit dedup, settings |
 | `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Best-effort inject into already-open tabs |
-| `offscreen` | Bundled on-device model for optional page classification |
 
 **Page access:** manifest content script for the floating cat and Lottie animations. No broad `host_permissions`. Animation files are bundled assets loaded from the extension, not fetched from the web.
 

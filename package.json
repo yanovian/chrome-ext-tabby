@@ -20,14 +20,11 @@
     "locales": "node scripts/generate-locales.mjs",
     "icons": "python3 scripts/generate-icons.py",
     "animations": "node scripts/generate-scaffold-animations.mjs",
-    "assets": "pnpm sync:ort && pnpm sync:speech-model && pnpm locales && pnpm animations",
-    "sync:ort": "node scripts/sync-ort-wasm.mjs",
-    "sync:speech-model": "node scripts/sync-speech-model.mjs",
-    "postinstall": "wxt prepare && node scripts/sync-ort-wasm.mjs && node scripts/sync-speech-model.mjs && node scripts/generate-locales.mjs"
+    "assets": "pnpm locales && pnpm animations",
+    "postinstall": "wxt prepare && node scripts/generate-locales.mjs"
   },
   "packageManager": "pnpm@10.33.4",
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
     "@lottiefiles/dotlottie-web": "^0.76.0"
   },
   "devDependencies": {

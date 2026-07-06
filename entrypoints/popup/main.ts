@@ -20,7 +20,6 @@ import type { DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '.
 const IS_DEV_BUILD = import.meta.env.DEV;
 
 const fields = {
-  localSpeechEnabled: document.getElementById('local-speech-enabled') as HTMLInputElement,
   quietStart: document.getElementById('quiet-start') as HTMLInputElement,
   quietEnd: document.getElementById('quiet-end') as HTMLInputElement,
   maxAppearances: document.getElementById('max-appearances') as HTMLInputElement,
@@ -159,7 +158,6 @@ async function refreshOverlayButtons(settings = cachedSettings): Promise<void> {
 
 function fillForm(settings: ExtensionSettings): void {
   cachedSettings = settings;
-  fields.localSpeechEnabled.checked = settings.localSpeechEnabled;
   fields.quietStart.value = String(settings.quietHoursStart);
   fields.quietEnd.value = String(settings.quietHoursEnd);
   fields.maxAppearances.value = String(settings.maxAppearancesPerDay);
@@ -176,7 +174,6 @@ function fillForm(settings: ExtensionSettings): void {
 function readPartialSettings(): Partial<ExtensionSettings> {
   return {
     showOverlay: cachedSettings.showOverlay,
-    localSpeechEnabled: fields.localSpeechEnabled.checked,
     quietHoursStart: Number(fields.quietStart.value),
     quietHoursEnd: Number(fields.quietEnd.value),
     maxAppearancesPerDay: Number(fields.maxAppearances.value),

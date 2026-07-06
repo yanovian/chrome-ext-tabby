@@ -109,10 +109,6 @@ export function mergeSettings(
       typeof raw.showOverlay === 'boolean'
         ? raw.showOverlay
         : DEFAULT_SETTINGS.showOverlay,
-    localSpeechEnabled:
-      typeof raw.localSpeechEnabled === 'boolean'
-        ? raw.localSpeechEnabled
-        : DEFAULT_SETTINGS.localSpeechEnabled,
   };
 }
 

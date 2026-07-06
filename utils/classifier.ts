@@ -92,9 +92,6 @@ export interface ClassificationResult {
   source: ClassificationSource;
 }
 
-/** Confidence below this triggers optional local AI refinement. */
-export const AI_CLASSIFY_CONFIDENCE_THRESHOLD = 0.72;
-
 export function isTrackableUrl(url: string | undefined): url is string {
   if (!url) {
     return false;
@@ -251,8 +248,4 @@ export function classifyTab(input: ClassificationInput): ClassificationResult {
     topic: deriveTopic(combinedText, hostname),
     source: 'default',
   };
-}
-
-export function needsAiRefinement(result: ClassificationResult): boolean {
-  return result.confidence < AI_CLASSIFY_CONFIDENCE_THRESHOLD;
 }

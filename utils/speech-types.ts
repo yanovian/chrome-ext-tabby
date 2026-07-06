@@ -14,7 +14,7 @@ export type SpeechKind =
   | 'playing_wild'
   | 'playing_thanks';
 
-/** Inputs for local speech generation — fully on-device, no network. */
+/** Inputs for curated speech line selection. */
 export interface SpeechContext {
   kind: SpeechKind;
   mood: CatMood;
@@ -25,7 +25,3 @@ export interface SpeechContext {
   memoryTopic?: string;
   milestoneDays?: number;
 }
-
-export const SPEECH_MODEL = 'Xenova/flan-t5-small' as const;
-
-export const SPEECH_GENERATION_TIMEOUT_MS = 12_000;

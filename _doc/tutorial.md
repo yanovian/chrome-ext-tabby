@@ -44,7 +44,7 @@ Click the **Tabby icon** in the toolbar.
 
 ![Settings: do not disturb, visibility, quiet hours](./screenshots/screenshot-2.jpg)
 
-**Quiet hours** keep **unprompted** speech off at night. **Privacy** explains that she uses tab title and web address only. Toggle **Local AI page classification** if you want the bundled on-device model to refine unclear guesses (speech stays curated either way).
+**Quiet hours** keep **unprompted** speech off at night. **Privacy** explains that she uses tab title and web address only, with known sites and keywords.
 
 **When Tabby speaks up** sets how often she may check in unprompted while you browse (not when you tap her).
 

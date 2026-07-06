@@ -10,7 +10,7 @@ Tabby is a **local-only** browser companion. Treat every new feature as a Chrome
 ## Permission bar (highest priority)
 
 - Request the **minimum** manifest permissions. Never add `history`, broad `host_permissions`, or `<all_urls>` without explicit user approval and doc updates.
-- **Allowed today:** `tabs` (active tab title + URL only), `storage`, `alarms`, `scripting` (best-effort), `offscreen` (bundled model).
+- **Allowed today:** `tabs` (active tab title + URL only), `storage`, `alarms`, `scripting` (best-effort).
 - **Never read page body text.** Classify from **title + URL** only (`utils/site-registry.ts`, `utils/classifier.ts`).
 - No analytics, accounts, cloud inference, or remote code execution.
 

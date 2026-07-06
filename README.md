@@ -25,11 +25,10 @@ and grows over time. Everything stays local.
 
 - **Floating cat companion** — Tabby appears on pages you visit. Drag her anywhere.
 - **Mood-aware care menu** — tap Tabby to pet, feed, play, or ask what's up.
-- **Local browsing memory** — title and URL only (known sites + optional local AI). No page body text. Mood shifts after 1+ minute on a page.
+- **Local browsing memory** — title and URL only (known sites + keywords). No page body text. Mood shifts after 1+ minute on a page.
 - **Three life stages** — newborn kitten → playful kitten → grown-up cat, each with its own **Lottie** animations (idle, happy, sleepy, and more).
 - **Quiet hours** — unprompted speech stays off during the hours you choose.
 - **Show / hide controls** — hide Tabby on this page, on every page, or bring her back with one click.
-- **Optional local AI classification** — when a page is hard to guess, a bundled on-device model refines the category from title and URL only. Speech uses curated lines.
 - **Do not disturb** — hide Tabby on every tab for 30 minutes, 1 hour, or until end of today.
 
 ## Permissions
@@ -40,7 +39,6 @@ and grows over time. Everything stays local.
 | `storage` | Save settings, cat state, and per-page hide preferences locally |
 | `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Reserved for best-effort inject into already-open tabs (usually a no-op without host permissions) |
-| `offscreen` | Run the bundled on-device classification model without blocking the service worker |
 
 Tabby runs on web pages via a **manifest content script** (not `host_permissions`). The cat loads on normal navigation. Tabs that were already open at install may need a **refresh** once.
 
@@ -107,7 +105,6 @@ Long-form store copy per language: [`_doc/store-listing.md`](./_doc/store-listin
 3. **Classify** — a local pipeline guesses the vibe:
    - **Known sites first** — social feeds, dev docs (GitHub, Stack Overflow, AWS, …), YouTube (title + path heuristics), shopping, banking ([`utils/site-registry.ts`](./utils/site-registry.ts)).
    - **Title/URL keywords** — tutorials, gossip, login pages, etc.
-   - **Local AI fallback** — when the guess is uncertain, the bundled on-device model refines it (toggle in settings).
 4. **React** — after you stay on a page for **at least 1 minute**, and only if that path is **not** in the last **10** scored pages, Tabby gets a small mood nudge (+1 style: happiness, stress, hunger).
 5. **Remember** — nourishing topics (e.g. Kubernetes) become memories in IndexedDB.
 6. **Grow** — life stage advances by **calendar time**, not browsing.
@@ -118,7 +115,7 @@ Tabby is a mood companion. She needs the active tab's title and URL so browsing 
 
 | Signal | Used for | Read? |
 |--------|----------|-------|
-| Active tab **title + URL** | Site list → keywords → local AI → mood | Yes (`tabs`) |
+| Active tab **title + URL** | Site list → keywords → mood | Yes (`tabs`) |
 | **Page body text** | — | **Never** |
 | **Browsing history** | — | **Never** |
 | **Time on page** | Must be ≥ 1 min before mood changes | Measured locally |
@@ -142,18 +139,10 @@ Return to kubernetes.io/docs (still in last 10)  →  skipped
 - **Life stage animations** (newborn / playful / adult) — real-world days together. Each stage uses bundled **[Lottie](https://lottiefiles.com/)** JSON clips played with [dotLottie Web](https://github.com/LottieFiles/dotlottie-web).
 - **Unprompted speech limits** — quiet hours and daily caps are separate.
 
-## On-device AI
-
-The bundled **`flan-t5-small`** model ([Transformers.js](https://huggingface.co/docs/transformers.js) + ONNX, offscreen document) can run fully on-device:
-
-- **Classification** — refines low-confidence title/URL guesses into nourishing / draining / neutral.
-- **Speech** — curated lines in normal use. The model stack is bundled for classification; turn **Local AI page classification** off in settings to use site lists + keywords only (no model load).
-
 ## Tech stack
 
 - [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
 - [Lottie](https://lottiefiles.com/) + [dotLottie Web](https://github.com/LottieFiles/dotlottie-web) — vector cat animations (`public/animations/`)
-- [Transformers.js](https://huggingface.co/docs/transformers.js) — optional on-device classification (`flan-t5-small`)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
 - GitHub Actions — CI on PR/push, releases on version tags

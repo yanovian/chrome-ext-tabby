@@ -13,7 +13,7 @@ install: ## Install dependencies (pnpm)
 animations: ## Regenerate companion Lottie JSON (public/animations/)
 	$(PNPM) animations
 
-assets: ## Prepare bundled assets (ORT, speech model, locales, animations)
+assets: ## Prepare bundled assets (locales, animations)
 	$(PNPM) assets
 
 prepare: ## Generate WXT types and prepare the project

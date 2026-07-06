@@ -241,7 +241,7 @@ export function evaluateEmotionalTrigger(
   };
 }
 
-/** Sync preview used in tests and when local AI is disabled. */
+/** Sync preview used in tests. */
 export function previewTriggerSpeech(context: SpeechContext): string {
   return fallbackSpeech(context);
 }

@@ -2,17 +2,9 @@ import { readdirSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig } from 'wxt';
 
-function removeLegacySprites(dir: string): void {
-  const sprites = join(dir, 'sprites');
-  try {
-    rmSync(sprites, { recursive: true, force: true });
-  } catch {
-    return;
-  }
-  console.log('ℹ Removed legacy sprites/ from build output');
-}
+const FORBIDDEN_OUTPUT_DIRS = ['sprites', 'models', 'ort'];
 
-function removeRedundantWasm(dir: string): void {
+function removeForbiddenDirs(dir: string, prefix = ''): void {
   let entries: string[];
   try {
     entries = readdirSync(dir);
@@ -20,12 +12,15 @@ function removeRedundantWasm(dir: string): void {
     return;
   }
   for (const entry of entries) {
+    const rel = prefix ? `${prefix}/${entry}` : entry;
     const full = join(dir, entry);
+    if (FORBIDDEN_OUTPUT_DIRS.includes(entry) && statSync(full).isDirectory()) {
+      rmSync(full, { recursive: true, force: true });
+      console.log(`ℹ Removed ${rel}/ from build output`);
+      continue;
+    }
     if (statSync(full).isDirectory()) {
-      removeRedundantWasm(full);
-    } else if (/[/\\]assets[/\\]ort-wasm-.*\.wasm$/.test(full)) {
-      rmSync(full);
-      console.log(`ℹ Removed redundant bundled copy: ${entry}`);
+      removeForbiddenDirs(full, rel);
     }
   }
 }
@@ -39,12 +34,10 @@ export default defineConfig({
       manifest.action = { ...manifest.action, default_title: '__MSG_actionTitle__' };
     },
     'build:done'(wxt) {
-      // Dev rebuilds must keep bundled WASM reachable; strip duplicates on release only.
       if (wxt.config.command === 'serve') {
         return;
       }
-      removeLegacySprites(wxt.config.outDir);
-      removeRedundantWasm(wxt.config.outDir);
+      removeForbiddenDirs(wxt.config.outDir);
     },
   },
   manifest: {
@@ -55,7 +48,7 @@ export default defineConfig({
     short_name: 'Tabby',
     default_locale: 'en',
     description: '__MSG_extDescription__',
-    permissions: ['tabs', 'storage', 'alarms', 'scripting', 'offscreen'],
+    permissions: ['tabs', 'storage', 'alarms', 'scripting'],
     // No host_permissions — the content script is declared in the manifest (see
     // entrypoints/content). That covers the floating cat on normal navigation
     // without broad host_permissions (Chrome Web Store).
@@ -69,8 +62,7 @@ export default defineConfig({
       },
     ],
     content_security_policy: {
-      extension_pages:
-        "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+      extension_pages: "script-src 'self'; object-src 'self'",
     },
   },
   zip: {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fail if a production build still contains legacy assets we no longer ship.
+ * Fail if a production build still contains legacy or removed assets.
  * Run after `pnpm build` or `pnpm zip`.
  */
 import { existsSync, readdirSync, statSync } from 'node:fs';
@@ -13,7 +13,7 @@ if (!existsSync(OUT)) {
   process.exit(1);
 }
 
-const forbidden = ['sprites'];
+const forbidden = ['sprites', 'models', 'ort'];
 const problems = [];
 
 function walk(dir, prefix = '') {
