@@ -9,6 +9,7 @@ export function isCompanionOverlayVisible(input: {
   return (
     input.showOverlayEnabled &&
     input.presentation !== null &&
+    input.presentation.companionVisible &&
     !input.pageOverlayHidden
   );
 }

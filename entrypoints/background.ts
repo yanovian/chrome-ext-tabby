@@ -7,6 +7,8 @@ import {
 } from '../utils/active-overlay';
 import {
   ensureCatExists,
+  cancelDoNotDisturb,
+  enableDoNotDisturb,
   evaluateAndPresent,
   getCurrentPresentation,
   getPageOverlayState,
@@ -19,6 +21,7 @@ import {
   showOverlayOnPage,
   type PageContext,
 } from '../utils/orchestrator';
+import { getDoNotDisturbStatus } from '../utils/do-not-disturb';
 import { resolveCareActionPageUrl } from '../utils/care-action';
 import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
 import { preloadSpeechEngine } from '../utils/speech-service';
@@ -138,14 +141,16 @@ async function syncOverlayToTab(
 ): Promise<void> {
   const settings = await getSettings(IS_DEV_BUILD);
   const nextTabId = resolveActiveOverlayTabId(tab, settings.showOverlay);
+  const presentation = await getCurrentPresentation();
+  const shouldShow = nextTabId !== null && presentation.companionVisible;
 
-  if (activeOverlayTabId !== null && activeOverlayTabId !== nextTabId) {
+  if (activeOverlayTabId !== null && (activeOverlayTabId !== nextTabId || !shouldShow)) {
     await notifyOverlayDeactivate(activeOverlayTabId);
   }
 
-  activeOverlayTabId = nextTabId;
+  activeOverlayTabId = shouldShow ? nextTabId : null;
 
-  if (nextTabId !== null) {
+  if (shouldShow && nextTabId !== null) {
     await notifyOverlayActivate(nextTabId);
   }
 }
@@ -374,6 +379,33 @@ export default defineBackground(() => {
             const settings = await getSettings(IS_DEV_BUILD);
             const tab = await activeTabContext();
             const data = await getPageOverlayState(message.url ?? tab.url, settings);
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'getDoNotDisturb': {
+            const data = await getDoNotDisturbStatus();
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'cancelDoNotDisturb': {
+            const data = await cancelDoNotDisturb(Date.now());
+            const [activeTab] = await browser.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            await syncOverlayToTab(activeTab);
+            await updateToolbarFromPresentation();
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'setDoNotDisturb': {
+            const data = await enableDoNotDisturb(message.duration, Date.now());
+            const [activeTab] = await browser.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            await syncOverlayToTab(activeTab);
+            await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             return;
           }

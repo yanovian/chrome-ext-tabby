@@ -68,11 +68,20 @@
   font-size: 12px;
 }
 
-.settings__overlay-actions {
+.settings__hint--inline {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.settings__action-stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 8px;
+}
+
+.settings__action-stack[hidden] {
+  display: none;
 }
 
 .settings__button {

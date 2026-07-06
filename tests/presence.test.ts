@@ -1,0 +1,117 @@
+import { describe, expect, it } from 'vitest';
+import { createInitialCat } from '../utils/cat-sim';
+import { resolveCompanionPresence } from '../utils/presence';
+import { DEFAULT_SETTINGS, type CatPresentation } from '../utils/types';
+
+const NOW = Date.parse('2026-07-06T14:00:00.000Z');
+
+const basePresentation: CatPresentation = {
+  mood: 'content',
+  stage: 'adult',
+  stageLabel: 'Grown-up Tabby',
+  sprite: '/sprites/adult/content.png',
+  speech: null,
+  triggerKind: null,
+  overlayHidden: false,
+  canPet: true,
+  canTreat: false,
+  canPlay: false,
+  interactions: [],
+  secondaryInteractions: [],
+  lastCareAction: null,
+  companionVisible: false,
+  ambientActivity: null,
+  ambientPeekUntil: null,
+};
+
+describe('resolveCompanionPresence', () => {
+  it('hides Tabby during global do not disturb', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: false,
+        mood: 'content',
+        speechContext: null,
+        triggerKind: null,
+      },
+      doNotDisturb: { until: NOW + 60_000 },
+      introCompleted: true,
+      lastPresentation: null,
+    });
+
+    expect(result.companionVisible).toBe(false);
+  });
+
+  it('hides Tabby during do not disturb even before intro is completed', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: false,
+        mood: 'content',
+        speechContext: null,
+        triggerKind: null,
+      },
+      doNotDisturb: { until: NOW + 60_000 },
+      introCompleted: false,
+      lastPresentation: null,
+    });
+
+    expect(result.companionVisible).toBe(false);
+  });
+
+  it('shows speech without ambient activity', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: true,
+        mood: 'hungry',
+        speechContext: {
+          kind: 'hungry',
+          mood: 'hungry',
+          stage: 'adult',
+          seed: NOW,
+        },
+        triggerKind: 'hungry',
+      },
+      doNotDisturb: { until: null },
+      introCompleted: true,
+      lastPresentation: null,
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.recordSpeech).toBe(true);
+    expect(result.ambientActivity).toBeNull();
+  });
+
+  it('keeps an ambient peek alive until it expires', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: false,
+        mood: 'sleepy',
+        speechContext: null,
+        triggerKind: null,
+      },
+      doNotDisturb: { until: null },
+      introCompleted: true,
+      lastPresentation: {
+        ...basePresentation,
+        companionVisible: true,
+        ambientActivity: 'sleeping',
+        ambientPeekUntil: NOW + 20_000,
+      },
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.ambientActivity).toBe('sleeping');
+    expect(result.recordAmbient).toBe(false);
+  });
+});

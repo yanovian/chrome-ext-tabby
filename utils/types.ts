@@ -62,6 +62,9 @@ export interface CatState {
   nudgesToday: number;
   nudgesDayKey: string;
   mischiefCooldownAt: number;
+  lastAmbientAt: number;
+  ambientsToday: number;
+  ambientsDayKey: string;
 }
 
 /** A memory Tabby can recall in conversation. */
@@ -94,6 +97,12 @@ export interface CatPresentation {
   secondaryInteractions: import('./cat-interactions').SecondaryInteractionOption[];
   /** Last care button the user pressed — highlighted until they pick another. */
   lastCareAction: import('./cat-interactions').InteractionAction | null;
+  /** Whether the cat sprite is on screen right now (global, not per-tab). */
+  companionVisible: boolean;
+  /** Quiet idle animation while visible without speech. */
+  ambientActivity: import('./ambient-presence').AmbientActivity | null;
+  /** When an ambient peek should end and Tabby hide again. */
+  ambientPeekUntil: number | null;
 }
 
 /** Saved position for the draggable overlay (pixels from top-left). */
@@ -169,13 +178,25 @@ export const STORAGE_KEYS = {
   hiddenPageKeys: 'hiddenPageKeys',
   /** Hostname + path keys for the last few counted page visits (anti-cheat). */
   recentVisitKeys: 'recentVisitKeys',
+  /** Timestamp (ms) until global do-not-disturb ends. */
+  doNotDisturbUntil: 'doNotDisturbUntil',
+  /** Original do-not-disturb duration chosen by the user. */
+  doNotDisturbDuration: 'doNotDisturbDuration',
 } as const;
 
 export const ALARM_NAMES = {
   tick: 'tabby-tick',
 } as const;
 
-export type CareAction = 'pet' | 'treat' | 'play' | 'ask' | 'dismiss';
+export type CareAction =
+  | 'pet'
+  | 'treat'
+  | 'play'
+  | 'ask'
+  | 'dismiss'
+  | 'dnd_30'
+  | 'dnd_60'
+  | 'dnd_today';
 
 /** Whether Tabby is visible on the active tab (settings popup). */
 export interface PageOverlayState {
@@ -183,6 +204,15 @@ export interface PageOverlayState {
   applicable: boolean;
   /** Tabby is currently visible on this tab. */
   visible: boolean;
+}
+
+export type DoNotDisturbDuration = '30m' | '60m' | 'today';
+
+export interface DoNotDisturbStatus {
+  active: boolean;
+  until: number | null;
+  duration: DoNotDisturbDuration | null;
+  summary: string | null;
 }
 
 export type TabObservationInput = Omit<
@@ -198,6 +228,9 @@ export type RuntimeMessage =
   | { type: 'showOverlay'; url?: string; title?: string }
   | { type: 'hideOverlay'; url?: string }
   | { type: 'getPageOverlayState'; url?: string }
+  | { type: 'getDoNotDisturb' }
+  | { type: 'setDoNotDisturb'; duration: DoNotDisturbDuration }
+  | { type: 'cancelDoNotDisturb' }
   | { type: 'syncActiveOverlay' }
   | { type: 'isActiveOverlayTab' }
   | { type: 'tick' }

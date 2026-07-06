@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
+  cancelDoNotDisturb,
+  enableDoNotDisturb,
+  getCurrentPresentation,
   persistPresentation,
   presentOnActiveTab,
   recordPageVisit,
   runMinuteTick,
+  showOverlayOnPage,
 } from '../utils/orchestrator';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
 
@@ -31,6 +35,12 @@ beforeEach(() => {
         },
         set: async (items: Record<string, unknown>) => {
           Object.assign(store, items);
+        },
+        remove: async (keys: string | string[]) => {
+          const list = Array.isArray(keys) ? keys : [keys];
+          for (const key of list) {
+            delete store[key];
+          }
         },
       },
     },
@@ -65,6 +75,9 @@ describe('recordPageVisit', () => {
       interactions: [],
       secondaryInteractions: [],
       lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
     });
 
     await recordPageVisit({
@@ -120,6 +133,9 @@ describe('runMinuteTick', () => {
       interactions: [],
       secondaryInteractions: [],
       lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
     });
 
     await runMinuteTick(NOW, { present: false });
@@ -129,6 +145,41 @@ describe('runMinuteTick', () => {
     ] as { speech?: string };
 
     expect(cached.speech).toBe('Still cached');
+  });
+});
+
+describe('getCurrentPresentation', () => {
+  it('keeps Tabby hidden while do not disturb is active', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: 'Hello',
+      triggerKind: 'hungry',
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'sleeping',
+      ambientPeekUntil: NOW + 60_000,
+    });
+    store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.ambientActivity).toBeNull();
+    expect(presentation.speech).toBeNull();
+
+    vi.useRealTimers();
   });
 });
 
@@ -148,6 +199,9 @@ describe('presentOnActiveTab', () => {
       interactions: [],
       secondaryInteractions: [],
       lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
     });
 
     const result = await presentOnActiveTab(NOW, {
@@ -157,5 +211,93 @@ describe('presentOnActiveTab', () => {
 
     expect(result.lastPresentation).not.toBeNull();
     expect(result.lastPresentation?.speech).not.toBe('Old line');
+  });
+});
+
+describe('showOverlayOnPage', () => {
+  it('clears do not disturb and shows Tabby immediately', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
+    store[STORAGE_KEYS.doNotDisturbDuration] = '30m';
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await showOverlayOnPage(NOW, {
+      title: 'Example',
+      url: 'https://example.com/page',
+    });
+
+    expect(store[STORAGE_KEYS.doNotDisturbUntil]).toBeUndefined();
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.speech).toBeTruthy();
+
+    vi.useRealTimers();
+  });
+});
+
+describe('enableDoNotDisturb', () => {
+  it('hides Tabby and stores do not disturb', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const presentation = await enableDoNotDisturb('30m', NOW);
+
+    expect(store[STORAGE_KEYS.doNotDisturbUntil]).toBe(NOW + 30 * 60_000);
+    expect(store[STORAGE_KEYS.doNotDisturbDuration]).toBe('30m');
+    expect(presentation.companionVisible).toBe(false);
+
+    vi.useRealTimers();
+  });
+});
+
+describe('cancelDoNotDisturb', () => {
+  it('clears do not disturb without forcing Tabby visible', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
+    store[STORAGE_KEYS.doNotDisturbDuration] = '30m';
+    store[STORAGE_KEYS.introCompleted] = true;
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await cancelDoNotDisturb(NOW);
+
+    expect(store[STORAGE_KEYS.doNotDisturbUntil]).toBeUndefined();
+    expect(presentation.companionVisible).toBe(false);
+
+    vi.useRealTimers();
   });
 });

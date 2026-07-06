@@ -17,8 +17,49 @@
       </header>
 
       <section class="settings__section">
+        <h2>Do not disturb</h2>
+        <p class="settings__hint">
+          Tabby stays hidden on every tab until the timer ends.
+        </p>
+        <div id="dnd-active-panel" class="settings__action-stack" hidden>
+          <p id="dnd-status-text" class="settings__hint settings__hint--inline"></p>
+          <button
+            id="cancel-dnd-btn"
+            type="button"
+            class="settings__button settings__button--hide"
+          >
+            Cancel do not disturb
+          </button>
+        </div>
+        <div id="dnd-inactive-panel" class="settings__action-stack">
+          <p class="settings__hint settings__hint--inline">How long should Tabby stay quiet?</p>
+          <button
+            id="set-dnd-30-btn"
+            type="button"
+            class="settings__button settings__button--hide"
+          >
+            30 minutes
+          </button>
+          <button
+            id="set-dnd-60-btn"
+            type="button"
+            class="settings__button settings__button--hide"
+          >
+            1 hour
+          </button>
+          <button
+            id="set-dnd-today-btn"
+            type="button"
+            class="settings__button settings__button--hide"
+          >
+            Until end of today
+          </button>
+        </div>
+      </section>
+
+      <section class="settings__section">
         <h2>Tabby on your page</h2>
-        <div class="settings__overlay-actions">
+        <div class="settings__action-stack">
           <button
             id="show-all-btn"
             type="button"

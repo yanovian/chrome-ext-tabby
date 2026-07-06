@@ -1,15 +1,18 @@
 import {
   publicAssetUrl,
+  requestCancelDoNotDisturb,
+  requestDoNotDisturbStatus,
   requestSyncActiveOverlay,
   requestHideOverlayOnPage,
   requestPageOverlayState,
   requestPresentation,
   requestResetIntro,
   requestSaveSettings,
+  requestSetDoNotDisturb,
   requestSettings,
   requestShowOverlayOnPage,
 } from '../../utils/runtime-client';
-import type { ExtensionSettings } from '../../utils/types';
+import type { DoNotDisturbDuration, ExtensionSettings } from '../../utils/types';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
 
@@ -38,9 +41,17 @@ const hideAllButton = document.getElementById('hide-all-btn') as HTMLButtonEleme
 const showPageButton = document.getElementById('show-page-btn') as HTMLButtonElement;
 const hidePageButton = document.getElementById('hide-page-btn') as HTMLButtonElement;
 const pageOverlayHint = document.getElementById('page-overlay-hint') as HTMLParagraphElement;
+const dndActivePanel = document.getElementById('dnd-active-panel') as HTMLDivElement;
+const dndInactivePanel = document.getElementById('dnd-inactive-panel') as HTMLDivElement;
+const dndStatusText = document.getElementById('dnd-status-text') as HTMLParagraphElement;
+const cancelDndButton = document.getElementById('cancel-dnd-btn') as HTMLButtonElement;
+const setDnd30Button = document.getElementById('set-dnd-30-btn') as HTMLButtonElement;
+const setDnd60Button = document.getElementById('set-dnd-60-btn') as HTMLButtonElement;
+const setDndTodayButton = document.getElementById('set-dnd-today-btn') as HTMLButtonElement;
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let overlayActionBusy = false;
+let dndRefreshTimer: number | null = null;
+let actionBusy = false;
 let cachedSettings: ExtensionSettings;
 
 interface ActiveTabInfo {
@@ -83,6 +94,20 @@ async function ensureOverlayOnActiveTab(tabId?: number): Promise<void> {
       files: ['/content-scripts/content.js'],
     })
     .catch(() => undefined);
+}
+
+async function refreshDoNotDisturbSection(): Promise<void> {
+  const status = await requestDoNotDisturbStatus();
+  if (!status.active || !status.summary) {
+    dndActivePanel.hidden = true;
+    dndInactivePanel.hidden = false;
+    dndStatusText.textContent = '';
+    return;
+  }
+
+  dndActivePanel.hidden = false;
+  dndInactivePanel.hidden = true;
+  dndStatusText.textContent = status.summary;
 }
 
 async function refreshOverlayButtons(settings = cachedSettings): Promise<void> {
@@ -181,28 +206,46 @@ async function setPageOverlayVisible(show: boolean): Promise<void> {
   }
   const next = await requestPresentation();
   previewCat.src = publicAssetUrl(next.sprite);
+  await refreshDoNotDisturbSection();
   await refreshOverlayButtons();
 }
 
-function bindOverlayButton(
+async function cancelDoNotDisturb(): Promise<void> {
+  const next = await requestCancelDoNotDisturb();
+  previewCat.src = publicAssetUrl(next.sprite);
+  await refreshDoNotDisturbSection();
+  await refreshOverlayButtons();
+  showStatus('Do not disturb turned off.');
+}
+
+async function enableDoNotDisturb(duration: DoNotDisturbDuration): Promise<void> {
+  const next = await requestSetDoNotDisturb(duration);
+  previewCat.src = publicAssetUrl(next.sprite);
+  await refreshDoNotDisturbSection();
+  await refreshOverlayButtons();
+  showStatus('Do not disturb is on.');
+}
+
+function bindActionButton(
   button: HTMLButtonElement,
   action: () => Promise<void>,
 ): void {
   button.addEventListener('click', () => {
-    if (overlayActionBusy) {
+    if (actionBusy) {
       return;
     }
     void (async () => {
-      overlayActionBusy = true;
+      actionBusy = true;
       button.disabled = true;
       try {
         await action();
       } catch (error) {
         showStatus(error instanceof Error ? error.message : 'Could not update Tabby.');
+        await refreshDoNotDisturbSection();
         await refreshOverlayButtons();
       } finally {
         button.disabled = false;
-        overlayActionBusy = false;
+        actionBusy = false;
       }
     })();
   });
@@ -227,6 +270,7 @@ async function initialize(): Promise<void> {
       // Overlay sync is best-effort; still render controls below.
     }
   }
+  await refreshDoNotDisturbSection();
   await refreshOverlayButtons(settings);
 
   for (const element of Object.values(fields)) {
@@ -234,10 +278,26 @@ async function initialize(): Promise<void> {
     element.addEventListener('input', scheduleSave);
   }
 
-  bindOverlayButton(showAllButton, () => setGlobalOverlayVisible(true));
-  bindOverlayButton(hideAllButton, () => setGlobalOverlayVisible(false));
-  bindOverlayButton(showPageButton, () => setPageOverlayVisible(true));
-  bindOverlayButton(hidePageButton, () => setPageOverlayVisible(false));
+  bindActionButton(showAllButton, () => setGlobalOverlayVisible(true));
+  bindActionButton(hideAllButton, () => setGlobalOverlayVisible(false));
+  bindActionButton(showPageButton, () => setPageOverlayVisible(true));
+  bindActionButton(hidePageButton, () => setPageOverlayVisible(false));
+  bindActionButton(cancelDndButton, () => cancelDoNotDisturb());
+  bindActionButton(setDnd30Button, () => enableDoNotDisturb('30m'));
+  bindActionButton(setDnd60Button, () => enableDoNotDisturb('60m'));
+  bindActionButton(setDndTodayButton, () => enableDoNotDisturb('today'));
+
+  dndRefreshTimer = window.setInterval(() => {
+    if (!dndActivePanel.hidden) {
+      void refreshDoNotDisturbSection();
+    }
+  }, 30_000);
+
+  window.addEventListener('unload', () => {
+    if (dndRefreshTimer) {
+      window.clearInterval(dndRefreshTimer);
+    }
+  });
 
   forceTickButton.hidden = !IS_DEV_BUILD;
   forceTickHint.hidden = !IS_DEV_BUILD;

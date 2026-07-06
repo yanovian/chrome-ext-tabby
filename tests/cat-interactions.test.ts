@@ -76,8 +76,8 @@ describe('buildInteractionOptions', () => {
     const secondary = buildSecondaryInteractionOptions();
 
     expect(primary.map((option) => option.action)).not.toContain('dismiss');
-    expect(secondary[0]?.label).toBe('Hide Tabby');
-    expect(secondary[0]?.action).toBe('dismiss');
+    expect(secondary.some((option) => option.action === 'dnd_30')).toBe(true);
+    expect(secondary.some((option) => option.action === 'dismiss')).toBe(true);
   });
 
   it('still offers play after a pet only lifted happiness slightly', () => {

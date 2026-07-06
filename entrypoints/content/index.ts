@@ -465,6 +465,14 @@ class TabbyOverlay {
     }
     root.classList.toggle('tabby-root--menu-open', this.menuOpen);
     root.classList.toggle('tabby-root--intro', this.isIntroActive());
+    root.classList.toggle(
+      'tabby-root--ambient-sleeping',
+      presentation.ambientActivity === 'sleeping' && !presentation.speech,
+    );
+    root.classList.toggle(
+      'tabby-root--ambient-grooming',
+      presentation.ambientActivity === 'grooming' && !presentation.speech,
+    );
   }
 
   private updateCatSprite(
@@ -970,6 +978,10 @@ class TabbyOverlay {
 
       if (action === 'dismiss') {
         await this.syncPageOverlayHidden();
+        this.menuOpen = false;
+        this.moreOpen = false;
+        this.removeOutsideClickListener();
+      } else if (action === 'dnd_30' || action === 'dnd_60' || action === 'dnd_today') {
         this.menuOpen = false;
         this.moreOpen = false;
         this.removeOutsideClickListener();

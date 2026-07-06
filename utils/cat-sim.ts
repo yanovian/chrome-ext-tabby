@@ -47,6 +47,16 @@ function dayKey(timestamp: number): string {
   return new Date(timestamp).toISOString().slice(0, 10);
 }
 
+export function normalizeCatState(raw: CatState, now = Date.now()): CatState {
+  const today = new Date(now).toISOString().slice(0, 10);
+  return {
+    ...raw,
+    lastAmbientAt: raw.lastAmbientAt ?? 0,
+    ambientsToday: raw.ambientsToday ?? 0,
+    ambientsDayKey: raw.ambientsDayKey ?? today,
+  };
+}
+
 export function createInitialCat(now: number): CatState {
   return {
     name: CAT_NAME,
@@ -64,6 +74,9 @@ export function createInitialCat(now: number): CatState {
     nudgesToday: 0,
     nudgesDayKey: dayKey(now),
     mischiefCooldownAt: 0,
+    lastAmbientAt: 0,
+    ambientsToday: 0,
+    ambientsDayKey: dayKey(now),
   };
 }
 

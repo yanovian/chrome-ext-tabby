@@ -1,7 +1,12 @@
 import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat-interactions';
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
 import { lifeStageLabel, resolveSprite } from './sprites';
+import type { AmbientActivity } from './ambient-presence';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
+
+export function moodForAmbient(activity: AmbientActivity): CatMood {
+  return activity === 'sleeping' ? 'sleepy' : 'content';
+}
 
 export function buildPresentation(input: {
   cat: CatState;
@@ -14,6 +19,9 @@ export function buildPresentation(input: {
   overlayHidden: boolean;
   moodOverride?: CatMood;
   lastCareAction?: import('./cat-interactions').InteractionAction | null;
+  companionVisible: boolean;
+  ambientActivity?: AmbientActivity | null;
+  ambientPeekUntil?: number | null;
 }): CatPresentation {
   const derivedMood = deriveMoodFromVitals({
     vitals: input.vitals,
@@ -21,7 +29,9 @@ export function buildPresentation(input: {
     settings: input.settings,
     isUserIdle: input.isUserIdle,
   });
-  const mood = input.moodOverride ?? derivedMood;
+  const mood =
+    input.moodOverride ??
+    (input.ambientActivity ? moodForAmbient(input.ambientActivity) : derivedMood);
 
   const stage = resolveLifeStage(
     input.cat.adoptedAt,
@@ -43,5 +53,8 @@ export function buildPresentation(input: {
     interactions: buildInteractionOptions(mood, input.vitals, stage),
     secondaryInteractions: buildSecondaryInteractionOptions(),
     lastCareAction: input.lastCareAction ?? null,
+    companionVisible: input.companionVisible,
+    ambientActivity: input.ambientActivity ?? null,
+    ambientPeekUntil: input.ambientPeekUntil ?? null,
   };
 }

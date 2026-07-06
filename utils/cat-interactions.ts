@@ -1,8 +1,19 @@
 import type { CatLifeStage, CatMood, CatVitals } from './types';
 
-export type InteractionAction = 'pet' | 'feed' | 'play' | 'ask' | 'dismiss';
+export type InteractionAction =
+  | 'pet'
+  | 'feed'
+  | 'play'
+  | 'ask'
+  | 'dismiss'
+  | 'dnd_30'
+  | 'dnd_60'
+  | 'dnd_today';
 
-export type PrimaryInteractionAction = Exclude<InteractionAction, 'dismiss'>;
+export type PrimaryInteractionAction = Exclude<
+  InteractionAction,
+  'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today'
+>;
 
 export interface InteractionOption {
   action: InteractionAction;
@@ -19,7 +30,7 @@ export interface PrimaryInteractionOption {
 }
 
 export interface SecondaryInteractionOption {
-  action: 'dismiss';
+  action: 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today';
   label: string;
   enabled: boolean;
 }
@@ -140,7 +151,12 @@ export function buildInteractionOptions(
 
 /** Extra actions tucked behind “More” so they are harder to hit by accident. */
 export function buildSecondaryInteractionOptions(): SecondaryInteractionOption[] {
-  return [{ action: 'dismiss', label: 'Hide Tabby', enabled: true }];
+  return [
+    { action: 'dnd_30', label: 'Do not disturb: 30 min', enabled: true },
+    { action: 'dnd_60', label: 'Do not disturb: 1 hour', enabled: true },
+    { action: 'dnd_today', label: 'Do not disturb: today', enabled: true },
+    { action: 'dismiss', label: 'Hide Tabby on this page', enabled: true },
+  ];
 }
 
 function pickMoodLine(lines: string[], seed: number): string {
@@ -333,7 +349,7 @@ export function explainCurrentMood(
 
 export function mapInteractionToCareAction(
   action: InteractionAction,
-): 'pet' | 'treat' | 'play' | 'ask' | 'dismiss' {
+): 'pet' | 'treat' | 'play' | 'ask' | 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today' {
   if (action === 'feed') {
     return 'treat';
   }
@@ -341,7 +357,7 @@ export function mapInteractionToCareAction(
 }
 
 export function mapCareActionToInteraction(
-  action: 'pet' | 'treat' | 'play' | 'ask' | 'dismiss',
+  action: 'pet' | 'treat' | 'play' | 'ask' | 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today',
 ): InteractionAction {
   if (action === 'treat') {
     return 'feed';

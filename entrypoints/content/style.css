@@ -70,6 +70,41 @@
   animation: tabby-cat-react 280ms ease-in-out;
 }
 
+@keyframes tabby-ambient-groom {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-4deg) translateY(1px);
+  }
+
+  75% {
+    transform: rotate(4deg) translateY(1px);
+  }
+}
+
+@keyframes tabby-ambient-sleep {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+#tabby-companion-root.tabby-root--ambient-grooming .tabby-cat {
+  animation: tabby-ambient-groom 2.4s ease-in-out infinite;
+}
+
+#tabby-companion-root.tabby-root--ambient-sleeping .tabby-cat {
+  animation: tabby-ambient-sleep 3.6s ease-in-out infinite;
+  opacity: 0.94;
+}
+
 #tabby-companion-root .tabby-menu-area--enter {
   animation: tabby-menu-enter 280ms ease-out both;
 }

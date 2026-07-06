@@ -8,7 +8,17 @@ import {
   resetDailyNudgeCounter,
   resolveLifeStage,
 } from './cat-sim';
+import { recordAmbientAppearance } from './ambient-presence';
+import {
+  careActionToDoNotDisturb,
+  clearDoNotDisturb,
+  clearExpiredDoNotDisturb,
+  doNotDisturbDurationToCareAction,
+  isDoNotDisturbActive,
+  setDoNotDisturb,
+} from './do-not-disturb';
 import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood } from './cat-interactions';
+import { isIntroCompleted } from './intro';
 import { fallbackSpeech } from './speech-fallback';
 import {
   appendObservation,
@@ -20,6 +30,7 @@ import {
 import { evaluateEmotionalTrigger } from './emotional-triggers';
 import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
 import { buildPresentation } from './presentation';
+import { resolveCompanionPresence } from './presence';
 import { generateTabbySpeech } from './speech-service';
 import type { SpeechContext } from './speech-types';
 import { effectiveAppearanceLimits, getSettings } from './settings';
@@ -29,6 +40,7 @@ import type {
   CatMood,
   CatPresentation,
   CatState,
+  DoNotDisturbDuration,
   ExtensionSettings,
   MemorySeed,
   PageOverlayState,
@@ -55,11 +67,12 @@ export async function loadOrchestratorState(): Promise<OrchestratorState> {
     getCatState(),
     getSettings(IS_DEV_BUILD),
   ]);
+  const lastPresentation = await readCachedPresentation();
   return {
     cat,
     settings,
     isUserIdle: false,
-    lastPresentation: null,
+    lastPresentation,
   };
 }
 
@@ -197,6 +210,34 @@ export async function handleCareAction(
   now: number,
   page: PageContext = {},
 ): Promise<CatPresentation> {
+  const dndDuration = careActionToDoNotDisturb(action);
+  if (dndDuration) {
+    await setDoNotDisturb(dndDuration, now);
+    const state = await loadOrchestratorState();
+    const mood = deriveMoodFromVitals({
+      vitals: state.cat.vitals,
+      now,
+      settings: state.settings,
+      isUserIdle: state.isUserIdle,
+    });
+    const presentation = buildPresentation({
+      cat: state.cat,
+      vitals: state.cat.vitals,
+      settings: state.settings,
+      now,
+      isUserIdle: state.isUserIdle,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      moodOverride: mood,
+    });
+    await persistPresentation(presentation);
+    return presentation;
+  }
+
   const state = await loadOrchestratorState();
   let cat = state.cat;
   let triggerKind = state.lastPresentation?.triggerKind ?? null;
@@ -217,7 +258,7 @@ export async function handleCareAction(
   } else if (action === 'ask') {
     moodOverride = resolveAskMood(cat.vitals, derivedMood);
     triggerKind = null;
-  } else {
+  } else if (action === 'pet' || action === 'treat' || action === 'play') {
     cat = applyCareAction(cat, action, now);
     triggerKind = null;
     await saveCatState(cat);
@@ -228,7 +269,6 @@ export async function handleCareAction(
 
   if (speechKind) {
     if (action === 'ask') {
-      // Direct check-ins need mood-accurate lines, not open-ended generation.
       speech = explainCurrentMood(mood, cat.vitals, stage, now);
     } else {
       const context: SpeechContext = {
@@ -238,10 +278,13 @@ export async function handleCareAction(
         seed: now,
         pageTopic: page.topic,
       };
-      // Care taps need reliable, action-specific lines — not open-ended generation.
       speech = fallbackSpeech(context);
     }
   }
+
+  const keepVisible =
+    state.lastPresentation?.companionVisible === true &&
+    action !== 'dismiss';
 
   const presentation = buildPresentation({
     cat,
@@ -254,6 +297,9 @@ export async function handleCareAction(
     overlayHidden: false,
     moodOverride: action === 'ask' ? moodOverride : undefined,
     lastCareAction: mapCareActionToInteraction(action),
+    companionVisible: keepVisible,
+    ambientActivity: keepVisible ? state.lastPresentation?.ambientActivity ?? null : null,
+    ambientPeekUntil: keepVisible ? state.lastPresentation?.ambientPeekUntil ?? null : null,
   });
 
   await persistPresentation(presentation);
@@ -265,7 +311,11 @@ export async function evaluateAndPresent(
   now: number,
   options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
 ): Promise<OrchestratorState> {
-  const memories = await getMemories();
+  const [memories, doNotDisturb, introCompleted] = await Promise.all([
+    getMemories(),
+    clearExpiredDoNotDisturb(now),
+    isIntroCompleted(),
+  ]);
   const recentMemory = await pickRecallCandidate(memories, now, state.settings);
   const trigger = evaluateEmotionalTrigger({
     cat: state.cat,
@@ -280,18 +330,32 @@ export async function evaluateAndPresent(
     pageTopic: options.page?.topic,
   });
 
+  const presence = resolveCompanionPresence({
+    cat: state.cat,
+    settings: state.settings,
+    now,
+    speechTrigger: trigger,
+    doNotDisturb,
+    introCompleted,
+    lastPresentation: state.lastPresentation,
+    forceVisible: options.forceTick === true || options.forceDevSpeech === true,
+  });
+
   let cat = state.cat;
 
-  if (trigger.shouldAppear && trigger.triggerKind) {
+  if (presence.recordSpeech && trigger.triggerKind) {
     cat = recordAppearance(cat, now);
     await saveCatState(cat);
     if (trigger.triggerKind === 'memory' && recentMemory) {
       await recallMemory(now);
     }
+  } else if (presence.recordAmbient) {
+    cat = recordAmbientAppearance(cat, now);
+    await saveCatState(cat);
   }
 
   let speech: string | null = null;
-  if (trigger.speechContext) {
+  if (presence.recordSpeech && trigger.speechContext) {
     if (state.settings.localSpeechEnabled) {
       speech = await generateTabbySpeech(trigger.speechContext, {
         enabled: true,
@@ -309,9 +373,12 @@ export async function evaluateAndPresent(
     now,
     isUserIdle: state.isUserIdle,
     speech,
-    triggerKind: trigger.triggerKind,
+    triggerKind: presence.recordSpeech ? trigger.triggerKind : null,
     overlayHidden: false,
     lastCareAction: state.lastPresentation?.lastCareAction ?? null,
+    companionVisible: presence.companionVisible,
+    ambientActivity: presence.ambientActivity,
+    ambientPeekUntil: presence.ambientPeekUntil,
   });
 
   await persistPresentation(presentation);
@@ -357,6 +424,7 @@ export async function showOverlayOnPage(
   now: number,
   page: PageContext = {},
 ): Promise<CatPresentation> {
+  await clearDoNotDisturb();
   await showPageOverlay(page.url);
   const state = await loadOrchestratorState();
   const stage = resolveLifeStage(
@@ -388,6 +456,9 @@ export async function showOverlayOnPage(
     triggerKind: null,
     overlayHidden: false,
     lastCareAction: null,
+    companionVisible: true,
+    ambientActivity: null,
+    ambientPeekUntil: null,
   });
   await persistPresentation(presentation);
   return presentation;
@@ -407,17 +478,61 @@ export async function getPageOverlayState(
     return { applicable: false, visible: false };
   }
   const hidden = await isPageOverlayHidden(url);
-  return { applicable: true, visible: !hidden };
+  const presentation = await readCachedPresentation();
+  const now = Date.now();
+  const doNotDisturb = await clearExpiredDoNotDisturb(now);
+  let companionVisible = presentation?.companionVisible ?? false;
+  if (isDoNotDisturbActive(doNotDisturb, now)) {
+    companionVisible = false;
+  }
+  return { applicable: true, visible: !hidden && companionVisible };
+}
+
+function presentationDuringDoNotDisturb(
+  presentation: CatPresentation,
+): CatPresentation {
+  return {
+    ...presentation,
+    companionVisible: false,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    speech: null,
+    triggerKind: null,
+  };
 }
 
 export async function getCurrentPresentation(): Promise<CatPresentation> {
+  const cached = await readCachedPresentation();
+  const now = Date.now();
+  const doNotDisturb = await clearExpiredDoNotDisturb(now);
+
+  if (cached) {
+    if (isDoNotDisturbActive(doNotDisturb, now)) {
+      return presentationDuringDoNotDisturb(cached);
+    }
+    return cached;
+  }
+
+  const state = await loadOrchestratorState();
+  const result = await evaluateAndPresent(state, now);
+  return result.lastPresentation!;
+}
+
+export async function cancelDoNotDisturb(now: number): Promise<CatPresentation> {
+  await clearDoNotDisturb();
   const cached = await readCachedPresentation();
   if (cached) {
     return cached;
   }
 
   const state = await loadOrchestratorState();
-  const now = Date.now();
   const result = await evaluateAndPresent(state, now);
   return result.lastPresentation!;
+}
+
+export async function enableDoNotDisturb(
+  duration: DoNotDisturbDuration,
+  now: number,
+): Promise<CatPresentation> {
+  return handleCareAction(doNotDisturbDurationToCareAction(duration), now);
 }

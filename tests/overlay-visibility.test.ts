@@ -4,6 +4,7 @@ import type { CatPresentation } from '../utils/types';
 
 const presentation = {
   mood: 'content',
+  companionVisible: true,
 } as CatPresentation;
 
 describe('isCompanionOverlayVisible', () => {
@@ -13,6 +14,16 @@ describe('isCompanionOverlayVisible', () => {
         showOverlayEnabled: true,
         presentation,
         pageOverlayHidden: true,
+      }),
+    ).toBe(false);
+  });
+
+  it('hides the companion when she is not peeking globally', () => {
+    expect(
+      isCompanionOverlayVisible({
+        showOverlayEnabled: true,
+        presentation: { ...presentation, companionVisible: false },
+        pageOverlayHidden: false,
       }),
     ).toBe(false);
   });

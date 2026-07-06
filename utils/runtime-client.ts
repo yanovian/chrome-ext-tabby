@@ -1,6 +1,8 @@
 import type {
   CareAction,
   CatPresentation,
+  DoNotDisturbDuration,
+  DoNotDisturbStatus,
   ExtensionSettings,
   PageOverlayState,
   RuntimeMessage,
@@ -48,6 +50,20 @@ export function requestResetIntro(): Promise<void> {
 
 export function requestPageOverlayState(url?: string): Promise<PageOverlayState> {
   return sendMessage<PageOverlayState>({ type: 'getPageOverlayState', url });
+}
+
+export function requestDoNotDisturbStatus(): Promise<DoNotDisturbStatus> {
+  return sendMessage<DoNotDisturbStatus>({ type: 'getDoNotDisturb' });
+}
+
+export function requestCancelDoNotDisturb(): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'cancelDoNotDisturb' });
+}
+
+export function requestSetDoNotDisturb(
+  duration: DoNotDisturbDuration,
+): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'setDoNotDisturb', duration });
 }
 
 export function requestShowOverlayOnPage(url?: string, title?: string): Promise<CatPresentation> {

@@ -4,6 +4,7 @@ import {
   markMemoryRecalled,
   pickMemoryForRecall,
   resolveLifeStage,
+  normalizeCatState,
 } from './cat-sim';
 import { DB } from './types';
 import type { CatState, MemorySeed, TabObservation } from './types';
@@ -77,7 +78,7 @@ export async function getCatState(now = Date.now()): Promise<CatState> {
     await saveCatState(initial);
     return initial;
   }
-  return raw as CatState;
+  return normalizeCatState(raw as CatState, now);
 }
 
 export async function saveCatState(cat: CatState): Promise<void> {
