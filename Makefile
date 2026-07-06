@@ -23,10 +23,10 @@ dev: assets ## Run Chrome dev server (regenerates assets first)
 	$(PNPM) exec wxt
 
 build: assets ## Production build (regenerates assets first)
-	$(PNPM) exec wxt build
+	$(PNPM) build
 
-zip: build ## Build and package Chrome extension zip (regenerates assets first)
-	$(PNPM) exec wxt zip
+zip: assets ## Build and package Chrome extension zip (regenerates assets first)
+	$(PNPM) zip
 
 icons: ## Regenerate extension icons (public/icon/)
 	python3 scripts/generate-icons.py

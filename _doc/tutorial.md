@@ -1,6 +1,6 @@
 # How to use Tabby
 
-A cat lives in your browser. She reacts to what you read. Everything stays on your device.
+A cat lives in your browser. She reacts to the pages you visit (tab title and URL only). Everything stays on your device.
 
 ## 1. Browse with Tabby
 
@@ -26,9 +26,10 @@ Click the **Tabby icon** in the toolbar.
 
 From here you can:
 
+- Set **do not disturb** so Tabby stays hidden on every tab for a while
 - **Show** or **hide** Tabby on this page or on every page
-- Set **quiet hours** so she stays silent at night
-- Turn **page text reading** and **local speech** on or off
+- Set **quiet hours** so unprompted speech stays off at night
+- Turn **local AI page classification** on or off (title and URL only, never page body text)
 
 ![Tabby settings — hide and privacy](./screenshots/screenshot-4.jpg)
 

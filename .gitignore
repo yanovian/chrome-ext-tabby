@@ -8,3 +8,4 @@ dist/
 # Generated at build time (scripts/sync-ort-wasm.mjs, scripts/sync-speech-model.mjs):
 public/ort/
 public/models/
+public/_locales/

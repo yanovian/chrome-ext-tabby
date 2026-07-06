@@ -7,7 +7,7 @@
 
 > **[How to use Tabby →](./_doc/tutorial.md)**
 
-Tabby floats on the pages you visit, reacts to what you read, and remembers your
+Tabby floats on the pages you visit, reacts from the active tab title and URL, and remembers your
 online life together — privately, on your device. No cloud. No accounts. No guilt.
 
 > You hop from a recipe blog to your notes, then a news site. Tabby comes along,
@@ -29,8 +29,8 @@ and grows over time. Everything stays local.
 - **Three life stages** — newborn kitten → playful kitten → grown-up cat, each with its own **Lottie** animations (idle, happy, sleepy, and more).
 - **Quiet hours** — unprompted speech stays off during the hours you choose.
 - **Show / hide controls** — hide Tabby on this page, on every page, or bring her back with one click.
-- **Optional local speech** — short lines from a bundled on-device model, with hand-written fallbacks.
-- **Export & delete** — your data stays in the browser; wipe it from settings when you want.
+- **Optional local AI classification** — when a page is hard to guess, a bundled on-device model refines the category from title and URL only. Speech uses curated lines.
+- **Do not disturb** — hide Tabby on every tab for 30 minutes, 1 hour, or until end of today.
 
 ## Permissions
 
@@ -38,15 +38,17 @@ and grows over time. Everything stays local.
 |------------|-----|
 | `tabs` | Read the **active tab's title and URL** when you switch tabs or navigate — not your full browsing history |
 | `storage` | Save settings, cat state, and per-page hide preferences locally |
-| `alarms` | Run a gentle once-per-minute care tick while you browse |
+| `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Reserved for best-effort inject into already-open tabs (usually a no-op without host permissions) |
-| `offscreen` | Run the bundled local speech model without blocking the service worker |
+| `offscreen` | Run the bundled on-device classification model without blocking the service worker |
 
 Tabby runs on web pages via a **manifest content script** (not `host_permissions`). The cat loads on normal navigation. Tabs that were already open at install may need a **refresh** once.
 
 **We do not request the `history` permission.** Tabby never reads your Chrome history, bookmarks, or closed tabs — only the page you are looking at right now.
 
-Cat progress, browsing observations, and memories live in **IndexedDB** on your device.
+Cat progress, browsing observations, and memories live in **IndexedDB** on your device. Settings, hide preferences, do not disturb, and overlay position use **`chrome.storage.local`**.
+
+Clear Tabby's data from `chrome://extensions` → Tabby → Details → Clear data, or uninstall the extension.
 
 **No broad host permissions. No backend. No analytics. No data uploaded.**
 
@@ -93,8 +95,9 @@ based on the user's UI language, falling back to English (`default_locale`). The
 extension **name** stays "Tabby" everywhere (it's a brand).
 
 Translations live in [`scripts/generate-locales.mjs`](./scripts/generate-locales.mjs).
-Run `pnpm locales` to regenerate `public/_locales/`. Locale files run automatically
-before every `dev`/`build`/`zip` (via `pnpm assets`).
+`public/_locales/` is **generated** (gitignored): `pnpm locales`, or automatically on
+`pnpm install`, before `pnpm build` / `pnpm zip` (`prebuild` / `prezip` via `pnpm assets`),
+and when you run `make build` or `make zip` (both call `assets` first).
 
 Long-form store copy per language: [`_doc/store-listing.md`](./_doc/store-listing.md).
 
@@ -105,7 +108,7 @@ Long-form store copy per language: [`_doc/store-listing.md`](./_doc/store-listin
 3. **Classify** — a local pipeline guesses the vibe:
    - **Known sites first** — social feeds, dev docs (GitHub, Stack Overflow, AWS, …), YouTube (title + path heuristics), shopping, banking ([`utils/site-registry.ts`](./utils/site-registry.ts)).
    - **Title/URL keywords** — tutorials, gossip, login pages, etc.
-   - **Local AI fallback** — when the guess is uncertain, the bundled on-device model refines it (same toggle as varied speech).
+   - **Local AI fallback** — when the guess is uncertain, the bundled on-device model refines it (toggle in settings).
 4. **React** — after you stay on a page for **at least 1 minute**, and only if that path is **not** in the last **10** scored pages, Tabby gets a small mood nudge (+1 style: happiness, stress, hunger).
 5. **Remember** — nourishing topics (e.g. Kubernetes) become memories in IndexedDB.
 6. **Grow** — life stage advances by **calendar time**, not browsing.
@@ -142,18 +145,16 @@ Return to kubernetes.io/docs (still in last 10)  →  skipped
 
 ## On-device AI
 
-The bundled **`flan-t5-small`** model ([Transformers.js](https://huggingface.co/docs/transformers.js) + ONNX, offscreen document) runs fully on-device:
+The bundled **`flan-t5-small`** model ([Transformers.js](https://huggingface.co/docs/transformers.js) + ONNX, offscreen document) can run fully on-device:
 
-- **Speech** — varied cat lines (with hand-written fallbacks).
 - **Classification** — refines low-confidence title/URL guesses into nourishing / draining / neutral.
-
-Toggle **Varied local speech & classification** in settings. Turn it off to use site lists + keywords only (no model load).
+- **Speech** — curated lines in normal use. The model stack is bundled for classification; turn **Local AI page classification** off in settings to use site lists + keywords only (no model load).
 
 ## Tech stack
 
 - [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
 - [Lottie](https://lottiefiles.com/) + [dotLottie Web](https://github.com/LottieFiles/dotlottie-web) — vector cat animations (`public/animations/`)
-- [Transformers.js](https://huggingface.co/docs/transformers.js) — on-device speech (`flan-t5-small`)
+- [Transformers.js](https://huggingface.co/docs/transformers.js) — optional on-device classification (`flan-t5-small`)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
 - GitHub Actions — CI on PR/push, releases on version tags
