@@ -38,6 +38,15 @@ import {
   scheduleFeedingCompleteAlarm,
   shouldStartFeedingMoment,
 } from './feeding-moment';
+import {
+  clearPlayingCompleteAlarm,
+  isPlayingActive,
+  pickPlayingDurationMs,
+  playingMomentDue,
+  playingThanksSpeech,
+  playingWildSpeech,
+  schedulePlayingCompleteAlarm,
+} from './play-moment';
 import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
 import { buildPresentation, moodOverrideWhileHiding } from './presentation';
 import { resolveCompanionPresence } from './presence';
@@ -246,6 +255,7 @@ function buildFeedingContinuationPresentation(
     ambientActivity: null,
     ambientPeekUntil: null,
     eatingUntil,
+    playingUntil: null,
   });
 }
 
@@ -274,6 +284,74 @@ async function completeFeedingPresentation(
     ambientActivity: null,
     ambientPeekUntil: null,
     eatingUntil: null,
+    playingUntil: null,
+  });
+  await persistPresentation(presentation);
+  return { ...state, lastPresentation: presentation };
+}
+
+function buildPlayingContinuationPresentation(
+  state: OrchestratorState,
+  now: number,
+  companionVisible: boolean,
+): CatPresentation {
+  const playingUntil = state.lastPresentation!.playingUntil!;
+  const stage = resolveLifeStage(
+    state.cat.adoptedAt,
+    now,
+    state.settings.devForceLifeStage,
+  );
+  const derivedMood = deriveMoodFromVitals({
+    vitals: state.cat.vitals,
+    now,
+    settings: state.settings,
+    isUserIdle: state.isUserIdle,
+  });
+
+  return buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: playingWildSpeech(derivedMood, stage, playingUntil),
+    triggerKind: 'happy',
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    lastCareAction: 'play',
+    companionVisible,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil: null,
+    playingUntil,
+  });
+}
+
+async function completePlayingPresentation(
+  state: OrchestratorState,
+  now: number,
+): Promise<OrchestratorState> {
+  await clearPlayingCompleteAlarm();
+  const stage = resolveLifeStage(
+    state.cat.adoptedAt,
+    now,
+    state.settings.devForceLifeStage,
+  );
+  const presentation = buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: playingThanksSpeech(stage, now),
+    triggerKind: 'happy',
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    moodOverride: 'happy',
+    lastCareAction: null,
+    companionVisible: state.lastPresentation?.companionVisible ?? false,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil: null,
+    playingUntil: null,
   });
   await persistPresentation(presentation);
   return { ...state, lastPresentation: presentation };
@@ -286,6 +364,16 @@ export async function completeFeedingIfDue(now: number): Promise<CatPresentation
     return null;
   }
   const next = await completeFeedingPresentation(state, now);
+  return next.lastPresentation;
+}
+
+/** Finish wild play and show a happy thank-you line when the play timer ends. */
+export async function completePlayingIfDue(now: number): Promise<CatPresentation | null> {
+  const state = await loadOrchestratorState();
+  if (!playingMomentDue(state.lastPresentation?.playingUntil, now)) {
+    return null;
+  }
+  const next = await completePlayingPresentation(state, now);
   return next.lastPresentation;
 }
 
@@ -341,6 +429,7 @@ export async function handleCareAction(
   const startFeedingMoment =
     action === 'treat' &&
     shouldStartFeedingMoment(derivedMood, displayMoodBeforeCare);
+  const startPlayingMoment = action === 'play';
   const hungryBeforeCare = resolveHungryMood(
     cat.vitals,
     derivedMood,
@@ -377,11 +466,16 @@ export async function handleCareAction(
   });
   let speech: string | null = null;
   let eatingUntil: number | null = null;
+  let playingUntil: number | null = null;
 
   if (startFeedingMoment) {
     eatingUntil = now + pickFeedingDurationMs(state.settings, now);
     triggerKind = 'happy';
     speech = feedingMunchSpeech(derivedMood, stage, eatingUntil);
+  } else if (startPlayingMoment) {
+    playingUntil = now + pickPlayingDurationMs(state.settings, now);
+    triggerKind = 'happy';
+    speech = playingWildSpeech(mood, stage, playingUntil);
   } else if (speechKind) {
     if (action === 'ask') {
       speech = explainCurrentMood(mood, cat.vitals, stage, now);
@@ -419,7 +513,11 @@ export async function handleCareAction(
     triggerKind,
     overlayHidden: false,
     moodOverride,
-    lastCareAction: startFeedingMoment ? 'feed' : mapCareActionToInteraction(action),
+    lastCareAction: startFeedingMoment
+      ? 'feed'
+      : startPlayingMoment
+        ? 'play'
+        : mapCareActionToInteraction(action),
     companionVisible: keepVisible,
     ambientActivity:
       keepVisible && !endsAmbientVisit
@@ -430,10 +528,14 @@ export async function handleCareAction(
         ? state.lastPresentation?.ambientPeekUntil ?? null
         : null,
     eatingUntil,
+    playingUntil,
   });
 
   if (eatingUntil) {
     await scheduleFeedingCompleteAlarm(eatingUntil);
+  }
+  if (playingUntil) {
+    await schedulePlayingCompleteAlarm(playingUntil);
   }
 
   await persistPresentation(presentation);
@@ -455,6 +557,24 @@ export async function evaluateAndPresent(
       options.forceTick === true ||
       options.forceDevSpeech === true;
     const presentation = buildFeedingContinuationPresentation(
+      state,
+      now,
+      companionVisible,
+    );
+    await persistPresentation(presentation);
+    return { ...state, lastPresentation: presentation };
+  }
+
+  const playingUntil = state.lastPresentation?.playingUntil;
+  if (playingMomentDue(playingUntil, now)) {
+    return completePlayingPresentation(state, now);
+  }
+  if (isPlayingActive(playingUntil, now)) {
+    const companionVisible =
+      state.lastPresentation?.companionVisible === true ||
+      options.forceTick === true ||
+      options.forceDevSpeech === true;
+    const presentation = buildPlayingContinuationPresentation(
       state,
       now,
       companionVisible,
@@ -539,6 +659,7 @@ export async function evaluateAndPresent(
     ambientActivity: presence.ambientActivity,
     ambientPeekUntil: presence.ambientPeekUntil,
     eatingUntil: null,
+    playingUntil: null,
     moodOverride: moodOverrideWhileHiding(
       state.lastPresentation?.mood,
       presence.companionVisible,
@@ -677,6 +798,12 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
     }
     if (feedingMomentDue(cached.eatingUntil, now)) {
       const completed = await completeFeedingIfDue(now);
+      if (completed) {
+        return completed;
+      }
+    }
+    if (playingMomentDue(cached.playingUntil, now)) {
+      const completed = await completePlayingIfDue(now);
       if (completed) {
         return completed;
       }

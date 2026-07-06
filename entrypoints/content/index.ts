@@ -21,6 +21,7 @@ import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
 import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
 import { isFeedingActive } from '../../utils/feeding-moment';
+import { isPlayingActive } from '../../utils/play-moment';
 import {
   CAT_MOOD_IN_CLASS,
   CAT_MOOD_OUT_CLASS,
@@ -186,12 +187,16 @@ class TabbyOverlay {
           const previousSpeech = this.presentation?.speech ?? null;
           const previousSprite = this.presentation?.sprite ?? null;
           const previousEatingUntil = this.presentation?.eatingUntil ?? null;
+          const previousPlayingUntil = this.presentation?.playingUntil ?? null;
           const settled = this.introJustFinished
             ? { ...next, speech: null, triggerKind: null }
             : next;
           this.presentation = settled;
           if (!this.introJustFinished) {
-            this.applyFeedingChromeState(settled, previousEatingUntil);
+            this.applyCareMomentChromeState(settled, {
+              eatingUntil: previousEatingUntil,
+              playingUntil: previousPlayingUntil,
+            });
           }
           const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
             introJustFinished: this.introJustFinished,
@@ -373,19 +378,26 @@ class TabbyOverlay {
     }
   }
 
-  private isFeedingMoment(presentation = this.presentation): boolean {
-    return isFeedingActive(presentation?.eatingUntil ?? null, Date.now());
+  private isCareMoment(presentation = this.presentation): boolean {
+    const now = Date.now();
+    return (
+      isFeedingActive(presentation?.eatingUntil ?? null, now) ||
+      isPlayingActive(presentation?.playingUntil ?? null, now)
+    );
   }
 
-  private applyFeedingChromeState(
+  private applyCareMomentChromeState(
     presentation: CatPresentation,
-    previousEatingUntil?: number | null,
+    previous?: { eatingUntil?: number | null; playingUntil?: number | null },
   ): void {
     const now = Date.now();
-    const feeding = isFeedingActive(presentation.eatingUntil, now);
+    const active =
+      isFeedingActive(presentation.eatingUntil, now) ||
+      isPlayingActive(presentation.playingUntil, now);
     const justFinished =
-      previousEatingUntil != null && presentation.eatingUntil == null;
-    if (!feeding && !(justFinished && presentation.speech && presentation.triggerKind)) {
+      (previous?.eatingUntil != null && presentation.eatingUntil == null) ||
+      (previous?.playingUntil != null && presentation.playingUntil == null);
+    if (!active && !(justFinished && presentation.speech && presentation.triggerKind)) {
       return;
     }
     this.menuOpen = false;
@@ -488,7 +500,7 @@ class TabbyOverlay {
   }
 
   private openMenu(): void {
-    if (this.isFeedingMoment()) {
+    if (this.isCareMoment()) {
       return;
     }
     if (this.menuOpen) {
@@ -809,7 +821,7 @@ class TabbyOverlay {
       if (this.isIntroActive()) {
         return;
       }
-      if (this.isFeedingMoment(presentation)) {
+      if (this.isCareMoment(presentation)) {
         return;
       }
       if (this.menuOpen) {
@@ -880,7 +892,7 @@ class TabbyOverlay {
       menuArea.classList.add(MENU_ENTER_CLASS);
     }
 
-    if (this.menuOpen && !this.isFeedingMoment(presentation)) {
+    if (this.menuOpen && !this.isCareMoment(presentation)) {
       menuArea.appendChild(this.buildCareCard(presentation));
     }
 
@@ -1201,7 +1213,7 @@ class TabbyOverlay {
       const careAction = mapInteractionToCareAction(action);
       const next = await requestCareAction(careAction, location.href);
       this.presentation = next;
-      this.applyFeedingChromeState(next);
+      this.applyCareMomentChromeState(next);
 
       if (action === 'dismiss') {
         await this.syncPageOverlayHidden();
@@ -1225,7 +1237,7 @@ class TabbyOverlay {
         animateMenu: this.speechBubbleOpen && !this.menuOpen,
       });
 
-      if (this.menuOpen && action !== 'dismiss' && !this.isFeedingMoment()) {
+      if (this.menuOpen && action !== 'dismiss' && !this.isCareMoment()) {
         this.bindOutsideClickListener();
       }
     }

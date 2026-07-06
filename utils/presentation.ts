@@ -2,6 +2,7 @@ import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
 import { resolveCompanionAnimation } from './companion-animation';
 import { isFeedingActive } from './feeding-moment';
+import { isPlayingActive } from './play-moment';
 import { lifeStageLabel } from './sprites';
 import type { AmbientActivity } from './ambient-presence';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
@@ -61,6 +62,7 @@ export function buildPresentation(input: {
   ambientActivity?: AmbientActivity | null;
   ambientPeekUntil?: number | null;
   eatingUntil?: number | null;
+  playingUntil?: number | null;
 }): CatPresentation {
   const derivedMood = deriveMoodFromVitals({
     vitals: input.vitals,
@@ -81,7 +83,9 @@ export function buildPresentation(input: {
     input.settings.devForceLifeStage,
   );
   const eatingUntil = input.eatingUntil ?? null;
+  const playingUntil = input.playingUntil ?? null;
   const feedingActive = isFeedingActive(eatingUntil, input.now);
+  const playingActive = isPlayingActive(playingUntil, input.now);
 
   return {
     mood,
@@ -93,6 +97,7 @@ export function buildPresentation(input: {
       ambientActivity: input.ambientActivity,
       lastCareAction: input.lastCareAction,
       eatingUntil,
+      playingUntil,
       now: input.now,
     }),
     speech: input.speech,
@@ -100,7 +105,7 @@ export function buildPresentation(input: {
     overlayHidden: input.overlayHidden,
     canPet: true,
     canTreat: !feedingActive && (mood === 'hungry' || mood === 'starving'),
-    canPlay: mood !== 'sleepy' && input.vitals.happiness < 70,
+    canPlay: !playingActive && mood !== 'sleepy' && input.vitals.happiness < 70,
     interactions: buildInteractionOptions(mood, input.vitals, stage),
     secondaryInteractions: buildSecondaryInteractionOptions(),
     lastCareAction: input.lastCareAction ?? null,
@@ -108,5 +113,6 @@ export function buildPresentation(input: {
     ambientActivity: input.ambientActivity ?? null,
     ambientPeekUntil: input.ambientPeekUntil ?? null,
     eatingUntil,
+    playingUntil,
   };
 }

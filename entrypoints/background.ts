@@ -13,6 +13,7 @@ import {
   devForceCompanionShow,
   enableDoNotDisturb,
   completeFeedingIfDue,
+  completePlayingIfDue,
   evaluateAndPresent,
   getCurrentPresentation,
   getPageOverlayState,
@@ -265,6 +266,14 @@ export default defineBackground(() => {
     if (alarm.name === ALARM_NAMES.feedingComplete) {
       enqueueTask(async () => {
         await completeFeedingIfDue(Date.now());
+        await updateToolbarFromPresentation();
+      });
+      return;
+    }
+
+    if (alarm.name === ALARM_NAMES.playingComplete) {
+      enqueueTask(async () => {
+        await completePlayingIfDue(Date.now());
         await updateToolbarFromPresentation();
       });
       return;

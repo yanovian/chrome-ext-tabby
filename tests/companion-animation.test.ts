@@ -74,6 +74,26 @@ describe('resolveCompanionAnimation', () => {
     ).toBe('animations/adult/feeding.json');
   });
 
+  it('uses playing while playingUntil is active', () => {
+    const now = 1_000_000;
+    expect(
+      resolveCompanionAnimationState({
+        mood: 'content',
+        lastCareAction: 'play',
+        playingUntil: now + 5_000,
+        now,
+      }),
+    ).toBe('playing');
+    expect(
+      resolveCompanionAnimation({
+        stage: 'adult',
+        mood: 'content',
+        playingUntil: now + 5_000,
+        now,
+      }),
+    ).toBe('animations/adult/playing.json');
+  });
+
   it('exposes a peek duck clip per stage', () => {
     expect(peekDuckAnimationPath('adult')).toBe('animations/adult/peek_duck.json');
   });
@@ -127,5 +147,23 @@ describe('generated companion animations', () => {
       readFileSync(join(process.cwd(), 'public/animations/adult/eat.json'), 'utf8'),
     ) as { layers: Array<{ nm: string }> };
     expect(animation.layers.some((layer) => layer.nm === 'Bowl')).toBe(false);
+  });
+
+  it('keeps tail and batting paws attached inside the body layer', () => {
+    const animation = JSON.parse(
+      readFileSync(join(process.cwd(), 'public/animations/adult/playing.json'), 'utf8'),
+    ) as {
+      layers: Array<{
+        nm: string;
+        shapes?: Array<{ nm: string; it?: Array<{ nm: string }> }>;
+      }>;
+    };
+    expect(animation.layers.some((layer) => layer.nm === 'TailPlay')).toBe(false);
+    const bodyLayer = animation.layers.find((layer) => layer.nm === 'Body');
+    const bodyRig = bodyLayer?.shapes?.[0];
+    expect(bodyRig?.nm).toBe('BodyRig');
+    expect(bodyRig?.it?.some((item) => item.nm === 'Tail')).toBe(true);
+    expect(bodyRig?.it?.some((item) => item.nm === 'PawBatL')).toBe(true);
+    expect(bodyRig?.it?.some((item) => item.nm === 'PawBatR')).toBe(true);
   });
 });

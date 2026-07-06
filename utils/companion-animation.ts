@@ -1,6 +1,7 @@
 import type { AmbientActivity } from './ambient-presence';
 import type { InteractionAction } from './cat-interactions';
 import { isFeedingActive } from './feeding-moment';
+import { isPlayingActive } from './play-moment';
 import type { CatLifeStage, CatMood } from './types';
 
 export type CompanionAnimationState =
@@ -13,6 +14,7 @@ export type CompanionAnimationState =
   | 'sleep'
   | 'groom'
   | 'play'
+  | 'playing'
   | 'peek';
 
 export const COMPANION_ANIMATION_SPEED = 0.82;
@@ -73,10 +75,14 @@ export function resolveCompanionAnimationState(input: {
   ambientActivity?: AmbientActivity | null;
   lastCareAction?: InteractionAction | null;
   eatingUntil?: number | null;
+  playingUntil?: number | null;
   now?: number;
 }): CompanionAnimationState {
   if (input.eatingUntil != null && input.now != null && isFeedingActive(input.eatingUntil, input.now)) {
     return 'feeding';
+  }
+  if (input.playingUntil != null && input.now != null && isPlayingActive(input.playingUntil, input.now)) {
+    return 'playing';
   }
   if (input.ambientActivity === 'sleeping') {
     return 'sleep';
@@ -112,6 +118,7 @@ export function resolveCompanionAnimation(input: {
   ambientActivity?: AmbientActivity | null;
   lastCareAction?: InteractionAction | null;
   eatingUntil?: number | null;
+  playingUntil?: number | null;
   now?: number;
 }): string {
   const state = resolveCompanionAnimationState(input);
@@ -130,6 +137,7 @@ export function allCompanionAnimationPaths(): string[] {
     'sleep',
     'groom',
     'play',
+    'playing',
     'peek',
   ];
   return stages.flatMap((stage) =>

@@ -108,6 +108,8 @@ export interface CatPresentation {
   ambientPeekUntil: number | null;
   /** While set and in the future, Tabby is munching after a treat. */
   eatingUntil: number | null;
+  /** While set and in the future, Tabby is in a wild play moment. */
+  playingUntil: number | null;
 }
 
 /** Saved position for the draggable overlay (pixels from top-left). */
@@ -195,6 +197,7 @@ export const STORAGE_KEYS = {
 export const ALARM_NAMES = {
   tick: 'tabby-tick',
   feedingComplete: 'tabby-feeding-complete',
+  playingComplete: 'tabby-playing-complete',
 } as const;
 
 export type CareAction =

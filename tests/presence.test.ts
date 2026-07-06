@@ -23,6 +23,7 @@ const basePresentation: CatPresentation = {
   ambientActivity: null,
   ambientPeekUntil: null,
   eatingUntil: null,
+  playingUntil: null,
 };
 
 describe('resolveCompanionPresence', () => {

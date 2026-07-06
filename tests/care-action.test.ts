@@ -3,10 +3,12 @@ import { resolveCareActionPageUrl } from '../utils/care-action';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   completeFeedingIfDue,
+  completePlayingIfDue,
   handleCareAction,
   persistPresentation,
 } from '../utils/orchestrator';
 import { pickFeedingDurationMs } from '../utils/feeding-moment';
+import { pickPlayingDurationMs } from '../utils/play-moment';
 import { pageOverlayKey } from '../utils/page-overlay';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
 
@@ -138,6 +140,7 @@ describe('handleCareAction during peek', () => {
       ambientActivity: 'peeking',
       ambientPeekUntil: NOW + 60_000,
       eatingUntil: null,
+      playingUntil: null,
     });
 
     const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
@@ -186,6 +189,7 @@ describe('handleCareAction treat while hungry', () => {
       ambientActivity: null,
       ambientPeekUntil: null,
       eatingUntil: null,
+      playingUntil: null,
     });
 
     const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
@@ -222,6 +226,7 @@ describe('handleCareAction treat while hungry', () => {
       ambientActivity: null,
       ambientPeekUntil: null,
       eatingUntil,
+      playingUntil: null,
     });
 
     const completed = await completeFeedingIfDue(eatingUntil);
@@ -272,6 +277,7 @@ describe('handleCareAction ask while hungry', () => {
       ambientActivity: null,
       ambientPeekUntil: null,
       eatingUntil: null,
+      playingUntil: null,
     });
 
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
@@ -315,6 +321,7 @@ describe('handleCareAction pet while hungry', () => {
       ambientActivity: null,
       ambientPeekUntil: null,
       eatingUntil: null,
+      playingUntil: null,
     });
 
     const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
@@ -324,5 +331,92 @@ describe('handleCareAction pet while hungry', () => {
     expect(presentation.speech).toMatch(/f\*{3}|d\*{3}|s\*{2,}/i);
     expect(presentation.speech).toMatch(/feed|hungry|starv|food|bowl|tummy/i);
     expect(presentation.speech).not.toMatch(/purrr|that was nice|purr motor/i);
+  });
+});
+
+describe('handleCareAction play', () => {
+  beforeEach(() => {
+    catForTests = {
+      ...createInitialCat(NOW),
+      vitals: {
+        ...createInitialCat(NOW).vitals,
+        hunger: 35,
+        happiness: 45,
+        stress: 20,
+        energy: 55,
+      },
+    };
+  });
+
+  it('starts a wild play moment with funny speech', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+    };
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'animations/adult/idle.json',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: true,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await handleCareAction('play', NOW, { url: PAGE_URL });
+
+    expect(presentation.sprite).toContain('playing.json');
+    expect(presentation.lastCareAction).toBe('play');
+    expect(presentation.playingUntil).toBe(NOW + pickPlayingDurationMs(DEFAULT_SETTINGS, NOW));
+    expect(presentation.speech).toMatch(/whee|zoom|pounce|bounce|chaos|wild|mew|mrrp/i);
+    expect(presentation.triggerKind).toBe('happy');
+    expect(presentation.canPlay).toBe(false);
+  });
+
+  it('ends play with a happy thank-you line', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+    };
+    const playingUntil = NOW + pickPlayingDurationMs(DEFAULT_SETTINGS, NOW);
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'animations/adult/playing.json',
+      speech: 'WHEEE! Pounce pounce pounce!',
+      triggerKind: 'happy',
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: 'play',
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      eatingUntil: null,
+      playingUntil,
+    });
+
+    const completed = await completePlayingIfDue(playingUntil);
+
+    expect(completed?.mood).toBe('happy');
+    expect(completed?.playingUntil).toBeNull();
+    expect(completed?.lastCareAction).toBeNull();
+    expect(completed?.sprite).toContain('happy.json');
+    expect(completed?.speech).toMatch(/thank|fun|play|happy|paws|zoom|amazing|best/i);
   });
 });

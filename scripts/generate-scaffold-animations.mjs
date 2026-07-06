@@ -59,7 +59,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'feeding', 'stress', 'sleep', 'groom', 'play', 'peek'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -114,6 +114,55 @@ function motionFor(state, frames) {
           [0, 0, 0],
         ]),
         face: 'happy',
+        blink: true,
+      };
+    case 'playing':
+      return {
+        body: breathe(frames, 3),
+        bodyR: loopKeys(frames, [-5, 5, -4, 6, -5]),
+        bodyP: loopKeys(frames, [
+          [0, 0, 0],
+          [3, 0, 0],
+          [-3, 0, 0],
+          [0, 0, 0],
+        ]),
+        tailRoot: loopKeys(frames, [-18, 22, -14, 24, -18]),
+        tailBase: loopKeys(frames, [52, 88, 58, 92, 52]),
+        tail: loopKeys(frames, [-72, 72, -60, 78, -68, 74, -72]),
+        tailTip: loopKeys(frames, [38, -42, 32, -45, 40, -38, 38]),
+        headR: loopKeys(frames, [-16, 16, -12, 20, -16]),
+        headP: loopKeys(frames, [
+          [0, -10, 0],
+          [12, -18, 0],
+          [-10, -12, 0],
+          [14, -20, 0],
+          [0, -10, 0],
+        ]),
+        pawL: {
+          p: loopKeys(frames, [
+            [0, 0, 0],
+            [6, -34, 0],
+            [2, -14, 0],
+            [8, -38, 0],
+            [-2, -20, 0],
+            [4, -30, 0],
+            [0, 0, 0],
+          ]),
+          r: loopKeys(frames, [-52, 28, -38, 32, -44, 22, -52]),
+        },
+        pawR: {
+          p: loopKeys(frames, [
+            [0, -8, 0],
+            [-4, -30, 0],
+            [0, -12, 0],
+            [-6, -36, 0],
+            [2, -18, 0],
+            [-2, -28, 0],
+            [0, -8, 0],
+          ]),
+          r: loopKeys(frames, [32, -48, 18, -42, 26, -50, 32]),
+        },
+        face: 'wide',
         blink: true,
       };
     case 'curious':
@@ -546,38 +595,110 @@ function buildFace(layout, face, blink, frames) {
   return [eye('L'), eye('R'), kawaiiMouth(face, mouthY, o, w)];
 }
 
-function buildBodyRig(layout, motion) {
-  const tail = buildTail(layout);
+function buildBodyRig(layout, motion, options = {}) {
+  const parts = [];
+  if (options.torsoFirst) {
+    parts.push(buildTorso(layout));
+  }
+  if (!options.skipTail) {
+    parts.push(buildTailRigGroup(layout, motion, options.tailOptions ?? {}));
+  }
+  if (!options.torsoFirst) {
+    parts.push(buildTorso(layout));
+  }
+  if (options.batPaws) {
+    parts.push(buildBatPawRig(motion.pawL, 'L', layout));
+    parts.push(buildBatPawRig(motion.pawR, 'R', layout));
+  }
+  return group('BodyRig', parts, { p: staticValue([0, 0]) });
+}
 
+function buildBatPawRig(pawMotion, side, layoutRef) {
+  const spread = layoutRef.bodyW * 0.34;
+  const chestY = -layoutRef.bodyH * 0.22;
+  const anchorY = layoutRef.legH * 0.55;
   return group(
-    'BodyRig',
-    [
-      group(
-        'Tail',
-        [
-          tail.base,
-          group('TailTipRig', [tail.tip], {
-            p: staticValue([0, 0]),
-            a: staticValue([tail.baseLen * 0.55, -tail.baseLen * 0.45]),
-            r: motion.tail,
-          }),
-        ],
-        {
-          p: staticValue([-layout.bodyW * 0.34, -layout.bodyH * 0.02]),
-          r: staticValue(0),
-        },
-      ),
-      buildTorso(layout),
-    ],
-    { p: staticValue([0, 0]) },
+    side === 'L' ? 'PawBatL' : 'PawBatR',
+    [buildBatPaw(layoutRef, side)],
+    {
+      p: offsetPos(pawMotion.p, side === 'L' ? -spread : spread, chestY),
+      r: pawMotion.r,
+      a: staticValue([0, anchorY, 0]),
+    },
   );
 }
 
-function buildTail(layout) {
-  const len = layout.tailLen;
-  const thick = layout.stroke * 2.2;
+function buildTailRigGroup(layout, motion, options = {}) {
+  const tail = buildTail(layout, {
+    ...options,
+    baseRotation: options.baseRotation ?? motion.tailBase,
+  });
+  const tipAnchor = [tail.baseLen * 0.52, -tail.baseLen * 0.48];
+  const tipEnd = [tail.tipLen * 0.14, -tail.tipLen * 0.5];
+  const whipLen = tail.tipLen * 0.38;
+
+  const tipRigChildren = [tail.tip];
+  if (options.whipTip && motion.tailTip) {
+    tipRigChildren.push(
+      group(
+        'TailWhipRig',
+        [
+          group(
+            'TailWhip',
+            [
+              path(
+                [
+                  [0, 0],
+                  [whipLen * 0.2, -whipLen * 0.32],
+                  [whipLen * 0.1, -whipLen * 0.68],
+                ],
+                false,
+              ),
+              stroke(COLORS.bodyDark, layout.stroke * (options.thickScale ?? 2.2) * 0.82),
+              path(
+                [
+                  [0, 0],
+                  [whipLen * 0.17, -whipLen * 0.28],
+                  [whipLen * 0.08, -whipLen * 0.58],
+                ],
+                false,
+              ),
+              stroke(COLORS.body, layout.stroke * (options.thickScale ?? 2.2) * 0.68),
+            ],
+            { p: staticValue([0, 0]), r: staticValue(0) },
+          ),
+        ],
+        {
+          p: staticValue([0, 0]),
+          a: staticValue(tipEnd),
+          r: motion.tailTip,
+        },
+      ),
+    );
+  }
+
+  const segments = [
+    tail.base,
+    group('TailTipRig', tipRigChildren, {
+      p: staticValue([0, 0]),
+      a: staticValue(tipAnchor),
+      r: motion.tail,
+    }),
+  ];
+
+  const mount = options.mount ?? [-layout.bodyW * 0.34, -layout.bodyH * 0.02];
+  return group('Tail', segments, {
+    p: staticValue(mount),
+    r: motion.tailRoot ?? staticValue(0),
+  });
+}
+
+function buildTail(layout, options = {}) {
+  const len = layout.tailLen * (options.lengthScale ?? 1);
+  const thick = layout.stroke * (options.thickScale ?? 2.2);
   const baseLen = len * 0.45;
   const tipLen = len - baseLen;
+  const baseRotation = motionOrStatic(options.baseRotation, 58);
 
   const base = group(
     'TailBase',
@@ -585,9 +706,9 @@ function buildTail(layout) {
       path(
         [
           [0, 0],
-          [baseLen * 0.2, -baseLen * 0.08],
-          [baseLen * 0.45, -baseLen * 0.22],
-          [baseLen * 0.55, -baseLen * 0.45],
+          [baseLen * 0.2, -baseLen * 0.1],
+          [baseLen * 0.48, -baseLen * 0.28],
+          [baseLen * 0.52, -baseLen * 0.48],
         ],
         false,
       ),
@@ -595,15 +716,15 @@ function buildTail(layout) {
       path(
         [
           [0, 0],
-          [baseLen * 0.18, -baseLen * 0.07],
-          [baseLen * 0.4, -baseLen * 0.18],
-          [baseLen * 0.5, -baseLen * 0.38],
+          [baseLen * 0.18, -baseLen * 0.09],
+          [baseLen * 0.42, -baseLen * 0.24],
+          [baseLen * 0.48, -baseLen * 0.42],
         ],
         false,
       ),
       stroke(COLORS.body, thick * 0.8),
     ],
-    { p: staticValue([0, 0]), r: staticValue(58) },
+    { p: staticValue([0, 0]), r: baseRotation },
   );
 
   const tip = group(
@@ -612,9 +733,9 @@ function buildTail(layout) {
       path(
         [
           [0, 0],
-          [tipLen * 0.15, -tipLen * 0.12],
-          [tipLen * 0.22, -tipLen * 0.28],
-          [tipLen * 0.12, -tipLen * 0.42],
+          [tipLen * 0.16, -tipLen * 0.14],
+          [tipLen * 0.24, -tipLen * 0.32],
+          [tipLen * 0.14, -tipLen * 0.5],
         ],
         false,
       ),
@@ -622,18 +743,60 @@ function buildTail(layout) {
       path(
         [
           [0, 0],
-          [tipLen * 0.13, -tipLen * 0.1],
-          [tipLen * 0.19, -tipLen * 0.24],
-          [tipLen * 0.1, -tipLen * 0.36],
+          [tipLen * 0.14, -tipLen * 0.12],
+          [tipLen * 0.21, -tipLen * 0.28],
+          [tipLen * 0.12, -tipLen * 0.44],
         ],
         false,
       ),
       stroke(COLORS.body, thick * 0.8),
     ],
-    { p: staticValue([baseLen * 0.55, -baseLen * 0.45]), r: staticValue(0) },
+    { p: staticValue([0, 0]), r: staticValue(0) },
   );
 
-  return { baseLen, base, tip };
+  return { baseLen, tipLen, base, tip };
+}
+
+function motionOrStatic(value, fallback) {
+  if (value == null) {
+    return staticValue(fallback);
+  }
+  return value;
+}
+
+function buildBatPaw(layout, side) {
+  const o = COLORS.outline;
+  const w = layout.stroke;
+  const pw = layout.legW * 1.35;
+  const ph = layout.legH * 1.15;
+  const toe = layout.legW * 0.22;
+  const toeY = -ph * 0.42;
+  const spread = pw * 0.28;
+  const sign = side === 'L' ? -1 : 1;
+
+  const toePad = (index) =>
+    group(
+      `Toe${index}`,
+      painted(ellipse(toe, toe * 0.9), COLORS.pink, o, w * 0.2),
+      {
+        p: staticValue([sign * spread * (index - 1), toeY]),
+      },
+    );
+
+  return group(
+    'BatPaw',
+    [
+      ...painted(ellipse(pw, ph), COLORS.bodyDark, o, w * 0.7),
+      ...painted(ellipse(pw * 0.55, ph * 0.42), COLORS.pink, o, w * 0.25),
+      toePad(0),
+      toePad(1),
+      toePad(2),
+    ],
+    {
+      p: staticValue([0, layout.legH * 0.35]),
+      a: staticValue([0, layout.legH * 0.35, 0]),
+    },
+  );
 }
 
 /** Head-only hide-and-peek: rises from below, playful eyes, body hidden. */
@@ -773,6 +936,37 @@ function buildCat(stageKey, state) {
   const frames = state === 'stress' ? 48 : 96;
   const motion = motionFor(state, frames);
   const headPose = headLayerTransform(motion, cx, headY);
+  const bodyTransform = {
+    p: motion.bodyP ? offsetPos(motion.bodyP, cx, torsoY) : staticValue([cx, torsoY, 0]),
+    s: motion.body,
+    r: motion.bodyR ?? staticValue(0),
+  };
+  const shadowLayer = shapeLayer(
+    'Shadow',
+    1,
+    { p: staticValue([cx, footY + 6, 0]) },
+    [
+      group(
+        'ShadowOval',
+        [ellipse(size * 0.36, size * 0.075), fill(COLORS.shadow, 32)],
+        { p: staticValue([0, 0]), s: staticValue([100, 55]) },
+      ),
+    ],
+    frames,
+  );
+
+  const playingBodyOptions =
+    state === 'playing'
+      ? {
+          torsoFirst: true,
+          tailOptions: {
+            lengthScale: 1.4,
+            thickScale: 2.4,
+            whipTip: true,
+          },
+          batPaws: true,
+        }
+      : {};
 
   // dotLottie: higher `ind` draws in front; Face shape before HeadShell within the Head layer.
   const layers = [
@@ -789,26 +983,11 @@ function buildCat(stageKey, state) {
     shapeLayer(
       'Body',
       2,
-      {
-        p: staticValue([cx, torsoY, 0]),
-        s: motion.body,
-      },
-      [buildBodyRig(layout, motion)],
+      bodyTransform,
+      [buildBodyRig(layout, motion, playingBodyOptions)],
       frames,
     ),
-    shapeLayer(
-      'Shadow',
-      1,
-      { p: staticValue([cx, footY + 6, 0]) },
-      [
-        group(
-          'ShadowOval',
-          [ellipse(size * 0.36, size * 0.075), fill(COLORS.shadow, 32)],
-          { p: staticValue([0, 0]), s: staticValue([100, 55]) },
-        ),
-      ],
-      frames,
-    ),
+    shadowLayer,
   ];
 
   if (state === 'feeding') {
