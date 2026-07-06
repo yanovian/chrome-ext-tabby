@@ -5,7 +5,7 @@
 
 **A cat lives in your browser.**
 
-> **[How to use Tabby →](./_doc/tutorial.md)**
+> **[How to use Tabby →](./_doc/tutorial.md)** · **[Architecture →](./_doc/architecture.md)** · **[Release →](./_doc/release.md)**
 
 Tabby floats on the pages you visit, reacts from the active tab title and URL, and remembers your
 online life together — privately, on your device. No cloud. No accounts. No guilt.
