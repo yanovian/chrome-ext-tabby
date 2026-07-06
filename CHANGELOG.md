@@ -11,7 +11,7 @@ Updates for people who use Tabby. Newest first.
 - Skipping the intro stays quiet.
 - Skip intro keeps Tabby **visible**.
 - Mood speech uses **curated lines**, not the local model.
-- Dev mode shows **real mood lines**, not instructions.
+- Hungry lines sound more like **mew and feed me**, less like links.
 
 ## 0.8.0
 

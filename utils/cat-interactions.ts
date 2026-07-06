@@ -208,9 +208,9 @@ export function explainCurrentMood(
       if (stage === 'newborn') {
         return pickMoodLine(
           [
-            'Tiny tummy’s empty. I need something gentle and interesting.',
-            'I’m running on empty. Got something small and good?',
-            'Baby hunger. Something cozy to read would help.',
+            'Mew. Tiny tummy’s empty. Read something gentle to feed me?',
+            'Baby hunger. Something cozy would fill me up.',
+            'Empty and squeaky. Got something small and good?',
           ],
           seed,
         );
@@ -218,18 +218,18 @@ export function explainCurrentMood(
       if (stage === 'playful') {
         return pickMoodLine(
           [
-            'Nothing fun to pounce on. Feed me something worth learning.',
-            'My curiosity’s hungry. Point me at something good?',
-            'Empty bowl, empty brain. I need a tasty page.',
+            'Mrrp — starving for fun. Read something good to feed me?',
+            'Empty bowl, empty pounce. Feed me with something tasty.',
+            'Hungry hunter. Something interesting would fill me up.',
           ],
           seed,
         );
       }
       return pickMoodLine(
         [
-          'Haven’t seen anything interesting in a while. Got something good?',
-          'I’m starving for something worth reading. Help me out?',
-          'It’s been dry out there. Got a page I’d like?',
+          'Mew… very hungry. Read something good to feed me?',
+          'Starving whiskers. A nice read would hit the spot.',
+          'Hollow tummy. Feed me with something interesting?',
         ],
         seed,
       );
@@ -237,18 +237,18 @@ export function explainCurrentMood(
       if (stage === 'newborn') {
         return pickMoodLine(
           [
-            'A little peckish. Something small and interesting would help.',
-            'Not starving — just could use a snack-sized read.',
-            'Tiny hunger. Something gentle would hit the spot.',
+            'Mew — a little peckish. Something gentle would feed me.',
+            'Tiny hunger. Read something cozy for my bowl?',
+            'Peckish baby. Something small and good would help.',
           ],
           seed,
         );
       }
       return pickMoodLine(
         [
-          'Running low on good stuff today. One nice read would hit the spot.',
-          'A little hungry for something new. Got a lead?',
-          'Could use one interesting page. What’ve you got?',
+          'Peckish. Mrrp. Read something good to feed me?',
+          'A little hungry. Something tasty would fill me up.',
+          'Hungry whiskers. Got a good read for me?',
         ],
         seed,
       );

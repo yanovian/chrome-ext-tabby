@@ -45,7 +45,7 @@ describe('evaluateEmotionalTrigger', () => {
 
     expect(result.shouldAppear).toBe(true);
     expect(result.triggerKind).toBe('hungry');
-    expect(speechFrom(result)).toMatch(/fun|something|new/i);
+    expect(speechFrom(result)).toMatch(/fun|something|new|hungry|peckish|feed|mew/i);
     expect(result.mood).toBe('hungry');
   });
 

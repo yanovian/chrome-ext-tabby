@@ -143,7 +143,7 @@ describe('explainCurrentMood', () => {
       0,
     );
 
-    expect(line).toMatch(/interesting|good|dry|starving|page/i);
+    expect(line).toMatch(/hungry|feed|good|interesting|starving|tummy/i);
   });
 
   it('still sounds bored after a pet only cheered Tabby up a little', () => {

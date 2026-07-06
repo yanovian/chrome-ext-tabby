@@ -22,9 +22,9 @@ function trimHint(value: string | undefined, max = 80): string | undefined {
 function requiredThemeLine(kind: SpeechContext['kind']): string {
   switch (kind) {
     case 'starving':
-      return 'Required theme: Tabby is very hungry and needs something to read.';
+      return 'Required theme: Tabby is very hungry. A good read feeds her.';
     case 'hungry':
-      return 'Required theme: Tabby feels hungry or peckish and wants a good page.';
+      return 'Required theme: Tabby is peckish. Reading something good feeds her.';
     case 'stressed':
       return 'Required theme: Tabby feels stressed by loud or overwhelming tabs.';
     case 'lonely':
@@ -47,9 +47,9 @@ function requiredThemeLine(kind: SpeechContext['kind']): string {
 function situationLine(context: SpeechContext): string {
   switch (context.kind) {
     case 'starving':
-      return 'Tabby is very hungry for something interesting to read.';
+      return 'Tabby is very hungry. Reading something good feeds her.';
     case 'hungry':
-      return 'Tabby is a little hungry and wants a fun new page.';
+      return 'Tabby is peckish. A tasty read feeds her.';
     case 'stressed':
       return 'Tabby feels overwhelmed by loud, angry pages and wants calm.';
     case 'lonely':

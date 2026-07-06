@@ -20,7 +20,7 @@ describe('buildSpeechPrompt', () => {
     expect(prompt).toMatch(/Tabby says:/);
     expect(prompt).toMatch(/First person only/i);
     expect(prompt).toMatch(/Never insult/i);
-    expect(prompt).toMatch(/Required theme:.*hungry/i);
+    expect(prompt).toMatch(/Required theme:.*peckish/i);
   });
 
   it('allows censored frustration rules when stressed', () => {
