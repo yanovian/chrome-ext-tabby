@@ -1,29 +1,32 @@
-.PHONY: help install prepare assets dev build zip icons sprites locales test test-watch \
+.PHONY: help install prepare animations assets dev build zip icons sprites locales test test-watch \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major
 
 PNPM ?= pnpm
 
 help: ## Show available commands
-	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make <target>\n\nTargets:\n"} \
+	@awk 'BEGIN {FS = ":.*##; printf "Usage: make <target>\n\nTargets:\n"} \
 		/^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install dependencies (pnpm)
 	$(PNPM) install
 
-assets: ## Prepare bundled assets: ONNX runtime, speech model, and _locales
+animations: ## Regenerate companion Lottie JSON (public/animations/)
+	$(PNPM) animations
+
+assets: ## Prepare bundled assets (ORT, speech model, locales, animations)
 	$(PNPM) assets
 
 prepare: ## Generate WXT types and prepare the project
 	$(PNPM) exec wxt prepare
 
-dev: ## Run Chrome dev server with hot reload
-	$(PNPM) dev
+dev: assets ## Run Chrome dev server (regenerates assets first)
+	$(PNPM) exec wxt
 
-build: ## Production build (Chrome)
-	$(PNPM) build
+build: assets ## Production build (regenerates assets first)
+	$(PNPM) exec wxt build
 
-zip: build ## Build and package Chrome extension zip
-	$(PNPM) zip
+zip: build ## Build and package Chrome extension zip (regenerates assets first)
+	$(PNPM) exec wxt zip
 
 icons: ## Regenerate extension icons (public/icon/)
 	python3 scripts/generate-icons.py

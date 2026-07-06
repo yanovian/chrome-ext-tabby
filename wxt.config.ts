@@ -53,7 +53,7 @@ export default defineConfig({
     },
     web_accessible_resources: [
       {
-        resources: ['sprites/*/*.png'],
+        resources: ['animations/*/*.json'],
         matches: ['<all_urls>'],
       },
     ],

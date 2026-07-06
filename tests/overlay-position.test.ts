@@ -11,17 +11,17 @@ import {
 } from '../utils/overlay-position';
 
 describe('overlay-position', () => {
-  it('anchors the cat to the bottom-right corner by default', () => {
+  it('anchors the cat to the bottom-left corner by default', () => {
     const resolved = resolveAnchoredPosition(
       defaultOverlayPosition(),
       1200,
       800,
-      112,
-      112,
+      132,
+      132,
     );
 
-    expect(resolved.x).toBe(1068);
-    expect(resolved.y).toBe(668);
+    expect(resolved.x).toBe(16);
+    expect(resolved.y).toBe(652);
   });
 
   it('clamps dragged cat positions inside the viewport', () => {
@@ -64,12 +64,14 @@ describe('resolveMenuPlacement', () => {
     ).toBe('top');
   });
 
-  it('opens above the default bottom-right cat instead of forcing sideways', () => {
+  it('opens above the default bottom-left cat instead of forcing sideways', () => {
     expect(
       resolveMenuPlacement({
         ...base,
-        catX: 1068,
-        catY: 668,
+        catX: 16,
+        catY: 652,
+        catWidth: 132,
+        catHeight: 132,
       }),
     ).toBe('top');
   });
@@ -135,10 +137,10 @@ describe('resolveMenuLayout', () => {
 describe('resolveVerticalMenuGeometry', () => {
   it('grows the menu leftward when the cat is on the right edge', () => {
     const geometry = resolveVerticalMenuGeometry({
-      catX: 1068,
-      catY: 668,
-      catWidth: 112,
-      catHeight: 112,
+      catX: 1048,
+      catY: 648,
+      catWidth: 132,
+      catHeight: 132,
       menuWidth: 220,
       menuHeight: 260,
       viewportWidth: 1200,

@@ -1,6 +1,7 @@
 import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat-interactions';
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
-import { lifeStageLabel, resolveSprite } from './sprites';
+import { resolveCompanionAnimation } from './companion-animation';
+import { lifeStageLabel } from './sprites';
 import type { AmbientActivity } from './ambient-presence';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
 
@@ -43,7 +44,12 @@ export function buildPresentation(input: {
     mood,
     stage,
     stageLabel: lifeStageLabel(stage),
-    sprite: resolveSprite(stage, mood),
+    sprite: resolveCompanionAnimation({
+      stage,
+      mood,
+      ambientActivity: input.ambientActivity,
+      lastCareAction: input.lastCareAction,
+    }),
     speech: input.speech,
     triggerKind: input.triggerKind,
     overlayHidden: input.overlayHidden,

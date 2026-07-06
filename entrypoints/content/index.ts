@@ -12,6 +12,7 @@ import {
   markIntroCompleted,
 } from '../../utils/intro';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
+import { CompanionLottiePlayer } from '../../utils/lottie-companion';
 import {
   CAT_MOOD_IN_CLASS,
   CAT_MOOD_OUT_CLASS,
@@ -44,7 +45,7 @@ import {
 } from '../../utils/overlay-position';
 import {
   pingBackground,
-  publicAssetUrl,
+  publicAnimationAssetUrl,
   requestCareAction,
   requestIsActiveOverlayTab,
   requestPresentation,
@@ -73,6 +74,7 @@ class TabbyOverlay {
   private showOverlayEnabled = true;
   private exiting = false;
   private moodTransitionToken = 0;
+  private catPlayer: CompanionLottiePlayer | null = null;
 
   private isActiveInstance(): boolean {
     const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
@@ -228,6 +230,8 @@ class TabbyOverlay {
   private teardownOverlay(): void {
     this.exiting = false;
     this.removeOutsideClickListener();
+    this.catPlayer?.destroyPlayer();
+    this.catPlayer = null;
     this.removeAllOverlayRoots();
     this.root = null;
   }
@@ -239,6 +243,10 @@ class TabbyOverlay {
     this.pendingAction = null;
     this.menuOpen = false;
     this.moreOpen = false;
+  }
+
+  private getCatElement(): HTMLCanvasElement | null {
+    return this.catPlayer?.canvas ?? null;
   }
 
   private isOverlayVisible(): boolean {
@@ -264,7 +272,7 @@ class TabbyOverlay {
   private async refreshPresentation(): Promise<void> {
     this.presentation = await requestPresentation();
     if (this.presentation) {
-      await preloadCompanionSprite(publicAssetUrl, this.presentation.sprite);
+      await preloadCompanionSprite(publicAnimationAssetUrl, this.presentation.sprite);
     }
     if (!this.isActiveInstance()) {
       return;
@@ -401,6 +409,9 @@ class TabbyOverlay {
       }
       this.patchRoot(this.presentation!, options);
       this.applyPosition();
+      if (this.menuOpen) {
+        requestAnimationFrame(() => this.applyPosition());
+      }
       return;
     }
 
@@ -408,6 +419,9 @@ class TabbyOverlay {
     this.root = this.buildRoot(this.presentation!, { animateMenu: options.animateMenu ?? this.menuOpen });
     document.documentElement.appendChild(this.root);
     this.applyPosition();
+    if (this.menuOpen) {
+      requestAnimationFrame(() => this.applyPosition());
+    }
     this.playEntrance(this.root);
 
     if (options.reactToTrigger) {
@@ -444,17 +458,16 @@ class TabbyOverlay {
   }
 
   private animateCatReaction(): void {
-    const catImage = this.root?.querySelector('.tabby-cat');
-    if (!(catImage instanceof HTMLImageElement)) {
+    const cat = this.getCatElement();
+    if (!cat) {
       return;
     }
 
-    catImage.classList.remove(CAT_REACT_CLASS);
-    // Restart the animation when the same trigger class is applied twice in a row.
-    void catImage.offsetWidth;
-    catImage.classList.add(CAT_REACT_CLASS);
+    cat.classList.remove(CAT_REACT_CLASS);
+    void cat.offsetWidth;
+    cat.classList.add(CAT_REACT_CLASS);
     window.setTimeout(() => {
-      catImage.classList.remove(CAT_REACT_CLASS);
+      cat.classList.remove(CAT_REACT_CLASS);
     }, COMPANION_REACT_MS);
   }
 
@@ -475,12 +488,16 @@ class TabbyOverlay {
     );
   }
 
-  private updateCatSprite(
-    catImage: HTMLImageElement,
+  private updateCatAnimation(
     presentation: CatPresentation,
     options: { animateMood?: boolean; reactToTrigger?: boolean } = {},
   ): void {
-    if (catImage.dataset.sprite === presentation.sprite) {
+    const cat = this.getCatElement();
+    if (!cat || !this.catPlayer) {
+      return;
+    }
+
+    if (cat.dataset.sprite === presentation.sprite) {
       if (options.reactToTrigger) {
         this.animateCatReaction();
       }
@@ -488,56 +505,59 @@ class TabbyOverlay {
     }
 
     if (options.animateMood) {
-      void this.transitionCatSprite(catImage, presentation.sprite);
+      void this.transitionCatAnimation(presentation.sprite);
+      if (options.reactToTrigger) {
+        this.animateCatReaction();
+      }
       return;
     }
 
-    catImage.dataset.sprite = presentation.sprite;
-    catImage.src = publicAssetUrl(presentation.sprite);
+    void this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
     if (options.reactToTrigger) {
       this.animateCatReaction();
     }
   }
 
-  private async transitionCatSprite(
-    catImage: HTMLImageElement,
-    sprite: string,
-  ): Promise<void> {
-    const token = ++this.moodTransitionToken;
-
-    await preloadCompanionSprite(publicAssetUrl, sprite);
-    if (token !== this.moodTransitionToken || !catImage.isConnected) {
+  private async transitionCatAnimation(assetPath: string): Promise<void> {
+    const cat = this.getCatElement();
+    if (!cat || !this.catPlayer) {
       return;
     }
 
-    catImage.classList.remove(CAT_MOOD_IN_CLASS, CAT_MOOD_OUT_CLASS);
-    catImage.classList.add(CAT_MOOD_OUT_CLASS);
+    const token = ++this.moodTransitionToken;
+
+    await preloadCompanionSprite(publicAnimationAssetUrl, assetPath);
+    if (token !== this.moodTransitionToken || !cat.isConnected) {
+      return;
+    }
+
+    cat.classList.remove(CAT_MOOD_IN_CLASS, CAT_MOOD_OUT_CLASS);
+    cat.classList.add(CAT_MOOD_OUT_CLASS);
     await waitForOverlayAnimation(
-      catImage,
+      cat,
       COMPANION_MOOD_OUT_ANIMATION,
       COMPANION_MOOD_OUT_MS,
     );
 
-    if (token !== this.moodTransitionToken || !catImage.isConnected) {
+    if (token !== this.moodTransitionToken || !cat.isConnected || !this.catPlayer) {
       return;
     }
 
-    catImage.dataset.sprite = sprite;
-    catImage.src = publicAssetUrl(sprite);
-    catImage.classList.remove(CAT_MOOD_OUT_CLASS);
-    catImage.classList.add(CAT_MOOD_IN_CLASS);
-    void catImage.offsetWidth;
+    await this.catPlayer.load(publicAnimationAssetUrl, assetPath);
+    cat.classList.remove(CAT_MOOD_OUT_CLASS);
+    cat.classList.add(CAT_MOOD_IN_CLASS);
+    void cat.offsetWidth;
     await waitForOverlayAnimation(
-      catImage,
+      cat,
       COMPANION_MOOD_IN_ANIMATION,
       COMPANION_MOOD_IN_MS,
     );
 
-    if (token !== this.moodTransitionToken || !catImage.isConnected) {
+    if (token !== this.moodTransitionToken || !cat.isConnected) {
       return;
     }
 
-    catImage.classList.remove(CAT_MOOD_IN_CLASS);
+    cat.classList.remove(CAT_MOOD_IN_CLASS);
   }
 
   private patchRoot(
@@ -551,9 +571,8 @@ class TabbyOverlay {
 
     this.applyRootPresentationClasses(root, presentation);
 
-    const catImage = root.querySelector('.tabby-cat');
-    if (catImage instanceof HTMLImageElement) {
-      this.updateCatSprite(catImage, presentation, {
+    if (this.catPlayer) {
+      this.updateCatAnimation(presentation, {
         animateMood: options.animateMood,
         reactToTrigger: options.reactToTrigger,
       });
@@ -594,17 +613,10 @@ class TabbyOverlay {
     const catSurface = document.createElement('div');
     catSurface.className = 'tabby-cat-surface';
 
-    const catImage = document.createElement('img');
-    catImage.className = 'tabby-cat';
-    catImage.alt = 'Tabby';
-    catImage.dataset.sprite = presentation.sprite;
-    catImage.src = publicAssetUrl(presentation.sprite);
-    catImage.draggable = false;
-    catImage.addEventListener('error', () => {
-      console.error('[Tabby] Failed to load sprite:', catImage.src);
-    });
+    this.catPlayer = new CompanionLottiePlayer();
+    catSurface.appendChild(this.catPlayer.canvas);
+    void this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
 
-    catSurface.appendChild(catImage);
     panel.appendChild(catSurface);
 
     if (this.menuOpen) {

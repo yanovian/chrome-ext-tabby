@@ -14,9 +14,15 @@
 }
 
 .settings__cat {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+}
+
+.settings__cat canvas {
+  width: 84px;
+  height: 84px;
+  display: block;
 }
 
 .settings h1 {

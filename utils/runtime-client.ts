@@ -95,3 +95,27 @@ export function publicAssetUrl(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   return (browser.runtime.getURL as (assetPath: string) => string)(normalized);
 }
+
+/** True when running an unpacked dev build (WXT serve). */
+export function isDevBuild(): boolean {
+  return import.meta.env.DEV === true || import.meta.env.MODE === 'development';
+}
+
+/** Append a dev-only cache-bust query (for tests and animation URLs). */
+export function appendAnimationCacheBust(url: string, rand: string | null): string {
+  if (!rand) {
+    return url;
+  }
+  const joiner = url.includes('?') ? '&' : '?';
+  return `${url}${joiner}rand=${rand}`;
+}
+
+/** Resolve companion Lottie JSON. In dev, adds `?rand=…` on every load so JSON is not cached. */
+export function publicAnimationAssetUrl(path: string): string {
+  const url = publicAssetUrl(path);
+  if (!isDevBuild()) {
+    return url;
+  }
+  const rand = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+  return appendAnimationCacheBust(url, rand);
+}

@@ -5,9 +5,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm assets && wxt",
-    "build": "pnpm assets && wxt build",
-    "zip": "pnpm assets && wxt zip",
+    "predev": "pnpm assets",
+    "prebuild": "pnpm assets",
+    "prezip": "pnpm assets",
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p .wxt/tsconfig.json",
@@ -17,14 +20,16 @@
     "locales": "node scripts/generate-locales.mjs",
     "icons": "python3 scripts/generate-icons.py",
     "sprites": "python3 scripts/process-sprites.py",
-    "assets": "pnpm sync:ort && pnpm sync:speech-model && pnpm locales",
+    "animations": "node scripts/generate-scaffold-animations.mjs",
+    "assets": "pnpm sync:ort && pnpm sync:speech-model && pnpm locales && pnpm animations",
     "sync:ort": "node scripts/sync-ort-wasm.mjs",
     "sync:speech-model": "node scripts/sync-speech-model.mjs",
     "postinstall": "wxt prepare && node scripts/sync-ort-wasm.mjs && node scripts/sync-speech-model.mjs && node scripts/generate-locales.mjs"
   },
   "packageManager": "pnpm@10.33.4",
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0"
+    "@huggingface/transformers": "^4.2.0",
+    "@lottiefiles/dotlottie-web": "^0.76.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

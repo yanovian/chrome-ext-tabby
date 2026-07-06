@@ -4,8 +4,9 @@ Updates for people who use Tabby. Newest first.
 
 ## 0.9.0 (unreleased)
 
-- Bug fixes
-
+- Tabby is now a **small Lottie-animated cat** with gold eyes, a purple collar, and a cuter face. She starts in the **bottom-left corner** on first visit.
+- **Do not disturb** has its own menu section: start it (30 min, 1 hour, or today), see time left, or cancel.
+- **Show Tabby on this page** brings her back right away when you ask.
 
 ## 0.8.0
 

@@ -1,5 +1,5 @@
 import {
-  publicAssetUrl,
+  publicAnimationAssetUrl,
   requestCancelDoNotDisturb,
   requestDoNotDisturbStatus,
   requestSyncActiveOverlay,
@@ -12,6 +12,7 @@ import {
   requestSettings,
   requestShowOverlayOnPage,
 } from '../../utils/runtime-client';
+import { CompanionLottiePlayer } from '../../utils/lottie-companion';
 import type { DoNotDisturbDuration, ExtensionSettings } from '../../utils/types';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
@@ -31,7 +32,7 @@ const fields = {
 };
 
 const statusEl = document.getElementById('status') as HTMLParagraphElement;
-const previewCat = document.getElementById('preview-cat') as HTMLImageElement;
+const previewHost = document.getElementById('preview-cat-host') as HTMLDivElement;
 const devBuildHint = document.getElementById('dev-build-hint') as HTMLParagraphElement;
 const forceTickButton = document.getElementById('force-tick') as HTMLButtonElement;
 const forceTickHint = document.getElementById('force-tick-hint') as HTMLParagraphElement;
@@ -53,6 +54,15 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let dndRefreshTimer: number | null = null;
 let actionBusy = false;
 let cachedSettings: ExtensionSettings;
+let previewPlayer: CompanionLottiePlayer | null = null;
+
+async function updatePreviewCat(assetPath: string): Promise<void> {
+  if (!previewPlayer) {
+    previewPlayer = new CompanionLottiePlayer();
+    previewHost.appendChild(previewPlayer.canvas);
+  }
+  await previewPlayer.load(publicAnimationAssetUrl, assetPath);
+}
 
 interface ActiveTabInfo {
   id?: number;
@@ -205,14 +215,14 @@ async function setPageOverlayVisible(show: boolean): Promise<void> {
     showStatus('Tabby is hidden on this page.');
   }
   const next = await requestPresentation();
-  previewCat.src = publicAssetUrl(next.sprite);
+  await updatePreviewCat(next.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons();
 }
 
 async function cancelDoNotDisturb(): Promise<void> {
   const next = await requestCancelDoNotDisturb();
-  previewCat.src = publicAssetUrl(next.sprite);
+  await updatePreviewCat(next.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons();
   showStatus('Do not disturb turned off.');
@@ -220,7 +230,7 @@ async function cancelDoNotDisturb(): Promise<void> {
 
 async function enableDoNotDisturb(duration: DoNotDisturbDuration): Promise<void> {
   const next = await requestSetDoNotDisturb(duration);
-  previewCat.src = publicAssetUrl(next.sprite);
+  await updatePreviewCat(next.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons();
   showStatus('Do not disturb is on.');
@@ -262,7 +272,7 @@ async function initialize(): Promise<void> {
   ]);
 
   fillForm(settings);
-  previewCat.src = publicAssetUrl(presentation.sprite);
+  await updatePreviewCat(presentation.sprite);
   if (settings.showOverlay) {
     try {
       await requestSyncActiveOverlay();
@@ -306,7 +316,7 @@ async function initialize(): Promise<void> {
     void (async () => {
       await browser.runtime.sendMessage({ type: 'tick' });
       const next = await requestPresentation();
-      previewCat.src = publicAssetUrl(next.sprite);
+      await updatePreviewCat(next.sprite);
       showStatus(`Ticked. Mood: ${next.mood}${next.speech ? ' — speaking' : ''}.`);
     })();
   });

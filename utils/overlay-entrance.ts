@@ -18,30 +18,14 @@ export const COMPANION_EXIT_ANIMATION = 'tabby-cat-exit';
 export const COMPANION_MOOD_OUT_ANIMATION = 'tabby-mood-out';
 export const COMPANION_MOOD_IN_ANIMATION = 'tabby-mood-in';
 
-/** Warm up the sprite so the cat does not pop in after the overlay mounts. */
+/** Warm up the companion animation before the overlay mounts. */
 export async function preloadCompanionSprite(
   resolveUrl: (path: string) => string,
-  spritePath: string,
+  assetPath: string,
   timeoutMs = 2500,
 ): Promise<void> {
-  return new Promise<void>((resolve) => {
-    const image = new Image();
-    let settled = false;
-
-    const finish = (): void => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      globalThis.clearTimeout(timer);
-      resolve();
-    };
-
-    const timer = globalThis.setTimeout(finish, timeoutMs);
-    image.onload = finish;
-    image.onerror = finish;
-    image.src = resolveUrl(spritePath);
-  });
+  const { preloadCompanionAnimation } = await import('./lottie-companion');
+  await preloadCompanionAnimation(resolveUrl, assetPath, timeoutMs);
 }
 
 export function waitForOverlayAnimation(

@@ -96,13 +96,10 @@
   }
 }
 
-#tabby-companion-root.tabby-root--ambient-grooming .tabby-cat {
-  animation: tabby-ambient-groom 2.4s ease-in-out infinite;
-}
-
+#tabby-companion-root.tabby-root--ambient-grooming .tabby-cat,
 #tabby-companion-root.tabby-root--ambient-sleeping .tabby-cat {
-  animation: tabby-ambient-sleep 3.6s ease-in-out infinite;
-  opacity: 0.94;
+  animation: none;
+  opacity: 1;
 }
 
 #tabby-companion-root .tabby-menu-area--enter {
@@ -137,29 +134,27 @@
 }
 
 #tabby-companion-root.tabby-root--newborn .tabby-cat {
-  width: 88px;
-  height: 88px;
+  width: 132px;
+  height: 132px;
 }
 
 #tabby-companion-root.tabby-root--playful .tabby-cat {
-  width: 112px;
-  height: 112px;
+  width: 162px;
+  height: 162px;
 }
 
 #tabby-companion-root.tabby-root--adult .tabby-cat {
-  width: 130px;
-  height: 130px;
+  width: 192px;
+  height: 192px;
 }
 
 #tabby-companion-root .tabby-cat {
   display: block;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  filter: drop-shadow(0 8px 16px rgba(62, 39, 35, 0.22));
-  transition:
-    width 0.25s ease,
-    height 0.25s ease,
-    transform 0.15s ease;
+  filter: drop-shadow(0 8px 14px rgba(88, 58, 120, 0.28));
+  transition: opacity 0.15s ease;
 }
 
 @keyframes tabby-mood-out {

@@ -1,12 +1,10 @@
 import type { OverlayPosition } from './types';
+import { COMPANION_DISPLAY_SIZE } from './companion-animation';
 
 export type MenuPlacement = 'top' | 'bottom' | 'left' | 'right';
 
-export const CAT_DISPLAY_SIZE = {
-  newborn: 88,
-  playful: 112,
-  adult: 130,
-} as const;
+/** Cat size on screen (px). Kept as alias for overlay layout code. */
+export const CAT_DISPLAY_SIZE = COMPANION_DISPLAY_SIZE;
 
 /** Minimum inset from the viewport edge when placing the menu. */
 export const VIEWPORT_MARGIN = 16;
@@ -19,7 +17,7 @@ export function defaultOverlayPosition(): OverlayPosition {
   return { x: -1, y: -1 };
 }
 
-/** -1 means anchor to bottom-right until the user drags. */
+/** -1 means anchor to bottom-left until the user drags. */
 export function isDefaultOverlayPosition(position: OverlayPosition): boolean {
   return position.x < 0 || position.y < 0;
 }
@@ -59,8 +57,8 @@ export function resolveAnchoredPosition(
   }
 
   return {
-    x: Math.max(0, viewportWidth - catWidth - 20),
-    y: Math.max(0, viewportHeight - catHeight - 20),
+    x: VIEWPORT_MARGIN,
+    y: Math.max(0, viewportHeight - catHeight - VIEWPORT_MARGIN),
   };
 }
 

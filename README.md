@@ -26,7 +26,7 @@ and grows over time. Everything stays local.
 - **Floating cat companion** — Tabby appears on pages you visit. Drag her anywhere.
 - **Mood-aware care menu** — tap Tabby to pet, feed, play, or ask what's up.
 - **Local browsing memory** — title and URL only (known sites + optional local AI). No page body text. Mood shifts after 1+ minute on a page.
-- **Three life stages** — newborn kitten → playful kitten → grown-up cat, each with its own sprites.
+- **Three life stages** — newborn kitten → playful kitten → grown-up cat, each with its own **Lottie** animations (idle, happy, sleepy, and more).
 - **Quiet hours** — unprompted speech stays off during the hours you choose.
 - **Show / hide controls** — hide Tabby on this page, on every page, or bring her back with one click.
 - **Optional local speech** — short lines from a bundled on-device model, with hand-written fallbacks.
@@ -78,6 +78,7 @@ Keep `pnpm dev` running for hot reload. WXT opens a Chrome window with Tabby loa
 | `pnpm zip` | Create Chrome Web Store zip |
 | `pnpm icons` | Regenerate icons from `scripts/generate-icons.py` |
 | `pnpm locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
+| `pnpm animations` | Regenerate Lottie JSON cat clips in `public/animations/` |
 | `pnpm sprites` | Strip sprite backgrounds / optimize PNGs |
 | `pnpm test` | Run unit tests |
 | `pnpm typecheck` | TypeScript check |
@@ -136,7 +137,7 @@ Return to kubernetes.io/docs (still in last 10)  →  skipped
 
 ### What does *not* change with browsing
 
-- **Life stage sprites** (newborn / playful / adult) — real-world days together.
+- **Life stage animations** (newborn / playful / adult) — real-world days together. Each stage uses bundled **[Lottie](https://lottiefiles.com/)** JSON clips played with [dotLottie Web](https://github.com/LottieFiles/dotlottie-web).
 - **Unprompted speech limits** — quiet hours and daily caps are separate.
 
 ## On-device AI
@@ -151,6 +152,7 @@ Toggle **Varied local speech & classification** in settings. Turn it off to use 
 ## Tech stack
 
 - [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
+- [Lottie](https://lottiefiles.com/) + [dotLottie Web](https://github.com/LottieFiles/dotlottie-web) — vector cat animations (`public/animations/`)
 - [Transformers.js](https://huggingface.co/docs/transformers.js) — on-device speech (`flan-t5-small`)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests

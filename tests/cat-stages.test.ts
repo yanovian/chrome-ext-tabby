@@ -4,7 +4,8 @@ import {
   resolveLifeStage,
   LIFE_STAGE_THRESHOLDS_DAYS,
 } from '../utils/cat-sim';
-import { lifeStageLabel, resolveSprite, spritePath } from '../utils/sprites';
+import { companionAnimationPath, resolveCompanionAnimation } from '../utils/companion-animation';
+import { lifeStageLabel } from '../utils/sprites';
 
 const ADOPTED = Date.parse('2026-01-01T00:00:00.000Z');
 
@@ -33,17 +34,23 @@ describe('resolveLifeStage', () => {
   });
 });
 
-describe('resolveSprite', () => {
-  it('uses a separate sprite path for each age and mood combination', () => {
-    expect(resolveSprite('newborn', 'happy')).toBe('sprites/newborn/happy.png');
-    expect(resolveSprite('playful', 'stressed')).toBe('sprites/playful/stressed.png');
-    expect(resolveSprite('adult', 'starving')).toBe('sprites/adult/starving.png');
+describe('resolveCompanionAnimation', () => {
+  it('uses animated JSON assets for each age and mood', () => {
+    expect(resolveCompanionAnimation({ stage: 'newborn', mood: 'happy' })).toBe(
+      'animations/newborn/happy.json',
+    );
+    expect(resolveCompanionAnimation({ stage: 'playful', mood: 'stressed' })).toBe(
+      'animations/playful/stress.json',
+    );
+    expect(resolveCompanionAnimation({ stage: 'adult', mood: 'starving' })).toBe(
+      'animations/adult/eat.json',
+    );
   });
 
   it('labels each life stage for the overlay caption', () => {
     expect(lifeStageLabel('newborn')).toBe('Newborn kitten');
     expect(lifeStageLabel('playful')).toBe('Playful kitten');
     expect(lifeStageLabel('adult')).toBe('Grown-up Tabby');
-    expect(spritePath('adult', 'content')).toBe('sprites/adult/content.png');
+    expect(companionAnimationPath('adult', 'idle')).toBe('animations/adult/idle.json');
   });
 });
