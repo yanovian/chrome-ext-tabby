@@ -4,21 +4,11 @@ Updates for people who use Tabby. Newest first.
 
 ## 0.9.0 (unreleased)
 
-- Tabby is now a **small Lottie-animated cat** with gold eyes, a purple collar, and a cuter face. She starts in the **bottom-left corner** on first visit.
-- **Do not disturb** has its own menu section: start it (30 min, 1 hour, or today), see time left, or cancel.
-- **Show Tabby on this page** brings her back right away when you ask.
-- Separate words **speech** from the care menu, while still connected.
-- Skipping the intro stays quiet.
-- Skip intro keeps Tabby **visible**.
-- Mood speech uses **curated lines**, not the local model.
-- Hungry lines sound more like **mew and feed me**, less like links.
-- Ambient visits last a **random while** (1–15 min), then she hides again.
-- **Peek** is a new mood: head rises when she appears, ducks below the edge when she hides.
-- **Pet, play, or treat** during a peek brings her out fully with her usual happy mood.
-- When you **feed her while hungry**, she munches from her bowl, then thanks you. The care menu stays closed and only her speech bubble shows.
-- Press **play** and she **bats her paws** wildly with funny lines, then ends happy. The care menu stays closed during play too.
-- While **hungry or starving**, asking what she needs or petting her keeps that mood: pets get censored sass, not happy purrs.
-- The **first-meeting tour** shows when you meet Tabby for the first time.
+- Tabby is a **Lottie-animated** cat with gold eyes and a purple collar. New users meet her in the **bottom-left** with a short **first-meeting tour**.
+- The **care menu** is clearer: **do not disturb** has its own section, **Show Tabby on this page**, and **speech** sits beside the menu.
+- **Skip intro** keeps Tabby **visible** and quiet. Her lines are **curated**, with hungrier **feed me** wording when she needs food.
+- **Peek** and quiet **ambient** visits: she peeks in for a while, then ducks away. **Pet, play, or treat** during a peek brings her out happy.
+- **Feeding and play** feel more real: hungry treats get a munching moment, play gets wild paws and jokes, and petting while hungry earns sass. The menu stays closed during those moments.
 
 ## 0.8.0
 

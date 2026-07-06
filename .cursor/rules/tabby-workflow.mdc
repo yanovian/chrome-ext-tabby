@@ -38,12 +38,17 @@ Newest section first. **Use a version number, not a bare "Unreleased" heading.**
 
 | Do | Don't |
 |----|-------|
+| **Aggregate** related work into one short bullet per theme | One bullet per commit, file, or micro-fix |
 | One **short** line per user-visible change | Long sentences, stacked ideas, or sub-bullets |
 | Plain words ("web address", "about a minute") | `host_permissions`, "dedup", "pipeline", "IndexedDB" |
 | **Bold** a few key words if helpful | Paragraph-style bullets or parenthetical mood lists |
-| 1–5 bullets per release when possible | Every commit or technical refactor |
+| **1–5 bullets per release** when possible | Every commit or technical refactor |
+
+When several tasks ship together (e.g. feeding moment, play moment, menu chrome), **merge them into one bullet** instead of listing each implementation step.
 
 **Example (good):** `Separate words **speech** from the care menu, while still connected.`
+
+**Example (bad):** three bullets for "menu closes on feed", "menu closes on play", and "thank-you bubble after feed".
 
 Technical detail belongs in `README.md`, `PRIVACY.md`, code comments, or PR descriptions, not the changelog.
 
