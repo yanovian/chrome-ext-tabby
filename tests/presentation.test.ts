@@ -31,7 +31,7 @@ describe('resolveDisplayMood', () => {
     ).toBe('sleepy');
   });
 
-  it('prefers ambient peek mood over dev override', () => {
+  it('prefers ambient activity mood over dev override', () => {
     expect(
       resolveDisplayMood({
         settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' },

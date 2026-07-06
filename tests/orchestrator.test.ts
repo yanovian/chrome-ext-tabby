@@ -558,8 +558,8 @@ describe('devForceCompanionHide', () => {
       secondaryInteractions: [],
       lastCareAction: null,
       companionVisible: true,
-      ambientActivity: 'peeking',
-      ambientPeekUntil: NOW + 60_000,
+      ambientActivity: null,
+      ambientPeekUntil: null,
     });
 
     const presentation = await devForceCompanionHide(NOW);

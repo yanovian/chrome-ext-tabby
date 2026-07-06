@@ -177,15 +177,6 @@ function motionFor(state, frames) {
         face: 'sleep',
         blink: false,
       };
-    case 'peek':
-      return {
-        body: staticValue([100, 100, 100]),
-        tail: staticValue([0]),
-        headR: loopKeys(frames, [-8, 8, -8]),
-        headP: staticValue([0, 0, 0]),
-        face: 'wide',
-        blink: true,
-      };
     default:
       return {
         body: breathe(frames, 2),

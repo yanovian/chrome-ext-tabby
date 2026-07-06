@@ -35,13 +35,6 @@ describe('resolveCompanionAnimation', () => {
         ambientActivity: 'grooming',
       }),
     ).toBe('animations/adult/groom.json');
-    expect(
-      resolveCompanionAnimation({
-        stage: 'adult',
-        mood: 'peek',
-        ambientActivity: 'peeking',
-      }),
-    ).toBe('animations/adult/peek.json');
   });
 
   it('uses play after a play care action', () => {

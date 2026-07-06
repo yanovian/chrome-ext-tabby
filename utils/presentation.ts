@@ -15,7 +15,7 @@ export function moodForAmbient(activity: AmbientActivity): CatMood {
   return 'content';
 }
 
-/** Pick the mood shown on screen — dev override, ambient peek, or vitals. */
+/** Pick the mood shown on screen — dev override, ambient activity, or vitals. */
 export function resolveDisplayMood(input: {
   settings: ExtensionSettings;
   derivedMood: CatMood;

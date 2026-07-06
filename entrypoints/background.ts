@@ -1,5 +1,5 @@
 import { isTrackableUrl, parseHostname } from '../utils/classifier';
-import { markIntroCompleted } from '../utils/intro';
+import { markIntroCompleted, resetIntro } from '../utils/intro';
 import {
   notifyOverlayActivate,
   notifyOverlayDeactivate,
@@ -251,6 +251,7 @@ export default defineBackground(() => {
       return;
     }
     if (details.reason === 'install') {
+      void resetIntro();
       enqueueTask(() => bootstrap());
     }
   });
