@@ -1,0 +1,34 @@
+---
+description: Prose style for docs, changelog, UI copy, and rules
+alwaysApply: true
+---
+
+# Tabby prose style
+
+## Changelog tone
+
+`CHANGELOG.md` is for **end users**. Keep each bullet to one short, friendly line. Say what Tabby does differently now, not how the code works.
+
+## No em dashes
+
+Do **not** use em dashes (`—`) in:
+
+- `CHANGELOG.md`, `README.md`, `PRIVACY.md`, store copy, UI strings
+- `.cursor/rules/` and other project docs you write
+- Comments meant for users or reviewers
+
+Use instead:
+
+- **Comma** or **period** for clause breaks
+- **Colon** before a list or explanation
+- **Hyphen-minus** (`-`) only for compound adjectives or bullet lists
+
+```markdown
+# Bad
+Tabby reads only the title and URL — never page body text.
+
+# Good
+Tabby reads only the title and URL, never page body text.
+```
+
+This applies to new and edited text in the same task.

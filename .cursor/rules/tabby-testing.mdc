@@ -1,0 +1,32 @@
+---
+description: Tests required for behavior changes. Prevent regressions.
+alwaysApply: true
+---
+
+# Tabby testing
+
+**Every behavior change needs tests.** Fixes we ship must stay fixed, especially privacy, mood scoring, visit dedup, and classification.
+
+## What to test
+
+| Area | Location | Examples |
+|------|----------|----------|
+| Pure logic | `tests/*.test.ts` | classifier, visit dedup, dwell time, cat vitals |
+| Orchestration | mock `utils/db` like `orchestrator.test.ts` | page visit scoring, dedup |
+| Prompts/parsing | unit tests | `classify-prompt`, speech quality |
+| Privacy rules | unit tests | no page-text paths, trackable URL filters |
+
+Add tests **in the same task** as the feature, not later. When fixing a bug, add a test that fails without the fix.
+
+## Conventions
+
+- **Vitest**: `pnpm test` / `pnpm test:watch`
+- Prefer **exported pure functions** over full extension E2E.
+- Name tests by behavior: `skips duplicate visits to the same page`, `requires at least one minute in production`.
+- Keep test files focused. Mirror small `utils/` modules.
+
+## End of task
+
+1. **`pnpm check`** must pass.
+2. Note the behavior in **`CHANGELOG.md`** under **`## X.Y.Z (unreleased)`**: one short line for end users (`tabby-workflow.mdc`).
+3. New code without tests is incomplete unless docs-only or cosmetic CSS with no logic.

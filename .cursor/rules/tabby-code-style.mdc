@@ -1,0 +1,37 @@
+---
+description: Minimal, maintainable code. Reuse, small files, clear names.
+alwaysApply: true
+---
+
+# Tabby code style
+
+## Write less, reuse more
+
+- Prefer the **smallest correct diff**. Do not rewrite unrelated code.
+- **Extend existing modules** (`utils/classifier.ts`, `utils/orchestrator.ts`, `utils/cat-sim.ts`, …) before adding parallel systems.
+- No one-off helpers for a single call site. No premature abstractions.
+- Code should be **easy to read and maintain**: understandable variable names, obvious control flow.
+
+## Structure
+
+- **Small files, one job** (e.g. `visit-dedup.ts`, `site-registry.ts`, `youtube-classifier.ts`). Not a god `utils.ts`.
+- **Clear names**: `tryScoreActivePage`, `hasDwelledLongEnough`, `classifyTabWithAi`. Avoid `data`, `handle`, `process`.
+- Match existing patterns: WXT entrypoints, Vitest tests beside `utils/`, TypeScript strict.
+
+## Dependencies
+
+- Only libraries from **well-reputed, actively maintained** sources (e.g. WXT, Vitest, Hugging Face Transformers.js already in tree).
+- Before adding a dependency: justify why existing code cannot solve it; note **privacy, security, and performance** impact.
+- Avoid network calls at runtime; bundle assets like the speech model.
+
+## Performance
+
+- Background service worker stays light. Queue tab work; avoid blocking the SW.
+- One active overlay tab. Do not poll page DOM.
+- Local AI is optional and offscreen. Heuristics first; model only when needed.
+
+## When behavior changes
+
+- Add tests (`tabby-testing.mdc`).
+- Document under **`## X.Y.Z (unreleased)`** in `CHANGELOG.md` with a **short, non-technical** bullet for users (`tabby-workflow.mdc`, `tabby-prose.mdc`).
+- Update `PRIVACY.md` / `README.md` if permissions or user-visible behavior changed.

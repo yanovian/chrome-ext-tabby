@@ -1,0 +1,34 @@
+---
+description: Least permissions, privacy-first Chrome extension design
+alwaysApply: true
+---
+
+# Tabby privacy and permissions
+
+Tabby is a **local-only** browser companion. Treat every new feature as a Chrome Web Store review and user trust question. Care about **privacy, security, and performance**.
+
+## Permission bar (highest priority)
+
+- Request the **minimum** manifest permissions. Never add `history`, broad `host_permissions`, or `<all_urls>` without explicit user approval and doc updates.
+- **Allowed today:** `tabs` (active tab title + URL only), `storage`, `alarms`, `scripting` (best-effort), `offscreen` (bundled model).
+- **Never read page body text.** Classify from **title + URL** only (`utils/site-registry.ts`, `utils/classifier.ts`).
+- No analytics, accounts, cloud inference, or remote code execution.
+
+## When adding behavior
+
+1. Can it work with **active tab metadata only**?
+2. Does it need a **content script**? Manifest registration only. Not `host_permissions` for normal pages.
+3. Update docs in the same task:
+   - **`CHANGELOG.md`**: one plain-language bullet under **`## X.Y.Z (unreleased)`** (for users, not developers)
+   - **`PRIVACY.md`**: **Last updated** date if permissions or data handling changed
+   - **`README.md`**: if users or store reviewers need to know
+
+## Security
+
+- Do not `eval`, inject untrusted HTML, or scrape page DOM for classification.
+- Validate `runtime.onMessage` payloads; ignore unknown types.
+- Secrets do not belong in the repo.
+
+## Tests
+
+Privacy-sensitive logic (dedup, dwell time, classification, permissions gates) **must have unit tests** so later changes do not regress fixes (`tabby-testing.mdc`).

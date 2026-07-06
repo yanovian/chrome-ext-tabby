@@ -1,0 +1,66 @@
+---
+description: End-of-task quality checks, changelog, and privacy policy updates
+alwaysApply: true
+---
+
+# Tabby workflow (every task)
+
+## End-of-task checklist
+
+Before finishing any task that changes code or behavior:
+
+1. Run **`pnpm check`** (`typecheck` + `lint` + `test`). Fix failures.
+2. Update **`CHANGELOG.md`** under the top **`## X.Y.Z (unreleased)`** section (see below).
+3. Update **`PRIVACY.md`** (with **Last updated** date) if permissions or data read/stored changed.
+4. Update **`README.md`** if user-facing behavior or permissions changed.
+5. Add **tests** for new or fixed behavior (see `tabby-testing.mdc`).
+6. Follow **prose style**: no em dashes (`tabby-prose.mdc`).
+
+Skip docs/changelog only for pure refactors with zero user-visible effect unless the user asks.
+
+## Changelog (`CHANGELOG.md`)
+
+**Audience: people who use Tabby, not developers.** Write short, plain bullets about what changed for them. No implementation detail.
+
+Newest section first. **Use a version number, not a bare "Unreleased" heading.**
+
+```markdown
+## 0.8.0 (unreleased)
+
+- Tabby only uses the tab title and web address…
+- Her mood changes only if you stay on a page for about a minute…
+
+## 0.7.0
+- Fixed Hide Tabby in the care menu…
+```
+
+### Changelog style
+
+| Do | Don't |
+|----|-------|
+| One line per user-visible change | File names, module names, permissions API names |
+| Plain words ("web address", "about a minute") | `host_permissions`, "dedup", "pipeline", "IndexedDB" |
+| **Bold** a few key words if helpful | Long paragraphs or sub-bullets |
+| 1–5 bullets per release when possible | Every commit or technical refactor |
+
+Technical detail belongs in `README.md`, `PRIVACY.md`, code comments, or PR descriptions, not the changelog.
+
+| Version rule | Detail |
+|--------------|--------|
+| **Never edit released versions** | e.g. do not add bullets under `## 0.7.0` after it shipped |
+| **Work in progress** | Always `## X.Y.Z (unreleased)` at the top (match next semver after `package.json`) |
+| **Non-breaking** | Add bullets under the current `(unreleased)` section |
+| **Breaking** | Same section, plain-language note on what users must redo; consider bumping unreleased semver |
+
+**On release:** `## 0.8.0 (unreleased)` becomes `## 0.8.0`, bump `package.json`, add new top section e.g. `## 0.9.0 (unreleased)`.
+
+Also follow `tabby-prose.mdc` (no em dashes).
+
+## Privacy policy (`PRIVACY.md`)
+
+Update when permissions, data read/stored, or libraries change.
+
+- Set **Last updated:** to the change date.
+- Align with `README.md` permissions.
+- State what we **do not** read when removing a feature.
+- Add a matching **user-facing** bullet in `CHANGELOG.md` under **`## X.Y.Z (unreleased)`**. Do not copy `PRIVACY.md` legalese into the changelog.
