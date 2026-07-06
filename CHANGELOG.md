@@ -4,7 +4,7 @@ Updates for people who use Tabby. Newest first.
 
 ## 0.9.0 (unreleased)
 
-- Tabby is a **Lottie-animated** cat with gold eyes and a purple collar. New users meet her in the **bottom-left** with a short **first-meeting tour**.
+- Tabby is a **Lottie-animated** cat with gold eyes and a purple collar. **Her icon matches that look.** New users meet her in the **bottom-left** with a short **first-meeting tour**.
 - The **care menu** is clearer: **do not disturb** has its own section, **Show Tabby on this page**, and **speech** sits beside the menu.
 - **Skip intro** keeps Tabby **visible** and quiet. Her lines are **curated**, with hungrier **feed me** wording when she needs food.
 - **Peek** and quiet **ambient** visits: she peeks in for a while, then ducks away. **Pet, play, or treat** during a peek brings her out happy.
