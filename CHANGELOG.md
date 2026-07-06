@@ -2,9 +2,9 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 1.0.1 (unreleased)
+## 2.0.0
 - The store download is **much smaller**: legacy PNG sprites and the bundled on-device model are gone.
-- Tabby classifies pages from **known sites and title keywords** only. No local AI, same privacy.
+- Tabby classifies pages from **known sites and title keywords** only without any local AI.
 
 ## 1.0.0
 
