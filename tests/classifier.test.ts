@@ -2,43 +2,62 @@ import { describe, expect, it } from 'vitest';
 import { classifyTab, isTrackableUrl, parseHostname } from '../utils/classifier';
 
 describe('classifyTab', () => {
-  it('treats documentation and learning sites as nourishing for Tabby', () => {
+  it('classifies nourishing pages from title and URL alone', () => {
     const result = classifyTab({
       title: 'Kubernetes documentation — Pods',
       url: 'https://kubernetes.io/docs/concepts/workloads/pods/',
-      pageTextSnippet: 'A Pod is the smallest deployable unit of computing.',
     });
 
     expect(result.category).toBe('nourishing');
-    expect(result.topic).toBe('Kubernetes');
+    expect(result.topic).toBe('Development');
+    expect(result.source).toBe('registry');
   });
 
-  it('treats endless social feeds as draining without calling the user bad', () => {
+  it('classifies AWS docs as nourishing from the site registry', () => {
+    const result = classifyTab({
+      title: 'Amazon EC2 — AWS Documentation',
+      url: 'https://docs.aws.amazon.com/ec2/',
+    });
+
+    expect(result.category).toBe('nourishing');
+    expect(result.topic).toBe('Cloud');
+  });
+
+  it('treats endless social feeds as draining from title and URL alone', () => {
     const result = classifyTab({
       title: 'Explore / X',
       url: 'https://twitter.com/explore',
-      pageTextSnippet: 'Trending drama and viral outrage all day.',
     });
 
     expect(result.category).toBe('draining');
+    expect(result.source).toBe('registry');
   });
 
-  it('uses page text to detect nourishing tutorials on generic hosts', () => {
+  it('classifies YouTube tutorials from the title', () => {
+    const result = classifyTab({
+      title: 'Python course — full tutorial',
+      url: 'https://www.youtube.com/watch?v=abc123',
+    });
+
+    expect(result.category).toBe('nourishing');
+    expect(result.source).toBe('youtube');
+  });
+
+  it('detects nourishing tutorials on generic hosts from title keywords', () => {
     const result = classifyTab({
       title: 'Build a Rust CLI — lesson 3',
       url: 'https://example.com/courses/rust-cli',
-      pageTextSnippet: 'In this programming tutorial we will learn cargo and build a project.',
     });
 
     expect(result.category).toBe('nourishing');
     expect(result.topic).toBe('Rust');
+    expect(result.source).toBe('keywords');
   });
 
   it('keeps banking and inbox pages in the neutral bucket', () => {
     const result = classifyTab({
       title: 'Sign in to your bank account',
       url: 'https://bank.example/login',
-      pageTextSnippet: 'Secure login for your checking account inbox settings.',
     });
 
     expect(result.category).toBe('neutral');

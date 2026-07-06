@@ -3,6 +3,7 @@ import {
   applyBrowsingToVitals,
   applyCareAction,
   applyMinuteTick,
+  applyVisitToVitals,
   createInitialCat,
   deriveMoodFromVitals,
   recordAppearance,
@@ -37,6 +38,41 @@ describe('applyBrowsingToVitals', () => {
     expect(next.stress).toBeGreaterThan(cat.vitals.stress);
     expect(next.happiness).toBeLessThan(cat.vitals.happiness);
     expect(next.hunger).toBeGreaterThan(cat.vitals.hunger);
+  });
+});
+
+describe('applyVisitToVitals', () => {
+  it('gives a small happiness bump on nourishing pages', () => {
+    const cat = createInitialCat(NOW);
+    const next = applyVisitToVitals(cat.vitals, {
+      category: 'nourishing',
+      statMultiplier: 1,
+    });
+
+    expect(next.happiness).toBe(cat.vitals.happiness + 1);
+    expect(next.stress).toBe(cat.vitals.stress - 1);
+    expect(next.hunger).toBe(cat.vitals.hunger - 1);
+  });
+
+  it('raises stress on draining pages', () => {
+    const cat = createInitialCat(NOW);
+    const next = applyVisitToVitals(cat.vitals, {
+      category: 'draining',
+      statMultiplier: 1,
+    });
+
+    expect(next.stress).toBe(cat.vitals.stress + 1);
+    expect(next.happiness).toBe(cat.vitals.happiness - 1);
+  });
+
+  it('scales visit bumps in dev mode', () => {
+    const cat = createInitialCat(NOW);
+    const next = applyVisitToVitals(cat.vitals, {
+      category: 'nourishing',
+      statMultiplier: 4,
+    });
+
+    expect(next.happiness).toBe(cat.vitals.happiness + 4);
   });
 });
 

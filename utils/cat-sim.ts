@@ -20,6 +20,11 @@ export interface StatDeltaInput {
   statMultiplier: number;
 }
 
+export interface VisitStatInput {
+  category: BrowseCategory;
+  statMultiplier: number;
+}
+
 export interface TickInput {
   cat: CatState;
   now: number;
@@ -87,6 +92,32 @@ export function applyBrowsingToVitals(
     case 'neutral':
       next.hunger = clampVital(next.hunger + 2 * minutes * scale);
       next.energy = clampVital(next.energy - 1 * minutes * scale);
+      break;
+  }
+
+  return next;
+}
+
+/** Small fixed bump when the user lands on a new page (title + URL classification). */
+export function applyVisitToVitals(
+  vitals: CatVitals,
+  input: VisitStatInput,
+): CatVitals {
+  const scale = input.statMultiplier;
+  const next = { ...vitals };
+
+  switch (input.category) {
+    case 'nourishing':
+      next.hunger = clampVital(next.hunger - 1 * scale);
+      next.happiness = clampVital(next.happiness + 1 * scale);
+      next.stress = clampVital(next.stress - 1 * scale);
+      break;
+    case 'draining':
+      next.stress = clampVital(next.stress + 1 * scale);
+      next.happiness = clampVital(next.happiness - 1 * scale);
+      break;
+    case 'neutral':
+      next.hunger = clampVital(next.hunger + 1 * scale);
       break;
   }
 

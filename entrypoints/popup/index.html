@@ -70,16 +70,12 @@
 
       <section class="settings__section">
         <h2>Privacy</h2>
+        <p class="settings__hint">
+          Tabby classifies pages from the active tab title and URL only — never page body text.
+          The bundled local model can refine unclear guesses and generate speech, all on-device.
+        </p>
         <label class="settings__row">
-          <span>Read page text to understand tabs</span>
-          <input id="read-page-content" type="checkbox" />
-        </label>
-        <label class="settings__row">
-          <span>Max page text characters</span>
-          <input id="page-text-max-chars" type="number" min="500" max="8000" step="100" />
-        </label>
-        <label class="settings__row">
-          <span>Varied local speech</span>
+          <span>Varied local speech &amp; classification</span>
           <input id="local-speech-enabled" type="checkbox" />
         </label>
       </section>
@@ -120,7 +116,7 @@
           <input id="dev-stat-multiplier" type="number" min="1" max="20" />
         </label>
         <label class="settings__row">
-          <span>Dev min tab duration (ms)</span>
+          <span>Dev min page dwell (ms)</span>
           <input id="dev-min-tab-ms" type="number" min="500" max="10000" step="100" />
         </label>
         <label class="settings__row">

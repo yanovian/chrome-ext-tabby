@@ -1,4 +1,4 @@
-import { classifyTab } from './classifier';
+import { classifyTabWithAi } from './classify-tab';
 import {
   createInitialCat,
   markMemoryRecalled,
@@ -97,19 +97,20 @@ export async function saveCatState(cat: CatState): Promise<void> {
 }
 
 export async function appendObservation(
-  partial: Omit<TabObservation, 'id' | 'category' | 'topic'>,
+  partial: Omit<TabObservation, 'id' | 'category' | 'topic' | 'pageTextSnippet'>,
 ): Promise<TabObservation> {
-  const classification = classifyTab({
-    title: partial.title,
-    url: partial.url,
-    pageTextSnippet: partial.pageTextSnippet,
-  });
+  const settings = await getSettings(IS_DEV_BUILD);
+  const classification = await classifyTabWithAi(
+    { title: partial.title, url: partial.url },
+    { localAiEnabled: settings.localSpeechEnabled },
+  );
 
   const observation: TabObservation = {
     ...partial,
     id: crypto.randomUUID(),
     category: classification.category,
     topic: classification.topic,
+    pageTextSnippet: '',
   };
 
   const database = await openDatabase();

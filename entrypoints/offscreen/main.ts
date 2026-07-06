@@ -1,8 +1,14 @@
+import { generateClassificationWithModel } from '../../utils/classify-model';
 import { generateSpeechWithModel, warmSpeechModel } from '../../utils/speech-model';
 import type { SpeechContext } from '../../utils/speech-types';
 
 browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message?.type !== 'speech:warm' && message?.type !== 'speech:generate') {
+  const msgType = message?.type;
+  if (
+    msgType !== 'speech:warm' &&
+    msgType !== 'speech:generate' &&
+    msgType !== 'classify:generate'
+  ) {
     return false;
   }
 
@@ -18,6 +24,15 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const context = message.context as SpeechContext;
         const text = await generateSpeechWithModel(context);
         sendResponse({ ok: true, text });
+        return;
+      }
+
+      if (message?.type === 'classify:generate') {
+        const category = await generateClassificationWithModel({
+          title: String(message.title ?? ''),
+          url: String(message.url ?? ''),
+        });
+        sendResponse({ ok: true, category });
         return;
       }
     } catch (error) {

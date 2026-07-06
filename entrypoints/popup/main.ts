@@ -14,8 +14,6 @@ import type { ExtensionSettings } from '../../utils/types';
 const IS_DEV_BUILD = import.meta.env.DEV;
 
 const fields = {
-  readPageContent: document.getElementById('read-page-content') as HTMLInputElement,
-  pageTextMaxChars: document.getElementById('page-text-max-chars') as HTMLInputElement,
   localSpeechEnabled: document.getElementById('local-speech-enabled') as HTMLInputElement,
   quietStart: document.getElementById('quiet-start') as HTMLInputElement,
   quietEnd: document.getElementById('quiet-end') as HTMLInputElement,
@@ -114,8 +112,6 @@ async function refreshOverlayButtons(settings = cachedSettings): Promise<void> {
 
 function fillForm(settings: ExtensionSettings): void {
   cachedSettings = settings;
-  fields.readPageContent.checked = settings.readPageContent;
-  fields.pageTextMaxChars.value = String(settings.pageTextMaxChars);
   fields.localSpeechEnabled.checked = settings.localSpeechEnabled;
   fields.quietStart.value = String(settings.quietHoursStart);
   fields.quietEnd.value = String(settings.quietHoursEnd);
@@ -131,8 +127,6 @@ function fillForm(settings: ExtensionSettings): void {
 
 function readPartialSettings(): Partial<ExtensionSettings> {
   return {
-    readPageContent: fields.readPageContent.checked,
-    pageTextMaxChars: Number(fields.pageTextMaxChars.value),
     showOverlay: cachedSettings.showOverlay,
     localSpeechEnabled: fields.localSpeechEnabled.checked,
     quietHoursStart: Number(fields.quietStart.value),

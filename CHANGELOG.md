@@ -2,17 +2,24 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 0.8.0 (unreleased)
+
+- Tabby only uses the **tab title and web address** to react to what you're reading. She never reads page text or your browsing history.
+- Her mood changes only if you **stay on a page for about a minute**. Opening the same page again soon won't stack extra mood changes.
+- **Smarter guesses** for familiar kinds of sites (social feeds, learning pages, YouTube, shopping, and more).
+- The **Varied local speech** setting also helps when a page is hard to classify. Still fully on your device.
+
 ## 0.7.0
 
 - Fixed **Hide Tabby** in the care menu (More → Hide Tabby).
-- Tabby shows on the **active tab only** — lighter on battery and CPU.
+- Tabby shows on the **active tab only**, so she is lighter on battery and CPU.
 - Smoother **appear and disappear** when she shows up or you hide her.
 - Gentler **mood transitions** when her expression changes.
 - Changelog added.
 
 ## 0.6.0
 
-- Tabby stays **in sync across tabs** — same cat, same mood as you switch pages.
+- Tabby stays **in sync across tabs**: same cat, same mood as you switch pages.
 
 ## 0.5.0
 

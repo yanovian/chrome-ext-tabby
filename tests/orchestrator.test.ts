@@ -3,7 +3,7 @@ import { createInitialCat } from '../utils/cat-sim';
 import {
   persistPresentation,
   presentOnActiveTab,
-  recordBrowsingSession,
+  recordPageVisit,
   runMinuteTick,
 } from '../utils/orchestrator';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
@@ -49,7 +49,7 @@ vi.mock('../utils/db', () => ({
   }),
 }));
 
-describe('recordBrowsingSession', () => {
+describe('recordPageVisit', () => {
   it('updates cat state without recomputing presentation', async () => {
     await persistPresentation({
       mood: 'content',
@@ -67,11 +67,10 @@ describe('recordBrowsingSession', () => {
       lastCareAction: null,
     });
 
-    await recordBrowsingSession({
+    await recordPageVisit({
       title: 'Docs',
       url: 'https://example.com/docs',
       hostname: 'example.com',
-      pageTextSnippet: 'hello',
       activeDurationMs: 60_000,
       now: NOW,
     });
@@ -81,6 +80,27 @@ describe('recordBrowsingSession', () => {
     ] as { speech?: string };
 
     expect(cached.speech).toBe('Cached line');
+  });
+
+  it('skips duplicate visits to the same page', async () => {
+    const first = await recordPageVisit({
+      title: 'Docs',
+      url: 'https://example.com/docs',
+      hostname: 'example.com',
+      activeDurationMs: 60_000,
+      now: NOW,
+    });
+
+    const second = await recordPageVisit({
+      title: 'Docs',
+      url: 'https://example.com/docs',
+      hostname: 'example.com',
+      activeDurationMs: 60_000,
+      now: NOW + 1000,
+    });
+
+    expect(first.counted).toBe(true);
+    expect(second.counted).toBe(false);
   });
 });
 

@@ -1,5 +1,5 @@
 import {
-  applyBrowsingToVitals,
+  applyVisitToVitals,
   applyCareAction,
   applyMinuteTick,
   createInitialCat,
@@ -23,6 +23,7 @@ import { buildPresentation } from './presentation';
 import { generateTabbySpeech } from './speech-service';
 import type { SpeechContext } from './speech-types';
 import { effectiveAppearanceLimits, getSettings } from './settings';
+import { registerVisit } from './visit-dedup';
 import type {
   CareAction,
   CatMood,
@@ -75,15 +76,34 @@ export async function readCachedPresentation(): Promise<CatPresentation | null> 
   return (result[STORAGE_KEYS.presentation] as CatPresentation | undefined) ?? null;
 }
 
-export async function recordBrowsingSession(input: {
+async function loadRecentVisitKeys(): Promise<string[]> {
+  const result = await browser.storage.local.get([STORAGE_KEYS.recentVisitKeys]);
+  const raw = result[STORAGE_KEYS.recentVisitKeys];
+  return Array.isArray(raw) ? (raw as string[]) : [];
+}
+
+async function saveRecentVisitKeys(keys: string[]): Promise<void> {
+  await browser.storage.local.set({ [STORAGE_KEYS.recentVisitKeys]: keys });
+}
+
+/** Score the active page after 1+ minute dwell, once per focus, if not in recent-10 dedup. */
+export async function recordPageVisit(input: {
   title: string;
   url: string;
   hostname: string;
-  pageTextSnippet: string;
   activeDurationMs: number;
   now: number;
-}): Promise<OrchestratorState> {
+}): Promise<{ state: OrchestratorState; counted: boolean }> {
   const state = await loadOrchestratorState();
+  const recentKeys = await loadRecentVisitKeys();
+  const visit = registerVisit(input.url, recentKeys);
+
+  if (!visit.counted) {
+    return { state, counted: false };
+  }
+
+  await saveRecentVisitKeys(visit.recentKeys);
+
   const { statMultiplier } = effectiveAppearanceLimits(state.settings);
 
   const observation = await appendObservation({
@@ -91,7 +111,6 @@ export async function recordBrowsingSession(input: {
     title: input.title,
     url: input.url,
     hostname: input.hostname,
-    pageTextSnippet: state.settings.readPageContent ? input.pageTextSnippet : '',
     activeDurationMs: input.activeDurationMs,
   });
 
@@ -99,17 +118,19 @@ export async function recordBrowsingSession(input: {
   if (observation.category) {
     cat = {
       ...cat,
-      vitals: applyBrowsingToVitals(cat.vitals, {
+      vitals: applyVisitToVitals(cat.vitals, {
         category: observation.category,
-        activeDurationMs: input.activeDurationMs,
         statMultiplier,
       }),
     };
   }
 
   await saveCatState(cat);
-  return { ...state, cat };
+  return { state: { ...state, cat }, counted: true };
 }
+
+/** @deprecated Use recordPageVisit — kept as an alias for tests. */
+export const recordBrowsingSession = recordPageVisit;
 
 export async function runMinuteTick(
   now: number,

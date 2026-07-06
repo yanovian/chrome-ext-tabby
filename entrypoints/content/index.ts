@@ -34,7 +34,6 @@ import {
   waitForOverlayAnimation,
 } from '../../utils/overlay-entrance';
 import { isPageOverlayHidden } from '../../utils/page-overlay';
-import { extractPageTextSnippet } from '../../utils/page-text';
 import {
   CAT_DISPLAY_SIZE,
   defaultOverlayPosition,
@@ -68,7 +67,6 @@ class TabbyOverlay {
   private introCompleted = true;
   private introStep: number | null = null;
   private position: OverlayPosition = defaultOverlayPosition();
-  private pageTextInterval: ReturnType<typeof setInterval> | null = null;
   private root: HTMLElement | null = null;
   private outsideClickListener: ((event: Event) => void) | null = null;
   private storageListenerBound = false;
@@ -125,13 +123,6 @@ class TabbyOverlay {
       return;
     }
     this.beginIntroIfNeeded();
-
-    if (settings.readPageContent && !this.pageTextInterval) {
-      await this.reportPageText(settings.pageTextMaxChars);
-      this.pageTextInterval = setInterval(() => {
-        void this.reportPageText(settings.pageTextMaxChars);
-      }, 30_000);
-    }
 
     if (this.storageListenerBound) {
       return;
@@ -227,9 +218,6 @@ class TabbyOverlay {
 
     window.addEventListener('pagehide', () => {
       this.removeOutsideClickListener();
-      if (this.pageTextInterval) {
-        clearInterval(this.pageTextInterval);
-      }
     });
   }
 
@@ -240,10 +228,6 @@ class TabbyOverlay {
   private teardownOverlay(): void {
     this.exiting = false;
     this.removeOutsideClickListener();
-    if (this.pageTextInterval) {
-      clearInterval(this.pageTextInterval);
-      this.pageTextInterval = null;
-    }
     this.removeAllOverlayRoots();
     this.root = null;
   }
@@ -301,21 +285,6 @@ class TabbyOverlay {
         nextSpeech: this.presentation?.speech ?? null,
         triggerKind: this.presentation?.triggerKind ?? null,
       }),
-    });
-  }
-
-  private async reportPageText(maxChars: number): Promise<void> {
-    const snippet = extractPageTextSnippet(maxChars);
-    await browser.runtime.sendMessage({
-      type: 'observeTab',
-      observation: {
-        observedAt: Date.now(),
-        title: document.title,
-        url: location.href,
-        hostname: location.hostname,
-        pageTextSnippet: snippet,
-        activeDurationMs: 0,
-      },
     });
   }
 

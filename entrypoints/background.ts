@@ -14,7 +14,7 @@ import {
   hideOverlayOnPage,
   loadOrchestratorState,
   presentOnActiveTab,
-  recordBrowsingSession,
+  recordPageVisit,
   runMinuteTick,
   showOverlayOnPage,
   type PageContext,
@@ -22,13 +22,14 @@ import {
 import { resolveCareActionPageUrl } from '../utils/care-action';
 import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
 import { preloadSpeechEngine } from '../utils/speech-service';
-import { ensureSettingsExist, getSettings, saveSettings, effectiveAppearanceLimits } from '../utils/settings';
+import { effectiveAppearanceLimits, ensureSettingsExist, getSettings, saveSettings } from '../utils/settings';
 import {
   beginFocus,
   createEmptySnapshot,
   endFocus,
   type ActiveTabSnapshot,
 } from '../utils/tab-session';
+import { hasDwelledLongEnough } from '../utils/visit-dedup';
 import { ALARM_NAMES } from '../utils/types';
 import type { CareAction, RuntimeMessage, RuntimeResponse } from '../utils/types';
 
@@ -37,8 +38,8 @@ const IS_DEV_BUILD = import.meta.env.DEV;
 /** Tracks the tab the user is currently reading. */
 let activeSnapshot: ActiveTabSnapshot = createEmptySnapshot();
 
-/** Last page text snippet reported by the active tab's content script. */
-let latestPageTextSnippet = '';
+/** Whether the current page focus has already been scored for mood. */
+let scoredCurrentFocus = false;
 
 /** Tab that currently hosts the floating cat (at most one). */
 let activeOverlayTabId: number | null = null;
@@ -78,30 +79,41 @@ async function updateToolbarFromPresentation(): Promise<void> {
   await browser.action.setTitle({ title: `Tabby — ${presentation.mood}` });
 }
 
-async function flushActiveTab(now = Date.now()): Promise<void> {
-  const ending = { ...activeSnapshot };
-  const { snapshot, activeDurationMs } = endFocus(activeSnapshot, now);
-  activeSnapshot = snapshot;
-
-  const settings = await getSettings(IS_DEV_BUILD);
-  const { minTabDurationMs } = effectiveAppearanceLimits(settings);
-
+async function tryScoreActivePage(now = Date.now()): Promise<void> {
   if (
-    !ending.tabId ||
-    !isTrackableUrl(ending.url) ||
-    activeDurationMs < minTabDurationMs
+    scoredCurrentFocus ||
+    !activeSnapshot.tabId ||
+    !isTrackableUrl(activeSnapshot.url) ||
+    !activeSnapshot.focusStartedAt
   ) {
     return;
   }
 
-  await recordBrowsingSession({
-    title: ending.title,
-    url: ending.url,
-    hostname: ending.hostname,
-    pageTextSnippet: latestPageTextSnippet,
-    activeDurationMs,
+  const settings = await getSettings(IS_DEV_BUILD);
+  const { minPageDwellMs } = effectiveAppearanceLimits(settings);
+  if (!hasDwelledLongEnough(activeSnapshot.focusStartedAt, now, minPageDwellMs)) {
+    return;
+  }
+
+  const dwellMs = now - activeSnapshot.focusStartedAt;
+  const result = await recordPageVisit({
+    title: activeSnapshot.title,
+    url: activeSnapshot.url,
+    hostname: activeSnapshot.hostname,
+    activeDurationMs: dwellMs,
     now,
   });
+
+  if (result.counted) {
+    scoredCurrentFocus = true;
+  }
+}
+
+async function flushActiveTab(now = Date.now()): Promise<void> {
+  await tryScoreActivePage(now);
+  const { snapshot } = endFocus(activeSnapshot, now);
+  activeSnapshot = snapshot;
+  scoredCurrentFocus = false;
 }
 
 async function refreshPresentationForActiveTab(now = Date.now()): Promise<void> {
@@ -152,14 +164,15 @@ async function syncFocusToTab(
   now = Date.now(),
 ): Promise<void> {
   await flushActiveTab(now);
-  latestPageTextSnippet = '';
 
   if (!tab?.id || !isTrackableUrl(tab.url)) {
     activeSnapshot = createEmptySnapshot();
+    scoredCurrentFocus = false;
     return;
   }
 
   activeSnapshot = beginFocus(createEmptySnapshot(), tab, now);
+  scoredCurrentFocus = false;
 }
 
 function activePageContext(): PageContext {
@@ -196,7 +209,6 @@ export default defineBackground(() => {
       if (!IS_DEV_BUILD) {
         void markIntroCompleted();
       }
-      // Dev reloads already run bootstrap(); skip duplicate work.
       if (!IS_DEV_BUILD) {
         enqueueTask(() => bootstrap());
       }
@@ -218,6 +230,7 @@ export default defineBackground(() => {
     }
 
     enqueueTask(async () => {
+      await tryScoreActivePage(Date.now());
       await runMinuteTick(Date.now(), { present: false });
       await updateToolbarFromPresentation();
     });
@@ -235,6 +248,7 @@ export default defineBackground(() => {
       if (windowId === browser.windows.WINDOW_ID_NONE) {
         await flushActiveTab();
         activeSnapshot = createEmptySnapshot();
+        scoredCurrentFocus = false;
         return;
       }
 
@@ -253,14 +267,29 @@ export default defineBackground(() => {
 
     enqueueTask(async () => {
       if (tab.active && tab.id === activeSnapshot.tabId && isTrackableUrl(tab.url)) {
-        activeSnapshot = {
-          ...activeSnapshot,
-          title: tab.title ?? activeSnapshot.title,
-          url: tab.url ?? activeSnapshot.url,
-          hostname: parseHostname(tab.url ?? activeSnapshot.url),
-        };
+        if (changeInfo.url) {
+          await tryScoreActivePage();
+          activeSnapshot = beginFocus(
+            {
+              ...activeSnapshot,
+              title: tab.title ?? activeSnapshot.title,
+              url: tab.url ?? activeSnapshot.url,
+              hostname: parseHostname(tab.url ?? activeSnapshot.url),
+            },
+            { id: tab.id, title: tab.title, url: tab.url },
+            Date.now(),
+          );
+          scoredCurrentFocus = false;
+        } else {
+          activeSnapshot = {
+            ...activeSnapshot,
+            title: tab.title ?? activeSnapshot.title,
+            url: tab.url ?? activeSnapshot.url,
+            hostname: parseHostname(tab.url ?? activeSnapshot.url),
+          };
+        }
+
         if (changeInfo.url || changeInfo.status === 'complete') {
-          latestPageTextSnippet = '';
           await refreshPresentationForActiveTab();
         }
       }
@@ -273,7 +302,11 @@ export default defineBackground(() => {
 
   browser.runtime.onMessage.addListener((message: RuntimeMessage, sender, sendResponse) => {
     const msgType = (message as { type?: string })?.type;
-    if (msgType === 'speech:generate' || msgType === 'speech:warm') {
+    if (
+      msgType === 'speech:generate' ||
+      msgType === 'speech:warm' ||
+      msgType === 'classify:generate'
+    ) {
       return false;
     }
 
@@ -316,11 +349,6 @@ export default defineBackground(() => {
             }
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
-            return;
-          }
-          case 'observeTab': {
-            latestPageTextSnippet = message.observation.pageTextSnippet;
-            sendResponse({ ok: true } satisfies RuntimeResponse);
             return;
           }
           case 'careAction': {
@@ -398,6 +426,7 @@ export default defineBackground(() => {
             return;
           }
           case 'tick': {
+            await tryScoreActivePage(Date.now());
             await runMinuteTick(Date.now(), {
               forceTick: IS_DEV_BUILD,
               page: activePageContext(),

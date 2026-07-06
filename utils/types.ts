@@ -104,10 +104,6 @@ export interface OverlayPosition {
 
 /** User-configurable extension settings. */
 export interface ExtensionSettings {
-  /** Read visible page text to understand tab context. Default: true. */
-  readPageContent: boolean;
-  /** Maximum characters of page text to analyze per tab. */
-  pageTextMaxChars: number;
   /** Local hour when quiet hours begin (inclusive). */
   quietHoursStart: number;
   /** Local hour when quiet hours end (exclusive). */
@@ -124,7 +120,7 @@ export interface ExtensionSettings {
   devAppearanceCooldownMinutes: number;
   /** Dev-only: multiply stat change rates. */
   devStatMultiplier: number;
-  /** Dev-only: minimum ms on a tab before it counts (production uses 5000). */
+  /** Dev-only: minimum ms on a page before mood can change (production uses 60s). */
   devMinTabDurationMs: number;
   /** Dev-only: preview a specific life stage instead of age-based growth. */
   devForceLifeStage: DevLifeStageOverride;
@@ -137,8 +133,6 @@ export interface ExtensionSettings {
 export const CAT_NAME = 'Tabby' as const;
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
-  readPageContent: true,
-  pageTextMaxChars: 2000,
   quietHoursStart: 23,
   quietHoursEnd: 8,
   maxAppearancesPerDay: 5,
@@ -173,6 +167,8 @@ export const STORAGE_KEYS = {
   introCompleted: 'introCompleted',
   /** Page keys (hostname + path) where the user chose Hide Tabby. */
   hiddenPageKeys: 'hiddenPageKeys',
+  /** Hostname + path keys for the last few counted page visits (anti-cheat). */
+  recentVisitKeys: 'recentVisitKeys',
 } as const;
 
 export const ALARM_NAMES = {
@@ -191,14 +187,13 @@ export interface PageOverlayState {
 
 export type TabObservationInput = Omit<
   TabObservation,
-  'id' | 'category' | 'topic'
+  'id' | 'category' | 'topic' | 'pageTextSnippet'
 >;
 
 export type RuntimeMessage =
   | { type: 'getPresentation' }
   | { type: 'getSettings' }
   | { type: 'saveSettings'; settings: Partial<ExtensionSettings> }
-  | { type: 'observeTab'; observation: TabObservationInput }
   | { type: 'careAction'; action: CareAction; url?: string }
   | { type: 'showOverlay'; url?: string; title?: string }
   | { type: 'hideOverlay'; url?: string }

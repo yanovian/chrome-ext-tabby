@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from './types';
 import type { DevLifeStageOverride, ExtensionSettings } from './types';
+import { MIN_PAGE_DWELL_MS } from './visit-dedup';
 
 function parseDevLifeStage(value: unknown): DevLifeStageOverride {
   if (
@@ -34,15 +35,6 @@ export function mergeSettings(
 ): ExtensionSettings {
   const raw = partial ?? {};
   return {
-    readPageContent:
-      typeof raw.readPageContent === 'boolean'
-        ? raw.readPageContent
-        : DEFAULT_SETTINGS.readPageContent,
-    pageTextMaxChars: clampPositiveInt(
-      Number(raw.pageTextMaxChars ?? DEFAULT_SETTINGS.pageTextMaxChars),
-      DEFAULT_SETTINGS.pageTextMaxChars,
-      8000,
-    ),
     quietHoursStart: clampHour(
       Number(raw.quietHoursStart ?? DEFAULT_SETTINGS.quietHoursStart),
       DEFAULT_SETTINGS.quietHoursStart,
@@ -110,14 +102,14 @@ export function effectiveAppearanceLimits(settings: ExtensionSettings): {
   maxPerDay: number;
   cooldownMinutes: number;
   statMultiplier: number;
-  minTabDurationMs: number;
+  minPageDwellMs: number;
 } {
   if (settings.devModeEnabled) {
     return {
       maxPerDay: settings.devMaxAppearancesPerDay,
       cooldownMinutes: settings.devAppearanceCooldownMinutes,
       statMultiplier: settings.devStatMultiplier,
-      minTabDurationMs: settings.devMinTabDurationMs,
+      minPageDwellMs: settings.devMinTabDurationMs,
     };
   }
 
@@ -125,7 +117,7 @@ export function effectiveAppearanceLimits(settings: ExtensionSettings): {
     maxPerDay: settings.maxAppearancesPerDay,
     cooldownMinutes: settings.appearanceCooldownMinutes,
     statMultiplier: 1,
-    minTabDurationMs: 5000,
+    minPageDwellMs: MIN_PAGE_DWELL_MS,
   };
 }
 

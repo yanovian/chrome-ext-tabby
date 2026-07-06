@@ -25,7 +25,7 @@ and grows over time. Everything stays local.
 
 - **Floating cat companion** — Tabby appears on pages you visit. Drag her anywhere.
 - **Mood-aware care menu** — tap Tabby to pet, feed, play, or ask what's up.
-- **Local browsing memory** — tab titles, URLs, and optional page text are classified on-device to shape her mood and memories.
+- **Local browsing memory** — title and URL only (known sites + optional local AI). No page body text. Mood shifts after 1+ minute on a page.
 - **Three life stages** — newborn kitten → playful kitten → grown-up cat, each with its own sprites.
 - **Quiet hours** — unprompted speech stays off during the hours you choose.
 - **Show / hide controls** — hide Tabby on this page, on every page, or bring her back with one click.
@@ -36,13 +36,15 @@ and grows over time. Everything stays local.
 
 | Permission | Why |
 |------------|-----|
-| `tabs` | Know which tab is active and read its title/URL for the cat simulation |
+| `tabs` | Read the **active tab's title and URL** when you switch tabs or navigate — not your full browsing history |
 | `storage` | Save settings, cat state, and per-page hide preferences locally |
 | `alarms` | Run a gentle once-per-minute care tick while you browse |
 | `scripting` | Reserved for best-effort inject into already-open tabs (usually a no-op without host permissions) |
 | `offscreen` | Run the bundled local speech model without blocking the service worker |
 
-Tabby runs on web pages via a **manifest content script** (not `host_permissions`). The cat and optional page text reading load on normal navigation. Tabs that were already open at install may need a **refresh** once.
+Tabby runs on web pages via a **manifest content script** (not `host_permissions`). The cat loads on normal navigation. Tabs that were already open at install may need a **refresh** once.
+
+**We do not request the `history` permission.** Tabby never reads your Chrome history, bookmarks, or closed tabs — only the page you are looking at right now.
 
 Cat progress, browsing observations, and memories live in **IndexedDB** on your device.
 
@@ -98,20 +100,53 @@ Long-form store copy per language: [`_doc/store-listing.md`](./_doc/store-listin
 ## How it works
 
 1. **Appear** — a content script renders Tabby on pages you visit (when not hidden).
-2. **Observe** — the background worker tracks the active tab's title and URL, and optionally a short page text snippet, all on-device.
-3. **React** — browsing updates Tabby's hunger, happiness, stress, and mood; she may speak or ask for care.
-4. **Remember** — topic memories and observations stay in IndexedDB so she can recall places you've been together.
+2. **Observe** — while a tab is active, the background worker reads only its **title and URL** (via the `tabs` permission). No page body, no browsing history.
+3. **Classify** — a local pipeline guesses the vibe:
+   - **Known sites first** — social feeds, dev docs (GitHub, Stack Overflow, AWS, …), YouTube (title + path heuristics), shopping, banking ([`utils/site-registry.ts`](./utils/site-registry.ts)).
+   - **Title/URL keywords** — tutorials, gossip, login pages, etc.
+   - **Local AI fallback** — when the guess is uncertain, the bundled on-device model refines it (same toggle as varied speech).
+4. **React** — after you stay on a page for **at least 1 minute**, and only if that path is **not** in the last **10** scored pages, Tabby gets a small mood nudge (+1 style: happiness, stress, hunger).
+5. **Remember** — nourishing topics (e.g. Kubernetes) become memories in IndexedDB.
+6. **Grow** — life stage advances by **calendar time**, not browsing.
+
+### Why we read tabs at all
+
+Tabby is a mood companion. She needs the active tab's title and URL so browsing can gently affect her feelings — not to track you.
+
+| Signal | Used for | Read? |
+|--------|----------|-------|
+| Active tab **title + URL** | Site list → keywords → local AI → mood | Yes (`tabs`) |
+| **Page body text** | — | **Never** |
+| **Browsing history** | — | **Never** |
+| **Time on page** | Must be ≥ 1 min before mood changes | Measured locally |
+
+### Minimal access & anti-cheat
+
+- **No `history` permission** — foreground tab only.
+- **No broad `host_permissions`** — manifest content script for the cat UI only.
+- **No page content reading** — title and URL are enough for known sites; YouTube uses the video title and `/shorts` vs `/watch` path.
+- **1-minute dwell** — quick tab hops do not move mood.
+- **Last-10 dedup** — revisiting the same path soon does not stack bonuses.
+
+```text
+Stay 1+ min on kubernetes.io/docs  →  nourishing  →  happiness +1, stress −1
+Stay 1+ min on twitter.com/explore  →  draining  →  stress +1
+Return to kubernetes.io/docs (still in last 10)  →  skipped
+```
+
+### What does *not* change with browsing
+
+- **Life stage sprites** (newborn / playful / adult) — real-world days together.
+- **Unprompted speech limits** — quiet hours and daily caps are separate.
 
 ## On-device AI
 
-Optional speech lines are generated by a **small bundled text model** (`flan-t5-small` via
-[Transformers.js](https://huggingface.co/docs/transformers.js) + ONNX) in an offscreen
-document. **No network calls at runtime** — the model and WebAssembly runtime ship inside
-the extension package (same pattern as [Breadcrumb](https://github.com/yanovian/chrome-ext-breadcrumb)).
+The bundled **`flan-t5-small`** model ([Transformers.js](https://huggingface.co/docs/transformers.js) + ONNX, offscreen document) runs fully on-device:
 
-- Toggle **Varied local speech** in settings to use the bundled model (with curated fallbacks when needed)
-- First load may take a few seconds while the model warms up
-- Turn it off to skip AI entirely and use hand-written lines only
+- **Speech** — varied cat lines (with hand-written fallbacks).
+- **Classification** — refines low-confidence title/URL guesses into nourishing / draining / neutral.
+
+Toggle **Varied local speech & classification** in settings. Turn it off to use site lists + keywords only (no model load).
 
 ## Tech stack
 
