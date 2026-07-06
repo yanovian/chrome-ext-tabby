@@ -11,6 +11,7 @@ Updates for people who use Tabby. Newest first.
 - Skipping the intro stays quiet.
 - Skip intro keeps Tabby **visible**.
 - Mood speech uses **curated lines**, not the local model.
+- Dev mode shows **real mood lines**, not instructions.
 
 ## 0.8.0
 

@@ -13,10 +13,6 @@ function productionSettings() {
   return mergeSettings(undefined, false);
 }
 
-function devSettings() {
-  return mergeSettings({ devModeEnabled: true }, true);
-}
-
 function memory(topic: string): MemorySeed {
   return {
     id: 'memory-1',
@@ -174,12 +170,12 @@ describe('evaluateEmotionalTrigger', () => {
     expect(result.shouldAppear).toBe(false);
   });
 
-  it('allows frequent dev speeches when dev mode is enabled for testing', () => {
+  it('dev refresh speech uses mood lines, not meta instructions', () => {
     const cat = createInitialCat(NOW);
     const result = evaluateEmotionalTrigger({
       cat,
       vitals: cat.vitals,
-      settings: devSettings(),
+      settings: mergeSettings({ devModeEnabled: true, devForceMood: 'hungry' }, true),
       now: NOW,
       isUserIdle: false,
       recentMemory: null,
@@ -187,8 +183,9 @@ describe('evaluateEmotionalTrigger', () => {
     });
 
     expect(result.shouldAppear).toBe(true);
-    expect(result.triggerKind).toBe('dev');
-    expect(speechFrom(result)).toMatch(/Dev mode/i);
+    expect(result.triggerKind).toBe('hungry');
+    expect(speechFrom(result)).toMatch(/hungry|peckish|snack|tummy/i);
+    expect(speechFrom(result)).not.toMatch(/dev mode/i);
   });
 
   it('force tick bypasses cooldown and speaks for the current mood', () => {

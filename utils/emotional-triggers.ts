@@ -116,7 +116,7 @@ export function evaluateEmotionalTrigger(
   const mood = resolveDisplayMood({ settings, derivedMood });
   const limits = effectiveAppearanceLimits(settings);
 
-  if (forceTick) {
+  if (forceTick || (forceDevSpeech && settings.devModeEnabled)) {
     const primaryNeed = resolvePrimaryNeed(vitals, mood);
     const triggerKind = primaryNeed ?? 'happy';
     return {
@@ -131,22 +131,6 @@ export function evaluateEmotionalTrigger(
         pageTopic,
       }),
       triggerKind,
-    };
-  }
-
-  if (forceDevSpeech && settings.devModeEnabled) {
-    return {
-      shouldAppear: true,
-      mood,
-      speechContext: buildSpeechContext({
-        kind: 'dev',
-        mood,
-        stage: cat.stage,
-        seed: now,
-        pageTitle,
-        pageTopic,
-      }),
-      triggerKind: 'dev',
     };
   }
 
