@@ -7,7 +7,23 @@ alwaysApply: true
 
 ## Changelog tone
 
-`CHANGELOG.md` is for **end users**. Keep each bullet to one short, friendly line. Say what Tabby does differently now, not how the code works.
+`CHANGELOG.md` is for **end users**. Keep each bullet to **one short line**. Say what Tabby does differently now, not how the code works.
+
+### Length (Cursor AI)
+
+- Aim for **one brief sentence**, often under 12 words.
+- **Bold** one or two key words when it helps scanning.
+- No parenthetical lists, no "and so on", no second clauses unless essential.
+
+```markdown
+# Good
+- Separate words **speech** from the care menu, while still connected.
+- Speech matches her **mood**.
+
+# Bad
+- When Tabby speaks up on her own, you see her words first. Tap her to open the care menu. Dismiss the bubble with ×, or close the care menu to clear both.
+- When Tabby speaks up, her line matches how she feels (hungry, stressed, sleepy, and so on).
+```
 
 ## No em dashes
 

@@ -47,7 +47,19 @@ export function resolveCompanionPresence(input: {
     return hidden;
   }
 
-  if (input.forceVisible || !input.introCompleted) {
+  if (!input.introCompleted) {
+    return {
+      ...hidden,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      recordSpeech:
+        input.forceVisible === true && isSpeechTriggerActive(input.speechTrigger),
+      recordAmbient: false,
+    };
+  }
+
+  if (input.forceVisible) {
     const recordSpeech = isSpeechTriggerActive(input.speechTrigger);
     return {
       ...hidden,

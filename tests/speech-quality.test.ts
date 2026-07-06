@@ -88,10 +88,35 @@ describe('isAcceptableTabbySpeech', () => {
     ).toBe(true);
   });
 
-  it('accepts first-person cat lines', () => {
-    expect(isAcceptableTabbySpeech('I feel cozy right here with you.', baseContext)).toBe(
-      true,
-    );
+  it('accepts first-person lines that match the trigger', () => {
+    expect(
+      isAcceptableTabbySpeech('I am peckish and want something fun to read.', baseContext),
+    ).toBe(true);
+    expect(
+      isAcceptableTabbySpeech('I feel cozy right here with you.', {
+        kind: 'happy',
+        mood: 'happy',
+        stage: 'adult',
+        seed: 1,
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects lines that ignore the current need', () => {
+    expect(
+      isAcceptableTabbySpeech('I feel cozy right here with you.', baseContext),
+    ).toBe(false);
+  });
+
+  it('rejects repetitive stutter gibberish', () => {
+    expect(
+      isAcceptableTabbySpeech('a snoopy - a snoopy - a s', {
+        kind: 'ask',
+        mood: 'content',
+        stage: 'adult',
+        seed: 1,
+      }),
+    ).toBe(false);
   });
 
   it('accepts censored frustration about pages when stressed', () => {

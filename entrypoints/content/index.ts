@@ -11,6 +11,11 @@ import {
   isIntroCompleted,
   markIntroCompleted,
 } from '../../utils/intro';
+import {
+  hasOverlayChrome,
+  isNewTriggerSpeech,
+  shouldShowSpeechBubble as shouldShowSpeechBubbleState,
+} from '../../utils/overlay-chrome';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
 import {
@@ -47,8 +52,10 @@ import {
   pingBackground,
   publicAnimationAssetUrl,
   requestCareAction,
+  requestClearCompanionSpeech,
   requestIsActiveOverlayTab,
   requestPresentation,
+  requestSettleAfterIntro,
   requestSettings,
 } from '../../utils/runtime-client';
 import type { CatPresentation, ExtensionSettings, OverlayPosition } from '../../utils/types';
@@ -63,10 +70,13 @@ class TabbyOverlay {
   private presentation: CatPresentation | null = null;
   private pageOverlayHidden = false;
   private menuOpen = false;
+  private speechBubbleOpen = false;
   private moreOpen = false;
   private pendingAction: InteractionAction | null = null;
   private introCompleted = true;
   private introStep: number | null = null;
+  private introJustFinished = false;
+  private introFinishTimer: number | null = null;
   private position: OverlayPosition = defaultOverlayPosition();
   private root: HTMLElement | null = null;
   private outsideClickListener: ((event: Event) => void) | null = null;
@@ -167,30 +177,40 @@ class TabbyOverlay {
         if (!this.showOverlayEnabled) {
           return;
         }
-        const next = changes.presentation?.newValue as CatPresentation | undefined;
+          const next = changes.presentation?.newValue as CatPresentation | undefined;
         if (next && !this.pendingAction) {
           const previousSpeech = this.presentation?.speech ?? null;
           const previousSprite = this.presentation?.sprite ?? null;
-          this.presentation = next;
-          if (next.speech && next.triggerKind && next.speech !== previousSpeech) {
-            this.menuOpen = true;
-            this.bindOutsideClickListener();
-          } else if (!next.speech) {
+          const settled = this.introJustFinished
+            ? { ...next, speech: null, triggerKind: null }
+            : next;
+          this.presentation = settled;
+          const newTriggerSpeech =
+            !this.introJustFinished &&
+            isNewTriggerSpeech({
+              previousSpeech,
+              nextSpeech: settled.speech,
+              triggerKind: settled.triggerKind,
+            });
+          if (newTriggerSpeech) {
+            this.speechBubbleOpen = true;
             this.menuOpen = false;
             this.moreOpen = false;
-            this.removeOutsideClickListener();
+            this.syncOutsideClickListener();
+          } else if (!settled.speech) {
+            this.speechBubbleOpen = false;
           }
           const shouldReact = shouldReactToSpeechTrigger({
             previousSpeech,
-            nextSpeech: next.speech,
-            triggerKind: next.triggerKind,
+            nextSpeech: settled.speech,
+            triggerKind: settled.triggerKind,
           });
           this.render({
-            animateMenu: this.menuOpen,
+            animateMenu: newTriggerSpeech || this.menuOpen,
             reactToTrigger: shouldReact,
             animateMood: shouldAnimateMoodTransition({
               previousSprite,
-              nextSprite: next.sprite,
+              nextSprite: settled.sprite,
               hasVisibleOverlay: Boolean(this.root?.isConnected),
             }),
           });
@@ -264,6 +284,7 @@ class TabbyOverlay {
     this.pendingAction = null;
     this.menuOpen = false;
     this.moreOpen = false;
+    this.speechBubbleOpen = false;
   }
 
   /** Play the exit animation before tearing down (tab switch or hide). */
@@ -274,6 +295,7 @@ class TabbyOverlay {
     if (this.root?.isConnected && !this.exiting) {
       this.menuOpen = false;
       this.moreOpen = false;
+      this.speechBubbleOpen = false;
       this.removeOutsideClickListener();
       await this.exitOverlay(true);
       return;
@@ -314,22 +336,51 @@ class TabbyOverlay {
       return;
     }
 
-    const shouldOpenTriggerMenu = Boolean(
+    const newTriggerSpeech = Boolean(
       this.presentation?.speech && this.presentation.triggerKind,
     );
-    if (shouldOpenTriggerMenu) {
-      this.menuOpen = true;
-      this.bindOutsideClickListener();
+    if (newTriggerSpeech) {
+      this.speechBubbleOpen = true;
     }
 
     this.render({
-      animateMenu: shouldOpenTriggerMenu,
+      animateMenu: newTriggerSpeech,
       reactToTrigger: shouldReactToSpeechTrigger({
         previousSpeech: null,
         nextSpeech: this.presentation?.speech ?? null,
         triggerKind: this.presentation?.triggerKind ?? null,
       }),
     });
+    if (newTriggerSpeech) {
+      this.syncOutsideClickListener();
+    }
+  }
+
+  private shouldShowSpeechBubble(): boolean {
+    const presentation = this.presentation;
+    return shouldShowSpeechBubbleState({
+      speech: presentation?.speech ?? null,
+      triggerKind: presentation?.triggerKind ?? null,
+      isIntro: this.isIntroActive(),
+      careMenuOpen: this.menuOpen,
+      speechBubbleOpen: this.speechBubbleOpen,
+    });
+  }
+
+  private hasOverlayChrome(): boolean {
+    return hasOverlayChrome({
+      isIntro: this.isIntroActive(),
+      careMenuOpen: this.menuOpen,
+      showSpeechBubble: this.shouldShowSpeechBubble(),
+    });
+  }
+
+  private syncOutsideClickListener(): void {
+    if (this.hasOverlayChrome()) {
+      this.bindOutsideClickListener();
+    } else {
+      this.removeOutsideClickListener();
+    }
   }
 
   private async loadIntroState(): Promise<void> {
@@ -351,12 +402,23 @@ class TabbyOverlay {
   }
 
   private async completeIntro(): Promise<void> {
+    this.introJustFinished = true;
+    if (this.introFinishTimer !== null) {
+      window.clearTimeout(this.introFinishTimer);
+    }
+    this.introFinishTimer = window.setTimeout(() => {
+      this.introJustFinished = false;
+      this.introFinishTimer = null;
+    }, 3000);
+
     await markIntroCompleted();
     this.introCompleted = true;
     this.introStep = null;
     this.menuOpen = false;
     this.moreOpen = false;
-    this.removeOutsideClickListener();
+    this.speechBubbleOpen = false;
+    this.presentation = await requestSettleAfterIntro();
+    this.syncOutsideClickListener();
     this.render();
   }
 
@@ -382,8 +444,7 @@ class TabbyOverlay {
     this.menuOpen = false;
     this.moreOpen = false;
     this.pendingAction = null;
-    this.removeOutsideClickListener();
-    this.render();
+    void this.dismissCompanionSpeech();
   }
 
   private openMenu(): void {
@@ -392,7 +453,18 @@ class TabbyOverlay {
     }
     this.menuOpen = true;
     this.render();
-    this.bindOutsideClickListener();
+    this.syncOutsideClickListener();
+  }
+
+  private dismissSpeechBubble(): void {
+    void this.dismissCompanionSpeech();
+  }
+
+  private async dismissCompanionSpeech(): Promise<void> {
+    this.speechBubbleOpen = false;
+    this.presentation = await requestClearCompanionSpeech();
+    this.syncOutsideClickListener();
+    this.render();
   }
 
   private bindOutsideClickListener(): void {
@@ -402,7 +474,11 @@ class TabbyOverlay {
         return;
       }
       if (!this.root.contains(event.target)) {
-        this.closeMenu();
+        if (this.menuOpen) {
+          this.closeMenu();
+        } else if (this.speechBubbleOpen) {
+          this.dismissSpeechBubble();
+        }
       }
     };
     // Defer so the opening tap does not immediately close the menu.
@@ -445,14 +521,16 @@ class TabbyOverlay {
       }
       this.patchRoot(this.presentation!, options);
       this.applyPosition();
-      if (this.menuOpen) {
+      if (this.hasOverlayChrome()) {
         requestAnimationFrame(() => this.applyPosition());
       }
       return;
     }
 
     this.removeAllOverlayRoots();
-    this.root = this.buildRoot(this.presentation!, { animateMenu: options.animateMenu ?? this.menuOpen });
+    this.root = this.buildRoot(this.presentation!, {
+      animateMenu: options.animateMenu ?? this.hasOverlayChrome(),
+    });
     document.documentElement.appendChild(this.root);
     this.applyPosition();
     if (this.menuOpen) {
@@ -512,7 +590,7 @@ class TabbyOverlay {
     for (const stage of ['newborn', 'playful', 'adult'] as const) {
       root.classList.toggle(`tabby-root--${stage}`, presentation.stage === stage);
     }
-    root.classList.toggle('tabby-root--menu-open', this.menuOpen);
+    root.classList.toggle('tabby-root--menu-open', this.hasOverlayChrome());
     root.classList.toggle('tabby-root--intro', this.isIntroActive());
     root.classList.toggle(
       'tabby-root--ambient-sleeping',
@@ -618,7 +696,7 @@ class TabbyOverlay {
       menu.remove();
     }
 
-    if (!this.menuOpen) {
+    if (!this.hasOverlayChrome()) {
       delete root.dataset.menuPlacement;
       return;
     }
@@ -631,7 +709,7 @@ class TabbyOverlay {
     panel.appendChild(
       this.isIntroActive()
         ? this.buildIntroMenuArea({ animate: options.animateMenu })
-        : this.buildCareMenuArea(presentation, { animate: options.animateMenu }),
+        : this.buildOverlayChrome(presentation, { animate: options.animateMenu }),
     );
   }
 
@@ -655,11 +733,11 @@ class TabbyOverlay {
 
     panel.appendChild(catSurface);
 
-    if (this.menuOpen) {
+    if (this.hasOverlayChrome()) {
       panel.appendChild(
         this.isIntroActive()
           ? this.buildIntroMenuArea({ animate: options.animateMenu })
-          : this.buildCareMenuArea(presentation, { animate: options.animateMenu }),
+          : this.buildOverlayChrome(presentation, { animate: options.animateMenu }),
       );
     }
 
@@ -725,7 +803,7 @@ class TabbyOverlay {
     return menuArea;
   }
 
-  private buildCareMenuArea(
+  private buildOverlayChrome(
     presentation: CatPresentation,
     options: { animate?: boolean } = {},
   ): HTMLElement {
@@ -735,6 +813,20 @@ class TabbyOverlay {
       menuArea.classList.add(MENU_ENTER_CLASS);
     }
 
+    if (this.menuOpen) {
+      menuArea.appendChild(this.buildCareCard(presentation));
+    }
+
+    if (this.shouldShowSpeechBubble() && presentation.speech) {
+      menuArea.appendChild(
+        this.buildSpeechBubble(presentation.speech, { showClose: !this.menuOpen }),
+      );
+    }
+
+    return menuArea;
+  }
+
+  private buildCareCard(presentation: CatPresentation): HTMLElement {
     const card = document.createElement('div');
     card.className = 'tabby-card tabby-card--actions';
 
@@ -769,7 +861,7 @@ class TabbyOverlay {
         this.moreOpen = !this.moreOpen;
         this.render();
         if (this.menuOpen) {
-          this.bindOutsideClickListener();
+          this.syncOutsideClickListener();
         }
       });
       actions.appendChild(moreButton);
@@ -789,18 +881,31 @@ class TabbyOverlay {
     }
 
     card.appendChild(actions);
-    menuArea.appendChild(card);
 
-    if (presentation.speech) {
-      menuArea.appendChild(this.buildSpeechBubble(presentation.speech));
-    }
-
-    return menuArea;
+    return card;
   }
 
-  private buildSpeechBubble(text: string): HTMLElement {
+  private buildSpeechBubble(
+    text: string,
+    options: { showClose?: boolean } = {},
+  ): HTMLElement {
     const bubble = document.createElement('div');
     bubble.className = 'tabby-speech-bubble';
+
+    if (options.showClose) {
+      bubble.classList.add('tabby-speech-bubble--dismissible');
+      const closeButton = document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.className = 'tabby-speech-bubble-close';
+      closeButton.title = 'Dismiss';
+      closeButton.setAttribute('aria-label', 'Dismiss speech');
+      closeButton.textContent = '×';
+      closeButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        this.dismissSpeechBubble();
+      });
+      bubble.appendChild(closeButton);
+    }
 
     const bubbleText = document.createElement('p');
     bubbleText.className = 'tabby-speech-bubble-text';
@@ -982,7 +1087,7 @@ class TabbyOverlay {
   }
 
   private applyMenuPlacement(catPosition: OverlayPosition, catSize: number): void {
-    if (!this.root || !this.menuOpen) {
+    if (!this.root || !this.hasOverlayChrome()) {
       return;
     }
 
@@ -1027,12 +1132,13 @@ class TabbyOverlay {
       if (action === 'dismiss') {
         await this.syncPageOverlayHidden();
         this.menuOpen = false;
+        this.speechBubbleOpen = false;
         this.moreOpen = false;
         this.removeOutsideClickListener();
       } else if (action === 'dnd_30' || action === 'dnd_60' || action === 'dnd_today') {
         this.menuOpen = false;
         this.moreOpen = false;
-        this.removeOutsideClickListener();
+        this.syncOutsideClickListener();
       }
     } finally {
       this.pendingAction = null;

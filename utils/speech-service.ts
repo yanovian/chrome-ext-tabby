@@ -1,4 +1,5 @@
 import { fallbackSpeech } from './speech-fallback';
+import { isAcceptableTabbySpeech } from './speech-quality';
 import type { SpeechContext } from './speech-types';
 import { SPEECH_GENERATION_TIMEOUT_MS } from './speech-types';
 
@@ -114,7 +115,7 @@ export async function generateTabbySpeech(
       requestOffscreenSpeech(context),
       SPEECH_GENERATION_TIMEOUT_MS,
     );
-    if (text) {
+    if (text && isAcceptableTabbySpeech(text, context)) {
       return text;
     }
   } catch (error) {

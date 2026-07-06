@@ -38,10 +38,12 @@ Newest section first. **Use a version number, not a bare "Unreleased" heading.**
 
 | Do | Don't |
 |----|-------|
-| One line per user-visible change | File names, module names, permissions API names |
+| One **short** line per user-visible change | Long sentences, stacked ideas, or sub-bullets |
 | Plain words ("web address", "about a minute") | `host_permissions`, "dedup", "pipeline", "IndexedDB" |
-| **Bold** a few key words if helpful | Long paragraphs or sub-bullets |
+| **Bold** a few key words if helpful | Paragraph-style bullets or parenthetical mood lists |
 | 1–5 bullets per release when possible | Every commit or technical refactor |
+
+**Example (good):** `Separate words **speech** from the care menu, while still connected.`
 
 Technical detail belongs in `README.md`, `PRIVACY.md`, code comments, or PR descriptions, not the changelog.
 

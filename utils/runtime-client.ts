@@ -58,6 +58,14 @@ export function requestDevForceCompanionHide(): Promise<CatPresentation> {
   return sendMessage<CatPresentation>({ type: 'devForceCompanionHide' });
 }
 
+export function requestClearCompanionSpeech(): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'clearCompanionSpeech' });
+}
+
+export function requestSettleAfterIntro(): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'settleAfterIntro' });
+}
+
 export function requestPageOverlayState(url?: string): Promise<PageOverlayState> {
   return sendMessage<PageOverlayState>({ type: 'getPageOverlayState', url });
 }

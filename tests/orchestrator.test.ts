@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   cancelDoNotDisturb,
+  clearCompanionSpeech,
   devForceCompanionHide,
   devForceCompanionShow,
   enableDoNotDisturb,
@@ -10,6 +11,7 @@ import {
   presentOnActiveTab,
   recordPageVisit,
   runMinuteTick,
+  settleAfterIntro,
   showOverlayOnPage,
 } from '../utils/orchestrator';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
@@ -325,6 +327,90 @@ describe('devForceCompanionShow', () => {
     expect(presentation.companionVisible).toBe(true);
     expect(presentation.speech).toBeNull();
     expect(presentation.ambientActivity).toBeNull();
+  });
+});
+
+describe('clearCompanionSpeech', () => {
+  it('clears cached speech from presentation', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: 'Hello there',
+      triggerKind: 'hungry',
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await clearCompanionSpeech(NOW);
+
+    expect(presentation.speech).toBeNull();
+    expect(presentation.triggerKind).toBeNull();
+  });
+});
+
+describe('settleAfterIntro', () => {
+  it('clears speech and keeps Tabby visible after intro ends', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: 'a snoopy - a snoopy - a s',
+      triggerKind: 'hungry',
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+    store[STORAGE_KEYS.introCompleted] = true;
+
+    const presentation = await settleAfterIntro(NOW);
+
+    expect(presentation.speech).toBeNull();
+    expect(presentation.triggerKind).toBeNull();
+    expect(presentation.companionVisible).toBe(true);
+  });
+
+  it('shows Tabby even when cached presentation had her hidden', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await settleAfterIntro(NOW);
+
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.speech).toBeNull();
   });
 });
 

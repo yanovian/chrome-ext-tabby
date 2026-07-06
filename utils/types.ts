@@ -242,6 +242,8 @@ export type RuntimeMessage =
   | { type: 'resetIntro' }
   | { type: 'devForceCompanionShow'; mode: 'ambient' | 'quiet' }
   | { type: 'devForceCompanionHide' }
+  | { type: 'clearCompanionSpeech' }
+  | { type: 'settleAfterIntro' }
   | { type: 'ping' };
 
 export interface RuntimeResponseOk<T = unknown> {

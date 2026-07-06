@@ -8,6 +8,7 @@ import {
 import {
   ensureCatExists,
   cancelDoNotDisturb,
+  clearCompanionSpeech,
   devForceCompanionHide,
   devForceCompanionShow,
   enableDoNotDisturb,
@@ -21,6 +22,7 @@ import {
   recordPageVisit,
   runMinuteTick,
   showOverlayOnPage,
+  settleAfterIntro,
   type PageContext,
 } from '../utils/orchestrator';
 import { getDoNotDisturbStatus } from '../utils/do-not-disturb';
@@ -483,6 +485,17 @@ export default defineBackground(() => {
           case 'resetIntro': {
             await resetIntro();
             sendResponse({ ok: true } satisfies RuntimeResponse);
+            return;
+          }
+          case 'clearCompanionSpeech': {
+            const data = await clearCompanionSpeech(Date.now());
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'settleAfterIntro': {
+            const data = await settleAfterIntro(Date.now());
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
             return;
           }
           case 'devForceCompanionShow': {

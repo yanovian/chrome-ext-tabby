@@ -115,6 +115,31 @@ describe('resolveCompanionPresence', () => {
     expect(result.recordAmbient).toBe(false);
   });
 
+  it('shows Tabby during intro without unprompted speech', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: true,
+        mood: 'hungry',
+        speechContext: {
+          kind: 'hungry',
+          mood: 'hungry',
+          stage: 'adult',
+          seed: NOW,
+        },
+        triggerKind: 'hungry',
+      },
+      doNotDisturb: { until: null },
+      introCompleted: false,
+      lastPresentation: null,
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.recordSpeech).toBe(false);
+  });
+
   it('records speech when forceVisible and the trigger fired (dev tick)', () => {
     const result = resolveCompanionPresence({
       cat: createInitialCat(NOW),

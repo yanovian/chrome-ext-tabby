@@ -19,6 +19,31 @@ function trimHint(value: string | undefined, max = 80): string | undefined {
 }
 
 /** One-line situation for the model — mood and need only, no open-ended story hooks. */
+function requiredThemeLine(kind: SpeechContext['kind']): string {
+  switch (kind) {
+    case 'starving':
+      return 'Required theme: Tabby is very hungry and needs something to read.';
+    case 'hungry':
+      return 'Required theme: Tabby feels hungry or peckish and wants a good page.';
+    case 'stressed':
+      return 'Required theme: Tabby feels stressed by loud or overwhelming tabs.';
+    case 'lonely':
+      return 'Required theme: Tabby feels lonely and wants company while browsing.';
+    case 'happy':
+      return 'Required theme: Tabby feels happy and cheerful.';
+    case 'sleepy':
+      return 'Required theme: Tabby feels sleepy or drowsy.';
+    case 'curious':
+      return 'Required theme: Tabby is curious about what the user is reading.';
+    case 'memory':
+      return 'Required theme: Tabby remembers visiting this topic before.';
+    case 'milestone':
+      return 'Required theme: Tabby celebrates time together with the user.';
+    default:
+      return '';
+  }
+}
+
 function situationLine(context: SpeechContext): string {
   switch (context.kind) {
     case 'starving':
@@ -81,6 +106,11 @@ export function buildSpeechPrompt(context: SpeechContext): string {
     situationLine(context),
     `Mood label: ${context.mood}.`,
   ];
+
+  const themeLine = requiredThemeLine(context.kind);
+  if (themeLine) {
+    parts.push(themeLine);
+  }
 
   if (includePageContext(context.kind)) {
     const pageTopic = trimHint(context.pageTopic, 40);

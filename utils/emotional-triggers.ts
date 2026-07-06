@@ -1,4 +1,5 @@
 import { daysTogether, deriveMoodFromVitals } from './cat-sim';
+import { resolveDisplayMood } from './presentation';
 import { isQuietHour, effectiveAppearanceLimits } from './settings';
 import { fallbackSpeech, triggerKindToSpeechKind } from './speech-fallback';
 import type { SpeechContext } from './speech-types';
@@ -111,7 +112,8 @@ export function evaluateEmotionalTrigger(
     pageTitle,
     pageTopic,
   } = input;
-  const mood = deriveMoodFromVitals({ vitals, now, settings, isUserIdle });
+  const derivedMood = deriveMoodFromVitals({ vitals, now, settings, isUserIdle });
+  const mood = resolveDisplayMood({ settings, derivedMood });
   const limits = effectiveAppearanceLimits(settings);
 
   if (forceTick) {

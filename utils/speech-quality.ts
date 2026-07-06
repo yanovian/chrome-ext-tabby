@@ -1,4 +1,29 @@
-import type { SpeechContext } from './speech-types';
+import type { SpeechContext, SpeechKind } from './speech-types';
+
+/** Lines must sound on-theme for the trigger that fired (hungry → hunger, etc.). */
+const SPEECH_KIND_HINTS: Partial<Record<SpeechKind, RegExp[]>> = {
+  starving: [
+    /\b(starv|hungry|hollow|empty|tummy|bowl|mew|feed|snack|peckish|prey)\b/i,
+  ],
+  hungry: [
+    /\b(hungry|peckish|snack|feed|tummy|mew|starv|bowl|rumbl|content|read|page|browse|explore|something|fun)\b/i,
+  ],
+  stressed: [
+    /\b(loud|noisy|calm|quiet|overwhelm|buzz|stress|breath|spicy|much|tabs|pages)\b/i,
+  ],
+  lonely: [
+    /\b(quiet|lonely|miss|company|friend|together|browse|alone|wait|companion)\b/i,
+  ],
+  happy: [/\b(good|happy|cozy|nice|mood|purr|sunny|vibe|glad|cheerful|content)\b/i],
+  sleepy: [/\b(nap|sleep|drowsy|yawn|zzz|dream|curled|tired|rest)\b/i],
+  curious: [/\b(what|interesting|fun|sniff|curious|look|page|pounce|ears|smell|ooh)\b/i],
+  memory: [/\b(remember|familiar|before|again|topic|looked|been|déjà|know)\b/i],
+  milestone: [/\b(day|week|month|year|together|anniversary|remember|first|while)\b/i],
+  care_pet: [/\b(pet|purr|nice|soft|good|better|mmm|right)\b/i],
+  care_treat: [/\b(yum|treat|thank|better|tasty|spot|full|hungry)\b/i],
+  care_play: [/\b(fun|play|again|pounce|zoom|good|whee|game)\b/i],
+  dismiss: [/\b(hide|here|soon|okay|back|call|nap)\b/i],
+};
 
 /** Patterns that usually mean the model drifted into encyclopedia or story mode. */
 const BAD_SPEECH_PATTERNS = [
@@ -30,6 +55,9 @@ const FIRST_PERSON_HINT =
 const CAT_MURMUR_HINT =
   /\b(mew|mrrp|prrr|purr|meow|mrow|nya|meee+w+)\b/i;
 
+/** Model stutter, e.g. "a snoopy - a snoopy - a s". */
+const REPETITIVE_SPEECH_PATTERN = /\b(\w{2,})(?:\s*[-–]\s*\1\b|\s+\1\b){1,}/i;
+
 const GENERIC_HOME_TITLES =
   /^(google|google search|bing|yahoo|duckduckgo|facebook|twitter|x|reddit|youtube|home)$/i;
 
@@ -49,6 +77,41 @@ export function sanitizePageTitleHint(title: string | undefined): string | undef
   }
 
   return trimmed.length > 60 ? `${trimmed.slice(0, 59)}…` : trimmed;
+}
+
+/** True when the line matches the speech trigger (hungry lines mention hunger, etc.). */
+export function speechMatchesKind(text: string, context: SpeechContext): boolean {
+  if (context.kind === 'dev' || context.kind === 'ask') {
+    return true;
+  }
+
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  const hints = SPEECH_KIND_HINTS[context.kind];
+  if (!hints || hints.length === 0) {
+    return true;
+  }
+
+  if (hints.some((pattern) => pattern.test(normalized))) {
+    return true;
+  }
+
+  if (context.kind === 'memory' && context.memoryTopic) {
+    const topic = context.memoryTopic.toLowerCase();
+    if (topic.length > 2 && normalized.toLowerCase().includes(topic.slice(0, 40))) {
+      return true;
+    }
+  }
+
+  const murmurOnly =
+    CAT_MURMUR_HINT.test(normalized) && !FIRST_PERSON_HINT.test(normalized);
+  if (
+    murmurOnly &&
+    ['happy', 'sleepy', 'curious', 'hungry', 'starving', 'lonely'].includes(context.kind)
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 /** True when the line sounds like Tabby, not a product blurb or insult. */
@@ -80,6 +143,10 @@ export function isAcceptableTabbySpeech(
     }
   }
 
+  if (!murmurOnly && REPETITIVE_SPEECH_PATTERN.test(normalized)) {
+    return false;
+  }
+
   const titleHint = sanitizePageTitleHint(context.pageTitle);
   if (titleHint) {
     const lead = titleHint.split(/\s+/)[0];
@@ -92,6 +159,10 @@ export function isAcceptableTabbySpeech(
     if (!FIRST_PERSON_HINT.test(normalized) && !CAT_MURMUR_HINT.test(normalized)) {
       return false;
     }
+  }
+
+  if (!speechMatchesKind(normalized, context)) {
+    return false;
   }
 
   return true;

@@ -31,7 +31,6 @@ import { evaluateEmotionalTrigger } from './emotional-triggers';
 import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
 import { buildPresentation } from './presentation';
 import { resolveCompanionPresence } from './presence';
-import { generateTabbySpeech } from './speech-service';
 import type { SpeechContext } from './speech-types';
 import { effectiveAppearanceLimits, getSettings } from './settings';
 import { registerVisit } from './visit-dedup';
@@ -356,14 +355,7 @@ export async function evaluateAndPresent(
 
   let speech: string | null = null;
   if (presence.recordSpeech && trigger.speechContext) {
-    if (state.settings.localSpeechEnabled) {
-      speech = await generateTabbySpeech(trigger.speechContext, {
-        enabled: true,
-        fallback: () => fallbackSpeech(trigger.speechContext!),
-      });
-    } else {
-      speech = fallbackSpeech(trigger.speechContext);
-    }
+    speech = fallbackSpeech(trigger.speechContext);
   }
 
   const presentation = buildPresentation({
@@ -603,4 +595,64 @@ export async function devForceCompanionHide(now: number): Promise<CatPresentatio
 
   await persistPresentation(presentation);
   return presentation;
+}
+
+/** Clear unprompted speech from the cached presentation. */
+export async function clearCompanionSpeech(now: number): Promise<CatPresentation> {
+  const cached = await readCachedPresentation();
+  if (cached) {
+    const cleared = { ...cached, speech: null, triggerKind: null };
+    await persistPresentation(cleared);
+    return cleared;
+  }
+
+  const state = await loadOrchestratorState();
+  const presentation = buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: null,
+    triggerKind: null,
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    lastCareAction: state.lastPresentation?.lastCareAction ?? null,
+    companionVisible: state.lastPresentation?.companionVisible ?? true,
+    ambientActivity: state.lastPresentation?.ambientActivity ?? null,
+    ambientPeekUntil: state.lastPresentation?.ambientPeekUntil ?? null,
+  });
+  const cleared = { ...presentation, speech: null, triggerKind: null };
+  await persistPresentation(cleared);
+  return cleared;
+}
+
+/** After intro ends, keep Tabby visible and never carry speech over. */
+export async function settleAfterIntro(now: number): Promise<CatPresentation> {
+  const cached = await readCachedPresentation();
+  const state = await loadOrchestratorState();
+  const base =
+    cached ??
+    buildPresentation({
+      cat: state.cat,
+      vitals: state.cat.vitals,
+      settings: state.settings,
+      now,
+      isUserIdle: state.isUserIdle,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      lastCareAction: state.lastPresentation?.lastCareAction ?? null,
+      companionVisible: true,
+    });
+
+  const settled = {
+    ...base,
+    speech: null,
+    triggerKind: null,
+    companionVisible: true,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+  };
+  await persistPresentation(settled);
+  return settled;
 }
