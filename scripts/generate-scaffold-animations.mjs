@@ -59,7 +59,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'stress', 'sleep', 'groom', 'play', 'peek'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'feeding', 'stress', 'sleep', 'groom', 'play', 'peek'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -132,11 +132,26 @@ function motionFor(state, frames) {
     case 'eat':
       return {
         body: breathe(frames, 2),
-        tail: staticValue([8]),
-        headR: loopKeys(frames, [8, 20, 8]),
+        tail: loopKeys(frames, [-10, 10, -10]),
+        headR: loopKeys(frames, [-8, 8, -8]),
+        headP: loopKeys(frames, [
+          [0, -6, 0],
+          [0, -8, 0],
+          [0, -6, 0],
+        ]),
+        face: 'worry',
+        blink: false,
+      };
+    case 'feeding':
+      return {
+        body: breathe(frames, 2.5),
+        tail: loopKeys(frames, [6, 12, 6, 10, 6]),
+        headR: loopKeys(frames, [10, 20, 12, 22, 10]),
         headP: loopKeys(frames, [
           [0, 0, 0],
-          [4, 12, 0],
+          [6, 14, 0],
+          [2, 10, 0],
+          [8, 16, 0],
           [0, 0, 0],
         ]),
         face: 'open',
@@ -796,7 +811,7 @@ function buildCat(stageKey, state) {
     ),
   ];
 
-  if (state === 'eat') {
+  if (state === 'feeding') {
     layers[0].ind = 4;
     layers.splice(
       2,

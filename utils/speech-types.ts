@@ -5,9 +5,12 @@ export type SpeechKind =
   | 'ask'
   | 'peeking'
   | 'care_pet'
+  | 'care_pet_hungry'
   | 'care_treat'
   | 'care_play'
-  | 'dismiss';
+  | 'dismiss'
+  | 'feeding_munch'
+  | 'feeding_thanks';
 
 /** Inputs for local speech generation — fully on-device, no network. */
 export interface SpeechContext {

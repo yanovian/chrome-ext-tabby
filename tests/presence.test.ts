@@ -22,6 +22,7 @@ const basePresentation: CatPresentation = {
   companionVisible: false,
   ambientActivity: null,
   ambientPeekUntil: null,
+  eatingUntil: null,
 };
 
 describe('resolveCompanionPresence', () => {

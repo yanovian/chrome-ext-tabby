@@ -1,6 +1,7 @@
 import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat-interactions';
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
 import { resolveCompanionAnimation } from './companion-animation';
+import { isFeedingActive } from './feeding-moment';
 import { lifeStageLabel } from './sprites';
 import type { AmbientActivity } from './ambient-presence';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
@@ -59,6 +60,7 @@ export function buildPresentation(input: {
   companionVisible: boolean;
   ambientActivity?: AmbientActivity | null;
   ambientPeekUntil?: number | null;
+  eatingUntil?: number | null;
 }): CatPresentation {
   const derivedMood = deriveMoodFromVitals({
     vitals: input.vitals,
@@ -78,6 +80,8 @@ export function buildPresentation(input: {
     input.now,
     input.settings.devForceLifeStage,
   );
+  const eatingUntil = input.eatingUntil ?? null;
+  const feedingActive = isFeedingActive(eatingUntil, input.now);
 
   return {
     mood,
@@ -88,12 +92,14 @@ export function buildPresentation(input: {
       mood,
       ambientActivity: input.ambientActivity,
       lastCareAction: input.lastCareAction,
+      eatingUntil,
+      now: input.now,
     }),
     speech: input.speech,
     triggerKind: input.triggerKind,
     overlayHidden: input.overlayHidden,
     canPet: true,
-    canTreat: mood === 'hungry' || mood === 'starving',
+    canTreat: !feedingActive && (mood === 'hungry' || mood === 'starving'),
     canPlay: mood !== 'sleepy' && input.vitals.happiness < 70,
     interactions: buildInteractionOptions(mood, input.vitals, stage),
     secondaryInteractions: buildSecondaryInteractionOptions(),
@@ -101,5 +107,6 @@ export function buildPresentation(input: {
     companionVisible: input.companionVisible,
     ambientActivity: input.ambientActivity ?? null,
     ambientPeekUntil: input.ambientPeekUntil ?? null,
+    eatingUntil,
   };
 }

@@ -173,6 +173,25 @@ describe('resolveAskMood', () => {
     ).toBe('hungry');
   });
 
+  it('keeps starving on ask when vitals still need food', () => {
+    expect(
+      resolveAskMood(
+        { hunger: 90, happiness: 70, stress: 10, energy: 60 },
+        'content',
+      ),
+    ).toBe('starving');
+  });
+
+  it('keeps a hungry dev preview mood until Tabby is fed', () => {
+    expect(
+      resolveAskMood(
+        { hunger: 20, happiness: 70, stress: 10, energy: 60 },
+        'content',
+        'starving',
+      ),
+    ).toBe('starving');
+  });
+
   it('still reads as needing play after a small happiness boost', () => {
     const mood = resolveAskMood(
       { hunger: 35, happiness: 52, stress: 20, energy: 55 },

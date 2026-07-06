@@ -20,6 +20,7 @@ const SPEECH_KIND_HINTS: Partial<Record<SpeechKind, RegExp[]>> = {
   memory: [/\b(remember|familiar|before|again|topic|looked|been|déjà|know)\b/i],
   milestone: [/\b(day|week|month|year|together|anniversary|remember|first|while)\b/i],
   care_pet: [/\b(pet|purr|nice|soft|good|better|mmm|right)\b/i],
+  care_pet_hungry: [/\b(hungry|starv|feed|food|bowl|tummy|pet|f\*{2,}|d\*{2,}|s\*{2,})\b/i],
   care_treat: [/\b(yum|treat|thank|better|tasty|spot|full|hungry)\b/i],
   care_play: [/\b(fun|play|again|pounce|zoom|good|whee|game)\b/i],
   dismiss: [/\b(hide|here|soon|okay|back|call|nap)\b/i],

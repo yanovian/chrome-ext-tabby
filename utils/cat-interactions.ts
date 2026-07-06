@@ -44,13 +44,39 @@ export function needsPlayAttention(vitals: CatVitals, mood: CatMood): boolean {
   return vitals.happiness < 55 && mood !== 'sleepy' && mood !== 'stressed';
 }
 
-/** Mood Tabby should speak to when the user asks what's up. */
-export function resolveAskMood(vitals: CatVitals, derivedMood: CatMood): CatMood {
-  if (derivedMood === 'stressed') {
-    return 'stressed';
+/** Hungry or starving mood that should stay until Tabby is fed. */
+export function resolveHungryMood(
+  vitals: CatVitals,
+  derivedMood: CatMood,
+  displayMood?: CatMood,
+): CatMood | null {
+  if (vitals.hunger >= 88) {
+    return 'starving';
+  }
+  if (vitals.hunger >= 65) {
+    return 'hungry';
+  }
+  if (displayMood === 'starving' || displayMood === 'hungry') {
+    return displayMood;
   }
   if (derivedMood === 'starving' || derivedMood === 'hungry') {
     return derivedMood;
+  }
+  return null;
+}
+
+/** Mood Tabby should speak to when the user asks what's up. */
+export function resolveAskMood(
+  vitals: CatVitals,
+  derivedMood: CatMood,
+  displayMood?: CatMood,
+): CatMood {
+  const hungryMood = resolveHungryMood(vitals, derivedMood, displayMood);
+  if (hungryMood) {
+    return hungryMood;
+  }
+  if (derivedMood === 'stressed') {
+    return 'stressed';
   }
   if (derivedMood === 'sleepy') {
     return 'sleepy';

@@ -46,6 +46,34 @@ describe('resolveCompanionAnimation', () => {
     ).toBe('play');
   });
 
+  it('uses feeding after a feed care action', () => {
+    expect(
+      resolveCompanionAnimationState({
+        mood: 'happy',
+        lastCareAction: 'feed',
+      }),
+    ).toBe('feeding');
+    expect(
+      resolveCompanionAnimation({
+        stage: 'adult',
+        mood: 'hungry',
+        lastCareAction: 'feed',
+      }),
+    ).toBe('animations/adult/feeding.json');
+  });
+
+  it('uses feeding while eatingUntil is active', () => {
+    const now = 1_000_000;
+    expect(
+      resolveCompanionAnimation({
+        stage: 'adult',
+        mood: 'happy',
+        eatingUntil: now + 5_000,
+        now,
+      }),
+    ).toBe('animations/adult/feeding.json');
+  });
+
   it('exposes a peek duck clip per stage', () => {
     expect(peekDuckAnimationPath('adult')).toBe('animations/adult/peek_duck.json');
   });
@@ -85,5 +113,19 @@ describe('generated companion animations', () => {
     expect(head?.ind).toBeGreaterThan(body?.ind ?? 0);
     expect(head?.shapes?.[0]?.nm).toBe('Face');
     expect(head?.shapes?.[1]?.nm).toBe('HeadShell');
+  });
+
+  it('includes a bowl in feeding clips', () => {
+    const animation = JSON.parse(
+      readFileSync(join(process.cwd(), 'public/animations/adult/feeding.json'), 'utf8'),
+    ) as { layers: Array<{ nm: string }> };
+    expect(animation.layers.some((layer) => layer.nm === 'Bowl')).toBe(true);
+  });
+
+  it('does not show a bowl in hungry eat clips', () => {
+    const animation = JSON.parse(
+      readFileSync(join(process.cwd(), 'public/animations/adult/eat.json'), 'utf8'),
+    ) as { layers: Array<{ nm: string }> };
+    expect(animation.layers.some((layer) => layer.nm === 'Bowl')).toBe(false);
   });
 });

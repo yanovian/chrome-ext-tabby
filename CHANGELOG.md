@@ -15,6 +15,8 @@ Updates for people who use Tabby. Newest first.
 - Ambient visits last a **random while** (1–15 min), then she hides again.
 - **Peek** is a new mood: head rises when she appears, ducks below the edge when she hides.
 - **Pet, play, or treat** during a peek brings her out fully with her usual happy mood.
+- When you **feed her while hungry**, she munches from her bowl, then thanks you. The care menu stays closed and only her speech bubble shows.
+- While **hungry or starving**, asking what she needs or petting her keeps that mood: pets get censored sass, not happy purrs.
 - The **first-meeting tour** shows when you meet Tabby for the first time.
 
 ## 0.8.0

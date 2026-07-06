@@ -106,6 +106,8 @@ export interface CatPresentation {
   ambientActivity: import('./ambient-presence').AmbientActivity | null;
   /** When an ambient peek should end and Tabby hide again. */
   ambientPeekUntil: number | null;
+  /** While set and in the future, Tabby is munching after a treat. */
+  eatingUntil: number | null;
 }
 
 /** Saved position for the draggable overlay (pixels from top-left). */
@@ -192,6 +194,7 @@ export const STORAGE_KEYS = {
 
 export const ALARM_NAMES = {
   tick: 'tabby-tick',
+  feedingComplete: 'tabby-feeding-complete',
 } as const;
 
 export type CareAction =

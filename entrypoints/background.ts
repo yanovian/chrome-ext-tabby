@@ -12,6 +12,7 @@ import {
   devForceCompanionHide,
   devForceCompanionShow,
   enableDoNotDisturb,
+  completeFeedingIfDue,
   evaluateAndPresent,
   getCurrentPresentation,
   getPageOverlayState,
@@ -38,8 +39,8 @@ import {
   type ActiveTabSnapshot,
 } from '../utils/tab-session';
 import { hasDwelledLongEnough } from '../utils/visit-dedup';
-import { ALARM_NAMES } from '../utils/types';
 import type { CareAction, RuntimeMessage, RuntimeResponse } from '../utils/types';
+import { ALARM_NAMES } from '../utils/types';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
 
@@ -261,6 +262,14 @@ export default defineBackground(() => {
   });
 
   browser.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === ALARM_NAMES.feedingComplete) {
+      enqueueTask(async () => {
+        await completeFeedingIfDue(Date.now());
+        await updateToolbarFromPresentation();
+      });
+      return;
+    }
+
     if (alarm.name !== ALARM_NAMES.tick) {
       return;
     }

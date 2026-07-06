@@ -17,7 +17,7 @@ import {
   isDoNotDisturbActive,
   setDoNotDisturb,
 } from './do-not-disturb';
-import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood } from './cat-interactions';
+import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood, resolveHungryMood } from './cat-interactions';
 import { isIntroCompleted, resetIntro } from './intro';
 import { fallbackSpeech } from './speech-fallback';
 import {
@@ -28,6 +28,16 @@ import {
   saveCatState,
 } from './db';
 import { evaluateEmotionalTrigger } from './emotional-triggers';
+import {
+  clearFeedingCompleteAlarm,
+  feedingMomentDue,
+  feedingMunchSpeech,
+  feedingThanksSpeech,
+  isFeedingActive,
+  pickFeedingDurationMs,
+  scheduleFeedingCompleteAlarm,
+  shouldStartFeedingMoment,
+} from './feeding-moment';
 import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
 import { buildPresentation, moodOverrideWhileHiding } from './presentation';
 import { resolveCompanionPresence } from './presence';
@@ -204,6 +214,81 @@ function careSpeechKind(action: CareAction): SpeechContext['kind'] | null {
   }
 }
 
+function buildFeedingContinuationPresentation(
+  state: OrchestratorState,
+  now: number,
+  companionVisible: boolean,
+): CatPresentation {
+  const eatingUntil = state.lastPresentation!.eatingUntil!;
+  const stage = resolveLifeStage(
+    state.cat.adoptedAt,
+    now,
+    state.settings.devForceLifeStage,
+  );
+  const derivedMood = deriveMoodFromVitals({
+    vitals: state.cat.vitals,
+    now,
+    settings: state.settings,
+    isUserIdle: state.isUserIdle,
+  });
+
+  return buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: feedingMunchSpeech(derivedMood, stage, eatingUntil),
+    triggerKind: 'happy',
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    lastCareAction: 'feed',
+    companionVisible,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil,
+  });
+}
+
+async function completeFeedingPresentation(
+  state: OrchestratorState,
+  now: number,
+): Promise<OrchestratorState> {
+  await clearFeedingCompleteAlarm();
+  const stage = resolveLifeStage(
+    state.cat.adoptedAt,
+    now,
+    state.settings.devForceLifeStage,
+  );
+  const presentation = buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: feedingThanksSpeech(stage, now),
+    triggerKind: 'happy',
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    moodOverride: 'happy',
+    lastCareAction: null,
+    companionVisible: state.lastPresentation?.companionVisible ?? false,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil: null,
+  });
+  await persistPresentation(presentation);
+  return { ...state, lastPresentation: presentation };
+}
+
+/** Finish munching and show a thank-you line when the feeding timer ends. */
+export async function completeFeedingIfDue(now: number): Promise<CatPresentation | null> {
+  const state = await loadOrchestratorState();
+  if (!feedingMomentDue(state.lastPresentation?.eatingUntil, now)) {
+    return null;
+  }
+  const next = await completeFeedingPresentation(state, now);
+  return next.lastPresentation;
+}
+
 export async function handleCareAction(
   action: CareAction,
   now: number,
@@ -248,27 +333,40 @@ export async function handleCareAction(
     settings: state.settings,
     isUserIdle: state.isUserIdle,
   });
+  const displayMoodBeforeCare = state.lastPresentation?.mood;
   const stage = resolveLifeStage(cat.adoptedAt, now, state.settings.devForceLifeStage);
   const speechKind = careSpeechKind(action);
   const endsAmbientVisit =
     action === 'pet' || action === 'treat' || action === 'play' || action === 'ask';
+  const startFeedingMoment =
+    action === 'treat' &&
+    shouldStartFeedingMoment(derivedMood, displayMoodBeforeCare);
+  const hungryBeforeCare = resolveHungryMood(
+    cat.vitals,
+    derivedMood,
+    displayMoodBeforeCare,
+  );
 
   if (action === 'dismiss') {
     await hidePageOverlay(page.url);
     triggerKind = null;
   } else if (action === 'ask') {
-    moodOverride = resolveAskMood(cat.vitals, derivedMood);
+    moodOverride = resolveAskMood(cat.vitals, derivedMood, displayMoodBeforeCare);
     triggerKind = null;
   } else if (action === 'pet' || action === 'treat' || action === 'play') {
     cat = applyCareAction(cat, action, now);
     triggerKind = null;
     await saveCatState(cat);
-    moodOverride = deriveMoodFromVitals({
-      vitals: cat.vitals,
-      now,
-      settings: state.settings,
-      isUserIdle: state.isUserIdle,
-    });
+    if (action === 'pet' && hungryBeforeCare) {
+      moodOverride = hungryBeforeCare;
+    } else {
+      moodOverride = deriveMoodFromVitals({
+        vitals: cat.vitals,
+        now,
+        settings: state.settings,
+        isUserIdle: state.isUserIdle,
+      });
+    }
   }
 
   const mood = moodOverride ?? deriveMoodFromVitals({
@@ -278,10 +376,23 @@ export async function handleCareAction(
     isUserIdle: state.isUserIdle,
   });
   let speech: string | null = null;
+  let eatingUntil: number | null = null;
 
-  if (speechKind) {
+  if (startFeedingMoment) {
+    eatingUntil = now + pickFeedingDurationMs(state.settings, now);
+    triggerKind = 'happy';
+    speech = feedingMunchSpeech(derivedMood, stage, eatingUntil);
+  } else if (speechKind) {
     if (action === 'ask') {
       speech = explainCurrentMood(mood, cat.vitals, stage, now);
+    } else if (action === 'pet' && hungryBeforeCare) {
+      speech = fallbackSpeech({
+        kind: 'care_pet_hungry',
+        mood: hungryBeforeCare,
+        stage,
+        seed: now,
+        pageTopic: page.topic,
+      });
     } else {
       const context: SpeechContext = {
         kind: speechKind,
@@ -308,7 +419,7 @@ export async function handleCareAction(
     triggerKind,
     overlayHidden: false,
     moodOverride,
-    lastCareAction: mapCareActionToInteraction(action),
+    lastCareAction: startFeedingMoment ? 'feed' : mapCareActionToInteraction(action),
     companionVisible: keepVisible,
     ambientActivity:
       keepVisible && !endsAmbientVisit
@@ -318,7 +429,12 @@ export async function handleCareAction(
       keepVisible && !endsAmbientVisit
         ? state.lastPresentation?.ambientPeekUntil ?? null
         : null,
+    eatingUntil,
   });
+
+  if (eatingUntil) {
+    await scheduleFeedingCompleteAlarm(eatingUntil);
+  }
 
   await persistPresentation(presentation);
   return presentation;
@@ -329,6 +445,24 @@ export async function evaluateAndPresent(
   now: number,
   options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
 ): Promise<OrchestratorState> {
+  const eatingUntil = state.lastPresentation?.eatingUntil;
+  if (feedingMomentDue(eatingUntil, now)) {
+    return completeFeedingPresentation(state, now);
+  }
+  if (isFeedingActive(eatingUntil, now)) {
+    const companionVisible =
+      state.lastPresentation?.companionVisible === true ||
+      options.forceTick === true ||
+      options.forceDevSpeech === true;
+    const presentation = buildFeedingContinuationPresentation(
+      state,
+      now,
+      companionVisible,
+    );
+    await persistPresentation(presentation);
+    return { ...state, lastPresentation: presentation };
+  }
+
   const [memories, doNotDisturb, introCompleted] = await Promise.all([
     getMemories(),
     clearExpiredDoNotDisturb(now),
@@ -404,6 +538,7 @@ export async function evaluateAndPresent(
     companionVisible: presence.companionVisible,
     ambientActivity: presence.ambientActivity,
     ambientPeekUntil: presence.ambientPeekUntil,
+    eatingUntil: null,
     moodOverride: moodOverrideWhileHiding(
       state.lastPresentation?.mood,
       presence.companionVisible,
@@ -539,6 +674,12 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
   if (cached) {
     if (isDoNotDisturbActive(doNotDisturb, now)) {
       return presentationDuringDoNotDisturb(cached);
+    }
+    if (feedingMomentDue(cached.eatingUntil, now)) {
+      const completed = await completeFeedingIfDue(now);
+      if (completed) {
+        return completed;
+      }
     }
     if (!introCompleted && !cached.companionVisible) {
       const state = await loadOrchestratorState();

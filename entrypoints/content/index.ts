@@ -20,6 +20,7 @@ import {
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
 import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
+import { isFeedingActive } from '../../utils/feeding-moment';
 import {
   CAT_MOOD_IN_CLASS,
   CAT_MOOD_OUT_CLASS,
@@ -184,10 +185,14 @@ class TabbyOverlay {
         if (next && !this.pendingAction) {
           const previousSpeech = this.presentation?.speech ?? null;
           const previousSprite = this.presentation?.sprite ?? null;
+          const previousEatingUntil = this.presentation?.eatingUntil ?? null;
           const settled = this.introJustFinished
             ? { ...next, speech: null, triggerKind: null }
             : next;
           this.presentation = settled;
+          if (!this.introJustFinished) {
+            this.applyFeedingChromeState(settled, previousEatingUntil);
+          }
           const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
             introJustFinished: this.introJustFinished,
             isIntro: this.isIntroActive(),
@@ -368,6 +373,29 @@ class TabbyOverlay {
     }
   }
 
+  private isFeedingMoment(presentation = this.presentation): boolean {
+    return isFeedingActive(presentation?.eatingUntil ?? null, Date.now());
+  }
+
+  private applyFeedingChromeState(
+    presentation: CatPresentation,
+    previousEatingUntil?: number | null,
+  ): void {
+    const now = Date.now();
+    const feeding = isFeedingActive(presentation.eatingUntil, now);
+    const justFinished =
+      previousEatingUntil != null && presentation.eatingUntil == null;
+    if (!feeding && !(justFinished && presentation.speech && presentation.triggerKind)) {
+      return;
+    }
+    this.menuOpen = false;
+    this.moreOpen = false;
+    if (presentation.speech && presentation.triggerKind) {
+      this.speechBubbleOpen = true;
+    }
+    this.syncOutsideClickListener();
+  }
+
   private shouldShowSpeechBubble(): boolean {
     const presentation = this.presentation;
     return shouldShowSpeechBubbleState({
@@ -460,6 +488,9 @@ class TabbyOverlay {
   }
 
   private openMenu(): void {
+    if (this.isFeedingMoment()) {
+      return;
+    }
     if (this.menuOpen) {
       return;
     }
@@ -778,6 +809,9 @@ class TabbyOverlay {
       if (this.isIntroActive()) {
         return;
       }
+      if (this.isFeedingMoment(presentation)) {
+        return;
+      }
       if (this.menuOpen) {
         this.closeMenu();
       } else {
@@ -846,7 +880,7 @@ class TabbyOverlay {
       menuArea.classList.add(MENU_ENTER_CLASS);
     }
 
-    if (this.menuOpen) {
+    if (this.menuOpen && !this.isFeedingMoment(presentation)) {
       menuArea.appendChild(this.buildCareCard(presentation));
     }
 
@@ -1167,6 +1201,7 @@ class TabbyOverlay {
       const careAction = mapInteractionToCareAction(action);
       const next = await requestCareAction(careAction, location.href);
       this.presentation = next;
+      this.applyFeedingChromeState(next);
 
       if (action === 'dismiss') {
         await this.syncPageOverlayHidden();
@@ -1187,9 +1222,10 @@ class TabbyOverlay {
           nextSprite: this.presentation?.sprite ?? previousSprite ?? '',
           hasVisibleOverlay: Boolean(this.root?.isConnected),
         }),
+        animateMenu: this.speechBubbleOpen && !this.menuOpen,
       });
 
-      if (this.menuOpen && action !== 'dismiss') {
+      if (this.menuOpen && action !== 'dismiss' && !this.isFeedingMoment()) {
         this.bindOutsideClickListener();
       }
     }

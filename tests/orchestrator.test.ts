@@ -83,6 +83,7 @@ describe('recordPageVisit', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     await recordPageVisit({
@@ -141,6 +142,7 @@ describe('runMinuteTick', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     await runMinuteTick(NOW, { present: false });
@@ -172,6 +174,7 @@ describe('runMinuteTick', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const state = await runMinuteTick(NOW, { forceTick: true });
@@ -201,6 +204,7 @@ describe('getCurrentPresentation', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await getCurrentPresentation();
@@ -229,6 +233,7 @@ describe('getCurrentPresentation', () => {
       companionVisible: true,
       ambientActivity: 'sleeping',
       ambientPeekUntil: NOW + 60_000,
+      eatingUntil: null,
     });
     store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
 
@@ -261,6 +266,7 @@ describe('presentOnActiveTab', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const result = await presentOnActiveTab(NOW, {
@@ -296,6 +302,7 @@ describe('showOverlayOnPage', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await showOverlayOnPage(NOW, {
@@ -350,6 +357,7 @@ describe('cancelDoNotDisturb', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await cancelDoNotDisturb(NOW);
@@ -416,6 +424,7 @@ describe('clearCompanionSpeech', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await clearCompanionSpeech(NOW);
@@ -445,6 +454,7 @@ describe('restartIntroSession', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await restartIntroSession(NOW);
@@ -473,6 +483,7 @@ describe('settleAfterIntro', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
     store[STORAGE_KEYS.introCompleted] = true;
 
@@ -501,6 +512,7 @@ describe('settleAfterIntro', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await settleAfterIntro(NOW);
@@ -533,6 +545,7 @@ describe('devForceCompanionHide', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await devForceCompanionHide(NOW);
@@ -560,6 +573,7 @@ describe('devForceCompanionHide', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      eatingUntil: null,
     });
 
     const presentation = await devForceCompanionHide(NOW);
