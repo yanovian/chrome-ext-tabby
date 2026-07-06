@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   cancelDoNotDisturb,
+  devForceCompanionHide,
+  devForceCompanionShow,
   enableDoNotDisturb,
   getCurrentPresentation,
   persistPresentation,
@@ -299,5 +301,62 @@ describe('cancelDoNotDisturb', () => {
     expect(presentation.companionVisible).toBe(false);
 
     vi.useRealTimers();
+  });
+});
+
+describe('devForceCompanionShow', () => {
+  beforeEach(() => {
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, devModeEnabled: true };
+    store[STORAGE_KEYS.introCompleted] = true;
+  });
+
+  it('forces a quiet ambient peek without speech', async () => {
+    const presentation = await devForceCompanionShow('ambient', NOW);
+
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.speech).toBeNull();
+    expect(presentation.ambientActivity).toMatch(/sleeping|grooming/);
+    expect(presentation.ambientPeekUntil).toBeGreaterThan(NOW);
+  });
+
+  it('forces an idle visible state without ambient activity', async () => {
+    const presentation = await devForceCompanionShow('quiet', NOW);
+
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.speech).toBeNull();
+    expect(presentation.ambientActivity).toBeNull();
+  });
+});
+
+describe('devForceCompanionHide', () => {
+  beforeEach(() => {
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, devModeEnabled: true };
+  });
+
+  it('hides Tabby immediately for testing', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/sprites/adult/content.png',
+      speech: 'Hello',
+      triggerKind: 'dev',
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+    });
+
+    const presentation = await devForceCompanionHide(NOW);
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.speech).toBeNull();
+    expect(presentation.ambientActivity).toBeNull();
   });
 });

@@ -114,4 +114,52 @@ describe('resolveCompanionPresence', () => {
     expect(result.ambientActivity).toBe('sleeping');
     expect(result.recordAmbient).toBe(false);
   });
+
+  it('records speech when forceVisible and the trigger fired (dev tick)', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: true,
+        mood: 'hungry',
+        speechContext: {
+          kind: 'hungry',
+          mood: 'hungry',
+          stage: 'adult',
+          seed: NOW,
+        },
+        triggerKind: 'hungry',
+      },
+      doNotDisturb: { until: null },
+      introCompleted: true,
+      lastPresentation: null,
+      forceVisible: true,
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.recordSpeech).toBe(true);
+    expect(result.ambientActivity).toBeNull();
+  });
+
+  it('shows Tabby without speech when forceVisible has no trigger', () => {
+    const result = resolveCompanionPresence({
+      cat: createInitialCat(NOW),
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: false,
+        mood: 'content',
+        speechContext: null,
+        triggerKind: null,
+      },
+      doNotDisturb: { until: null },
+      introCompleted: true,
+      lastPresentation: null,
+      forceVisible: true,
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.recordSpeech).toBe(false);
+  });
 });

@@ -17,6 +17,14 @@ export interface ResolvedPresence {
   recordAmbient: boolean;
 }
 
+function isSpeechTriggerActive(speechTrigger: EmotionalTriggerResult): boolean {
+  return (
+    speechTrigger.shouldAppear &&
+    speechTrigger.speechContext !== null &&
+    speechTrigger.triggerKind !== null
+  );
+}
+
 export function resolveCompanionPresence(input: {
   cat: CatState;
   settings: ExtensionSettings;
@@ -40,18 +48,18 @@ export function resolveCompanionPresence(input: {
   }
 
   if (input.forceVisible || !input.introCompleted) {
+    const recordSpeech = isSpeechTriggerActive(input.speechTrigger);
     return {
       ...hidden,
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      recordSpeech,
+      recordAmbient: false,
     };
   }
 
-  const speechActive =
-    input.speechTrigger.shouldAppear &&
-    input.speechTrigger.speechContext !== null &&
-    input.speechTrigger.triggerKind !== null;
+  const speechActive = isSpeechTriggerActive(input.speechTrigger);
 
   if (speechActive) {
     return {

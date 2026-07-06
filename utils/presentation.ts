@@ -9,6 +9,25 @@ export function moodForAmbient(activity: AmbientActivity): CatMood {
   return activity === 'sleeping' ? 'sleepy' : 'content';
 }
 
+/** Pick the mood shown on screen — dev override, ambient peek, or vitals. */
+export function resolveDisplayMood(input: {
+  settings: ExtensionSettings;
+  derivedMood: CatMood;
+  ambientActivity?: AmbientActivity | null;
+  moodOverride?: CatMood;
+}): CatMood {
+  if (input.moodOverride) {
+    return input.moodOverride;
+  }
+  if (input.ambientActivity) {
+    return moodForAmbient(input.ambientActivity);
+  }
+  if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
+    return input.settings.devForceMood;
+  }
+  return input.derivedMood;
+}
+
 export function buildPresentation(input: {
   cat: CatState;
   vitals: CatVitals;
@@ -30,9 +49,12 @@ export function buildPresentation(input: {
     settings: input.settings,
     isUserIdle: input.isUserIdle,
   });
-  const mood =
-    input.moodOverride ??
-    (input.ambientActivity ? moodForAmbient(input.ambientActivity) : derivedMood);
+  const mood = resolveDisplayMood({
+    settings: input.settings,
+    derivedMood,
+    ambientActivity: input.ambientActivity,
+    moodOverride: input.moodOverride,
+  });
 
   const stage = resolveLifeStage(
     input.cat.adoptedAt,

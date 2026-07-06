@@ -14,24 +14,24 @@
 @keyframes tabby-cat-enter {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translate(-8px, 10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(0, 0);
   }
 }
 
 @keyframes tabby-cat-exit {
   from {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(0, 0);
   }
 
   to {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translate(-6px, 8px);
   }
 }
 

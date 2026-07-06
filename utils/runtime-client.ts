@@ -48,6 +48,16 @@ export function requestResetIntro(): Promise<void> {
   return sendMessage<void>({ type: 'resetIntro' });
 }
 
+export function requestDevForceCompanionShow(
+  mode: 'ambient' | 'quiet',
+): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'devForceCompanionShow', mode });
+}
+
+export function requestDevForceCompanionHide(): Promise<CatPresentation> {
+  return sendMessage<CatPresentation>({ type: 'devForceCompanionHide' });
+}
+
 export function requestPageOverlayState(url?: string): Promise<PageOverlayState> {
   return sendMessage<PageOverlayState>({ type: 'getPageOverlayState', url });
 }

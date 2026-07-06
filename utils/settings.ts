@@ -1,5 +1,5 @@
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from './types';
-import type { DevLifeStageOverride, ExtensionSettings } from './types';
+import type { CatMood, DevLifeStageOverride, DevMoodOverride, ExtensionSettings } from './types';
 import { MIN_PAGE_DWELL_MS } from './visit-dedup';
 
 function parseDevLifeStage(value: unknown): DevLifeStageOverride {
@@ -12,6 +12,22 @@ function parseDevLifeStage(value: unknown): DevLifeStageOverride {
     return value;
   }
   return DEFAULT_SETTINGS.devForceLifeStage;
+}
+
+function parseDevMood(value: unknown): DevMoodOverride {
+  const moods: CatMood[] = [
+    'content',
+    'happy',
+    'curious',
+    'hungry',
+    'starving',
+    'stressed',
+    'sleepy',
+  ];
+  if (value === 'auto' || moods.includes(value as CatMood)) {
+    return value as DevMoodOverride;
+  }
+  return DEFAULT_SETTINGS.devForceMood;
 }
 
 function clampHour(value: number, fallback: number): number {
@@ -87,6 +103,7 @@ export function mergeSettings(
       10_000,
     ),
     devForceLifeStage: parseDevLifeStage(raw.devForceLifeStage),
+    devForceMood: parseDevMood(raw.devForceMood),
     showOverlay:
       typeof raw.showOverlay === 'boolean'
         ? raw.showOverlay

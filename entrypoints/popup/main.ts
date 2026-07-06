@@ -1,6 +1,8 @@
 import {
   publicAnimationAssetUrl,
   requestCancelDoNotDisturb,
+  requestDevForceCompanionHide,
+  requestDevForceCompanionShow,
   requestDoNotDisturbStatus,
   requestSyncActiveOverlay,
   requestHideOverlayOnPage,
@@ -13,7 +15,7 @@ import {
   requestShowOverlayOnPage,
 } from '../../utils/runtime-client';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
-import type { DoNotDisturbDuration, ExtensionSettings } from '../../utils/types';
+import type { DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
 
@@ -29,6 +31,7 @@ const fields = {
   devStatMultiplier: document.getElementById('dev-stat-multiplier') as HTMLInputElement,
   devMinTabMs: document.getElementById('dev-min-tab-ms') as HTMLInputElement,
   devForceLifeStage: document.getElementById('dev-force-life-stage') as HTMLSelectElement,
+  devForceMood: document.getElementById('dev-force-mood') as HTMLSelectElement,
 };
 
 const statusEl = document.getElementById('status') as HTMLParagraphElement;
@@ -36,6 +39,14 @@ const previewHost = document.getElementById('preview-cat-host') as HTMLDivElemen
 const devBuildHint = document.getElementById('dev-build-hint') as HTMLParagraphElement;
 const forceTickButton = document.getElementById('force-tick') as HTMLButtonElement;
 const forceTickHint = document.getElementById('force-tick-hint') as HTMLParagraphElement;
+const devForceAppearAmbientButton = document.getElementById(
+  'dev-force-appear-ambient',
+) as HTMLButtonElement;
+const devForceAppearQuietButton = document.getElementById(
+  'dev-force-appear-quiet',
+) as HTMLButtonElement;
+const devForceHideButton = document.getElementById('dev-force-hide') as HTMLButtonElement;
+const devPresenceHint = document.getElementById('dev-presence-hint') as HTMLParagraphElement;
 const resetIntroButton = document.getElementById('reset-intro') as HTMLButtonElement;
 const showAllButton = document.getElementById('show-all-btn') as HTMLButtonElement;
 const hideAllButton = document.getElementById('hide-all-btn') as HTMLButtonElement;
@@ -91,6 +102,12 @@ async function getActiveTab(): Promise<ActiveTabInfo> {
 async function ensureOverlayOnActiveTab(tabId?: number): Promise<void> {
   if (!tabId) {
     return;
+  }
+  try {
+    await browser.tabs.sendMessage(tabId, { type: 'ping' });
+    return;
+  } catch {
+    // Content script not loaded yet — inject below.
   }
   await browser.scripting
     .insertCSS({
@@ -158,6 +175,7 @@ function fillForm(settings: ExtensionSettings): void {
   fields.devStatMultiplier.value = String(settings.devStatMultiplier);
   fields.devMinTabMs.value = String(settings.devMinTabDurationMs);
   fields.devForceLifeStage.value = settings.devForceLifeStage;
+  fields.devForceMood.value = settings.devForceMood;
 }
 
 function readPartialSettings(): Partial<ExtensionSettings> {
@@ -174,6 +192,7 @@ function readPartialSettings(): Partial<ExtensionSettings> {
     devStatMultiplier: Number(fields.devStatMultiplier.value),
     devMinTabDurationMs: Number(fields.devMinTabMs.value),
     devForceLifeStage: fields.devForceLifeStage.value as ExtensionSettings['devForceLifeStage'],
+    devForceMood: fields.devForceMood.value as ExtensionSettings['devForceMood'],
   };
 }
 
@@ -186,6 +205,8 @@ function scheduleSave(): void {
       const saved = await requestSaveSettings(readPartialSettings());
       fillForm(saved);
       await refreshOverlayButtons(saved);
+      const next = await requestPresentation();
+      await updatePreviewCat(next.sprite);
       showStatus('Saved.');
     })();
   }, 350);
@@ -273,13 +294,6 @@ async function initialize(): Promise<void> {
 
   fillForm(settings);
   await updatePreviewCat(presentation.sprite);
-  if (settings.showOverlay) {
-    try {
-      await requestSyncActiveOverlay();
-    } catch {
-      // Overlay sync is best-effort; still render controls below.
-    }
-  }
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons(settings);
 
@@ -311,13 +325,50 @@ async function initialize(): Promise<void> {
 
   forceTickButton.hidden = !IS_DEV_BUILD;
   forceTickHint.hidden = !IS_DEV_BUILD;
+  devForceAppearAmbientButton.hidden = !IS_DEV_BUILD;
+  devForceAppearQuietButton.hidden = !IS_DEV_BUILD;
+  devForceHideButton.hidden = !IS_DEV_BUILD;
+  devPresenceHint.hidden = !IS_DEV_BUILD;
   resetIntroButton.hidden = !IS_DEV_BUILD;
+
+  function afterDevCompanionChange(presentation: { sprite: string }, label: string): void {
+    void updatePreviewCat(presentation.sprite);
+    void refreshOverlayButtons();
+    showStatus(label);
+  }
+
+  bindActionButton(devForceAppearAmbientButton, async () => {
+    const next = await requestDevForceCompanionShow('ambient');
+    afterDevCompanionChange(next, 'Quiet peek started (napping or grooming).');
+  });
+  bindActionButton(devForceAppearQuietButton, async () => {
+    const next = await requestDevForceCompanionShow('quiet');
+    afterDevCompanionChange(next, 'Tabby is visible, idle.');
+  });
+  bindActionButton(devForceHideButton, async () => {
+    const next = await requestDevForceCompanionHide();
+    afterDevCompanionChange(next, 'Tabby hidden.');
+  });
+
   forceTickButton.addEventListener('click', () => {
     void (async () => {
-      await browser.runtime.sendMessage({ type: 'tick' });
-      const next = await requestPresentation();
-      await updatePreviewCat(next.sprite);
-      showStatus(`Ticked. Mood: ${next.mood}${next.speech ? ' — speaking' : ''}.`);
+      const response = (await browser.runtime.sendMessage({
+        type: 'tick',
+      })) as RuntimeResponse<{ mood: string; speech: string | null; sprite: string }>;
+      if (!response?.ok) {
+        showStatus('Could not tick Tabby.');
+        return;
+      }
+      const next = response.data;
+      if (next) {
+        void updatePreviewCat(next.sprite);
+      }
+      void refreshOverlayButtons();
+      showStatus(
+        next
+          ? `Ticked. Mood: ${next.mood}${next.speech ? ' — speaking' : ''}.`
+          : 'Ticked.',
+      );
     })();
   });
 

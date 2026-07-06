@@ -8,7 +8,7 @@ import {
   resetDailyNudgeCounter,
   resolveLifeStage,
 } from './cat-sim';
-import { recordAmbientAppearance } from './ambient-presence';
+import { recordAmbientAppearance, effectiveAmbientLimits, pickAmbientActivity } from './ambient-presence';
 import {
   careActionToDoNotDisturb,
   clearDoNotDisturb,
@@ -535,4 +535,72 @@ export async function enableDoNotDisturb(
   now: number,
 ): Promise<CatPresentation> {
   return handleCareAction(doNotDisturbDurationToCareAction(duration), now);
+}
+
+export type DevCompanionShowMode = 'ambient' | 'quiet';
+
+function assertDevCompanionAccess(settings: ExtensionSettings): void {
+  if (!IS_DEV_BUILD || !settings.devModeEnabled) {
+    throw new Error('Dev companion controls require dev mode in a dev build.');
+  }
+}
+
+/** Dev-only: force Tabby to appear quietly (ambient peek or idle). */
+export async function devForceCompanionShow(
+  mode: DevCompanionShowMode,
+  now: number,
+): Promise<CatPresentation> {
+  const state = await loadOrchestratorState();
+  assertDevCompanionAccess(state.settings);
+
+  const limits = effectiveAmbientLimits(state.settings);
+  let cat = state.cat;
+
+  if (mode === 'ambient') {
+    cat = recordAmbientAppearance(cat, now);
+    void saveCatState(cat);
+  }
+
+  const presentation = buildPresentation({
+    cat,
+    vitals: cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: null,
+    triggerKind: null,
+    overlayHidden: false,
+    lastCareAction: state.lastPresentation?.lastCareAction ?? null,
+    companionVisible: true,
+    ambientActivity: mode === 'ambient' ? pickAmbientActivity(now) : null,
+    ambientPeekUntil: mode === 'ambient' ? now + limits.peekDurationMs : null,
+  });
+
+  await persistPresentation(presentation);
+  return presentation;
+}
+
+/** Dev-only: force Tabby to hide on the active tab right away. */
+export async function devForceCompanionHide(now: number): Promise<CatPresentation> {
+  const state = await loadOrchestratorState();
+  assertDevCompanionAccess(state.settings);
+
+  const base = state.lastPresentation;
+  const presentation = buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: null,
+    triggerKind: null,
+    overlayHidden: base?.overlayHidden ?? false,
+    lastCareAction: base?.lastCareAction ?? null,
+    companionVisible: false,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+  });
+
+  await persistPresentation(presentation);
+  return presentation;
 }

@@ -16,6 +16,8 @@ export type CatLifeStage = 'newborn' | 'playful' | 'adult';
 
 export type DevLifeStageOverride = 'auto' | CatLifeStage;
 
+export type DevMoodOverride = 'auto' | CatMood;
+
 /** Why Tabby chose to speak right now. */
 export type SpeechTriggerKind =
   | 'hungry'
@@ -133,6 +135,8 @@ export interface ExtensionSettings {
   devMinTabDurationMs: number;
   /** Dev-only: preview a specific life stage instead of age-based growth. */
   devForceLifeStage: DevLifeStageOverride;
+  /** Dev-only: preview a specific mood instead of vitals-based mood. */
+  devForceMood: DevMoodOverride;
   /** Show the floating cat overlay on web pages. */
   showOverlay: boolean;
   /** Generate varied speech with the bundled local model (offline). */
@@ -152,6 +156,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   devStatMultiplier: 4,
   devMinTabDurationMs: 1000,
   devForceLifeStage: 'auto',
+  devForceMood: 'auto',
   showOverlay: true,
   localSpeechEnabled: true,
 };
@@ -235,6 +240,8 @@ export type RuntimeMessage =
   | { type: 'isActiveOverlayTab' }
   | { type: 'tick' }
   | { type: 'resetIntro' }
+  | { type: 'devForceCompanionShow'; mode: 'ambient' | 'quiet' }
+  | { type: 'devForceCompanionHide' }
   | { type: 'ping' };
 
 export interface RuntimeResponseOk<T = unknown> {

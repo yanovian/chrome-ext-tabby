@@ -132,6 +132,27 @@ class TabbyOverlay {
     this.bindStorageListenerIfNeeded();
   }
 
+  /** Wake or refresh the overlay without tearing down UI state. */
+  async warmActivate(): Promise<void> {
+    if (!this.isActiveInstance()) {
+      return;
+    }
+
+    if (!this.storageListenerBound) {
+      await this.initialize();
+      return;
+    }
+
+    if (this.isOverlayVisible() && !this.root?.isConnected) {
+      await this.refreshPresentation();
+      return;
+    }
+
+    if (!this.isOverlayVisible() && this.root?.isConnected) {
+      void this.exitOverlay();
+    }
+  }
+
   private bindStorageListenerIfNeeded(): void {
     if (this.storageListenerBound) {
       return;
@@ -154,7 +175,7 @@ class TabbyOverlay {
           if (next.speech && next.triggerKind && next.speech !== previousSpeech) {
             this.menuOpen = true;
             this.bindOutsideClickListener();
-          } else {
+          } else if (!next.speech) {
             this.menuOpen = false;
             this.moreOpen = false;
             this.removeOutsideClickListener();
@@ -243,6 +264,21 @@ class TabbyOverlay {
     this.pendingAction = null;
     this.menuOpen = false;
     this.moreOpen = false;
+  }
+
+  /** Play the exit animation before tearing down (tab switch or hide). */
+  async gracefulDeactivate(): Promise<void> {
+    if (!this.isActiveInstance()) {
+      return;
+    }
+    if (this.root?.isConnected && !this.exiting) {
+      this.menuOpen = false;
+      this.moreOpen = false;
+      this.removeOutsideClickListener();
+      await this.exitOverlay(true);
+      return;
+    }
+    this.destroy();
   }
 
   private getCatElement(): HTMLCanvasElement | null {
@@ -438,7 +474,7 @@ class TabbyOverlay {
     );
   }
 
-  private async exitOverlay(): Promise<void> {
+  private async exitOverlay(force = false): Promise<void> {
     if (!this.root?.isConnected || this.exiting) {
       return;
     }
@@ -452,7 +488,7 @@ class TabbyOverlay {
     }
 
     this.exiting = false;
-    if (!this.isOverlayVisible()) {
+    if (force || !this.isOverlayVisible()) {
       this.teardownOverlay();
     }
   }
@@ -1041,20 +1077,22 @@ export default defineContentScript({
     globalWindow[GLOBAL_KEY] = overlay;
 
     browser.runtime.onMessage.addListener((message) => {
+      if (message?.type === 'ping') {
+        return true;
+      }
       if (message?.type === OVERLAY_TAB_MESSAGE.activate) {
-        overlay.destroy();
-        void overlay.initialize();
+        void overlay.warmActivate();
         return;
       }
       if (message?.type === OVERLAY_TAB_MESSAGE.deactivate) {
-        overlay.destroy();
+        void overlay.gracefulDeactivate();
       }
     });
 
     void requestIsActiveOverlayTab()
       .then(({ active }) => {
         if (active) {
-          void overlay.initialize();
+          void overlay.warmActivate();
         }
       })
       .catch(() => {

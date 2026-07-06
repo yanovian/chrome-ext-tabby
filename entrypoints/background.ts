@@ -8,6 +8,8 @@ import {
 import {
   ensureCatExists,
   cancelDoNotDisturb,
+  devForceCompanionHide,
+  devForceCompanionShow,
   enableDoNotDisturb,
   evaluateAndPresent,
   getCurrentPresentation,
@@ -144,15 +146,41 @@ async function syncOverlayToTab(
   const presentation = await getCurrentPresentation();
   const shouldShow = nextTabId !== null && presentation.companionVisible;
 
-  if (activeOverlayTabId !== null && (activeOverlayTabId !== nextTabId || !shouldShow)) {
+  if (activeOverlayTabId !== null && !shouldShow) {
+    if (activeOverlayTabId === nextTabId || nextTabId === null) {
+      // Presentation is already in storage — let the content script exit gracefully.
+      activeOverlayTabId = null;
+      return;
+    }
     await notifyOverlayDeactivate(activeOverlayTabId);
+    activeOverlayTabId = null;
+    return;
   }
+
+  if (
+    activeOverlayTabId !== null &&
+    nextTabId !== null &&
+    activeOverlayTabId !== nextTabId
+  ) {
+    await notifyOverlayDeactivate(activeOverlayTabId);
+    activeOverlayTabId = null;
+  }
+
+  const alreadyHosting = shouldShow && activeOverlayTabId === nextTabId;
 
   activeOverlayTabId = shouldShow ? nextTabId : null;
 
-  if (shouldShow && nextTabId !== null) {
+  if (shouldShow && nextTabId !== null && !alreadyHosting) {
     await notifyOverlayActivate(nextTabId);
   }
+}
+
+async function syncActiveTabOverlay(): Promise<void> {
+  const [activeTab] = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  await syncOverlayToTab(activeTab);
 }
 
 async function focusActiveTab(
@@ -457,14 +485,60 @@ export default defineBackground(() => {
             sendResponse({ ok: true } satisfies RuntimeResponse);
             return;
           }
+          case 'devForceCompanionShow': {
+            if (!IS_DEV_BUILD) {
+              sendResponse({
+                ok: false,
+                error: 'Dev companion controls are only available in dev builds.',
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const settings = await getSettings(IS_DEV_BUILD);
+            if (!settings.devModeEnabled) {
+              sendResponse({
+                ok: false,
+                error: 'Turn on dev mode to use companion test controls.',
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const data = await devForceCompanionShow(message.mode, Date.now());
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
+            return;
+          }
+          case 'devForceCompanionHide': {
+            if (!IS_DEV_BUILD) {
+              sendResponse({
+                ok: false,
+                error: 'Dev companion controls are only available in dev builds.',
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const settings = await getSettings(IS_DEV_BUILD);
+            if (!settings.devModeEnabled) {
+              sendResponse({
+                ok: false,
+                error: 'Turn on dev mode to use companion test controls.',
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const data = await devForceCompanionHide(Date.now());
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
+            return;
+          }
           case 'tick': {
+            const settings = await getSettings(IS_DEV_BUILD);
             await tryScoreActivePage(Date.now());
-            await runMinuteTick(Date.now(), {
-              forceTick: IS_DEV_BUILD,
+            const state = await runMinuteTick(Date.now(), {
+              forceTick: IS_DEV_BUILD && settings.devModeEnabled,
               page: activePageContext(),
             });
-            await updateToolbarFromPresentation();
-            sendResponse({ ok: true } satisfies RuntimeResponse);
+            sendResponse({
+              ok: true,
+              data: state.lastPresentation,
+            } satisfies RuntimeResponse);
+            void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
             return;
           }
           case 'ping': {

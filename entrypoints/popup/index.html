@@ -169,6 +169,33 @@
             <option value="adult">Grown-up cat</option>
           </select>
         </label>
+        <label class="settings__row">
+          <span>Dev mood override</span>
+          <select id="dev-force-mood">
+            <option value="auto">Auto (from vitals)</option>
+            <option value="content">Content</option>
+            <option value="happy">Happy</option>
+            <option value="curious">Curious</option>
+            <option value="hungry">Hungry</option>
+            <option value="starving">Starving</option>
+            <option value="stressed">Stressed</option>
+            <option value="sleepy">Sleepy</option>
+          </select>
+        </label>
+        <div class="settings__action-stack settings__action-stack--dev">
+          <button id="dev-force-appear-ambient" type="button" class="settings__button settings__button--legacy">
+            Force appear (quiet peek)
+          </button>
+          <button id="dev-force-appear-quiet" type="button" class="settings__button settings__button--legacy">
+            Force appear (idle, no speech)
+          </button>
+          <button id="dev-force-hide" type="button" class="settings__button settings__button--hide">
+            Force hide
+          </button>
+        </div>
+        <p id="dev-presence-hint" class="settings__hint settings__hint--dev">
+          Dev only: test daytime hide/show without waiting for random peeks or speech cooldowns.
+        </p>
         <button id="force-tick" type="button" class="settings__button settings__button--legacy">Force tick &amp; speech</button>
         <p id="force-tick-hint" class="settings__hint settings__hint--dev">
           Dev only: simulates the once-a-minute background tick and makes Tabby speak if her
