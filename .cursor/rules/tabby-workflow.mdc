@@ -24,14 +24,29 @@ Skip docs/changelog only for pure refactors with zero user-visible effect unless
 
 Newest section first. **Use a version number, not a bare "Unreleased" heading.**
 
+### Where to add bullets (check every time)
+
+Before writing a changelog line, read the **top** section of `CHANGELOG.md`:
+
+1. **If the top heading is `## X.Y.Z (unreleased)`**  
+   Add the bullet **there**. Do not create another unreleased section.
+
+2. **If the top heading is a released version only** (e.g. `## 1.0.0` with no `(unreleased)`)  
+   **Never** add bullets under that released section.  
+   Create a **new** top section: `## X.Y.Z (unreleased)` using the next semver after `package.json` (usually **patch** for fixes and small ship items, **minor** for larger user-visible features).  
+   Example: `package.json` is `1.0.0` and `## 1.0.0` is already released → add `## 1.0.1 (unreleased)` and put the bullet there.
+
+3. **Never edit released versions**  
+   Sections without `(unreleased)` are frozen once shipped.
+
 ```markdown
-## 0.8.0 (unreleased)
+## 1.0.1 (unreleased)
 
-- Tabby only uses the tab title and web address…
-- Her mood changes only if you stay on a page for about a minute…
+- The store download is **smaller**: legacy PNG cat sprites are no longer bundled.
 
-## 0.7.0
-- Fixed Hide Tabby in the care menu…
+## 1.0.0
+
+- Tabby is a **Lottie-animated** cat…
 ```
 
 ### Changelog style
@@ -54,12 +69,13 @@ Technical detail belongs in `README.md`, `PRIVACY.md`, code comments, or PR desc
 
 | Version rule | Detail |
 |--------------|--------|
-| **Never edit released versions** | e.g. do not add bullets under `## 0.7.0` after it shipped |
-| **Work in progress** | Always `## X.Y.Z (unreleased)` at the top (match next semver after `package.json`) |
+| **Never edit released versions** | e.g. do not add bullets under `## 1.0.0` after it shipped |
+| **Unreleased exists** | Add bullets only under the top `## X.Y.Z (unreleased)` section |
+| **No unreleased section** | Create `## X.Y.Z (unreleased)` at the top (next semver after `package.json`; patch vs minor by scope) |
 | **Non-breaking** | Add bullets under the current `(unreleased)` section |
 | **Breaking** | Same section, plain-language note on what users must redo; consider bumping unreleased semver |
 
-**On release:** `## 0.8.0 (unreleased)` becomes `## 0.8.0`, bump `package.json`, add new top section e.g. `## 0.9.0 (unreleased)`.
+**On release:** `## 1.0.1 (unreleased)` becomes `## 1.0.1`, bump `package.json`, add new top section e.g. `## 1.0.2 (unreleased)`.
 
 Also follow `tabby-prose.mdc` (no em dashes).
 

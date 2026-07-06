@@ -9,7 +9,7 @@ const basePresentation: CatPresentation = {
   mood: 'content',
   stage: 'adult',
   stageLabel: 'Grown-up Tabby',
-  sprite: '/sprites/adult/content.png',
+  sprite: 'animations/adult/idle.json',
   speech: null,
   triggerKind: null,
   overlayHidden: false,

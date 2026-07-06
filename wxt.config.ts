@@ -2,6 +2,16 @@ import { readdirSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig } from 'wxt';
 
+function removeLegacySprites(dir: string): void {
+  const sprites = join(dir, 'sprites');
+  try {
+    rmSync(sprites, { recursive: true, force: true });
+  } catch {
+    return;
+  }
+  console.log('ℹ Removed legacy sprites/ from build output');
+}
+
 function removeRedundantWasm(dir: string): void {
   let entries: string[];
   try {
@@ -33,6 +43,7 @@ export default defineConfig({
       if (wxt.config.command === 'serve') {
         return;
       }
+      removeLegacySprites(wxt.config.outDir);
       removeRedundantWasm(wxt.config.outDir);
     },
   },

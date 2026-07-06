@@ -43,8 +43,8 @@ describe('shouldAnimateMoodTransition', () => {
   it('crossfades when the sprite changes on a visible overlay', () => {
     expect(
       shouldAnimateMoodTransition({
-        previousSprite: 'sprites/adult/content.png',
-        nextSprite: 'sprites/adult/hungry.png',
+        previousSprite: 'animations/adult/idle.json',
+        nextSprite: 'animations/adult/eat.json',
         hasVisibleOverlay: true,
       }),
     ).toBe(true);
@@ -54,14 +54,14 @@ describe('shouldAnimateMoodTransition', () => {
     expect(
       shouldAnimateMoodTransition({
         previousSprite: null,
-        nextSprite: 'sprites/adult/content.png',
+        nextSprite: 'animations/adult/idle.json',
         hasVisibleOverlay: true,
       }),
     ).toBe(false);
     expect(
       shouldAnimateMoodTransition({
-        previousSprite: 'sprites/adult/content.png',
-        nextSprite: 'sprites/adult/content.png',
+        previousSprite: 'animations/adult/idle.json',
+        nextSprite: 'animations/adult/idle.json',
         hasVisibleOverlay: true,
       }),
     ).toBe(false);
@@ -69,19 +69,18 @@ describe('shouldAnimateMoodTransition', () => {
 });
 
 describe('preloadCompanionSprite', () => {
-  it('resolves after the sprite loads', async () => {
-    class MockImage {
-      onload: (() => void) | null = null;
-      onerror: (() => void) | null = null;
-      set src(_value: string) {
-        queueMicrotask(() => this.onload?.());
-      }
-    }
-    vi.stubGlobal('Image', MockImage);
+  it('prefetches the animation JSON', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
 
     await preloadCompanionSprite(
-      (path) => `chrome-extension://test${path}`,
-      '/sprites/adult/content.png',
+      (path) => `chrome-extension://test/${path}`,
+      'animations/adult/idle.json',
+    );
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'chrome-extension://test/animations/adult/idle.json',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
 
     vi.unstubAllGlobals();

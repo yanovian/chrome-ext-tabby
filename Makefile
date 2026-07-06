@@ -1,4 +1,4 @@
-.PHONY: help install prepare animations assets dev build zip icons sprites locales test test-watch \
+.PHONY: help install prepare animations assets dev build zip icons locales test test-watch \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major
 
 PNPM ?= pnpm
@@ -30,9 +30,6 @@ zip: assets ## Build and package Chrome extension zip (regenerates assets first)
 
 icons: ## Regenerate extension icons (public/icon/)
 	python3 scripts/generate-icons.py
-
-sprites: ## Process cat sprites (transparent backgrounds + optimize)
-	python3 scripts/process-sprites.py
 
 locales: ## Regenerate Chrome Web Store locale files (public/_locales/)
 	$(PNPM) locales

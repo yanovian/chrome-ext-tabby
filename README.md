@@ -81,7 +81,6 @@ Keep `pnpm dev` running for hot reload. WXT opens a Chrome window with Tabby loa
 | `pnpm icons` | Regenerate icons from `scripts/generate-icons.py` |
 | `pnpm locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
 | `pnpm animations` | Regenerate Lottie JSON cat clips in `public/animations/` |
-| `pnpm sprites` | Strip sprite backgrounds / optimize PNGs |
 | `pnpm test` | Run unit tests |
 | `pnpm typecheck` | TypeScript check |
 
