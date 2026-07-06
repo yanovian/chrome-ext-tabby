@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 0.8.0 (unreleased)
+## 0.8.0
 
 - Tabby only uses the **tab title and web address** to react to what you're reading. She never reads page text or your browsing history.
 - Her mood changes only if you **stay on a page for about a minute**. Opening the same page again soon won't stack extra mood changes.
