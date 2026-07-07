@@ -24,9 +24,13 @@ Hours in the browser can feel strangely quiet. Tabby is **company in the tabs yo
 already have**: animated moods, a care menu, feeding and play scenes, and a cat who
 ages from kitten to adult over real weeks and months.
 
-She glances at your active tab title and web address to nudge her mood. She never
-reads page text, never digs through your history, and never sends data anywhere. You
-choose when she is around.
+Her mood changes based on what you surf online. Her mood changes based on the URL 
+and title of your active tab. To assure your privacy, she never reads page text or 
+dig through your history, and never sends data anywhere.
+
+You are busy with another task and don't have time to play with her? Just snooz her 
+appearance for 30 or 60 minutes or even the whole day. She will appear after that.
+You can also hide her from a specific page or permanently on all pages.
 
 ## Features
 
