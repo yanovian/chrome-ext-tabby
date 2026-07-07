@@ -7,42 +7,42 @@
 
 > **[How to use Tabby →](./_doc/tutorial.md)**
 
-Tabby is a **virtual pet** for people who spend time online and want a little company.
-She floats on the pages you visit, reacts to how you browse, and grows from a newborn
-kitten into an adult cat over real calendar days. Pet her, feed her treats, play with her,
-and enjoy the small moments: a hungry grumble, a sleepy stretch, a silly line when she
-peeks in from the corner. No account, no subscription, and nothing leaves your device.
+Tabby is a **virtual pet** who keeps you company while you browse. She floats on the
+pages you visit, reacts from the active tab title and web address, and grows from a
+newborn kitten into an adult cat over real calendar days. Pet her, feed her treats,
+play until she goes wild, and smile when she peeks in with a hungry grumble or a silly
+line. Everything stays on your device: no accounts, no cloud, and no data sent anywhere.
 
-> You open a shopping tab, then a video, then a forum thread. Tabby tags along. She might
-> wander in for a quiet hello, ask for food when she is hungry, or curl up after a long
-> session. When you want the screen to yourself, hide her on one page, on every page, or
-> set quiet hours so unprompted chatter waits until morning.
+> Picture an evening online. You drift from a shopping tab to a video, then a forum
+> thread. Tabby comes along for the ride. She might say hello from the corner, ask for
+> food when her belly is empty, or curl up after a long session. You choose when she
+> appears: on one page, on every page, or tucked away during quiet hours.
 
-## What Tabby is
+## Why Tabby
 
-A **virtual pet** that lives in your tabs. Tabby brings animated moods, a care menu,
-feeding and play scenes, quiet peeks from the corner, and slow growth from kitten to
-adult cat. She is there for company while you browse.
+Hours in the browser can feel strangely quiet. Tabby is **company in the tabs you
+already have**: animated moods, a care menu, feeding and play scenes, and a cat who
+ages from kitten to adult over real weeks and months.
 
-She glances at your **active tab title and web address** to nudge her mood. She never
-reads page text, never reads your browsing history, and never sends data anywhere. You
-choose when she appears.
+She glances at your active tab title and web address to nudge her mood. She never
+reads page text, never digs through your history, and never sends data anywhere. You
+choose when she is around.
 
 ## Features
 
-- **Floating cat** — a draggable companion on the pages you visit, with smooth vector animations.
-- **Care menu** — pet, feed, play, or ask what's up. Her reply appears in a speech bubble.
+- **Floating cat** — Tabby appears on pages you visit. Drag her anywhere.
+- **Care menu** — tap Tabby to pet, feed, play, or ask what's up. She answers in a speech bubble.
 - **Moods and needs** — hungry, happy, stressed, sleepy, and more, each with matching animations.
 - **Feeding and play moments** — short scenes when you treat or play with her.
 - **Three life stages** — newborn kitten, playful kitten, then adult cat, each with its own animation set.
-- **Peeks and speech** — she may step in from the edge or say a quiet line while you browse.
-- **Memories** — nourishing places you visit together can come back in things she says later.
+- **Peeks and speech** — she may wander in from the edge or murmur a quiet line while you browse.
+- **Memories** — places you visit together can echo back in things she says later.
 - **Quiet hours** — unprompted speech stays off during the hours you choose.
-- **Show / hide** — per page, on every page, or **do not disturb** for 30 minutes, 1 hour, or until end of today.
+- **Show / hide** — per page, on every page, or do not disturb for 30 minutes, 1 hour, or until end of today.
 
 ## Permissions
 
-Tabby requests four permissions, and no host permissions:
+Tabby requests only four permissions, and no host permissions:
 
 ```json
 {
@@ -52,21 +52,16 @@ Tabby requests four permissions, and no host permissions:
 
 | Permission | Why |
 |------------|-----|
-| `tabs` | Read the **active tab's title and URL** so browsing can gently affect her mood, not your full history |
-| `storage` | Save cat state, settings, and hide preferences on your device |
+| `tabs` | Read the **active tab's title and URL** so browsing can gently affect her mood |
+| `storage` | Save cat state, settings, and hide preferences locally |
 | `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Best-effort inject into already-open tabs at install (usually a no-op without host permissions) |
 
-The cat UI loads via a **manifest content script** (not `host_permissions`). Tabs that were already open at install may need a **refresh** once.
+Her mood, memories, and your settings are stored in **IndexedDB** and **`chrome.storage.local`**, on your device.
 
-Cat vitals, memories, and browsing observations live in **IndexedDB** on your device. Settings, hide choices, and where you dragged her use **`chrome.storage.local`**.
+**No browsing history. No reading page text. No backend. No scary permissions.**
 
-Tabby does **not** request the `history` permission. She never reads bookmarks, closed tabs, or page body text. No backend, no analytics, no data uploaded.
-
-Clear her data anytime: `chrome://extensions` → Tabby → Details → **Clear data**, or uninstall the extension.
-
-Privacy policy: [PRIVACY.md](./PRIVACY.md)  
-Public URL for the Chrome Web Store: https://github.com/yanovian/chrome-ext-tabby/blob/master/PRIVACY.md
+Privacy policy: [PRIVACY.md](./PRIVACY.md)
 
 ## Quick start (development)
 
@@ -76,13 +71,7 @@ pnpm dev
 ```
 
 1. Open any normal web page. Tabby appears in the corner.
-2. Tap the cat to pet, feed, or play. Use the **Tabby icon** in the toolbar for settings.
-
-After install or update, **refresh tabs that were already open** so Tabby can appear there too.
-
-WXT loads the dev build into Chrome from `.output/chrome-mv3-dev`. Keep `pnpm dev` running for hot reload, or press **Alt+R** in that window to reload manually.
-
-Contributor docs: [Architecture](./_doc/architecture.md) · [Release](./_doc/release.md)
+2. Tap the cat to pet, feed, or play. Click the **Tabby icon** in the toolbar for settings.
 
 ## Scripts
 
@@ -111,25 +100,20 @@ All translations live in a single source file, [`scripts/generate-locales.mjs`](
 every `dev`/`build`/`zip` (via `pnpm assets`), so a package can never ship without
 its locale files. To add or edit a language, update the script and run `pnpm locales`.
 
-Long-form store copy per language: [`_doc/store-listing.md`](./_doc/store-listing.md).
-
 ## How it works
 
-1. **Show up** — a content script draws Tabby on the active tab when she is not hidden.
-2. **Notice the tab** — the background worker reads only the **title and URL** of the page you are on.
-3. **Shift mood** — after about a minute on a page, and not if you just visited the same page recently, her vitals get a small bump up or down.
-4. **Care** — pet, feed, and play run through the care menu and can trigger short animation moments.
-5. **Remember** — topics from nourishing visits can surface later in things she says.
-6. **Age** — life stage advances by **days since adoption**, not by how much you browse.
-7. **Speak** — unprompted lines respect quiet hours, daily caps, and cooldowns you set in the popup.
+1. **Appear** — a content script renders Tabby on the active tab when she is not hidden.
+2. **Notice** — the background worker reads only the **title and URL** of the page you are on.
+3. **React** — after about a minute on a page, her mood shifts; pet, feed, and play can trigger short animation moments.
+4. **Grow** — life stage advances by calendar days since adoption; memories from earlier visits can surface in speech.
 
-See [`_doc/architecture.md`](./_doc/architecture.md) for classification rules, dedup gates, and the full technical design.
+See [`_doc/architecture.md`](./_doc/architecture.md) for the full technical design.
 
-## Private by design
+## Local-only companion
 
-Animations, speech lines, and mood rules ship **inside the extension**. Tabby makes
-**no network requests at runtime**: she works offline, and nothing about your browsing
-is sent anywhere. There is no account and no analytics.
+Animations, speech lines, and mood rules run entirely in your browser. Everything ships
+**inside the extension package**, so Tabby makes **no network request at all** at
+runtime: she works fully offline, and nothing about your browsing is uploaded anywhere.
 
 ## Tech stack
 
