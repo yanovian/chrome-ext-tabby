@@ -21,16 +21,15 @@ line. Everything stays on your device: no accounts, no cloud, and no data sent a
 ## Why Tabby
 
 Hours in the browser can feel strangely quiet. Tabby is **company in the tabs you
-already have**: animated moods, a care menu, feeding and play scenes, and a cat who
-ages from kitten to adult over real weeks and months.
+already have**: moods, a care menu, feeding and play scenes, and a cat who grows from
+kitten to adult over real weeks and months.
 
-Her mood changes based on what you surf online. Her mood changes based on the URL 
-and title of your active tab. To assure your privacy, she never reads page text or 
-dig through your history, and never sends data anywhere.
+Her mood shifts gently from the **title and web address** of your active tab, nothing
+more. She never reads page text, never looks through your history, and never sends
+data anywhere.
 
-You are busy with another task and don't have time to play with her? Just snooz her 
-appearance for 30 or 60 minutes or even the whole day. She will appear after that.
-You can also hide her from a specific page or permanently on all pages.
+Busy? Snooze her for 30 minutes, an hour, or until the end of the day. Hide her on one
+page or on every page whenever you want the screen to yourself.
 
 ## Features
 
