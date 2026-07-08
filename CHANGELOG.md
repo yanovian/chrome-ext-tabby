@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.0.1 (unreleased)
+## 2.0.1
 
 - **Fix bugs** in show/hide controls, the first-meeting tour, quiet visits, and the settings menu.
 - The **animated preview** in the extension menu works again in the store build.
