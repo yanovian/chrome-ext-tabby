@@ -35,6 +35,7 @@ const fields = {
 
 const statusEl = document.getElementById('status') as HTMLParagraphElement;
 const previewHost = document.getElementById('preview-cat-host') as HTMLDivElement;
+const devSettingsSection = document.getElementById('dev-settings-section') as HTMLElement;
 const devBuildHint = document.getElementById('dev-build-hint') as HTMLParagraphElement;
 const forceTickButton = document.getElementById('force-tick') as HTMLButtonElement;
 const forceTickHint = document.getElementById('force-tick-hint') as HTMLParagraphElement;
@@ -275,9 +276,53 @@ function bindActionButton(
 }
 
 async function initialize(): Promise<void> {
-  devBuildHint.textContent = IS_DEV_BUILD
-    ? 'Dev build detected — extra interactions are available when dev mode is on.'
-    : 'Dev controls apply when running `pnpm dev`.';
+  devSettingsSection.hidden = !IS_DEV_BUILD;
+
+  if (!IS_DEV_BUILD) {
+    const [settings, presentation] = await Promise.all([
+      requestSettings(),
+      requestPresentation(),
+    ]);
+    fillForm(settings);
+    await updatePreviewCat(presentation.sprite);
+    await refreshDoNotDisturbSection();
+    await refreshOverlayButtons(settings);
+
+    for (const element of [
+      fields.quietStart,
+      fields.quietEnd,
+      fields.maxAppearances,
+      fields.cooldownMinutes,
+    ]) {
+      element.addEventListener('change', scheduleSave);
+      element.addEventListener('input', scheduleSave);
+    }
+
+    bindActionButton(showAllButton, () => setGlobalOverlayVisible(true));
+    bindActionButton(hideAllButton, () => setGlobalOverlayVisible(false));
+    bindActionButton(showPageButton, () => setPageOverlayVisible(true));
+    bindActionButton(hidePageButton, () => setPageOverlayVisible(false));
+    bindActionButton(cancelDndButton, () => cancelDoNotDisturb());
+    bindActionButton(setDnd30Button, () => enableDoNotDisturb('30m'));
+    bindActionButton(setDnd60Button, () => enableDoNotDisturb('60m'));
+    bindActionButton(setDndTodayButton, () => enableDoNotDisturb('today'));
+
+    dndRefreshTimer = window.setInterval(() => {
+      if (!dndActivePanel.hidden) {
+        void refreshDoNotDisturbSection();
+      }
+    }, 30_000);
+
+    window.addEventListener('unload', () => {
+      if (dndRefreshTimer) {
+        window.clearInterval(dndRefreshTimer);
+      }
+    });
+    return;
+  }
+
+  devBuildHint.textContent =
+    'Dev build detected — extra interactions are available when dev mode is on.';
 
   const [settings, presentation] = await Promise.all([
     requestSettings(),
