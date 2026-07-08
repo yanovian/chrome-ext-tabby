@@ -35,7 +35,7 @@ export class CompanionLottiePlayer {
     const token = ++this.loadToken;
     this.destroyPlayer();
 
-    ensureDotlottieWasm();
+    await ensureDotlottieWasm();
 
     const bufferSize = companionCanvasSizeFromPath(assetPath);
     this.syncCanvasBuffer(bufferSize);

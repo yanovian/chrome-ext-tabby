@@ -167,10 +167,8 @@ async function syncOverlayToTab(
     activeOverlayTabId = null;
   }
 
-  // Wake the active tab so show/hide and presentation updates always apply.
-  await notifyOverlayActivate(nextTabId);
-
   if (shouldShow) {
+    await notifyOverlayActivate(nextTabId);
     activeOverlayTabId = nextTabId;
     return;
   }
@@ -179,6 +177,13 @@ async function syncOverlayToTab(
     await notifyOverlayDeactivate(nextTabId);
   }
   activeOverlayTabId = null;
+}
+
+async function retryActiveOverlaySync(): Promise<void> {
+  for (const delayMs of [400, 1200]) {
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    await syncActiveTabOverlay();
+  }
 }
 
 async function syncActiveTabOverlay(): Promise<void> {
@@ -251,8 +256,11 @@ export default defineBackground(() => {
       return;
     }
     if (details.reason === 'install') {
-      void resetIntro();
-      enqueueTask(() => bootstrap());
+      enqueueTask(async () => {
+        await resetIntro();
+        await bootstrap();
+        await retryActiveOverlaySync();
+      });
     }
   });
 
@@ -503,13 +511,22 @@ export default defineBackground(() => {
               active: true,
               currentWindow: true,
             });
-            const shouldBootstrap =
+            const onActiveTab =
               settings.showOverlay &&
               sender.tab?.id === activeTab?.id &&
               resolveActiveOverlayTabId(sender.tab, true) !== null;
+            if (!onActiveTab) {
+              sendResponse({
+                ok: true,
+                data: { active: false },
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const presentation = await getCurrentPresentation();
+            const pageHidden = await isPageOverlayHidden(sender.tab?.url);
             sendResponse({
               ok: true,
-              data: { active: shouldBootstrap },
+              data: { active: presentation.companionVisible && !pageHidden },
             } satisfies RuntimeResponse);
             return;
           }

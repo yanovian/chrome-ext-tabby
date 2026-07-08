@@ -1,4 +1,5 @@
 import { OVERLAY_TAB_MESSAGE } from '../../utils/active-overlay';
+import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
 import { requestIsActiveOverlayTab } from '../../utils/runtime-client';
 import type { TabbyOverlay } from './tabby-overlay';
 
@@ -30,6 +31,16 @@ async function getOverlay(): Promise<TabbyOverlay> {
   return overlayInstance;
 }
 
+function scheduleWarmActivate(): void {
+  void requestIsActiveOverlayTab()
+    .then(({ active }) => {
+      if (active) {
+        void getOverlay().then((overlay) => overlay.warmActivate());
+      }
+    })
+    .catch((error) => ignoreIfExtensionUnavailable('warm activate probe', error));
+}
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   excludeMatches: [
@@ -58,14 +69,7 @@ export default defineContentScript({
       }
     });
 
-    void requestIsActiveOverlayTab()
-      .then(({ active }) => {
-        if (active) {
-          void getOverlay().then((overlay) => overlay.warmActivate());
-        }
-      })
-      .catch(() => {
-        // Background may be asleep.
-      });
+    scheduleWarmActivate();
+    window.setTimeout(scheduleWarmActivate, 1200);
   },
 });

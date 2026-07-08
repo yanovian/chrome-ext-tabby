@@ -14,6 +14,7 @@ import {
   requestSettings,
   requestShowOverlayOnPage,
 } from '../../utils/runtime-client';
+import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
 import type { DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
 
@@ -101,21 +102,21 @@ async function ensureOverlayOnActiveTab(tabId?: number): Promise<void> {
   try {
     await browser.tabs.sendMessage(tabId, { type: 'ping' });
     return;
-  } catch {
-    // Content script not loaded yet — inject below.
+  } catch (error) {
+    ignoreIfExtensionUnavailable('overlay ping', error);
   }
   await browser.scripting
     .insertCSS({
       target: { tabId },
       files: ['/content-scripts/content.css'],
     })
-    .catch(() => undefined);
+    .catch((error) => ignoreIfExtensionUnavailable('overlay css inject', error));
   await browser.scripting
     .executeScript({
       target: { tabId },
       files: ['/content-scripts/content.js'],
     })
-    .catch(() => undefined);
+    .catch((error) => ignoreIfExtensionUnavailable('overlay script inject', error));
 }
 
 async function refreshDoNotDisturbSection(): Promise<void> {
@@ -284,7 +285,7 @@ async function initialize(): Promise<void> {
       requestPresentation(),
     ]);
     fillForm(settings);
-    await updatePreviewCat(presentation.sprite);
+    void updatePreviewCat(presentation.sprite);
     await refreshDoNotDisturbSection();
     await refreshOverlayButtons(settings);
 
@@ -330,7 +331,7 @@ async function initialize(): Promise<void> {
   ]);
 
   fillForm(settings);
-  await updatePreviewCat(presentation.sprite);
+  void updatePreviewCat(presentation.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons(settings);
 

@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.0.2
+
+- **Fix bugs**: Tabby shows on install without a refresh, animations play reliably, and the menu feels faster.
+
 ## 2.0.1
 
 - **Fix bugs** in show/hide controls, the first-meeting tour, quiet visits, and the settings menu.

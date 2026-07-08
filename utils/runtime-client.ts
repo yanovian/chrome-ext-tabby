@@ -8,6 +8,7 @@ import type {
   RuntimeMessage,
   RuntimeResponse,
 } from './types';
+import { ignoreIfExtensionUnavailable } from './extension-errors';
 
 async function sendMessage<T>(message: RuntimeMessage): Promise<T> {
   const response = (await browser.runtime.sendMessage(message)) as RuntimeResponse<T>;
@@ -101,8 +102,8 @@ export function requestIsActiveOverlayTab(): Promise<{ active: boolean }> {
 export async function pingBackground(): Promise<void> {
   try {
     await browser.runtime.sendMessage({ type: 'ping' } satisfies RuntimeMessage);
-  } catch {
-    // Background may be asleep.
+  } catch (error) {
+    ignoreIfExtensionUnavailable('ping background', error);
   }
 }
 

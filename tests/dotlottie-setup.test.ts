@@ -13,6 +13,7 @@ vi.mock('../utils/runtime-client', () => ({
 describe('ensureDotlottieWasm', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
     const mod = await import('../utils/dotlottie-setup');
     mod.resetDotlottieWasmForTests();
   });
@@ -20,10 +21,11 @@ describe('ensureDotlottieWasm', () => {
   it('points dotLottie at the bundled wasm file once', async () => {
     const { ensureDotlottieWasm } = await import('../utils/dotlottie-setup');
 
-    ensureDotlottieWasm();
-    ensureDotlottieWasm();
+    await ensureDotlottieWasm();
+    await ensureDotlottieWasm();
 
     expect(setWasmUrl).toHaveBeenCalledTimes(1);
     expect(setWasmUrl).toHaveBeenCalledWith('chrome-extension://test/dotlottie-player.wasm');
+    expect(fetch).toHaveBeenCalledWith('chrome-extension://test/dotlottie-player.wasm');
   });
 });

@@ -583,9 +583,25 @@ export class TabbyOverlay {
     }
 
     this.removeAllOverlayRoots();
-    this.root = this.buildRoot(this.presentation!, {
+    void this.mountOverlay(options);
+  }
+
+  private async mountOverlay(
+    options: { animateMenu?: boolean; reactToTrigger?: boolean; animateMood?: boolean } = {},
+  ): Promise<void> {
+    const presentation = this.presentation;
+    if (!presentation || !this.isActiveInstance()) {
+      return;
+    }
+
+    const root = await this.buildRoot(presentation, {
       animateMenu: options.animateMenu ?? this.hasOverlayChrome(),
     });
+    if (!this.isActiveInstance() || !this.isOverlayVisible()) {
+      return;
+    }
+
+    this.root = root;
     document.documentElement.appendChild(this.root);
     this.applyPosition();
     if (this.menuOpen) {
@@ -789,10 +805,10 @@ export class TabbyOverlay {
     );
   }
 
-  private buildRoot(
+  private async buildRoot(
     presentation: CatPresentation,
     options: { animateMenu?: boolean } = {},
-  ): HTMLElement {
+  ): Promise<HTMLElement> {
     const root = document.createElement('div');
     root.id = ROOT_ID;
     this.applyRootPresentationClasses(root, presentation);
@@ -805,7 +821,7 @@ export class TabbyOverlay {
 
     this.catPlayer = new CompanionLottiePlayer();
     catSurface.appendChild(this.catPlayer.canvas);
-    void this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
+    await this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
 
     panel.appendChild(catSurface);
 

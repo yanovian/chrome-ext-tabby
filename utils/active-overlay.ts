@@ -1,4 +1,5 @@
 import { canShowOverlayOnUrl } from './overlay-inject';
+import { ignoreIfExtensionUnavailable } from './extension-errors';
 
 export const OVERLAY_TAB_MESSAGE = {
   activate: 'overlayActivate',
@@ -25,8 +26,8 @@ export async function notifyOverlayDeactivate(tabId: number): Promise<void> {
     await browser.tabs.sendMessage(tabId, {
       type: OVERLAY_TAB_MESSAGE.deactivate,
     } satisfies OverlayTabMessage);
-  } catch {
-    // Tab closed or content script unavailable.
+  } catch (error) {
+    ignoreIfExtensionUnavailable('overlay deactivate', error);
   }
 }
 
@@ -35,7 +36,7 @@ export async function notifyOverlayActivate(tabId: number): Promise<void> {
     await browser.tabs.sendMessage(tabId, {
       type: OVERLAY_TAB_MESSAGE.activate,
     } satisfies OverlayTabMessage);
-  } catch {
-    // Page may still be loading; the content script checks on load.
+  } catch (error) {
+    ignoreIfExtensionUnavailable('overlay activate', error);
   }
 }
