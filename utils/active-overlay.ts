@@ -32,11 +32,18 @@ export async function notifyOverlayDeactivate(tabId: number): Promise<void> {
 }
 
 export async function notifyOverlayActivate(tabId: number): Promise<void> {
-  try {
-    await browser.tabs.sendMessage(tabId, {
-      type: OVERLAY_TAB_MESSAGE.activate,
-    } satisfies OverlayTabMessage);
-  } catch (error) {
-    ignoreIfExtensionUnavailable('overlay activate', error);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await browser.tabs.sendMessage(tabId, {
+        type: OVERLAY_TAB_MESSAGE.activate,
+      } satisfies OverlayTabMessage);
+      return;
+    } catch (error) {
+      if (attempt === 2) {
+        ignoreIfExtensionUnavailable('overlay activate', error);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+    }
   }
 }

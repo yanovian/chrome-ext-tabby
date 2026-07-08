@@ -7,6 +7,7 @@ type OverlayModule = typeof import('./tabby-overlay');
 
 let overlayModule: OverlayModule | null = null;
 let overlayInstance: TabbyOverlay | null = null;
+let overlayPromise: Promise<TabbyOverlay> | null = null;
 
 async function loadOverlayModule(): Promise<OverlayModule> {
   overlayModule ??= await import('./tabby-overlay');
@@ -17,18 +18,28 @@ async function getOverlay(): Promise<TabbyOverlay> {
   if (overlayInstance) {
     return overlayInstance;
   }
-
-  const mod = await loadOverlayModule();
-  const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
-  const existing = globalWindow[mod.OVERLAY_GLOBAL_KEY];
-  if (existing) {
-    existing.destroy();
-    delete globalWindow[mod.OVERLAY_GLOBAL_KEY];
+  if (overlayPromise) {
+    return overlayPromise;
   }
 
-  overlayInstance = new mod.TabbyOverlay();
-  globalWindow[mod.OVERLAY_GLOBAL_KEY] = overlayInstance;
-  return overlayInstance;
+  overlayPromise = loadOverlayModule().then((mod) => {
+    const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
+    const existing = globalWindow[mod.OVERLAY_GLOBAL_KEY];
+    if (existing) {
+      existing.destroy();
+      delete globalWindow[mod.OVERLAY_GLOBAL_KEY];
+    }
+
+    overlayInstance = new mod.TabbyOverlay();
+    globalWindow[mod.OVERLAY_GLOBAL_KEY] = overlayInstance;
+    return overlayInstance;
+  });
+
+  try {
+    return await overlayPromise;
+  } finally {
+    overlayPromise = null;
+  }
 }
 
 function scheduleWarmActivate(): void {
@@ -71,5 +82,6 @@ export default defineContentScript({
 
     scheduleWarmActivate();
     window.setTimeout(scheduleWarmActivate, 1200);
+    window.setTimeout(scheduleWarmActivate, 2500);
   },
 });

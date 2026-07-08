@@ -180,7 +180,7 @@ async function syncOverlayToTab(
 }
 
 async function retryActiveOverlaySync(): Promise<void> {
-  for (const delayMs of [400, 1200]) {
+  for (const delayMs of [400, 1200, 2500]) {
     await new Promise((resolve) => setTimeout(resolve, delayMs));
     await syncActiveTabOverlay();
   }

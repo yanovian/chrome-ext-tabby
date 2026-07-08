@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.0.3
+
+- **Fix bugs**: Tabby shows on install more reliably, and dragging no longer duplicates her.
+
 ## 2.0.2
 
 - **Fix bugs**: Tabby shows on install without a refresh, animations play reliably, and the menu feels faster.

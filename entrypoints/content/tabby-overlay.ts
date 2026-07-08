@@ -88,6 +88,8 @@ export class TabbyOverlay {
   private exiting = false;
   private moodTransitionToken = 0;
   private catPlayer: CompanionLottiePlayer | null = null;
+  private initPromise: Promise<void> | null = null;
+  private mountGeneration = 0;
 
   private isActiveInstance(): boolean {
     const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
@@ -152,7 +154,10 @@ export class TabbyOverlay {
     }
 
     if (!this.storageListenerBound) {
-      await this.initialize();
+      this.initPromise ??= this.initialize().finally(() => {
+        this.initPromise = null;
+      });
+      await this.initPromise;
       return;
     }
 
@@ -583,11 +588,13 @@ export class TabbyOverlay {
     }
 
     this.removeAllOverlayRoots();
-    void this.mountOverlay(options);
+    const generation = ++this.mountGeneration;
+    void this.mountOverlay(options, generation);
   }
 
   private async mountOverlay(
     options: { animateMenu?: boolean; reactToTrigger?: boolean; animateMood?: boolean } = {},
+    generation: number,
   ): Promise<void> {
     const presentation = this.presentation;
     if (!presentation || !this.isActiveInstance()) {
@@ -597,10 +604,15 @@ export class TabbyOverlay {
     const root = await this.buildRoot(presentation, {
       animateMenu: options.animateMenu ?? this.hasOverlayChrome(),
     });
-    if (!this.isActiveInstance() || !this.isOverlayVisible()) {
+    if (
+      generation !== this.mountGeneration ||
+      !this.isActiveInstance() ||
+      !this.isOverlayVisible()
+    ) {
       return;
     }
 
+    this.removeAllOverlayRoots();
     this.root = root;
     document.documentElement.appendChild(this.root);
     this.applyPosition();
