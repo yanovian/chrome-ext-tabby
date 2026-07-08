@@ -20,7 +20,7 @@
     "locales": "node scripts/generate-locales.mjs",
     "icons": "python3 scripts/generate-icons.py",
     "animations": "node scripts/generate-scaffold-animations.mjs",
-    "assets": "pnpm locales && pnpm animations",
+    "assets": "pnpm locales && pnpm animations && node scripts/copy-dotlottie-wasm.mjs",
     "postinstall": "wxt prepare && node scripts/generate-locales.mjs"
   },
   "packageManager": "pnpm@10.33.4",

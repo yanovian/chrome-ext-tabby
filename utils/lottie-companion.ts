@@ -3,6 +3,7 @@ import {
   COMPANION_ANIMATION_SPEED,
   companionCanvasSizeFromPath,
 } from './companion-animation';
+import { ensureDotlottieWasm } from './dotlottie-setup';
 
 const LOAD_TIMEOUT_MS = 4000;
 
@@ -33,6 +34,8 @@ export class CompanionLottiePlayer {
 
     const token = ++this.loadToken;
     this.destroyPlayer();
+
+    ensureDotlottieWasm();
 
     const bufferSize = companionCanvasSizeFromPath(assetPath);
     this.syncCanvasBuffer(bufferSize);

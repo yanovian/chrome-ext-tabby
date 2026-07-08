@@ -2,6 +2,11 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.0.1 (unreleased)
+
+- **Fix bugs** in show/hide controls, the first-meeting tour, quiet visits, and the settings menu.
+- The **animated preview** in the extension menu works again in the store build.
+
 ## 2.0.0
 - The store download is **much smaller**: legacy PNG sprites and the bundled on-device model are gone.
 - Tabby classifies pages from **known sites and title keywords** only without any local AI.

@@ -40,4 +40,10 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
+const wasmPath = join(OUT, 'dotlottie-player.wasm');
+if (!existsSync(wasmPath)) {
+  console.error('[verify-build-output] missing dotlottie-player.wasm — run pnpm assets');
+  process.exit(1);
+}
+
 console.log('[verify-build-output] ok');

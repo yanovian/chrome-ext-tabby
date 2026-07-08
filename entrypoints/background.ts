@@ -115,6 +115,7 @@ async function tryScoreActivePage(now = Date.now()): Promise<void> {
 
   if (result.counted) {
     scoredCurrentFocus = true;
+    await refreshPresentationForActiveTab(now);
   }
 }
 
@@ -147,36 +148,37 @@ async function syncOverlayToTab(
 ): Promise<void> {
   const settings = await getSettings(IS_DEV_BUILD);
   const nextTabId = resolveActiveOverlayTabId(tab, settings.showOverlay);
-  const presentation = await getCurrentPresentation();
-  const shouldShow = nextTabId !== null && presentation.companionVisible;
 
-  if (activeOverlayTabId !== null && !shouldShow) {
-    if (activeOverlayTabId === nextTabId || nextTabId === null) {
-      // Presentation is already in storage — let the content script exit gracefully.
+  if (nextTabId === null) {
+    if (activeOverlayTabId !== null) {
+      await notifyOverlayDeactivate(activeOverlayTabId);
       activeOverlayTabId = null;
-      return;
     }
-    await notifyOverlayDeactivate(activeOverlayTabId);
-    activeOverlayTabId = null;
     return;
   }
 
-  if (
-    activeOverlayTabId !== null &&
-    nextTabId !== null &&
-    activeOverlayTabId !== nextTabId
-  ) {
-    await notifyOverlayDeactivate(activeOverlayTabId);
+  const presentation = await getCurrentPresentation();
+  const pageHidden = await isPageOverlayHidden(tab?.url);
+  const shouldShow = presentation.companionVisible && !pageHidden;
+  const previousHost = activeOverlayTabId;
+
+  if (previousHost !== null && previousHost !== nextTabId) {
+    await notifyOverlayDeactivate(previousHost);
     activeOverlayTabId = null;
   }
 
-  const alreadyHosting = shouldShow && activeOverlayTabId === nextTabId;
+  // Wake the active tab so show/hide and presentation updates always apply.
+  await notifyOverlayActivate(nextTabId);
 
-  activeOverlayTabId = shouldShow ? nextTabId : null;
-
-  if (shouldShow && nextTabId !== null && !alreadyHosting) {
-    await notifyOverlayActivate(nextTabId);
+  if (shouldShow) {
+    activeOverlayTabId = nextTabId;
+    return;
   }
+
+  if (previousHost === nextTabId) {
+    await notifyOverlayDeactivate(nextTabId);
+  }
+  activeOverlayTabId = null;
 }
 
 async function syncActiveTabOverlay(): Promise<void> {
@@ -280,8 +282,17 @@ export default defineBackground(() => {
     }
 
     enqueueTask(async () => {
-      await tryScoreActivePage(Date.now());
-      await runMinuteTick(Date.now(), { present: false });
+      const now = Date.now();
+      await tryScoreActivePage(now);
+      const shouldPresent =
+        activeSnapshot.tabId !== null && isTrackableUrl(activeSnapshot.url);
+      await runMinuteTick(now, {
+        present: shouldPresent,
+        page: shouldPresent ? activePageContext() : undefined,
+      });
+      if (shouldPresent) {
+        await syncActiveTabOverlay();
+      }
       await updateToolbarFromPresentation();
     });
   });
@@ -465,6 +476,11 @@ export default defineBackground(() => {
             const data = await hideOverlayOnPage({
               url: message.url ?? tab.url,
             });
+            const [activeTab] = await browser.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            await syncOverlayToTab(activeTab);
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             return;
@@ -482,9 +498,18 @@ export default defineBackground(() => {
             return;
           }
           case 'isActiveOverlayTab': {
+            const settings = await getSettings(IS_DEV_BUILD);
+            const [activeTab] = await browser.tabs.query({
+              active: true,
+              currentWindow: true,
+            });
+            const shouldBootstrap =
+              settings.showOverlay &&
+              sender.tab?.id === activeTab?.id &&
+              resolveActiveOverlayTabId(sender.tab, true) !== null;
             sendResponse({
               ok: true,
-              data: { active: sender.tab?.id === activeOverlayTabId },
+              data: { active: shouldBootstrap },
             } satisfies RuntimeResponse);
             return;
           }
