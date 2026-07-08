@@ -129,3 +129,20 @@ export function shouldStartAmbientPeek(input: AmbientPeekInput): boolean {
 export function isAmbientPeekActive(peekUntil: number | null, now: number): boolean {
   return peekUntil !== null && now < peekUntil;
 }
+
+/** True when an ambient visit timer has elapsed and Tabby should duck away. */
+export function isAmbientPeekExpired(
+  presentation: {
+    companionVisible: boolean;
+    ambientActivity: AmbientActivity | null;
+    ambientPeekUntil: number | null;
+  },
+  now: number,
+): boolean {
+  return (
+    presentation.companionVisible &&
+    presentation.ambientActivity !== null &&
+    presentation.ambientPeekUntil !== null &&
+    !isAmbientPeekActive(presentation.ambientPeekUntil, now)
+  );
+}

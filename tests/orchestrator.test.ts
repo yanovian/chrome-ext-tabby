@@ -250,6 +250,36 @@ describe('getCurrentPresentation', () => {
 
     vi.useRealTimers();
   });
+
+  it('hides Tabby when an ambient peek timer has elapsed', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'animations/adult/idle.json',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'sleeping',
+      ambientPeekUntil: NOW - 1,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+    store[STORAGE_KEYS.introCompleted] = true;
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.ambientActivity).toBeNull();
+    expect(presentation.ambientPeekUntil).toBeNull();
+  });
 });
 
 describe('presentOnActiveTab', () => {

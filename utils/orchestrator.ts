@@ -8,7 +8,7 @@ import {
   resetDailyNudgeCounter,
   resolveLifeStage,
 } from './cat-sim';
-import { recordAmbientAppearance } from './ambient-presence';
+import { isAmbientPeekExpired, recordAmbientAppearance } from './ambient-presence';
 import {
   careActionToDoNotDisturb,
   clearDoNotDisturb,
@@ -807,6 +807,18 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
       if (completed) {
         return completed;
       }
+    }
+    if (isAmbientPeekExpired(cached, now)) {
+      const expired = {
+        ...cached,
+        companionVisible: false,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        speech: null,
+        triggerKind: null,
+      };
+      await persistPresentation(expired);
+      return expired;
     }
     if (!introCompleted && !cached.companionVisible) {
       const state = await loadOrchestratorState();

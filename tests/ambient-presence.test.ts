@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   isAmbientPeekActive,
+  isAmbientPeekExpired,
   isDaytime,
   pickAmbientActivity,
   pickAmbientPeekDurationMs,
@@ -76,5 +77,30 @@ describe('isAmbientPeekActive', () => {
   it('stays visible until peek time ends', () => {
     expect(isAmbientPeekActive(NOW + 10_000, NOW)).toBe(true);
     expect(isAmbientPeekActive(NOW - 1, NOW)).toBe(false);
+  });
+});
+
+describe('isAmbientPeekExpired', () => {
+  it('detects when an ambient visit should end', () => {
+    expect(
+      isAmbientPeekExpired(
+        {
+          companionVisible: true,
+          ambientActivity: 'grooming',
+          ambientPeekUntil: NOW - 1,
+        },
+        NOW,
+      ),
+    ).toBe(true);
+    expect(
+      isAmbientPeekExpired(
+        {
+          companionVisible: true,
+          ambientActivity: 'grooming',
+          ambientPeekUntil: NOW + 10_000,
+        },
+        NOW,
+      ),
+    ).toBe(false);
   });
 });
