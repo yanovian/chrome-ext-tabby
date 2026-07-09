@@ -8,7 +8,7 @@ import {
   resetDailyNudgeCounter,
   resolveLifeStage,
 } from './cat-sim';
-import { isAmbientPeekExpired, recordAmbientAppearance } from './ambient-presence';
+import { isAmbientRestExpired, recordAmbientAppearance } from './ambient-presence';
 import {
   careActionToDoNotDisturb,
   clearDoNotDisturb,
@@ -500,8 +500,8 @@ export async function handleCareAction(
   }
 
   const keepVisible =
-    state.lastPresentation?.companionVisible === true &&
-    action !== 'dismiss';
+    action !== 'dismiss' &&
+    (state.lastPresentation?.companionVisible === true || endsAmbientVisit);
 
   const presentation = buildPresentation({
     cat,
@@ -633,7 +633,11 @@ export async function evaluateAndPresent(
 
   if (presence.recordSpeech && trigger.speechContext) {
     speech = fallbackSpeech(trigger.speechContext);
-  } else if (presence.recordAmbient && presence.ambientActivity === 'peeking') {
+  } else if (
+    presence.recordAmbient &&
+    presence.companionVisible &&
+    presence.ambientActivity === 'peeking'
+  ) {
     const mood = deriveMoodFromVitals({
       vitals: cat.vitals,
       now,
@@ -808,17 +812,17 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
         return completed;
       }
     }
-    if (isAmbientPeekExpired(cached, now)) {
-      const expired = {
+    if (isAmbientRestExpired(cached, now)) {
+      const resumed = {
         ...cached,
-        companionVisible: false,
-        ambientActivity: null,
+        companionVisible: true,
+        ambientActivity: 'grooming' as const,
         ambientPeekUntil: null,
         speech: null,
         triggerKind: null,
       };
-      await persistPresentation(expired);
-      return expired;
+      await persistPresentation(resumed);
+      return resumed;
     }
     if (!introCompleted && !cached.companionVisible) {
       const state = await loadOrchestratorState();

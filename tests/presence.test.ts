@@ -91,7 +91,7 @@ describe('resolveCompanionPresence', () => {
     expect(result.ambientActivity).toBeNull();
   });
 
-  it('keeps an ambient peek alive until it expires', () => {
+  it('keeps an ambient rest alive until it expires', () => {
     const result = resolveCompanionPresence({
       cat: createInitialCat(NOW),
       settings: DEFAULT_SETTINGS,
@@ -106,15 +106,62 @@ describe('resolveCompanionPresence', () => {
       introCompleted: true,
       lastPresentation: {
         ...basePresentation,
-        companionVisible: true,
+        companionVisible: false,
         ambientActivity: 'sleeping',
         ambientPeekUntil: NOW + 20_000,
       },
     });
 
-    expect(result.companionVisible).toBe(true);
+    expect(result.companionVisible).toBe(false);
     expect(result.ambientActivity).toBe('sleeping');
     expect(result.recordAmbient).toBe(false);
+  });
+
+  it('stays mostly visible by default after intro', () => {
+    const result = resolveCompanionPresence({
+      cat: { ...createInitialCat(NOW), lastAmbientAt: NOW },
+      settings: DEFAULT_SETTINGS,
+      now: NOW,
+      speechTrigger: {
+        shouldAppear: false,
+        mood: 'content',
+        speechContext: null,
+        triggerKind: null,
+      },
+      doNotDisturb: { until: null },
+      introCompleted: true,
+      lastPresentation: null,
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.ambientActivity).toBe('grooming');
+  });
+
+  it('starts a rest with sleeping or grooming, not peeking', () => {
+    const cat = {
+      ...createInitialCat(0),
+      lastAmbientAt: 0,
+      ambientsToday: 0,
+    };
+    const eligibleNow = Date.parse('2026-07-06T14:04:00.000Z');
+    const result = resolveCompanionPresence({
+      cat,
+      settings: { ...DEFAULT_SETTINGS, devModeEnabled: true },
+      now: eligibleNow,
+      speechTrigger: {
+        shouldAppear: false,
+        mood: 'content',
+        speechContext: null,
+        triggerKind: null,
+      },
+      doNotDisturb: { until: null },
+      introCompleted: true,
+      lastPresentation: null,
+    });
+
+    expect(result.companionVisible).toBe(false);
+    expect(result.ambientActivity).not.toBe('peeking');
+    expect(result.recordAmbient).toBe(true);
   });
 
   it('shows Tabby during intro without unprompted speech', () => {

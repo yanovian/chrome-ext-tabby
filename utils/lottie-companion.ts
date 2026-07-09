@@ -3,7 +3,10 @@ import {
   COMPANION_ANIMATION_SPEED,
   companionCanvasSizeFromPath,
 } from './companion-animation';
+import { preloadCompanionAnimation } from './companion-animation-preload';
 import { ensureDotlottieWasm } from './dotlottie-setup';
+
+export { preloadCompanionAnimation };
 
 const LOAD_TIMEOUT_MS = 4000;
 
@@ -113,19 +116,3 @@ function waitForLottieLoad(player: DotLottie, timeoutMs: number): Promise<void> 
   });
 }
 
-/** Warm up an animation JSON before showing the overlay. */
-export async function preloadCompanionAnimation(
-  resolveUrl: (path: string) => string,
-  assetPath: string,
-  timeoutMs = 2500,
-): Promise<void> {
-  const controller = new AbortController();
-  const timer = globalThis.setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    await fetch(resolveUrl(assetPath), { signal: controller.signal });
-  } catch {
-    // Best-effort preload.
-  } finally {
-    globalThis.clearTimeout(timer);
-  }
-}

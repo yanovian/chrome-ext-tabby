@@ -1,3 +1,5 @@
+import { preloadCompanionAnimation } from './companion-animation-preload';
+
 export const COMPANION_ENTER_MS = 360;
 export const COMPANION_EXIT_MS = 240;
 export const COMPANION_MENU_ENTER_MS = 280;
@@ -24,7 +26,6 @@ export async function preloadCompanionSprite(
   assetPath: string,
   timeoutMs = 2500,
 ): Promise<void> {
-  const { preloadCompanionAnimation } = await import('./lottie-companion');
   await preloadCompanionAnimation(resolveUrl, assetPath, timeoutMs);
 }
 

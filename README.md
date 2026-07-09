@@ -105,7 +105,7 @@ its locale files. To add or edit a language, update the script and run `pnpm loc
 
 ## How it works
 
-1. **Appear** — a content script renders Tabby on the active tab when she is not hidden.
+1. **Appear** — a content script renders Tabby on the active tab when she is not hidden. She does not run on sensitive sites such as email, banking, or GitHub (see `utils/overlay-excluded-hosts.ts`).
 2. **Notice** — the background worker reads only the **title and URL** of the page you are on.
 3. **React** — after about a minute on a page, her mood shifts; pet, feed, and play can trigger short animation moments.
 4. **Grow** — life stage advances by calendar days since adoption; memories from earlier visits can surface in speech.

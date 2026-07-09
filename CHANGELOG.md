@@ -2,9 +2,11 @@
 
 Updates for people who use Tabby. Newest first.
 
+
 ## 2.0.5
 
 - **Fix bugs**: Fix performance issues.
+- Tabby stays **mostly visible**, appears on **install**, and **show on all tabs** brings her back on this page.
 
 ## 2.0.4
 

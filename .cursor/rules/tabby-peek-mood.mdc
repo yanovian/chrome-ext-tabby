@@ -1,0 +1,34 @@
+---
+description: Peek mood vs ambient visibility. Do not mix peek_duck with hide/show.
+alwaysApply: true
+---
+
+# Peek mood vs ambient presence
+
+## Mood `peek` (presentation)
+
+- **`mood: 'peek'`** is a **display mood**: Tabby shows only the top of her body above the panel edge (`PEEK_VISIBLE_HEIGHT_RATIO`).
+- **`peek_duck.json`** plays on **overlay exit** when the current presentation mood is `peek` (`tabby-overlay.ts` `exitOverlay`). One-shot duck-out clip, not a generic hide animation.
+- **`moodOverrideWhileHiding`** keeps `peek` for **one** hide cycle so that duck-out can finish. Only when the last mood was already `peek`.
+
+## Ambient activity `'peeking'`
+
+- **`ambientActivity: 'peeking'`** means Tabby is **visible** and in peek mood (`moodForAmbient` → `peek`). Optional curious speech on ambient **appear**.
+- It is **not** a rest break, not `companionVisible: false`, and not a substitute for overlay dismiss or ambient rest.
+
+## Ambient rest (mostly visible daytime)
+
+- After intro, Tabby is **mostly visible** (`companionVisible: true`, often `grooming`).
+- Occasional **rest breaks** set `companionVisible: false` with `sleeping` or `grooming` activity via `pickAmbientRestActivity`. **Never `'peeking'`** for rest.
+- When the rest timer ends, she returns visible (`grooming`). No `peek` mood and no `peek_duck` on resume.
+
+## Do not conflate
+
+| Concept | Use for |
+|--------|---------|
+| `mood: 'peek'`, `peek_duck.json` | Visible partial peek, duck-out on hide from peek mood |
+| `ambientActivity: 'peeking'` | Visible ambient peek-in (speech optional) |
+| `companionVisible: false` + rest timer | Short rest break away from the page |
+| Normal overlay exit CSS | Hiding when mood is **not** `peek` |
+
+When adding tests or presence logic, **do not** set `mood: 'peek'` or `peek_duck.json` to mean ambient rest or generic disappear.

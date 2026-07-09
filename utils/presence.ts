@@ -1,8 +1,8 @@
 import {
   isAmbientPeekActive,
-  pickAmbientActivity,
   pickAmbientPeekDurationMs,
-  shouldStartAmbientPeek,
+  pickAmbientRestActivity,
+  shouldStartAmbientRest,
   type AmbientActivity,
 } from './ambient-presence';
 import { isDoNotDisturbActive, type DoNotDisturbState } from './do-not-disturb';
@@ -83,33 +83,34 @@ export function resolveCompanionPresence(input: {
     };
   }
 
-  const previousPeekUntil = input.lastPresentation?.ambientPeekUntil ?? null;
+  const previousRestUntil = input.lastPresentation?.ambientPeekUntil ?? null;
+  const previousActivity = input.lastPresentation?.ambientActivity ?? null;
   if (
-    isAmbientPeekActive(previousPeekUntil, input.now) &&
-    input.lastPresentation?.companionVisible &&
-    input.lastPresentation.ambientActivity
+    input.lastPresentation?.companionVisible === false &&
+    previousActivity &&
+    isAmbientPeekActive(previousRestUntil, input.now)
   ) {
     return {
-      companionVisible: true,
-      ambientActivity: input.lastPresentation.ambientActivity,
-      ambientPeekUntil: previousPeekUntil,
+      companionVisible: false,
+      ambientActivity: previousActivity,
+      ambientPeekUntil: previousRestUntil,
       recordSpeech: false,
       recordAmbient: false,
     };
   }
 
   if (
-    shouldStartAmbientPeek({
+    shouldStartAmbientRest({
       cat: input.cat,
       settings: input.settings,
       now: input.now,
       speechWouldAppear: false,
-      peekUntil: previousPeekUntil,
+      restUntil: previousRestUntil,
     })
   ) {
     return {
-      companionVisible: true,
-      ambientActivity: pickAmbientActivity(input.now),
+      companionVisible: false,
+      ambientActivity: pickAmbientRestActivity(input.now),
       ambientPeekUntil:
         input.now +
         pickAmbientPeekDurationMs(input.settings, input.now, input.cat.adoptedAt),
@@ -118,5 +119,11 @@ export function resolveCompanionPresence(input: {
     };
   }
 
-  return hidden;
+  return {
+    companionVisible: true,
+    ambientActivity: 'grooming',
+    ambientPeekUntil: null,
+    recordSpeech: false,
+    recordAmbient: false,
+  };
 }

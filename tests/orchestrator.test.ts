@@ -251,12 +251,12 @@ describe('getCurrentPresentation', () => {
     vi.useRealTimers();
   });
 
-  it('hides Tabby when an ambient peek timer has elapsed', async () => {
+  it('shows Tabby when an ambient rest timer has elapsed', async () => {
     await persistPresentation({
-      mood: 'content',
+      mood: 'sleepy',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/idle.json',
+      sprite: 'animations/adult/sleep.json',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -266,7 +266,7 @@ describe('getCurrentPresentation', () => {
       interactions: [],
       secondaryInteractions: [],
       lastCareAction: null,
-      companionVisible: true,
+      companionVisible: false,
       ambientActivity: 'sleeping',
       ambientPeekUntil: NOW - 1,
       eatingUntil: null,
@@ -276,8 +276,8 @@ describe('getCurrentPresentation', () => {
 
     const presentation = await getCurrentPresentation();
 
-    expect(presentation.companionVisible).toBe(false);
-    expect(presentation.ambientActivity).toBeNull();
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.ambientActivity).toBe('grooming');
     expect(presentation.ambientPeekUntil).toBeNull();
   });
 });

@@ -234,7 +234,7 @@ Content scripts also listen for `overlayActivate` and `overlayDeactivate` (not i
 - **No external network:** Lottie assets and speech templates are bundled. No analytics or remote config.
 - **Input validation:** unknown `runtime.onMessage` types return an error; dev-only messages are gated on `import.meta.env.DEV` and `devModeEnabled`.
 - **Local storage only:** IndexedDB and `chrome.storage.local` keep data on-device.
-- **Web Store excluded:** content script `excludeMatches` for Chrome Web Store URLs.
+- **Web Store and sensitive sites excluded:** content script `excludeMatches` for the Chrome Web Store and hosts in `overlay-excluded-hosts.ts` (email, banking, strict CSP dev sites, and similar). Unknown bank domains are also skipped when the hostname looks like banking.
 
 ## Build system
 

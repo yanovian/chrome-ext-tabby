@@ -243,12 +243,22 @@ async function bootstrap(): Promise<void> {
   }
 }
 
-async function refreshActiveTabAfterInstall(): Promise<void> {
+async function bootstrapInstall(): Promise<void> {
+  const now = Date.now();
+  await resetIntro();
+  await saveSettings({ showOverlay: true }, IS_DEV_BUILD);
+  await clearAllPageOverlayHides();
+  await bootstrap();
   const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (!activeTab?.id || !canShowOverlayOnUrl(activeTab.url)) {
     return;
   }
-  await browser.tabs.reload(activeTab.id);
+  await showOverlayOnPage(now, {
+    url: activeTab.url,
+    title: activeTab.title,
+  });
+  await syncOverlayToTab(activeTab);
+  await retryActiveOverlaySync();
 }
 
 export default defineBackground(() => {
@@ -265,12 +275,7 @@ export default defineBackground(() => {
       return;
     }
     if (details.reason === 'install') {
-      enqueueTask(async () => {
-        await resetIntro();
-        await bootstrap();
-        await refreshActiveTabAfterInstall();
-        await retryActiveOverlaySync();
-      });
+      enqueueTask(() => bootstrapInstall());
     }
   });
 
@@ -402,7 +407,10 @@ export default defineBackground(() => {
                 active: true,
                 currentWindow: true,
               });
-              await refreshPresentationForActiveTab();
+              await showOverlayOnPage(Date.now(), {
+                url: activeTab.url,
+                title: activeTab.title,
+              });
               await syncOverlayToTab(activeTab);
             } else if (!data.showOverlay && before.showOverlay) {
               if (activeOverlayTabId !== null) {

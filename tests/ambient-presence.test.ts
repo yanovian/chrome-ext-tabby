@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   isAmbientPeekActive,
-  isAmbientPeekExpired,
+  isAmbientRestExpired,
   isDaytime,
   pickAmbientActivity,
   pickAmbientPeekDurationMs,
-  shouldStartAmbientPeek,
+  pickAmbientRestActivity,
+  shouldStartAmbientRest,
 } from '../utils/ambient-presence';
 import { DEFAULT_SETTINGS } from '../utils/types';
 
@@ -22,21 +23,21 @@ describe('isDaytime', () => {
   });
 });
 
-describe('shouldStartAmbientPeek', () => {
-  it('does not peek when speech would appear', () => {
+describe('shouldStartAmbientRest', () => {
+  it('does not rest when speech would appear', () => {
     const cat = createInitialCat(NOW);
     expect(
-      shouldStartAmbientPeek({
+      shouldStartAmbientRest({
         cat,
         settings: DEFAULT_SETTINGS,
         now: NOW,
         speechWouldAppear: true,
-        peekUntil: null,
+        restUntil: null,
       }),
     ).toBe(false);
   });
 
-  it('can peek during daytime when cooldown has passed', () => {
+  it('can rest during daytime when cooldown has passed', () => {
     const cat = {
       ...createInitialCat(0),
       lastAmbientAt: 0,
@@ -44,12 +45,12 @@ describe('shouldStartAmbientPeek', () => {
     };
     const eligibleNow = Date.parse('2026-07-06T14:04:00.000Z');
     expect(
-      shouldStartAmbientPeek({
+      shouldStartAmbientRest({
         cat,
         settings: { ...DEFAULT_SETTINGS, devModeEnabled: true },
         now: eligibleNow,
         speechWouldAppear: false,
-        peekUntil: null,
+        restUntil: null,
       }),
     ).toBe(true);
   });
@@ -73,30 +74,38 @@ describe('pickAmbientPeekDurationMs', () => {
   });
 });
 
+describe('pickAmbientRestActivity', () => {
+  it('never returns peeking', () => {
+    for (let seed = 0; seed < 20; seed += 1) {
+      expect(pickAmbientRestActivity(seed)).not.toBe('peeking');
+    }
+  });
+});
+
 describe('isAmbientPeekActive', () => {
-  it('stays visible until peek time ends', () => {
+  it('stays hidden until rest time ends', () => {
     expect(isAmbientPeekActive(NOW + 10_000, NOW)).toBe(true);
     expect(isAmbientPeekActive(NOW - 1, NOW)).toBe(false);
   });
 });
 
-describe('isAmbientPeekExpired', () => {
-  it('detects when an ambient visit should end', () => {
+describe('isAmbientRestExpired', () => {
+  it('detects when an ambient rest should end', () => {
     expect(
-      isAmbientPeekExpired(
+      isAmbientRestExpired(
         {
-          companionVisible: true,
-          ambientActivity: 'grooming',
+          companionVisible: false,
+          ambientActivity: 'sleeping',
           ambientPeekUntil: NOW - 1,
         },
         NOW,
       ),
     ).toBe(true);
     expect(
-      isAmbientPeekExpired(
+      isAmbientRestExpired(
         {
-          companionVisible: true,
-          ambientActivity: 'grooming',
+          companionVisible: false,
+          ambientActivity: 'sleeping',
           ambientPeekUntil: NOW + 10_000,
         },
         NOW,

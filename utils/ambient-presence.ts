@@ -3,13 +3,13 @@ import type { CatState, ExtensionSettings } from './types';
 
 export type AmbientActivity = 'sleeping' | 'grooming' | 'peeking';
 
-/** How long ambient visits last before Tabby hides again. */
+/** How long ambient rest breaks last before Tabby comes back. */
 export const AMBIENT_PEEK_MIN_MS = 60_000;
 export const AMBIENT_PEEK_MAX_MS = 15 * 60_000;
 export const DEV_AMBIENT_PEEK_MIN_MS = 45_000;
 export const DEV_AMBIENT_PEEK_MAX_MS = 3 * 60_000;
 
-/** Daytime = outside quiet hours (when Tabby stays mostly hidden). */
+/** Daytime = outside quiet hours (when Tabby stays mostly visible). */
 export function isDaytime(hour: number, settings: ExtensionSettings): boolean {
   return !isQuietHour(hour, settings);
 }
@@ -75,6 +75,11 @@ export function pickAmbientActivity(seed: number): AmbientActivity {
   return 'peeking';
 }
 
+/** Activity during a hidden rest break. Never peeking (that is a visible peek mood). */
+export function pickAmbientRestActivity(seed: number): AmbientActivity {
+  return Math.abs(seed) % 2 === 0 ? 'sleeping' : 'grooming';
+}
+
 /** Random visit length between 1 and 15 minutes (shorter band in dev). */
 export function pickAmbientPeekDurationMs(
   settings: ExtensionSettings,
@@ -88,16 +93,16 @@ export function pickAmbientPeekDurationMs(
   return minMs + roll;
 }
 
-export interface AmbientPeekInput {
+export interface AmbientRestInput {
   cat: CatState;
   settings: ExtensionSettings;
   now: number;
   speechWouldAppear: boolean;
-  peekUntil: number | null;
+  restUntil: number | null;
 }
 
-/** Whether Tabby should peek in quietly (no speech) for a short moment. */
-export function shouldStartAmbientPeek(input: AmbientPeekInput): boolean {
+/** Whether Tabby should duck away quietly for a short rest. */
+export function shouldStartAmbientRest(input: AmbientRestInput): boolean {
   const hour = new Date(input.now).getHours();
   if (!isDaytime(hour, input.settings)) {
     return false;
@@ -107,7 +112,7 @@ export function shouldStartAmbientPeek(input: AmbientPeekInput): boolean {
     return false;
   }
 
-  if (input.peekUntil !== null && input.peekUntil > input.now) {
+  if (input.restUntil !== null && input.restUntil > input.now) {
     return false;
   }
 
@@ -122,7 +127,7 @@ export function shouldStartAmbientPeek(input: AmbientPeekInput): boolean {
     return false;
   }
 
-  const roll = Math.abs(input.now + cat.adoptedAt) % 5;
+  const roll = Math.abs(input.now + cat.adoptedAt) % 10;
   return roll < 2;
 }
 
@@ -130,8 +135,8 @@ export function isAmbientPeekActive(peekUntil: number | null, now: number): bool
   return peekUntil !== null && now < peekUntil;
 }
 
-/** True when an ambient visit timer has elapsed and Tabby should duck away. */
-export function isAmbientPeekExpired(
+/** True when an ambient rest timer has elapsed and Tabby should come back. */
+export function isAmbientRestExpired(
   presentation: {
     companionVisible: boolean;
     ambientActivity: AmbientActivity | null;
@@ -140,7 +145,7 @@ export function isAmbientPeekExpired(
   now: number,
 ): boolean {
   return (
-    presentation.companionVisible &&
+    !presentation.companionVisible &&
     presentation.ambientActivity !== null &&
     presentation.ambientPeekUntil !== null &&
     !isAmbientPeekActive(presentation.ambientPeekUntil, now)

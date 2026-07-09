@@ -104,7 +104,7 @@ export interface CatPresentation {
   companionVisible: boolean;
   /** Quiet idle animation while visible without speech. */
   ambientActivity: import('./ambient-presence').AmbientActivity | null;
-  /** When an ambient peek should end and Tabby hide again. */
+  /** When an ambient rest should end and Tabby come back. */
   ambientPeekUntil: number | null;
   /** While set and in the future, Tabby is munching after a treat. */
   eatingUntil: number | null;
