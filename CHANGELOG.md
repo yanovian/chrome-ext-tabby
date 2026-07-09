@@ -2,7 +2,11 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.0.4 (unreleased)
+## 2.0.5
+
+- **Fix bugs**: Fix performance issues.
+
+## 2.0.4
 
 - **Fix bugs**: Tabby stays fast with many tabs open and wakes reliably on the active tab.
 

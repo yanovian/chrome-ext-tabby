@@ -43,7 +43,7 @@ async function getOverlay(): Promise<TabbyOverlay> {
 }
 
 function shouldProbeActiveTab(): boolean {
-  return document.visibilityState === 'visible' && document.hasFocus();
+  return document.visibilityState === 'visible';
 }
 
 function scheduleWarmActivate(): void {
