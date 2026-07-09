@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.0.4 (unreleased)
+
+- **Fix bugs**: Tabby stays fast with many tabs open and wakes reliably on the active tab.
+
 ## 2.0.3
 
 - **Fix bugs**: Tabby shows on install more reliably, and dragging no longer duplicates her.

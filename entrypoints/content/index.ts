@@ -42,7 +42,14 @@ async function getOverlay(): Promise<TabbyOverlay> {
   }
 }
 
+function shouldProbeActiveTab(): boolean {
+  return document.visibilityState === 'visible' && document.hasFocus();
+}
+
 function scheduleWarmActivate(): void {
+  if (!shouldProbeActiveTab()) {
+    return;
+  }
   void requestIsActiveOverlayTab()
     .then(({ active }) => {
       if (active) {
@@ -67,6 +74,7 @@ export default defineContentScript({
       return;
     }
 
+    // Inactive tabs stay idle — only visible focused tabs probe once.
     browser.runtime.onMessage.addListener((message) => {
       if (message?.type === 'ping') {
         return true;
@@ -81,7 +89,5 @@ export default defineContentScript({
     });
 
     scheduleWarmActivate();
-    window.setTimeout(scheduleWarmActivate, 1200);
-    window.setTimeout(scheduleWarmActivate, 2500);
   },
 });

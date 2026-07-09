@@ -58,7 +58,6 @@ const setDnd60Button = document.getElementById('set-dnd-60-btn') as HTMLButtonEl
 const setDndTodayButton = document.getElementById('set-dnd-today-btn') as HTMLButtonElement;
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let dndRefreshTimer: number | null = null;
 let actionBusy = false;
 let cachedSettings: ExtensionSettings;
 let previewPlayer: CompanionLottiePlayer | null = null;
@@ -308,17 +307,11 @@ async function initialize(): Promise<void> {
     bindActionButton(setDnd60Button, () => enableDoNotDisturb('60m'));
     bindActionButton(setDndTodayButton, () => enableDoNotDisturb('today'));
 
-    dndRefreshTimer = window.setInterval(() => {
+    window.setInterval(() => {
       if (!dndActivePanel.hidden) {
         void refreshDoNotDisturbSection();
       }
     }, 30_000);
-
-    window.addEventListener('unload', () => {
-      if (dndRefreshTimer) {
-        window.clearInterval(dndRefreshTimer);
-      }
-    });
     return;
   }
 
@@ -349,17 +342,11 @@ async function initialize(): Promise<void> {
   bindActionButton(setDnd60Button, () => enableDoNotDisturb('60m'));
   bindActionButton(setDndTodayButton, () => enableDoNotDisturb('today'));
 
-  dndRefreshTimer = window.setInterval(() => {
+  window.setInterval(() => {
     if (!dndActivePanel.hidden) {
       void refreshDoNotDisturbSection();
     }
   }, 30_000);
-
-  window.addEventListener('unload', () => {
-    if (dndRefreshTimer) {
-      window.clearInterval(dndRefreshTimer);
-    }
-  });
 
   forceTickButton.hidden = !IS_DEV_BUILD;
   forceTickHint.hidden = !IS_DEV_BUILD;
