@@ -41,6 +41,7 @@ import {
 import { hasDwelledLongEnough } from '../utils/visit-dedup';
 import type { CareAction, RuntimeMessage, RuntimeResponse } from '../utils/types';
 import { ALARM_NAMES } from '../utils/types';
+import { canShowOverlayOnUrl } from '../utils/overlay-inject';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
 
@@ -242,6 +243,14 @@ async function bootstrap(): Promise<void> {
   }
 }
 
+async function refreshActiveTabAfterInstall(): Promise<void> {
+  const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
+  if (!activeTab?.id || !canShowOverlayOnUrl(activeTab.url)) {
+    return;
+  }
+  await browser.tabs.reload(activeTab.id);
+}
+
 export default defineBackground(() => {
   void bootstrap();
 
@@ -259,6 +268,7 @@ export default defineBackground(() => {
       enqueueTask(async () => {
         await resetIntro();
         await bootstrap();
+        await refreshActiveTabAfterInstall();
         await retryActiveOverlaySync();
       });
     }
