@@ -34,8 +34,13 @@ export function requestSettings(): Promise<ExtensionSettings> {
 
 export function requestSaveSettings(
   settings: Partial<ExtensionSettings>,
+  options: { skipPresent?: boolean } = {},
 ): Promise<ExtensionSettings> {
-  return sendMessage<ExtensionSettings>({ type: 'saveSettings', settings });
+  return sendMessage<ExtensionSettings>({
+    type: 'saveSettings',
+    settings,
+    skipPresent: options.skipPresent,
+  });
 }
 
 export function requestCareAction(
@@ -93,6 +98,17 @@ export function requestHideOverlayOnPage(url?: string): Promise<CatPresentation>
 
 export function requestSyncActiveOverlay(): Promise<void> {
   return sendMessage<void>({ type: 'syncActiveOverlay' });
+}
+
+export function requestSyncDevTemper(input: {
+  simulation?: Partial<import('./mood-timers').TemperSimulation>;
+  devForceMood?: import('./types').DevMoodOverride;
+}): Promise<import('./orchestrator').DevTemperPayload & { presentation: CatPresentation }> {
+  return sendMessage({ type: 'syncDevTemper', ...input });
+}
+
+export function requestDevTemperState(): Promise<import('./orchestrator').DevTemperPayload> {
+  return sendMessage({ type: 'getDevTemper' });
 }
 
 export function requestIsActiveOverlayTab(): Promise<{ active: boolean }> {

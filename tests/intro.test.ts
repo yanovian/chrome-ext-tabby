@@ -9,10 +9,14 @@ import {
 
 describe('intro', () => {
   it('keeps the tour short', () => {
-    expect(introStepCount()).toBe(3);
+    expect(introStepCount()).toBe(4);
     for (const line of INTRO_STEPS) {
       expect(line.split(/\s+/).length).toBeLessThanOrEqual(16);
     }
+  });
+
+  it('mentions sensitive sites before the closing step', () => {
+    expect(introStepText(2)).toMatch(/sensitive sites/i);
   });
 
   it('shows who Tabby is on the first step', () => {

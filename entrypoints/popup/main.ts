@@ -3,8 +3,10 @@ import {
   requestCancelDoNotDisturb,
   requestDevForceCompanionHide,
   requestDevForceCompanionShow,
+  requestDevTemperState,
   requestDoNotDisturbStatus,
   requestSyncActiveOverlay,
+  requestSyncDevTemper,
   requestHideOverlayOnPage,
   requestPageOverlayState,
   requestPresentation,
@@ -16,6 +18,12 @@ import {
 } from '../../utils/runtime-client';
 import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
 import { CompanionLottiePlayer } from '../../utils/lottie-companion';
+import {
+  MOOD_TIMER_DEV_SIM_BOUNDS,
+  MOOD_TIMER_PRODUCTION,
+  formatTemperDuration,
+  type TemperSimulation,
+} from '../../utils/mood-timers';
 import type { DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
@@ -32,6 +40,18 @@ const fields = {
   devMinTabMs: document.getElementById('dev-min-tab-ms') as HTMLInputElement,
   devForceLifeStage: document.getElementById('dev-force-life-stage') as HTMLSelectElement,
   devForceMood: document.getElementById('dev-force-mood') as HTMLSelectElement,
+};
+
+const temperFields = {
+  panel: document.getElementById('dev-temper-panel') as HTMLElement,
+  inferred: document.getElementById('dev-temper-inferred') as HTMLParagraphElement,
+  scenario: document.getElementById('dev-temper-scenario') as HTMLSelectElement,
+  drainingRow: document.getElementById('dev-draining-row') as HTMLDivElement,
+  drainingMs: document.getElementById('dev-simulated-draining-ms') as HTMLInputElement,
+  drainingLabel: document.getElementById('dev-draining-label') as HTMLElement,
+  recoveryAwayRow: document.getElementById('dev-recovery-away-row') as HTMLDivElement,
+  recoveryAwayMs: document.getElementById('dev-simulated-recovery-away-ms') as HTMLInputElement,
+  recoveryAwayLabel: document.getElementById('dev-recovery-away-label') as HTMLElement,
 };
 
 const statusEl = document.getElementById('status') as HTMLParagraphElement;
@@ -58,16 +78,24 @@ const setDnd60Button = document.getElementById('set-dnd-60-btn') as HTMLButtonEl
 const setDndTodayButton = document.getElementById('set-dnd-today-btn') as HTMLButtonElement;
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let temperTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingSimulation: Partial<TemperSimulation> | null = null;
+let syncingTemper = false;
 let actionBusy = false;
 let cachedSettings: ExtensionSettings;
 let previewPlayer: CompanionLottiePlayer | null = null;
+let previewSpritePath: string | null = null;
 
-async function updatePreviewCat(assetPath: string): Promise<void> {
+async function updatePreviewCat(assetPath: string, options: { force?: boolean } = {}): Promise<void> {
+  if (!options.force && previewSpritePath === assetPath && previewPlayer) {
+    return;
+  }
   if (!previewPlayer) {
     previewPlayer = new CompanionLottiePlayer();
     previewHost.appendChild(previewPlayer.canvas);
   }
   await previewPlayer.load(publicAnimationAssetUrl, assetPath);
+  previewSpritePath = assetPath;
 }
 
 interface ActiveTabInfo {
@@ -157,6 +185,187 @@ async function refreshOverlayButtons(settings = cachedSettings): Promise<void> {
   hidePageButton.hidden = !state.visible;
 }
 
+function configureRangeInput(
+  input: HTMLInputElement,
+  bounds: { min: number; max: number; step: number },
+  value: number,
+): void {
+  input.min = String(bounds.min);
+  input.max = String(bounds.max);
+  input.step = String(bounds.step);
+  input.value = String(value);
+}
+
+function fillTemperSimulation(
+  simulation: TemperSimulation,
+  previewMood: string,
+  devForceMood: ExtensionSettings['devForceMood'],
+): void {
+  temperFields.scenario.value = simulation.scenario;
+  temperFields.drainingRow.hidden = simulation.scenario !== 'on_feed';
+  temperFields.recoveryAwayRow.hidden = simulation.scenario !== 'away_from_feed';
+
+  const drainingValue = Math.min(
+    simulation.simulatedDrainingMs,
+    MOOD_TIMER_DEV_SIM_BOUNDS.simulatedDrainingMs.max,
+  );
+  configureRangeInput(
+    temperFields.drainingMs,
+    {
+      ...MOOD_TIMER_DEV_SIM_BOUNDS.simulatedDrainingMs,
+      max: Math.max(
+        MOOD_TIMER_DEV_SIM_BOUNDS.simulatedDrainingMs.max,
+        MOOD_TIMER_PRODUCTION.overwhelmedThresholdMs + 15 * 60_000,
+      ),
+    },
+    drainingValue,
+  );
+  temperFields.drainingLabel.textContent = formatTemperDuration(drainingValue);
+
+  const awayValue = Math.min(
+    simulation.simulatedRecoveryAwayMs,
+    MOOD_TIMER_DEV_SIM_BOUNDS.simulatedRecoveryAwayMs.max,
+  );
+  configureRangeInput(
+    temperFields.recoveryAwayMs,
+    {
+      ...MOOD_TIMER_DEV_SIM_BOUNDS.simulatedRecoveryAwayMs,
+      max: Math.max(
+        MOOD_TIMER_DEV_SIM_BOUNDS.simulatedRecoveryAwayMs.max,
+        MOOD_TIMER_PRODUCTION.recoveryThanksThresholdMs + 60_000,
+      ),
+    },
+    awayValue,
+  );
+  temperFields.recoveryAwayLabel.textContent = formatTemperDuration(awayValue);
+
+  const moodLabel =
+    devForceMood === 'auto'
+      ? `Auto preview: ${previewMood}`
+      : `Mood override: ${previewMood}`;
+  temperFields.inferred.textContent = moodLabel;
+}
+
+async function refreshDevTemperUi(): Promise<void> {
+  if (!IS_DEV_BUILD || !cachedSettings.devModeEnabled) {
+    temperFields.panel.hidden = true;
+    return;
+  }
+  temperFields.panel.hidden = false;
+  try {
+    const state = await requestDevTemperState();
+    syncingTemper = true;
+    fillTemperSimulation(state.simulation, state.previewMood, state.settings.devForceMood);
+    fields.devForceMood.value = state.settings.devForceMood;
+    await updatePreviewCat(state.presentation.sprite, { force: true });
+  } catch {
+    temperFields.inferred.textContent = 'Turn on dev interactions to use simulation.';
+  } finally {
+    syncingTemper = false;
+  }
+}
+
+async function applyDevMoodOrSimulation(
+  input: {
+    simulation?: Partial<TemperSimulation>;
+    devForceMood?: ExtensionSettings['devForceMood'];
+  },
+): Promise<void> {
+  if (!cachedSettings.devModeEnabled) {
+    showStatus('Turn on dev interactions first.');
+    return;
+  }
+  try {
+    syncingTemper = true;
+    const result = await requestSyncDevTemper(input);
+    cachedSettings = result.settings;
+    fillTemperSimulation(
+      result.simulation,
+      result.previewMood,
+      result.settings.devForceMood,
+    );
+    fields.devForceMood.value = result.settings.devForceMood;
+    await updatePreviewCat(result.presentation.sprite, { force: true });
+    void requestSyncActiveOverlay();
+    showStatus(`Preview: ${result.previewMood}.`);
+  } catch (error) {
+    showStatus(error instanceof Error ? error.message : 'Could not update preview.');
+  } finally {
+    syncingTemper = false;
+  }
+}
+
+function readSimulationFromSliders(): TemperSimulation {
+  return {
+    scenario: temperFields.scenario.value as TemperSimulation['scenario'],
+    simulatedDrainingMs: Number(temperFields.drainingMs.value),
+    simulatedRecoveryAwayMs: Number(temperFields.recoveryAwayMs.value),
+  };
+}
+
+function cancelPendingSimulationSync(): void {
+  if (temperTimer) {
+    clearTimeout(temperTimer);
+    temperTimer = null;
+  }
+  pendingSimulation = null;
+}
+
+function scheduleSimulationSync(partial: Partial<TemperSimulation>): void {
+  pendingSimulation = { ...pendingSimulation, ...partial };
+  if (temperTimer) {
+    clearTimeout(temperTimer);
+  }
+  temperTimer = setTimeout(() => {
+    const simulation = pendingSimulation;
+    pendingSimulation = null;
+    if (!simulation) {
+      return;
+    }
+    void applyDevMoodOrSimulation({ simulation });
+  }, 150);
+}
+
+function bindTemperControls(): void {
+  const onSimulationInput = (
+    key: keyof TemperSimulation,
+    input: HTMLInputElement,
+    label: HTMLElement,
+  ) => {
+    input.addEventListener('input', () => {
+      label.textContent = formatTemperDuration(Number(input.value));
+      scheduleSimulationSync({ [key]: Number(input.value) } as Partial<TemperSimulation>);
+    });
+  };
+
+  onSimulationInput(
+    'simulatedDrainingMs',
+    temperFields.drainingMs,
+    temperFields.drainingLabel,
+  );
+  onSimulationInput(
+    'simulatedRecoveryAwayMs',
+    temperFields.recoveryAwayMs,
+    temperFields.recoveryAwayLabel,
+  );
+
+  temperFields.scenario.addEventListener('change', () => {
+    const scenario = temperFields.scenario.value as TemperSimulation['scenario'];
+    temperFields.drainingRow.hidden = scenario !== 'on_feed';
+    temperFields.recoveryAwayRow.hidden = scenario !== 'away_from_feed';
+    scheduleSimulationSync({ ...readSimulationFromSliders(), scenario });
+  });
+
+  fields.devForceMood.addEventListener('change', () => {
+    if (syncingTemper) {
+      return;
+    }
+    cancelPendingSimulationSync();
+    const mood = fields.devForceMood.value as ExtensionSettings['devForceMood'];
+    void applyDevMoodOrSimulation({ devForceMood: mood });
+  });
+}
+
 function fillForm(settings: ExtensionSettings): void {
   cachedSettings = settings;
   fields.quietStart.value = String(settings.quietHoursStart);
@@ -185,7 +394,6 @@ function readPartialSettings(): Partial<ExtensionSettings> {
     devStatMultiplier: Number(fields.devStatMultiplier.value),
     devMinTabDurationMs: Number(fields.devMinTabMs.value),
     devForceLifeStage: fields.devForceLifeStage.value as ExtensionSettings['devForceLifeStage'],
-    devForceMood: fields.devForceMood.value as ExtensionSettings['devForceMood'],
   };
 }
 
@@ -195,11 +403,9 @@ function scheduleSave(): void {
   }
   saveTimer = setTimeout(() => {
     void (async () => {
-      const saved = await requestSaveSettings(readPartialSettings());
+      const saved = await requestSaveSettings(readPartialSettings(), { skipPresent: true });
       fillForm(saved);
       await refreshOverlayButtons(saved);
-      const next = await requestPresentation();
-      await updatePreviewCat(next.sprite);
       showStatus('Saved.');
     })();
   }, 350);
@@ -324,14 +530,26 @@ async function initialize(): Promise<void> {
   ]);
 
   fillForm(settings);
-  void updatePreviewCat(presentation.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons(settings);
+  if (settings.devModeEnabled) {
+    await refreshDevTemperUi();
+  } else {
+    void updatePreviewCat(presentation.sprite);
+  }
 
-  for (const element of Object.values(fields)) {
+  const devFormFields = Object.values(fields).filter(
+    (element) => element !== fields.devForceMood,
+  );
+  for (const element of devFormFields) {
     element.addEventListener('change', scheduleSave);
     element.addEventListener('input', scheduleSave);
   }
+  fields.devModeEnabled.addEventListener('change', () => {
+    void refreshDevTemperUi();
+    scheduleSave();
+  });
+  bindTemperControls();
 
   bindActionButton(showAllButton, () => setGlobalOverlayVisible(true));
   bindActionButton(hideAllButton, () => setGlobalOverlayVisible(false));

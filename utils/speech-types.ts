@@ -2,6 +2,8 @@ import type { CatLifeStage, CatMood, SpeechTriggerKind } from './types';
 
 export type SpeechKind =
   | SpeechTriggerKind
+  | 'overwhelmed_social'
+  | 'overwhelmed_news'
   | 'ask'
   | 'peeking'
   | 'care_pet'

@@ -1,6 +1,12 @@
 /** How nourishing the current browsing feels for Tabby. */
 export type BrowseCategory = 'nourishing' | 'neutral' | 'draining';
 
+/** Social vs news for long-session overwhelmed tracking. */
+export type DrainingSessionKind = 'social' | 'news';
+
+/** Dev-only: which temper scenario the sliders simulate. */
+export type DevTemperScenario = 'on_feed' | 'away_from_feed';
+
 /** Visible mood derived from internal stats — drives sprite + speech. */
 export type CatMood =
   | 'content'
@@ -10,7 +16,8 @@ export type CatMood =
   | 'starving'
   | 'stressed'
   | 'sleepy'
-  | 'peek';
+  | 'peek'
+  | 'overwhelmed';
 
 /** Visual life stage — each age has its own mood sprites. */
 export type CatLifeStage = 'newborn' | 'playful' | 'adult';
@@ -30,6 +37,9 @@ export type SpeechTriggerKind =
   | 'curious'
   | 'memory'
   | 'milestone'
+  | 'overwhelmed'
+  | 'recovery_easing'
+  | 'recovery_thanks'
   | 'dev';
 
 /** A single browsing observation queued from a tab. */
@@ -142,6 +152,18 @@ export interface ExtensionSettings {
   devForceLifeStage: DevLifeStageOverride;
   /** Dev-only: preview a specific mood instead of vitals-based mood. */
   devForceMood: DevMoodOverride;
+  /** Dev-only: ms on social/news before overwhelmed (production: 1 hour). */
+  devOverwhelmedThresholdMs: number;
+  /** Dev-only: ms away from feed before recovery thank-you (production: 1 minute). */
+  devRecoveryThanksThresholdMs: number;
+  /** Dev-only: stress vital level for the stressed mood tier. */
+  devStressedVitalThreshold: number;
+  /** Dev-only: simulate on-feed vs away-from-feed for temper sliders. */
+  devTemperScenario: DevTemperScenario;
+  /** Dev-only: simulated dwell on social/news (ms). */
+  devSimulatedDrainingMs: number;
+  /** Dev-only: simulated time away during recovery (ms). */
+  devSimulatedRecoveryAwayMs: number;
   /** Show the floating cat overlay on web pages. */
   showOverlay: boolean;
 }
@@ -160,6 +182,12 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   devMinTabDurationMs: 1000,
   devForceLifeStage: 'auto',
   devForceMood: 'auto',
+  devOverwhelmedThresholdMs: 60 * 60_000,
+  devRecoveryThanksThresholdMs: 60_000,
+  devStressedVitalThreshold: 72,
+  devTemperScenario: 'on_feed',
+  devSimulatedDrainingMs: 0,
+  devSimulatedRecoveryAwayMs: 0,
   showOverlay: true,
 };
 
@@ -189,6 +217,8 @@ export const STORAGE_KEYS = {
   doNotDisturbUntil: 'doNotDisturbUntil',
   /** Original do-not-disturb duration chosen by the user. */
   doNotDisturbDuration: 'doNotDisturbDuration',
+  /** Continuous social/news dwell time for overwhelmed nudges. */
+  drainingSession: 'drainingSession',
 } as const;
 
 export const ALARM_NAMES = {
@@ -232,7 +262,7 @@ export type TabObservationInput = Omit<
 export type RuntimeMessage =
   | { type: 'getPresentation' }
   | { type: 'getSettings' }
-  | { type: 'saveSettings'; settings: Partial<ExtensionSettings> }
+  | { type: 'saveSettings'; settings: Partial<ExtensionSettings>; skipPresent?: boolean }
   | { type: 'careAction'; action: CareAction; url?: string }
   | { type: 'showOverlay'; url?: string; title?: string }
   | { type: 'hideOverlay'; url?: string }
@@ -248,6 +278,8 @@ export type RuntimeMessage =
   | { type: 'devForceCompanionHide' }
   | { type: 'clearCompanionSpeech' }
   | { type: 'settleAfterIntro' }
+  | { type: 'syncDevTemper'; simulation?: Partial<import('./mood-timers').TemperSimulation>; devForceMood?: DevMoodOverride }
+  | { type: 'getDevTemper' }
   | { type: 'ping' };
 
 export interface RuntimeResponseOk<T = unknown> {

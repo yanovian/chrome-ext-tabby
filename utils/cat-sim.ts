@@ -10,9 +10,13 @@ import type {
 } from './types';
 import { CAT_NAME } from './types';
 import { effectiveAppearanceLimits } from './settings';
+import { resolveMoodTimers, MOOD_TIMER_PRODUCTION } from './mood-timers';
 
 export const VITAL_MIN = 0;
 export const VITAL_MAX = 100;
+
+/** Worried mood from draining vitals. Long social/news sessions upgrade to `overwhelmed`. */
+export const STRESSED_VITAL_THRESHOLD = MOOD_TIMER_PRODUCTION.stressedVitalThreshold;
 
 export interface StatDeltaInput {
   category: BrowseCategory;
@@ -185,7 +189,7 @@ export function deriveMoodFromVitals(input: MoodInput): CatMood {
     return 'hungry';
   }
 
-  if (vitals.stress >= 72) {
+  if (vitals.stress >= resolveMoodTimers(settings).stressedVitalThreshold) {
     return 'stressed';
   }
 

@@ -139,6 +139,33 @@
   background: #fff;
 }
 
+.settings__temper-panel {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(224, 122, 95, 0.35);
+}
+
+.settings__row--slider {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.settings__row--slider span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.settings__row--slider input[type='range'] {
+  width: 100%;
+  accent-color: #e07a5f;
+}
+
+.settings__hint--dev {
+  color: #bf360c;
+}
+
 .settings__button--secondary {
   margin-top: 8px;
   background: #8d6e63;

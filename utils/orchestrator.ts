@@ -19,7 +19,7 @@ import {
 } from './do-not-disturb';
 import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood, resolveHungryMood } from './cat-interactions';
 import { isIntroCompleted, resetIntro } from './intro';
-import { fallbackSpeech } from './speech-fallback';
+import { fallbackSpeech, previewRecoverySpeech } from './speech-fallback';
 import {
   appendObservation,
   getCatState,
@@ -28,6 +28,28 @@ import {
   saveCatState,
 } from './db';
 import { evaluateEmotionalTrigger } from './emotional-triggers';
+import {
+  applyDevMoodToTemper,
+  applyTemperSimulation,
+  temperSimulationFromSession,
+  type DevTemperSnapshot,
+} from './dev-temper';
+import {
+  inferTemperMood,
+  readTemperSimulation,
+  resolveMoodTimers,
+  type TemperSimulation,
+} from './mood-timers';
+import {
+  acknowledgeDrainingNudge,
+  acknowledgeRecoveryEasing,
+  completeDrainingRecovery,
+  isDrainingSessionOverwhelmed,
+  isInDrainingRecovery,
+  pendingRecoveryNudge,
+  readDrainingSessionState,
+  writeDrainingSessionState,
+} from './draining-session';
 import {
   clearFeedingCompleteAlarm,
   feedingMomentDue,
@@ -51,13 +73,14 @@ import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay }
 import { buildPresentation, moodOverrideWhileHiding } from './presentation';
 import { resolveCompanionPresence } from './presence';
 import type { SpeechContext } from './speech-types';
-import { effectiveAppearanceLimits, getSettings } from './settings';
+import { effectiveAppearanceLimits, getSettings, saveSettings } from './settings';
 import { registerVisit } from './visit-dedup';
 import type {
   CareAction,
   CatMood,
   CatPresentation,
   CatState,
+  DevMoodOverride,
   DoNotDisturbDuration,
   ExtensionSettings,
   MemorySeed,
@@ -411,6 +434,7 @@ export async function handleCareAction(
   }
 
   const state = await loadOrchestratorState();
+  const drainingSession = await readDrainingSessionState();
   let cat = state.cat;
   let triggerKind = state.lastPresentation?.triggerKind ?? null;
   let moodOverride: CatMood | undefined;
@@ -449,12 +473,24 @@ export async function handleCareAction(
     if (action === 'pet' && hungryBeforeCare) {
       moodOverride = hungryBeforeCare;
     } else {
-      moodOverride = deriveMoodFromVitals({
+      const derivedAfterCare = deriveMoodFromVitals({
         vitals: cat.vitals,
         now,
         settings: state.settings,
         isUserIdle: state.isUserIdle,
       });
+      const urgentMoods: CatMood[] = ['starving', 'hungry', 'sleepy'];
+      if (isInDrainingRecovery(drainingSession)) {
+        moodOverride =
+          pendingRecoveryNudge(drainingSession) === 'thanks' ? 'happy' : 'stressed';
+      } else if (
+        !urgentMoods.includes(derivedAfterCare) &&
+        isDrainingSessionOverwhelmed(drainingSession, state.settings)
+      ) {
+        moodOverride = 'overwhelmed';
+      } else {
+        moodOverride = derivedAfterCare;
+      }
     }
   }
 
@@ -529,6 +565,7 @@ export async function handleCareAction(
         : null,
     eatingUntil,
     playingUntil,
+    drainingSession,
   });
 
   if (eatingUntil) {
@@ -589,6 +626,7 @@ export async function evaluateAndPresent(
     isIntroCompleted(),
   ]);
   const recentMemory = await pickRecallCandidate(memories, now, state.settings);
+  const drainingSession = await readDrainingSessionState();
   const trigger = evaluateEmotionalTrigger({
     cat: state.cat,
     vitals: state.cat.vitals,
@@ -600,6 +638,7 @@ export async function evaluateAndPresent(
     forceTick: options.forceTick,
     pageTitle: options.page?.title,
     pageTopic: options.page?.topic,
+    drainingSession,
   });
 
   const presence = resolveCompanionPresence({
@@ -633,6 +672,15 @@ export async function evaluateAndPresent(
 
   if (presence.recordSpeech && trigger.speechContext) {
     speech = fallbackSpeech(trigger.speechContext);
+    if (trigger.triggerKind === 'overwhelmed') {
+      await writeDrainingSessionState(acknowledgeDrainingNudge(drainingSession, now));
+    }
+    if (trigger.triggerKind === 'recovery_easing') {
+      await writeDrainingSessionState(acknowledgeRecoveryEasing(drainingSession, now));
+    }
+    if (trigger.triggerKind === 'recovery_thanks') {
+      await writeDrainingSessionState(completeDrainingRecovery(drainingSession));
+    }
   } else if (
     presence.recordAmbient &&
     presence.companionVisible &&
@@ -668,6 +716,7 @@ export async function evaluateAndPresent(
       state.lastPresentation?.mood,
       presence.companionVisible,
     ),
+    drainingSession,
   });
 
   await persistPresentation(presentation);
@@ -870,10 +919,166 @@ function assertDevCompanionAccess(settings: ExtensionSettings): void {
   }
 }
 
+export interface DevTemperPayload {
+  settings: ExtensionSettings;
+  simulation: TemperSimulation;
+  previewMood: CatMood;
+  inferredMood: CatMood;
+  drainingSession: import('./draining-session').DrainingSessionState;
+  presentation: CatPresentation;
+}
+
+function devPreviewSpeech(
+  drainingSession: import('./draining-session').DrainingSessionState,
+): string | null {
+  if (!isInDrainingRecovery(drainingSession)) {
+    return null;
+  }
+  const nudge = pendingRecoveryNudge(drainingSession);
+  if (nudge === 'easing') {
+    return previewRecoverySpeech('recovery_easing');
+  }
+  if (nudge === 'thanks') {
+    return previewRecoverySpeech('recovery_thanks');
+  }
+  return null;
+}
+
+function buildDevPreviewPresentation(
+  state: Awaited<ReturnType<typeof loadOrchestratorState>>,
+  settings: ExtensionSettings,
+  drainingSession: import('./draining-session').DrainingSessionState,
+  now = Date.now(),
+): CatPresentation {
+  const moodOverride =
+    settings.devModeEnabled && settings.devForceMood !== 'auto'
+      ? settings.devForceMood
+      : undefined;
+  return buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: devPreviewSpeech(drainingSession),
+    triggerKind: null,
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    lastCareAction: null,
+    companionVisible: state.lastPresentation?.companionVisible ?? true,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil: null,
+    playingUntil: null,
+    drainingSession,
+    moodOverride,
+  });
+}
+
+async function persistDevPreviewPresentation(
+  settings: ExtensionSettings,
+  drainingSession: import('./draining-session').DrainingSessionState,
+): Promise<CatPresentation> {
+  const state = await loadOrchestratorState();
+  const presentation = buildDevPreviewPresentation(state, settings, drainingSession);
+  await persistPresentation(presentation);
+  return presentation;
+}
+
+function buildDevTemperPayload(
+  settings: ExtensionSettings,
+  session: import('./draining-session').DrainingSessionState,
+  cat: CatState,
+  isUserIdle: boolean,
+  presentation: CatPresentation,
+): DevTemperPayload {
+  const simulation =
+    settings.devForceMood === 'auto'
+      ? temperSimulationFromSession(settings, session)
+      : readTemperSimulation(settings);
+  const derivedMood = deriveMoodFromVitals({
+    vitals: cat.vitals,
+    now: Date.now(),
+    settings,
+    isUserIdle,
+  });
+  const timers = resolveMoodTimers(settings);
+  const inferredMood = inferTemperMood(timers, simulation, derivedMood);
+  const previewMood = presentation.mood;
+  return {
+    settings,
+    simulation,
+    previewMood,
+    inferredMood,
+    drainingSession: session,
+    presentation,
+  };
+}
+
+/** Dev-only: read temper sliders, inferred mood, and draining session. */
+export async function getDevTemperState(): Promise<DevTemperPayload> {
+  const state = await loadOrchestratorState();
+  assertDevCompanionAccess(state.settings);
+  const session = await readDrainingSessionState();
+  const presentation = buildDevPreviewPresentation(state, state.settings, session);
+  return buildDevTemperPayload(
+    state.settings,
+    session,
+    state.cat,
+    state.isUserIdle,
+    presentation,
+  );
+}
+
+/** Dev-only: sync simulated dwell time and/or mood override, then refresh preview. */
+export async function syncDevTemperControls(input: {
+  simulation?: Partial<TemperSimulation>;
+  devForceMood?: DevMoodOverride;
+}): Promise<DevTemperPayload & { presentation: CatPresentation }> {
+  const state = await loadOrchestratorState();
+  assertDevCompanionAccess(state.settings);
+
+  let snapshot: DevTemperSnapshot;
+  if (input.simulation) {
+    const current = readTemperSimulation(state.settings);
+    snapshot = applyTemperSimulation(
+      state.settings,
+      { ...current, ...input.simulation },
+      { devForceMood: input.devForceMood ?? 'auto' },
+    );
+  } else if (input.devForceMood !== undefined) {
+    snapshot =
+      input.devForceMood === 'auto'
+        ? applyTemperSimulation(state.settings, readTemperSimulation(state.settings), {
+            devForceMood: 'auto',
+          })
+        : applyDevMoodToTemper(state.settings, input.devForceMood);
+  } else {
+    throw new Error('syncDevTemper requires simulation or devForceMood.');
+  }
+
+  await saveSettings(snapshot.settings, IS_DEV_BUILD);
+  await writeDrainingSessionState(snapshot.drainingSession);
+  const presentation = await persistDevPreviewPresentation(
+    snapshot.settings,
+    snapshot.drainingSession,
+  );
+  return {
+    ...buildDevTemperPayload(
+      snapshot.settings,
+      snapshot.drainingSession,
+      state.cat,
+      state.isUserIdle,
+      presentation,
+    ),
+    presentation,
+  };
+}
+
 /** Dev-only: force Tabby to appear using the current dev mood override. */
 export async function devForceCompanionShow(now: number): Promise<CatPresentation> {
   const state = await loadOrchestratorState();
   assertDevCompanionAccess(state.settings);
+  const drainingSession = await readDrainingSessionState();
 
   const presentation = buildPresentation({
     cat: state.cat,
@@ -884,10 +1089,13 @@ export async function devForceCompanionShow(now: number): Promise<CatPresentatio
     speech: null,
     triggerKind: null,
     overlayHidden: false,
-    lastCareAction: state.lastPresentation?.lastCareAction ?? null,
+    lastCareAction: null,
     companionVisible: true,
     ambientActivity: null,
     ambientPeekUntil: null,
+    eatingUntil: null,
+    playingUntil: null,
+    drainingSession,
   });
 
   await persistPresentation(presentation);

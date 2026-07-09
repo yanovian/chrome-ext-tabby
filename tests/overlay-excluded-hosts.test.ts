@@ -43,10 +43,16 @@ describe('looksLikeBankingHost', () => {
 });
 
 describe('overlayExcludeMatchPatterns', () => {
-  it('includes Chrome Web Store and GitHub patterns', () => {
+  it('includes sensitive hosts but not the Chrome Web Store', () => {
     const patterns = overlayExcludeMatchPatterns();
-    expect(patterns).toContain('*://chrome.google.com/webstore/*');
+    expect(patterns).not.toContain('*://chrome.google.com/webstore/*');
+    expect(patterns).not.toContain('*://chromewebstore.google.com/*');
     expect(patterns).toContain('*://github.com/*');
     expect(patterns).toContain('*://*.github.com/*');
+  });
+
+  it('does not treat the Chrome Web Store as an excluded host', () => {
+    expect(isOverlayHostExcluded('chromewebstore.google.com')).toBe(false);
+    expect(isOverlayHostExcluded('chrome.google.com')).toBe(false);
   });
 });

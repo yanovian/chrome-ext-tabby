@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
+  DRAINING_SESSION_THRESHOLD_MS,
+  EMPTY_DRAINING_SESSION,
+} from '../utils/draining-session';
+import {
   evaluateEmotionalTrigger,
   previewTriggerSpeech,
 } from '../utils/emotional-triggers';
@@ -80,6 +84,90 @@ describe('evaluateEmotionalTrigger', () => {
     expect(result.shouldAppear).toBe(true);
     expect(result.triggerKind).toBe('stressed');
     expect(speechFrom(result)).toMatch(/calmer|loud/i);
+  });
+
+  it('covers her eyes after a long social or news session', () => {
+    const cat = createInitialCat(NOW);
+    const socialSession = {
+      ...EMPTY_DRAINING_SESSION,
+      kind: 'social' as const,
+      accumulatedMs: DRAINING_SESSION_THRESHOLD_MS,
+      pendingNudgeKind: 'social' as const,
+    };
+    const social = evaluateEmotionalTrigger({
+      cat: { ...cat, lastSpeechAt: 0, nudgesToday: 0 },
+      vitals: { hunger: 25, happiness: 60, stress: 20, energy: 70 },
+      settings: productionSettings(),
+      now: NOW,
+      isUserIdle: false,
+      recentMemory: null,
+      drainingSession: socialSession,
+    });
+    expect(social.shouldAppear).toBe(true);
+    expect(social.mood).toBe('overwhelmed');
+    expect(social.triggerKind).toBe('overwhelmed');
+    expect(social.triggerKind).not.toBe('stressed');
+    expect(speechFrom(social)).toMatch(/scroll|feed|paws/i);
+
+    const newsSession = {
+      ...EMPTY_DRAINING_SESSION,
+      kind: 'news' as const,
+      accumulatedMs: DRAINING_SESSION_THRESHOLD_MS,
+      pendingNudgeKind: 'news' as const,
+    };
+    const news = evaluateEmotionalTrigger({
+      cat: { ...cat, lastSpeechAt: 0, nudgesToday: 0 },
+      vitals: { hunger: 25, happiness: 60, stress: 20, energy: 70 },
+      settings: productionSettings(),
+      now: NOW + 1,
+      isUserIdle: false,
+      recentMemory: null,
+      drainingSession: newsSession,
+    });
+    expect(news.mood).toBe('overwhelmed');
+    expect(news.triggerKind).toBe('overwhelmed');
+    expect(speechFrom(news)).toMatch(/headline|news|whiskers/i);
+  });
+
+  it('eases into stressed when leaving a long session, then thanks after a break', () => {
+    const cat = createInitialCat(NOW);
+    const recovery = {
+      ...EMPTY_DRAINING_SESSION,
+      recoveryStartedAt: NOW,
+      recoveryAwayMs: 0,
+      pendingRecoveryNudge: 'easing' as const,
+      recoveryEasingAckedAt: null,
+    };
+    const easing = evaluateEmotionalTrigger({
+      cat: { ...cat, lastSpeechAt: 0, nudgesToday: 0 },
+      vitals: { hunger: 25, happiness: 70, stress: 10, energy: 70 },
+      settings: productionSettings(),
+      now: NOW,
+      isUserIdle: false,
+      recentMemory: null,
+      drainingSession: recovery,
+    });
+    expect(easing.mood).toBe('stressed');
+    expect(easing.triggerKind).toBe('recovery_easing');
+    expect(speechFrom(easing)).toMatch(/better|less stressful|easing|uncurling/i);
+
+    const thanks = evaluateEmotionalTrigger({
+      cat: { ...cat, lastSpeechAt: 0, nudgesToday: 0 },
+      vitals: { hunger: 25, happiness: 70, stress: 10, energy: 70 },
+      settings: productionSettings(),
+      now: NOW + 1,
+      isUserIdle: false,
+      recentMemory: null,
+      drainingSession: {
+        ...recovery,
+        recoveryAwayMs: 60_000,
+        pendingRecoveryNudge: 'thanks',
+        recoveryEasingAckedAt: NOW,
+      },
+    });
+    expect(thanks.mood).toBe('happy');
+    expect(thanks.triggerKind).toBe('recovery_thanks');
+    expect(speechFrom(thanks)).toMatch(/thank/i);
   });
 
   it('recalls a shared memory when Tabby is content and a memory exists', () => {

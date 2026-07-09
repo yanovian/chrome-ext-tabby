@@ -2,6 +2,13 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.1.0 (unreleased)
+
+- **Stressed** on draining pages comes first; after about an hour on **social or news**, Tabby may feel **overwhelmed** and shield her wide eyes with both paws. Leave those sites and she eases back to **stressed**, then **happy** after a minute away with a thank-you.
+- **Dev mode** sliders **simulate** real time on social or news (or away), using the same **1 hour** and **1 minute** thresholds as production. Preview shows **stressed** after a few minutes on a feed, easing speech when you leave, then **happy** with thanks after a minute away.
+- Tabby recognizes more **news sites**.
+- Tabby shows on the **Chrome Web Store** right after install, on the page where you added her.
+- The **first-meeting tour** notes that Tabby stays off **sensitive sites**.
 
 ## 2.0.5
 

@@ -9,8 +9,6 @@ const BLOCKED_PREFIXES = [
   'chrome-extension://',
   'edge://',
   'devtools://',
-  'https://chrome.google.com/webstore',
-  'https://chromewebstore.google.com',
 ];
 
 /** Pages where Tabby can appear as a floating companion. */
@@ -45,7 +43,7 @@ export async function injectPageOverlay(tabId: number): Promise<void> {
       files: [CONTENT_SCRIPT_JS],
     });
   } catch {
-    // Expected without host_permissions, or tab cannot be scripted (Web Store, etc.).
+    // Expected without host_permissions, or tab cannot be scripted.
   }
 }
 

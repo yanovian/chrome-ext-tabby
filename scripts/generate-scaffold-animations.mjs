@@ -59,7 +59,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -214,6 +214,20 @@ function motionFor(state, frames) {
         headP: staticValue([0, 0, 0]),
         face: 'worry',
         blink: false,
+      };
+    case 'overwhelmed':
+      return {
+        body: breathe(frames, 2.8),
+        tail: loopKeys(frames, [-18, 16, -14, 12, -18]),
+        headR: loopKeys(frames, [-10, 10, -8, 8, -10]),
+        headP: loopKeys(frames, [
+          [0, 2, 0],
+          [0, 5, 0],
+          [0, 2, 0],
+        ]),
+        face: 'overwhelmed',
+        blink: false,
+        coverHands: true,
       };
     case 'sleep':
       return {
@@ -539,15 +553,79 @@ function kawaiiMouth(face, y, o, w) {
   );
 }
 
+function buildOverwhelmedCoverPaw(layout, side) {
+  const o = COLORS.outline;
+  const w = layout.stroke;
+  const pw = layout.headR * 0.54;
+  const ph = layout.headR * 0.6;
+  const toe = pw * 0.2;
+  const toeY = -ph * 0.38;
+  const spread = pw * 0.24;
+  const sign = side === 'L' ? -1 : 1;
+
+  const toePad = (index) =>
+    group(
+      `Toe${index}`,
+      painted(ellipse(toe, toe * 0.92), COLORS.pink, o, w * 0.18),
+      { p: staticValue([sign * spread * (index - 1), toeY]) },
+    );
+
+  return group(
+    side === 'L' ? 'CoverPawL' : 'CoverPawR',
+    [
+      ...painted(ellipse(pw, ph), COLORS.bodyDark, o, w * 0.72),
+      ...painted(ellipse(pw * 0.56, ph * 0.36), COLORS.pink, o, w * 0.3),
+      toePad(0),
+      toePad(1),
+      toePad(2),
+    ],
+    {
+      p: staticValue([0, ph * 0.12]),
+      a: staticValue([0, ph * 0.12, 0]),
+    },
+  );
+}
+
+function buildOverwhelmedCoverHands(layout, frames) {
+  const r = layout.headR;
+  const gap = r * 0.3;
+  const eyeY = r * 0.06;
+
+  const hand = (side) => {
+    const inward = side === 'L' ? 1 : -1;
+    const x = side === 'L' ? -gap - r * 0.34 : gap + r * 0.34;
+    const trembleKeys = {
+      a: 1,
+      k: [
+        { t: 0, s: [x, eyeY - 1, 0] },
+        { t: Math.floor(frames * 0.18), s: [x + inward * 2.5, eyeY - 2.5, 0] },
+        { t: Math.floor(frames * 0.42), s: [x - inward * 1.5, eyeY + 0.5, 0] },
+        { t: Math.floor(frames * 0.68), s: [x + inward * 2, eyeY - 2, 0] },
+        { t: frames, s: [x, eyeY - 1, 0] },
+      ],
+    };
+    return group(
+      `CoverHand${side}`,
+      [buildOverwhelmedCoverPaw(layout, side)],
+      {
+        p: trembleKeys,
+        r: staticValue(side === 'L' ? 22 : -22),
+      },
+    );
+  };
+
+  return [hand('L'), hand('R')];
+}
+
 function buildFace(layout, face, blink, frames) {
   const o = COLORS.outline;
   const w = layout.stroke;
   const r = layout.headR;
-  const wide = face === 'wide';
+  const wide = face === 'wide' || face === 'overwhelmed';
   const eyeY = r * 0.06;
   const gap = r * 0.3;
-  const eyeW = (wide ? 0.56 : 0.5) * r;
-  const eyeH = (wide ? 0.64 : 0.58) * r;
+  const eyeW = (face === 'overwhelmed' ? 0.62 : wide ? 0.56 : 0.5) * r;
+  const eyeH = (face === 'overwhelmed' ? 0.72 : wide ? 0.64 : 0.58) * r;
   const mouthY = r * 0.36;
 
   const eye = (side) => {
@@ -587,10 +665,33 @@ function buildFace(layout, face, blink, frames) {
       ],
       {
         p: staticValue([x, eyeY]),
-        s: blink ? blinkScale(frames) : staticValue([100, 100, 100]),
+        s:
+          face === 'overwhelmed'
+            ? loopKeys(frames, [
+                [100, 100, 100],
+                [103, 97, 100],
+                [100, 100, 100],
+                [97, 103, 100],
+                [100, 100, 100],
+              ])
+            : blink
+              ? blinkScale(frames)
+              : staticValue([100, 100, 100]),
       },
     );
   };
+
+  if (face === 'overwhelmed') {
+    return [
+      eye('L'),
+      eye('R'),
+      group(
+        'Mouth',
+        [path([[-3.5, mouthY + 1], [0, mouthY - 1], [3.5, mouthY + 1]]), stroke(o, w * 0.85)],
+        { p: staticValue([0, 0]) },
+      ),
+    ];
+  }
 
   return [eye('L'), eye('R'), kawaiiMouth(face, mouthY, o, w)];
 }
@@ -968,16 +1069,18 @@ function buildCat(stageKey, state) {
         }
       : {};
 
+  const headShapes = [
+    group('Face', buildFace(layout, motion.face, motion.blink, frames), { p: staticValue([0, 0]) }),
+    group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
+  ];
+
   // dotLottie: higher `ind` draws in front; Face shape before HeadShell within the Head layer.
   const layers = [
     shapeLayer(
       'Head',
       3,
       headPose,
-      [
-        group('Face', buildFace(layout, motion.face, motion.blink, frames), { p: staticValue([0, 0]) }),
-        group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
-      ],
+      headShapes,
       frames,
     ),
     shapeLayer(
@@ -989,6 +1092,18 @@ function buildCat(stageKey, state) {
     ),
     shadowLayer,
   ];
+
+  if (state === 'overwhelmed') {
+    layers.unshift(
+      shapeLayer(
+        'CoverHands',
+        4,
+        headPose,
+        [group('CoverHands', buildOverwhelmedCoverHands(layout, frames), { p: staticValue([0, 0]) })],
+        frames,
+      ),
+    );
+  }
 
   if (state === 'feeding') {
     layers[0].ind = 4;

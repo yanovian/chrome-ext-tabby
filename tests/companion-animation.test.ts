@@ -27,6 +27,13 @@ describe('resolveCompanionAnimation', () => {
     );
   });
 
+  it('maps overwhelmed mood to overwhelmed animation', () => {
+    expect(moodToAnimationState('overwhelmed')).toBe('overwhelmed');
+    expect(resolveCompanionAnimation({ stage: 'adult', mood: 'overwhelmed' })).toBe(
+      'animations/adult/overwhelmed.json',
+    );
+  });
+
   it('prefers ambient activity over mood', () => {
     expect(
       resolveCompanionAnimation({

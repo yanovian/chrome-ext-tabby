@@ -1,3 +1,10 @@
+import {
+  EMPTY_DRAINING_SESSION,
+  isInDrainingRecovery,
+  pendingOverwhelmedNudge,
+  pendingRecoveryNudge,
+  type DrainingSessionState,
+} from './draining-session';
 import { daysTogether, deriveMoodFromVitals } from './cat-sim';
 import { resolveDisplayMood } from './presentation';
 import { isQuietHour, effectiveAppearanceLimits } from './settings';
@@ -24,6 +31,7 @@ export interface EmotionalTriggerInput {
   forceTick?: boolean;
   pageTitle?: string;
   pageTopic?: string;
+  drainingSession?: DrainingSessionState;
 }
 
 export interface EmotionalTriggerResult {
@@ -52,6 +60,9 @@ function resolvePrimaryNeed(
   }
   if (mood === 'stressed') {
     return 'stressed';
+  }
+  if (mood === 'overwhelmed') {
+    return null;
   }
   if (mood === 'sleepy') {
     return 'sleepy';
@@ -111,10 +122,21 @@ export function evaluateEmotionalTrigger(
     forceTick,
     pageTitle,
     pageTopic,
+    drainingSession,
   } = input;
   const derivedMood = deriveMoodFromVitals({ vitals, now, settings, isUserIdle });
-  const mood = resolveDisplayMood({ settings, derivedMood });
+  const mood = resolveDisplayMood({
+    settings,
+    derivedMood,
+    drainingSession: drainingSession ?? EMPTY_DRAINING_SESSION,
+  });
   const limits = effectiveAppearanceLimits(settings);
+  const overwhelmedKind = pendingOverwhelmedNudge(
+    drainingSession ?? EMPTY_DRAINING_SESSION,
+  );
+  const recoveryNudge = pendingRecoveryNudge(
+    drainingSession ?? EMPTY_DRAINING_SESSION,
+  );
 
   if (forceTick || (forceDevSpeech && settings.devModeEnabled)) {
     const primaryNeed = resolvePrimaryNeed(vitals, mood);
@@ -181,7 +203,7 @@ export function evaluateEmotionalTrigger(
   }
 
   const primaryNeed = resolvePrimaryNeed(vitals, mood);
-  if (primaryNeed && ['starving', 'hungry', 'stressed', 'lonely'].includes(primaryNeed)) {
+  if (primaryNeed && ['starving', 'hungry'].includes(primaryNeed)) {
     return {
       shouldAppear: true,
       mood,
@@ -195,6 +217,72 @@ export function evaluateEmotionalTrigger(
       }),
       triggerKind: primaryNeed,
     };
+  }
+
+  if (overwhelmedKind && mood === 'overwhelmed') {
+    return {
+      shouldAppear: true,
+      mood: 'overwhelmed',
+      speechContext: buildSpeechContext({
+        kind: overwhelmedKind === 'social' ? 'overwhelmed_social' : 'overwhelmed_news',
+        mood: 'overwhelmed',
+        stage: cat.stage,
+        seed: now,
+        pageTitle,
+        pageTopic,
+      }),
+      triggerKind: 'overwhelmed',
+    };
+  }
+
+  if (recoveryNudge === 'easing') {
+    return {
+      shouldAppear: true,
+      mood: 'stressed',
+      speechContext: buildSpeechContext({
+        kind: 'recovery_easing',
+        mood: 'stressed',
+        stage: cat.stage,
+        seed: now,
+        pageTitle,
+        pageTopic,
+      }),
+      triggerKind: 'recovery_easing',
+    };
+  }
+
+  if (recoveryNudge === 'thanks') {
+    return {
+      shouldAppear: true,
+      mood: 'happy',
+      speechContext: buildSpeechContext({
+        kind: 'recovery_thanks',
+        mood: 'happy',
+        stage: cat.stage,
+        seed: now,
+        pageTitle,
+        pageTopic,
+      }),
+      triggerKind: 'recovery_thanks',
+    };
+  }
+
+  if (primaryNeed && ['stressed', 'lonely'].includes(primaryNeed)) {
+    if (!isInDrainingRecovery(drainingSession ?? EMPTY_DRAINING_SESSION)) {
+      return {
+        shouldAppear: true,
+        mood,
+        speechContext: buildSpeechContext({
+          kind: triggerKindToSpeechKind(primaryNeed),
+          mood,
+          stage: cat.stage,
+          seed: now,
+          pageTitle,
+          pageTopic,
+        }),
+        triggerKind: primaryNeed,
+      };
+    }
   }
 
   if (recentMemory && vitals.happiness >= 50) {

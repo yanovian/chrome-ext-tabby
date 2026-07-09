@@ -1,5 +1,13 @@
 import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat-interactions';
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
+import {
+  EMPTY_DRAINING_SESSION,
+  isDrainingSessionOverwhelmed,
+  isDrainingSessionStressed,
+  isInDrainingRecovery,
+  pendingRecoveryNudge,
+  type DrainingSessionState,
+} from './draining-session';
 import { resolveCompanionAnimation } from './companion-animation';
 import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
@@ -17,10 +25,11 @@ export function moodForAmbient(activity: AmbientActivity): CatMood {
   return 'content';
 }
 
-/** Pick the mood shown on screen — dev override, ambient activity, or vitals. */
+/** Pick the mood shown on screen — dev override, ambient activity, vitals, or long draining session. */
 export function resolveDisplayMood(input: {
   settings: ExtensionSettings;
   derivedMood: CatMood;
+  drainingSession?: DrainingSessionState;
   ambientActivity?: AmbientActivity | null;
   moodOverride?: CatMood;
 }): CatMood {
@@ -33,6 +42,26 @@ export function resolveDisplayMood(input: {
   if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
     return input.settings.devForceMood;
   }
+
+  const urgentMoods: CatMood[] = ['starving', 'hungry', 'sleepy'];
+  if (urgentMoods.includes(input.derivedMood)) {
+    return input.derivedMood;
+  }
+
+  const session = input.drainingSession ?? EMPTY_DRAINING_SESSION;
+  if (isInDrainingRecovery(session)) {
+    if (pendingRecoveryNudge(session) === 'thanks') {
+      return 'happy';
+    }
+    return 'stressed';
+  }
+  if (isDrainingSessionOverwhelmed(session, input.settings)) {
+    return 'overwhelmed';
+  }
+  if (isDrainingSessionStressed(session, input.settings)) {
+    return 'stressed';
+  }
+
   return input.derivedMood;
 }
 
@@ -63,6 +92,7 @@ export function buildPresentation(input: {
   ambientPeekUntil?: number | null;
   eatingUntil?: number | null;
   playingUntil?: number | null;
+  drainingSession?: DrainingSessionState;
 }): CatPresentation {
   const derivedMood = deriveMoodFromVitals({
     vitals: input.vitals,
@@ -73,6 +103,7 @@ export function buildPresentation(input: {
   const mood = resolveDisplayMood({
     settings: input.settings,
     derivedMood,
+    drainingSession: input.drainingSession,
     ambientActivity: input.ambientActivity,
     moodOverride: input.moodOverride,
   });

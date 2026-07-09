@@ -175,10 +175,32 @@
             <option value="hungry">Hungry</option>
             <option value="starving">Starving</option>
             <option value="stressed">Stressed</option>
+            <option value="overwhelmed">Overwhelmed</option>
             <option value="sleepy">Sleepy</option>
             <option value="peek">Peek</option>
           </select>
         </label>
+        <div id="dev-temper-panel" class="settings__temper-panel">
+          <p class="settings__hint settings__hint--dev">
+            Simulate how long Tabby has been on social/news or away from it. Uses the same thresholds as production (1 hour overwhelmed, 1 minute away for thanks).
+          </p>
+          <p id="dev-temper-inferred" class="settings__hint settings__hint--inline settings__hint--dev"></p>
+          <label class="settings__row">
+            <span>Simulate scenario</span>
+            <select id="dev-temper-scenario">
+              <option value="on_feed">On social or news</option>
+              <option value="away_from_feed">Away from feed</option>
+            </select>
+          </label>
+          <div id="dev-draining-row" class="settings__row settings__row--slider">
+            <span>Simulated time on social/news <strong id="dev-draining-label"></strong></span>
+            <input id="dev-simulated-draining-ms" type="range" />
+          </div>
+          <div id="dev-recovery-away-row" class="settings__row settings__row--slider" hidden>
+            <span>Simulated time away <strong id="dev-recovery-away-label"></strong></span>
+            <input id="dev-simulated-recovery-away-ms" type="range" />
+          </div>
+        </div>
         <div class="settings__action-stack settings__action-stack--dev">
           <button id="dev-force-appear" type="button" class="settings__button settings__button--legacy">
             Force appear

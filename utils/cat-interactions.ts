@@ -36,12 +36,22 @@ export interface SecondaryInteractionOption {
 }
 
 export function isBored(vitals: CatVitals, mood: CatMood): boolean {
-  return vitals.happiness < 45 && mood !== 'sleepy' && mood !== 'stressed';
+  return (
+    vitals.happiness < 45 &&
+    mood !== 'sleepy' &&
+    mood !== 'stressed' &&
+    mood !== 'overwhelmed'
+  );
 }
 
 /** Low happiness that a quick pet shouldn't fully mask when checking in. */
 export function needsPlayAttention(vitals: CatVitals, mood: CatMood): boolean {
-  return vitals.happiness < 55 && mood !== 'sleepy' && mood !== 'stressed';
+  return (
+    vitals.happiness < 55 &&
+    mood !== 'sleepy' &&
+    mood !== 'stressed' &&
+    mood !== 'overwhelmed'
+  );
 }
 
 /** Hungry or starving mood that should stay until Tabby is fed. */
@@ -75,6 +85,9 @@ export function resolveAskMood(
   if (hungryMood) {
     return hungryMood;
   }
+  if (displayMood === 'overwhelmed') {
+    return 'overwhelmed';
+  }
   if (derivedMood === 'stressed') {
     return 'stressed';
   }
@@ -102,6 +115,9 @@ function playLabel(stage: CatLifeStage): string {
 }
 
 function askLabel(mood: CatMood, stage: CatLifeStage, vitals: CatVitals): string {
+  if (mood === 'overwhelmed') {
+    return stage === 'newborn' ? 'Too much?' : 'Need a break?';
+  }
   if (mood === 'stressed') {
     return stage === 'newborn' ? 'Why so fussy?' : 'What’s wrong?';
   }
@@ -121,7 +137,7 @@ function resolvePrimaryAction(
   mood: CatMood,
   vitals: CatVitals,
 ): InteractionAction | null {
-  if (mood === 'stressed' || mood === 'sleepy') {
+  if (mood === 'stressed' || mood === 'overwhelmed' || mood === 'sleepy') {
     return 'ask';
   }
   if (mood === 'starving' || mood === 'hungry') {
@@ -155,7 +171,7 @@ export function buildInteractionOptions(
     });
   };
 
-  if (mood === 'stressed') {
+  if (mood === 'stressed' || mood === 'overwhelmed') {
     push('ask', askLabel(mood, stage, vitals));
   } else if (mood === 'starving' || mood === 'hungry') {
     push('feed', feedLabel(stage, mood));
@@ -342,6 +358,15 @@ export function explainCurrentMood(
           'Just peeking. Don’t mind me.',
           'Mrrp. I’m down here.',
           'Caught you looking. Hi.',
+        ],
+        seed,
+      );
+    case 'overwhelmed':
+      return pickMoodLine(
+        [
+          'Too much scroll. I’m hiding my eyes for a minute.',
+          'My whiskers are full. Need a softer page.',
+          'Overstimulated kitten brain. Covering my eyes.',
         ],
         seed,
       );

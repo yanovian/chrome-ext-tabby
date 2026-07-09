@@ -88,11 +88,6 @@ const BANKING_HOST_FALSE_POSITIVES = [
 
 const BANKING_HOST_TOKENS = ['bank', 'creditunion', 'cu.coop'] as const;
 
-const CHROME_STORE_EXCLUDE_MATCHES = [
-  '*://chrome.google.com/webstore/*',
-  '*://chromewebstore.google.com/*',
-] as const;
-
 function normalizeHostname(hostname: string): string {
   return hostname.replace(/^www\./, '').toLowerCase();
 }
@@ -123,9 +118,9 @@ export function isOverlayHostExcluded(hostname: string | undefined): boolean {
   return looksLikeBankingHost(host);
 }
 
-/** Manifest `exclude_matches` for known excluded host roots plus the Chrome Web Store. */
+/** Manifest `exclude_matches` for known sensitive host roots. */
 export function overlayExcludeMatchPatterns(): string[] {
-  const patterns: string[] = [...CHROME_STORE_EXCLUDE_MATCHES];
+  const patterns: string[] = [];
   for (const root of OVERLAY_EXCLUDED_HOST_ROOTS) {
     patterns.push(`*://${root}/*`);
     patterns.push(`*://*.${root}/*`);

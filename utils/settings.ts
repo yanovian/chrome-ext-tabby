@@ -1,5 +1,12 @@
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from './types';
-import type { CatMood, DevLifeStageOverride, DevMoodOverride, ExtensionSettings } from './types';
+import { MOOD_TIMER_DEV_DEFAULTS, MOOD_TIMER_SLIDER_BOUNDS } from './mood-timers';
+import type {
+  CatMood,
+  DevLifeStageOverride,
+  DevMoodOverride,
+  DevTemperScenario,
+  ExtensionSettings,
+} from './types';
 import { MIN_PAGE_DWELL_MS } from './visit-dedup';
 
 function parseDevLifeStage(value: unknown): DevLifeStageOverride {
@@ -24,6 +31,7 @@ function parseDevMood(value: unknown): DevMoodOverride {
     'stressed',
     'sleepy',
     'peek',
+    'overwhelmed',
   ];
   if (value === 'auto' || moods.includes(value as CatMood)) {
     return value as DevMoodOverride;
@@ -43,6 +51,22 @@ function clampPositiveInt(value: number, fallback: number, max: number): number 
     return fallback;
   }
   return Math.max(1, Math.min(max, Math.floor(value)));
+}
+
+function clampTemperMs(
+  value: number,
+  fallback: number,
+  bounds: { min: number; max: number; step: number },
+): number {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+  const stepped = Math.round(value / bounds.step) * bounds.step;
+  return Math.max(bounds.min, Math.min(bounds.max, stepped));
+}
+
+function parseDevTemperScenario(value: unknown): DevTemperScenario {
+  return value === 'away_from_feed' ? 'away_from_feed' : 'on_feed';
 }
 
 /** Merge stored (possibly partial) settings with defaults. */
@@ -105,6 +129,22 @@ export function mergeSettings(
     ),
     devForceLifeStage: parseDevLifeStage(raw.devForceLifeStage),
     devForceMood: parseDevMood(raw.devForceMood),
+    devOverwhelmedThresholdMs: MOOD_TIMER_DEV_DEFAULTS.overwhelmedThresholdMs,
+    devRecoveryThanksThresholdMs: MOOD_TIMER_DEV_DEFAULTS.recoveryThanksThresholdMs,
+    devStressedVitalThreshold: MOOD_TIMER_DEV_DEFAULTS.stressedVitalThreshold,
+    devTemperScenario: parseDevTemperScenario(raw.devTemperScenario),
+    devSimulatedDrainingMs: clampTemperMs(
+      Number(raw.devSimulatedDrainingMs ?? DEFAULT_SETTINGS.devSimulatedDrainingMs),
+      DEFAULT_SETTINGS.devSimulatedDrainingMs,
+      MOOD_TIMER_SLIDER_BOUNDS.simulatedDrainingMs,
+    ),
+    devSimulatedRecoveryAwayMs: clampTemperMs(
+      Number(
+        raw.devSimulatedRecoveryAwayMs ?? DEFAULT_SETTINGS.devSimulatedRecoveryAwayMs,
+      ),
+      DEFAULT_SETTINGS.devSimulatedRecoveryAwayMs,
+      MOOD_TIMER_SLIDER_BOUNDS.simulatedRecoveryAwayMs,
+    ),
     showOverlay:
       typeof raw.showOverlay === 'boolean'
         ? raw.showOverlay

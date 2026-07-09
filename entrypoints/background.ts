@@ -1,4 +1,5 @@
 import { isTrackableUrl, parseHostname } from '../utils/classifier';
+import { recordDrainingSessionElapsed, syncDrainingSessionToPage } from '../utils/draining-session';
 import { markIntroCompleted, resetIntro } from '../utils/intro';
 import {
   notifyOverlayActivate,
@@ -11,6 +12,8 @@ import {
   clearCompanionSpeech,
   devForceCompanionHide,
   devForceCompanionShow,
+  getDevTemperState,
+  syncDevTemperControls,
   enableDoNotDisturb,
   completeFeedingIfDue,
   completePlayingIfDue,
@@ -121,8 +124,24 @@ async function tryScoreActivePage(now = Date.now()): Promise<void> {
 }
 
 async function flushActiveTab(now = Date.now()): Promise<void> {
+  const { snapshot, activeDurationMs } = endFocus(activeSnapshot, now);
+  let shouldRefreshForNudge = false;
+  if (activeDurationMs > 0 && isTrackableUrl(activeSnapshot.url)) {
+    const settings = await getSettings(IS_DEV_BUILD);
+    const session = await recordDrainingSessionElapsed({
+      title: activeSnapshot.title,
+      url: activeSnapshot.url,
+      elapsedMs: activeDurationMs,
+      now,
+      settings,
+    });
+    shouldRefreshForNudge =
+      session.pendingNudgeKind !== null || session.pendingRecoveryNudge !== null;
+  }
   await tryScoreActivePage(now);
-  const { snapshot } = endFocus(activeSnapshot, now);
+  if (shouldRefreshForNudge) {
+    await refreshPresentationForActiveTab(now);
+  }
   activeSnapshot = snapshot;
   scoredCurrentFocus = false;
 }
@@ -218,6 +237,14 @@ async function syncFocusToTab(
 
   activeSnapshot = beginFocus(createEmptySnapshot(), tab, now);
   scoredCurrentFocus = false;
+
+  const settings = await getSettings(IS_DEV_BUILD);
+  await syncDrainingSessionToPage({
+    title: tab.title ?? undefined,
+    url: tab.url ?? undefined,
+    now,
+    settings,
+  });
 }
 
 function activePageContext(): PageContext {
@@ -309,6 +336,16 @@ export default defineBackground(() => {
       await tryScoreActivePage(now);
       const shouldPresent =
         activeSnapshot.tabId !== null && isTrackableUrl(activeSnapshot.url);
+      if (shouldPresent) {
+        const settings = await getSettings(IS_DEV_BUILD);
+        await recordDrainingSessionElapsed({
+          title: activeSnapshot.title,
+          url: activeSnapshot.url,
+          elapsedMs: 60_000,
+          now,
+          settings,
+        });
+      }
       await runMinuteTick(now, {
         present: shouldPresent,
         page: shouldPresent ? activePageContext() : undefined,
@@ -417,7 +454,7 @@ export default defineBackground(() => {
                 await notifyOverlayDeactivate(activeOverlayTabId);
                 activeOverlayTabId = null;
               }
-            } else if (data.showOverlay) {
+            } else if (data.showOverlay && !message.skipPresent) {
               const state = await loadOrchestratorState();
               await evaluateAndPresent(
                 { ...state, settings: data },
@@ -603,6 +640,34 @@ export default defineBackground(() => {
               return;
             }
             const data = await devForceCompanionHide(Date.now());
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
+            return;
+          }
+          case 'getDevTemper': {
+            if (!IS_DEV_BUILD) {
+              sendResponse({
+                ok: false,
+                error: 'Dev temper controls are only available in dev builds.',
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const data = await getDevTemperState();
+            sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'syncDevTemper': {
+            if (!IS_DEV_BUILD) {
+              sendResponse({
+                ok: false,
+                error: 'Dev temper controls are only available in dev builds.',
+              } satisfies RuntimeResponse);
+              return;
+            }
+            const data = await syncDevTemperControls({
+              simulation: message.simulation,
+              devForceMood: message.devForceMood,
+            });
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
             void syncActiveTabOverlay().then(() => updateToolbarFromPresentation());
             return;

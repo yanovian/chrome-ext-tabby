@@ -15,7 +15,8 @@ export type CompanionAnimationState =
   | 'groom'
   | 'play'
   | 'playing'
-  | 'peek';
+  | 'peek'
+  | 'overwhelmed';
 
 export const COMPANION_ANIMATION_SPEED = 0.82;
 
@@ -65,6 +66,8 @@ export function moodToAnimationState(mood: CatMood): CompanionAnimationState {
       return 'sleep';
     case 'peek':
       return 'peek';
+    case 'overwhelmed':
+      return 'overwhelmed';
     default:
       return 'idle';
   }
@@ -139,6 +142,7 @@ export function allCompanionAnimationPaths(): string[] {
     'play',
     'playing',
     'peek',
+    'overwhelmed',
   ];
   return stages.flatMap((stage) =>
     states.map((state) => companionAnimationPath(stage, state)),

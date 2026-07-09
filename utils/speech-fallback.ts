@@ -32,6 +32,11 @@ const FALLBACK_LINES: Record<SpeechKind, string[]> = {
     'Spicy feed today. I’m overstimulated.',
     'Prrrt… let’s breathe for a sec.',
   ],
+  overwhelmed: [
+    'Too much internet. I’m covering my eyes for a minute.',
+    'My whiskers are full. Want a softer tab?',
+    'Mrrp. Overstimulated. Breather with me?',
+  ],
   lonely: [
     'It’s been quiet. Where should we go?',
     'I missed you. Explore something with me?',
@@ -208,6 +213,37 @@ const FALLBACK_LINES: Record<SpeechKind, string[]> = {
     'Mrrp. I’m down here. Peek peek.',
     'Mew mew — pretend you didn’t see me.',
   ],
+  overwhelmed_social: [
+    'My paws are tired from all this scrolling. Breather?',
+    'So many feeds. Mrrp. Maybe stretch with me?',
+    'Scroll scroll scroll. Even cats need a window break.',
+    'Timelines everywhere. Want to hop somewhere calmer?',
+    'I’ve been watching the feed a while. Let’s air out our whiskers.',
+    'Lots of little posts. Big world outside the scroll, you know?',
+  ],
+  overwhelmed_news: [
+    'So many loud headlines. The world is gentler than this, promise.',
+    'Mrrp. News loves to yell. Don’t let it rent space in your head.',
+    'Propaganda wore me out. I’m covering my eyes. Softer tab?',
+    'Breaking news breaking news… Tabby needs a quiet corner.',
+    'Every headline thinks it’s the apocalypse. It usually isn’t.',
+    'My whiskers hurt from doomscrolling. One nice page, maybe?',
+    'The feed is selling panic popcorn. You don’t have to buy any.',
+  ],
+  recovery_easing: [
+    'Prrrt… getting better. The noise is fading.',
+    'Mew. Less stressful already. Breathe with me?',
+    'My whiskers are uncurling. That feels softer.',
+    'Mrrp. Quieter tabs already. I can feel it easing.',
+    'Better, better. The loud feed is behind us.',
+  ],
+  recovery_thanks: [
+    'Thank you for stepping away. I feel happier already.',
+    'Mrrp — nice call leaving that feed. Thanks, human.',
+    'So much better. Thanks for the break from the stressful stuff.',
+    'My paws unclenched. Thank you for stopping that scroll.',
+    'Happy whiskers again. Thanks for the gentler tabs.',
+  ],
 };
 
 function pickLine(kind: SpeechKind, seed: number): string {
@@ -249,5 +285,16 @@ export function fallbackSpeech(context: SpeechContext): string {
 }
 
 export function triggerKindToSpeechKind(kind: SpeechTriggerKind): SpeechKind {
+  if (kind === 'overwhelmed') {
+    return 'overwhelmed_social';
+  }
   return kind;
+}
+
+/** Dev preview: sample recovery line for easing or thanks. */
+export function previewRecoverySpeech(
+  kind: 'recovery_easing' | 'recovery_thanks',
+  seed = 0,
+): string {
+  return pickLine(kind, seed);
 }
