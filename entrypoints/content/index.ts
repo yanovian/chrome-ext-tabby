@@ -1,5 +1,9 @@
 import { OVERLAY_TAB_MESSAGE } from '../../utils/active-overlay';
 import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
+import {
+  isOverlayHostExcluded,
+  overlayExcludeMatchPatterns,
+} from '../../utils/overlay-excluded-hosts';
 import { requestIsActiveOverlayTab } from '../../utils/runtime-client';
 import type { TabbyOverlay } from './tabby-overlay';
 
@@ -14,7 +18,10 @@ async function loadOverlayModule(): Promise<OverlayModule> {
   return overlayModule;
 }
 
-async function getOverlay(): Promise<TabbyOverlay> {
+async function getOverlay(): Promise<TabbyOverlay | null> {
+  if (isOverlayHostExcluded(location.hostname)) {
+    return null;
+  }
   if (overlayInstance) {
     return overlayInstance;
   }
@@ -47,13 +54,13 @@ function shouldProbeActiveTab(): boolean {
 }
 
 function scheduleWarmActivate(): void {
-  if (!shouldProbeActiveTab()) {
+  if (!shouldProbeActiveTab() || isOverlayHostExcluded(location.hostname)) {
     return;
   }
   void requestIsActiveOverlayTab()
     .then(({ active }) => {
       if (active) {
-        void getOverlay().then((overlay) => overlay.warmActivate());
+        void getOverlay().then((overlay) => overlay?.warmActivate());
       }
     })
     .catch((error) => ignoreIfExtensionUnavailable('warm activate probe', error));
@@ -61,16 +68,16 @@ function scheduleWarmActivate(): void {
 
 export default defineContentScript({
   matches: ['<all_urls>'],
-  excludeMatches: [
-    '*://chrome.google.com/webstore/*',
-    '*://chromewebstore.google.com/*',
-  ],
+  excludeMatches: overlayExcludeMatchPatterns(),
   runAt: 'document_idle',
   // Manifest registration works without host_permissions (runtime registration does not).
   registration: 'manifest',
 
   main() {
     if (window.top !== window.self) {
+      return;
+    }
+    if (isOverlayHostExcluded(location.hostname)) {
       return;
     }
 
@@ -80,11 +87,14 @@ export default defineContentScript({
         return true;
       }
       if (message?.type === OVERLAY_TAB_MESSAGE.activate) {
-        void getOverlay().then((overlay) => overlay.warmActivate());
+        if (isOverlayHostExcluded(location.hostname)) {
+          return;
+        }
+        void getOverlay().then((overlay) => overlay?.warmActivate());
         return;
       }
       if (message?.type === OVERLAY_TAB_MESSAGE.deactivate) {
-        void getOverlay().then((overlay) => overlay.gracefulDeactivate());
+        void getOverlay().then((overlay) => overlay?.gracefulDeactivate());
       }
     });
 
