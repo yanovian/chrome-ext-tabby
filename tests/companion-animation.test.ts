@@ -34,6 +34,21 @@ describe('resolveCompanionAnimation', () => {
     );
   });
 
+  it('draws overwhelmed cover paws in front of the face', async () => {
+    const { readFile } = await import('node:fs/promises');
+    const { join } = await import('node:path');
+    const raw = await readFile(
+      join(process.cwd(), 'public/animations/adult/overwhelmed.json'),
+      'utf8',
+    );
+    const animation = JSON.parse(raw) as {
+      layers: Array<{ nm: string; shapes?: Array<{ nm: string }> }>;
+    };
+    const head = animation.layers.find((layer) => layer.nm === 'Head');
+    expect(animation.layers[0]?.nm).toBe('CoverHands');
+    expect(head?.shapes?.map((shape) => shape.nm)).toEqual(['Face', 'HeadShell']);
+  });
+
   it('prefers ambient activity over mood', () => {
     expect(
       resolveCompanionAnimation({
