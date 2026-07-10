@@ -124,7 +124,13 @@ export function evaluateEmotionalTrigger(
     pageTopic,
     drainingSession,
   } = input;
-  const derivedMood = deriveMoodFromVitals({ vitals, now, settings, isUserIdle });
+  const derivedMood = deriveMoodFromVitals({
+    vitals,
+    cat,
+    now,
+    settings,
+    isUserIdle,
+  });
   const mood = resolveDisplayMood({
     settings,
     derivedMood,

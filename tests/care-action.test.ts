@@ -237,6 +237,39 @@ describe('handleCareAction treat while hungry', () => {
     expect(completed?.sprite).toContain('happy.gif');
     expect(completed?.speech).toMatch(/thank|human|delici|best|love|amazing|saved/i);
   });
+
+  it('stays full and happy after feeding even when hunger vitals were high', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+    };
+    await persistPresentation({
+      mood: 'starving',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/eat.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: true,
+      canPlay: true,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
+
+    expect(presentation.mood).not.toBe('hungry');
+    expect(presentation.mood).not.toBe('starving');
+    expect(presentation.canTreat).toBe(false);
+  });
 });
 
 describe('handleCareAction ask while hungry', () => {
@@ -285,6 +318,36 @@ describe('handleCareAction ask while hungry', () => {
     expect(presentation.mood).toBe('starving');
     expect(presentation.sprite).toContain('eat.gif');
     expect(presentation.speech).toMatch(/hungry|feed|tummy|starv|mew/i);
+  });
+});
+
+describe('handleCareAction ask while content', () => {
+  it('shows a happy mood after a what’s up check-in', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/idle.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: true,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
+
+    expect(presentation.mood).toBe('happy');
+    expect(presentation.sprite).toContain('happy.gif');
   });
 });
 

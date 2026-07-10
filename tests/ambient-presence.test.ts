@@ -54,6 +54,22 @@ describe('shouldStartAmbientRest', () => {
       }),
     ).toBe(true);
   });
+
+  it('does not rest right after the user checked in on Tabby', () => {
+    const cat = {
+      ...createInitialCat(NOW),
+      lastCareAt: NOW,
+    };
+    expect(
+      shouldStartAmbientRest({
+        cat,
+        settings: DEFAULT_SETTINGS,
+        now: NOW,
+        speechWouldAppear: false,
+        restUntil: null,
+      }),
+    ).toBe(false);
+  });
 });
 
 describe('pickAmbientActivity', () => {

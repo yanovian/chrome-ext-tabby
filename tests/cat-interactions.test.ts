@@ -8,6 +8,7 @@ import {
   needsPlayAttention,
   resolveAskMood,
 } from '../utils/cat-interactions';
+import { createInitialCat } from '../utils/cat-sim';
 
 describe('buildInteractionOptions', () => {
   it('offers a frustration question when Tabby is stressed', () => {
@@ -205,6 +206,24 @@ describe('resolveAskMood', () => {
     }, 'playful');
 
     expect(line).toMatch(/bored|fun|quiet/i);
+  });
+
+  it('reads happy after a check-in when grace is active', () => {
+    const now = Date.now();
+    const cat = {
+      ...createInitialCat(now),
+      happyUntil: now + 20 * 60_000,
+    };
+
+    expect(
+      resolveAskMood(
+        cat.vitals,
+        'sleepy',
+        'sleepy',
+        cat,
+        now,
+      ),
+    ).toBe('happy');
   });
 });
 

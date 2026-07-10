@@ -2,6 +2,11 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.2.1
+
+- **Moods stick better** after you feed, pet, play, or ask what's up: she stays **full** for hours, **happy** for a while, and won't nap right after you check in.
+- **Hunger** builds more around **mealtimes** and less overnight.
+
 ## 2.2.0
 
 - **Animated GIFs** are used instead of Lottie json.

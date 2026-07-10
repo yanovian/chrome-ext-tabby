@@ -96,6 +96,7 @@ export function buildPresentation(input: {
 }): CatPresentation {
   const derivedMood = deriveMoodFromVitals({
     vitals: input.vitals,
+    cat: input.cat,
     now: input.now,
     settings: input.settings,
     isUserIdle: input.isUserIdle,

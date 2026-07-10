@@ -11,6 +11,14 @@ import type {
 import { CAT_NAME } from './types';
 import { effectiveAppearanceLimits } from './settings';
 import { resolveMoodTimers, MOOD_TIMER_PRODUCTION } from './mood-timers';
+import {
+  effectiveMoodGrace,
+  hungerRateMultiplier,
+  isInHappyGrace,
+  isSatiated,
+  isSleepDeferred,
+  SATIATED_HUNGER_LEVEL,
+} from './mood-grace';
 
 export const VITAL_MIN = 0;
 export const VITAL_MAX = 100;
@@ -38,6 +46,7 @@ export interface TickInput {
 
 export interface MoodInput {
   vitals: CatVitals;
+  cat: CatState;
   now: number;
   settings: ExtensionSettings;
   isUserIdle: boolean;
@@ -55,6 +64,8 @@ export function normalizeCatState(raw: CatState, now = Date.now()): CatState {
   const today = new Date(now).toISOString().slice(0, 10);
   return {
     ...raw,
+    satiatedUntil: raw.satiatedUntil ?? 0,
+    happyUntil: raw.happyUntil ?? 0,
     lastAmbientAt: raw.lastAmbientAt ?? 0,
     ambientsToday: raw.ambientsToday ?? 0,
     ambientsDayKey: raw.ambientsDayKey ?? today,
@@ -73,6 +84,8 @@ export function createInitialCat(now: number): CatState {
       energy: 80,
     },
     lastCareAt: now,
+    satiatedUntil: 0,
+    happyUntil: 0,
     lastSeenAt: now,
     lastSpeechAt: 0,
     nudgesToday: 0,
@@ -144,9 +157,11 @@ export function applyVisitToVitals(
 /** Passive drift each minute when the user is browsing or idle. */
 export function applyMinuteTick(vitals: CatVitals, input: TickInput): CatVitals {
   const { statMultiplier } = effectiveAppearanceLimits(input.settings);
+  const hour = new Date(input.now).getHours();
+  const hungerScale = hungerRateMultiplier(hour, input.settings);
   const next = { ...vitals };
 
-  next.hunger = clampVital(next.hunger + 0.4 * statMultiplier);
+  next.hunger = clampVital(next.hunger + 0.4 * statMultiplier * hungerScale);
   next.stress = clampVital(next.stress - 0.2 * statMultiplier);
 
   if (input.isUserIdle) {
@@ -169,7 +184,7 @@ export function applyMinuteTick(vitals: CatVitals, input: TickInput): CatVitals 
 
 /** Map vitals to a visible mood — includes funny extremes, never death. */
 export function deriveMoodFromVitals(input: MoodInput): CatMood {
-  const { vitals, isUserIdle, settings } = input;
+  const { vitals, isUserIdle, settings, cat, now } = input;
   const hour = new Date(input.now).getHours();
   const quiet =
     settings.quietHoursStart !== settings.quietHoursEnd &&
@@ -177,20 +192,27 @@ export function deriveMoodFromVitals(input: MoodInput): CatMood {
       ? hour >= settings.quietHoursStart && hour < settings.quietHoursEnd
       : hour >= settings.quietHoursStart || hour < settings.quietHoursEnd);
 
-  if (isUserIdle || (quiet && vitals.energy < 45)) {
+  const sleepDeferred = isSleepDeferred(cat, now);
+  const satiated = isSatiated(cat, now);
+
+  if (!sleepDeferred && (isUserIdle || (quiet && vitals.energy < 45))) {
     return 'sleepy';
   }
 
-  if (vitals.hunger >= 88) {
+  if (!satiated && vitals.hunger >= 88) {
     return 'starving';
   }
 
-  if (vitals.hunger >= 65) {
+  if (!satiated && vitals.hunger >= 65) {
     return 'hungry';
   }
 
   if (vitals.stress >= resolveMoodTimers(settings).stressedVitalThreshold) {
     return 'stressed';
+  }
+
+  if (isInHappyGrace(cat, now)) {
+    return 'happy';
   }
 
   if (vitals.happiness >= 82 && vitals.stress < 35) {
@@ -214,6 +236,7 @@ export function applyCareAction(
   now: number,
 ): CatState {
   const vitals = { ...cat.vitals };
+  const grace = effectiveMoodGrace();
 
   switch (action) {
     case 'pet':
@@ -221,7 +244,7 @@ export function applyCareAction(
       vitals.stress = clampVital(vitals.stress - 8);
       break;
     case 'treat':
-      vitals.hunger = clampVital(vitals.hunger - 25);
+      vitals.hunger = clampVital(SATIATED_HUNGER_LEVEL);
       vitals.happiness = clampVital(vitals.happiness + 8);
       break;
     case 'play':
@@ -236,6 +259,22 @@ export function applyCareAction(
     vitals,
     lastCareAt: now,
     lastSeenAt: now,
+    happyUntil: now + grace.happyMs,
+    satiatedUntil: action === 'treat' ? now + grace.satiatedMs : cat.satiatedUntil,
+  };
+}
+
+/** Record a check-in ask — no vitals change, but care grace timers apply. */
+export function applyAskInteraction(
+  cat: CatState,
+  now: number,
+): CatState {
+  const grace = effectiveMoodGrace();
+  return {
+    ...cat,
+    lastCareAt: now,
+    lastSeenAt: now,
+    happyUntil: now + grace.happyMs,
   };
 }
 

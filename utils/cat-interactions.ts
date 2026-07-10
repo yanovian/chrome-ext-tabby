@@ -1,4 +1,5 @@
-import type { CatLifeStage, CatMood, CatVitals } from './types';
+import type { CatLifeStage, CatMood, CatState, CatVitals } from './types';
+import { isSatiated } from './mood-grace';
 
 export type InteractionAction =
   | 'pet'
@@ -59,7 +60,12 @@ export function resolveHungryMood(
   vitals: CatVitals,
   derivedMood: CatMood,
   displayMood?: CatMood,
+  cat?: CatState,
+  now?: number,
 ): CatMood | null {
+  if (cat && now !== undefined && isSatiated(cat, now)) {
+    return null;
+  }
   if (vitals.hunger >= 88) {
     return 'starving';
   }
@@ -80,8 +86,10 @@ export function resolveAskMood(
   vitals: CatVitals,
   derivedMood: CatMood,
   displayMood?: CatMood,
+  cat?: CatState,
+  now?: number,
 ): CatMood {
-  const hungryMood = resolveHungryMood(vitals, derivedMood, displayMood);
+  const hungryMood = resolveHungryMood(vitals, derivedMood, displayMood, cat, now);
   if (hungryMood) {
     return hungryMood;
   }
@@ -90,6 +98,9 @@ export function resolveAskMood(
   }
   if (derivedMood === 'stressed') {
     return 'stressed';
+  }
+  if (cat && now !== undefined && cat.happyUntil > now) {
+    return 'happy';
   }
   if (derivedMood === 'sleepy') {
     return 'sleepy';

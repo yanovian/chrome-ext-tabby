@@ -1,7 +1,8 @@
 import {
-  applyVisitToVitals,
+  applyAskInteraction,
   applyCareAction,
   applyMinuteTick,
+  applyVisitToVitals,
   createInitialCat,
   deriveMoodFromVitals,
   recordAppearance,
@@ -259,6 +260,7 @@ function buildFeedingContinuationPresentation(
   );
   const derivedMood = deriveMoodFromVitals({
     vitals: state.cat.vitals,
+    cat: state.cat,
     now,
     settings: state.settings,
     isUserIdle: state.isUserIdle,
@@ -326,6 +328,7 @@ function buildPlayingContinuationPresentation(
   );
   const derivedMood = deriveMoodFromVitals({
     vitals: state.cat.vitals,
+    cat: state.cat,
     now,
     settings: state.settings,
     isUserIdle: state.isUserIdle,
@@ -411,6 +414,7 @@ export async function handleCareAction(
     const state = await loadOrchestratorState();
     const mood = deriveMoodFromVitals({
       vitals: state.cat.vitals,
+      cat: state.cat,
       now,
       settings: state.settings,
       isUserIdle: state.isUserIdle,
@@ -441,6 +445,7 @@ export async function handleCareAction(
 
   const derivedMood = deriveMoodFromVitals({
     vitals: cat.vitals,
+    cat,
     now,
     settings: state.settings,
     isUserIdle: state.isUserIdle,
@@ -458,13 +463,23 @@ export async function handleCareAction(
     cat.vitals,
     derivedMood,
     displayMoodBeforeCare,
+    cat,
+    now,
   );
 
   if (action === 'dismiss') {
     await hidePageOverlay(page.url);
     triggerKind = null;
   } else if (action === 'ask') {
-    moodOverride = resolveAskMood(cat.vitals, derivedMood, displayMoodBeforeCare);
+    cat = applyAskInteraction(cat, now);
+    await saveCatState(cat);
+    moodOverride = resolveAskMood(
+      cat.vitals,
+      derivedMood,
+      displayMoodBeforeCare,
+      cat,
+      now,
+    );
     triggerKind = null;
   } else if (action === 'pet' || action === 'treat' || action === 'play') {
     cat = applyCareAction(cat, action, now);
@@ -475,6 +490,7 @@ export async function handleCareAction(
     } else {
       const derivedAfterCare = deriveMoodFromVitals({
         vitals: cat.vitals,
+        cat,
         now,
         settings: state.settings,
         isUserIdle: state.isUserIdle,
@@ -496,6 +512,7 @@ export async function handleCareAction(
 
   const mood = moodOverride ?? deriveMoodFromVitals({
     vitals: cat.vitals,
+    cat,
     now,
     settings: state.settings,
     isUserIdle: state.isUserIdle,
@@ -688,6 +705,7 @@ export async function evaluateAndPresent(
   ) {
     const mood = deriveMoodFromVitals({
       vitals: cat.vitals,
+      cat,
       now,
       settings: state.settings,
       isUserIdle: state.isUserIdle,
@@ -772,6 +790,7 @@ export async function showOverlayOnPage(
   );
   const mood = deriveMoodFromVitals({
     vitals: state.cat.vitals,
+    cat: state.cat,
     now,
     settings: state.settings,
     isUserIdle: state.isUserIdle,
@@ -997,6 +1016,7 @@ function buildDevTemperPayload(
       : readTemperSimulation(settings);
   const derivedMood = deriveMoodFromVitals({
     vitals: cat.vitals,
+    cat,
     now: Date.now(),
     settings,
     isUserIdle,

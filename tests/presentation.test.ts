@@ -82,8 +82,10 @@ describe('resolveDisplayMood', () => {
 
   it('shows stressed from vitals before a long session tips into overwhelmed', () => {
     const vitals = { hunger: 30, happiness: 50, stress: STRESSED_VITAL_THRESHOLD, energy: 50 };
+    const cat = createInitialCat(Date.now());
     const derived = deriveMoodFromVitals({
       vitals,
+      cat,
       now: Date.now(),
       settings: DEFAULT_SETTINGS,
       isUserIdle: false,
@@ -119,7 +121,7 @@ describe('resolveDisplayMood', () => {
   });
 
   it('does not fire stressed speech when display mood is overwhelmed', () => {
-    const now = Date.now();
+    const now = Date.parse('2026-07-05T14:00:00.000Z');
     const cat = createInitialCat(now);
     const vitals = { hunger: 30, happiness: 50, stress: 90, energy: 40 };
     const session = {

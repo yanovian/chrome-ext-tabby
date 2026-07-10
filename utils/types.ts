@@ -70,6 +70,10 @@ export interface CatState {
   stage: CatLifeStage;
   vitals: CatVitals;
   lastCareAt: number;
+  /** After feeding, Tabby stays full until this time. */
+  satiatedUntil: number;
+  /** After pet, play, feed, or ask, Tabby stays happy until this time. */
+  happyUntil: number;
   lastSeenAt: number;
   lastSpeechAt: number;
   nudgesToday: number;

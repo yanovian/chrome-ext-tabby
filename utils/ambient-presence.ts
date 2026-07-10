@@ -1,4 +1,5 @@
 import { isQuietHour } from './settings';
+import { isSleepDeferred } from './mood-grace';
 import type { CatState, ExtensionSettings } from './types';
 
 export type AmbientActivity = 'sleeping' | 'grooming' | 'peeking';
@@ -105,6 +106,10 @@ export interface AmbientRestInput {
 export function shouldStartAmbientRest(input: AmbientRestInput): boolean {
   const hour = new Date(input.now).getHours();
   if (!isDaytime(hour, input.settings)) {
+    return false;
+  }
+
+  if (isSleepDeferred(input.cat, input.now)) {
     return false;
   }
 
