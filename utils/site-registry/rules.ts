@@ -10,6 +10,7 @@ import { OCEANIA_NEWS_RULES } from './news-oceania';
 import { ARMENIA_NEWS_RULES } from './news-armenia';
 import { IRAN_NEWS_RULES } from './news-iran';
 import { NORDIC_NEWS_RULES } from './news-nordic';
+import { NOURISHING_STREAMING_RULES } from './nourishing-streaming';
 import { NOURISHING_SITE_RULES } from './nourishing';
 import { NEUTRAL_SITE_RULES } from './neutral';
 
@@ -29,5 +30,6 @@ export const SITE_RULES: readonly SiteRule[] = [
   ...IRAN_NEWS_RULES,
   ...NORDIC_NEWS_RULES,
   ...NOURISHING_SITE_RULES,
+  ...NOURISHING_STREAMING_RULES,
   ...NEUTRAL_SITE_RULES,
 ];

@@ -8,8 +8,7 @@ Updates for people who use Tabby. Newest first.
 - **Preload animations** on first install, so appear smoothly.
 - Tabby **grows and scales in size with age** on screen and in the popup preview.
 - **`pnpm gif:convert`** rebuilds GIFs with **gifski** for smoother colors.
-- Mood shifts on **known news and social sites** only; ambiguous paths like `/for-you` or `/farsi` no longer count.
-- Tabby recognizes **more news sites** worldwide.
+- **Mood from sites and titles:** Netflix cheers her up; YouTube/Rutube use video titles; known news/social only; tutorials/books good, TikTok-style bad.
 
 ## 2.1.0
 

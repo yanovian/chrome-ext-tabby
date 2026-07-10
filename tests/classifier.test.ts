@@ -40,7 +40,48 @@ describe('classifyTab', () => {
     });
 
     expect(result.category).toBe('nourishing');
-    expect(result.source).toBe('youtube');
+    expect(result.source).toBe('video');
+  });
+
+  it('classifies Netflix as nourishing entertainment from the host', () => {
+    const result = classifyTab({
+      title: 'Stranger Things',
+      url: 'https://www.netflix.com/watch/123',
+    });
+
+    expect(result.category).toBe('nourishing');
+    expect(result.source).toBe('registry');
+    expect(result.topic).toBe('Streaming');
+  });
+
+  it('classifies Rutube tiktok-style titles as draining', () => {
+    const result = classifyTab({
+      title: 'TikTok cringe compilation',
+      url: 'https://rutube.ru/video/abc/',
+    });
+
+    expect(result.category).toBe('draining');
+    expect(result.source).toBe('video');
+  });
+
+  it('classifies book reading from the title on unknown hosts', () => {
+    const result = classifyTab({
+      title: 'Chapter 12 — The Great Novel',
+      url: 'https://reader.example.com/book/123',
+    });
+
+    expect(result.category).toBe('nourishing');
+    expect(result.source).toBe('keywords');
+  });
+
+  it('classifies Medium tutorials from the title on a neutral host', () => {
+    const result = classifyTab({
+      title: 'Build a Rust CLI — lesson 3',
+      url: 'https://medium.com/@user/rust-cli',
+    });
+
+    expect(result.category).toBe('nourishing');
+    expect(result.source).toBe('keywords');
   });
 
   it('detects nourishing tutorials on generic hosts from title keywords', () => {

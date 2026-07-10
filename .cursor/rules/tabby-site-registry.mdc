@@ -37,3 +37,11 @@ Prefer **listing the host** (e.g. `bbcpersian.com`, `iranintl.com`) over path gu
 ## Keyword classifier
 
 `utils/classifier.ts` `DRAINING_KEYWORDS` must not include generic feed words (`for you`, `trending`, `explore`). Use outlet hosts or explicit gossip/drama terms instead.
+
+## Neutral hosts and video titles
+
+**Movie/TV streaming** (Netflix, Disney+, etc.) is **nourishing** in `utils/site-registry/nourishing-streaming.ts`.
+
+**Video platforms** (YouTube, Rutube, Vimeo, Bilibili, Twitch, …) use title + path via `utils/video-platform-classifier.ts`. Shorts/clips paths are draining; tutorials and books in titles are nourishing; TikTok-style titles are draining.
+
+**All other sites** can shift mood from the tab title when signals are clear (`utils/title-keywords.ts`): books, tutorials, TikTok-style clips, etc.

@@ -1,6 +1,7 @@
 import type { BrowseCategory } from './types';
 import { matchSiteRule } from './site-registry';
-import { classifyYouTube, isYouTubeHost } from './youtube-classifier';
+import { classifyFromTitleHints } from './title-keywords';
+import { classifyVideoPlatform, isVideoPlatformHost } from './video-platform-classifier';
 
 const INTERNAL_URL_PREFIXES = [
   'chrome://',
@@ -8,55 +9,6 @@ const INTERNAL_URL_PREFIXES = [
   'edge://',
   'about:',
   'devtools://',
-];
-
-const NOURISHING_KEYWORDS = [
-  'tutorial',
-  'documentation',
-  'docs',
-  'guide',
-  'learn',
-  'learning',
-  'course',
-  'programming',
-  'developer',
-  'api',
-  'reference',
-  'how to',
-  'build',
-  'project',
-  'research',
-  'paper',
-  'algorithm',
-  'design',
-  'creative',
-  'art',
-  'write',
-  'writing',
-  'stackoverflow',
-  'kubernetes',
-  'aws',
-  'azure',
-];
-
-const DRAINING_KEYWORDS = [
-  'drama',
-  'celebrity',
-  'gossip',
-  'outrage',
-  'scandal',
-  'clickbait',
-  'viral',
-  'feud',
-  'breakup',
-  'hot take',
-  'doom',
-  'rage',
-  'politics fight',
-  'exposed',
-  'leaked',
-  'meme',
-  'cringe',
 ];
 
 const NEUTRAL_KEYWORDS = [
@@ -80,7 +32,7 @@ export interface ClassificationInput {
   url: string;
 }
 
-export type ClassificationSource = 'registry' | 'youtube' | 'keywords' | 'default';
+export type ClassificationSource = 'registry' | 'video' | 'keywords' | 'default';
 
 export interface ClassificationResult {
   category: BrowseCategory;
@@ -121,7 +73,7 @@ function normalizeText(parts: string[]): string {
     .trim();
 }
 
-function countKeywordHits(text: string, keywords: string[]): number {
+function countKeywordHits(text: string, keywords: readonly string[]): number {
   return keywords.reduce((count, keyword) => {
     return text.includes(keyword) ? count + 1 : count;
   }, 0);
@@ -143,6 +95,7 @@ function deriveTopic(text: string, hostname: string, hint?: string | null): stri
     ['Git', ['github', 'gitlab', 'pull request']],
     ['AWS', ['aws', 'amazon web services', 'ec2', 's3']],
     ['Azure', ['azure', 'microsoft cloud']],
+    ['Books', ['ebook', 'audiobook', 'kindle', 'chapter', 'novel']],
   ];
 
   for (const [topic, hints] of topicHints) {
@@ -151,6 +104,23 @@ function deriveTopic(text: string, hostname: string, hint?: string | null): stri
     }
   }
 
+  return null;
+}
+
+function classifyByTitle(
+  title: string,
+  siteRule: { topic?: string } | null,
+  combinedText: string,
+  hostname: string,
+): ClassificationResult | null {
+  const fromTitle = classifyFromTitleHints(title);
+  if (fromTitle) {
+    return {
+      ...fromTitle,
+      topic: deriveTopic(combinedText, hostname, siteRule?.topic),
+      source: 'keywords',
+    };
+  }
   return null;
 }
 
@@ -170,34 +140,19 @@ export function classifyTab(input: ClassificationInput): ClassificationResult {
     };
   }
 
-  if (isYouTubeHost(hostname)) {
-    const youtube = classifyYouTube(input.title, path);
+  if (isVideoPlatformHost(hostname)) {
+    const video = classifyVideoPlatform(input.title, path);
     return {
-      ...youtube,
+      ...video,
       topic: deriveTopic(combinedText, hostname, 'Video'),
-      source: 'youtube',
+      source: 'video',
     };
   }
 
   if (siteRule?.category === 'neutral') {
-    const nourishingHits = countKeywordHits(combinedText, NOURISHING_KEYWORDS);
-    const drainingHits = countKeywordHits(combinedText, DRAINING_KEYWORDS);
-
-    if (drainingHits >= 1 && drainingHits > nourishingHits) {
-      return {
-        category: 'draining',
-        confidence: 0.65,
-        topic: deriveTopic(combinedText, hostname, siteRule.topic),
-        source: 'keywords',
-      };
-    }
-    if (nourishingHits >= 1) {
-      return {
-        category: 'nourishing',
-        confidence: 0.65,
-        topic: deriveTopic(combinedText, hostname, siteRule.topic),
-        source: 'keywords',
-      };
+    const fromTitle = classifyByTitle(input.title, siteRule, combinedText, hostname);
+    if (fromTitle) {
+      return fromTitle;
     }
 
     return {
@@ -208,28 +163,12 @@ export function classifyTab(input: ClassificationInput): ClassificationResult {
     };
   }
 
-  const nourishingHits = countKeywordHits(combinedText, NOURISHING_KEYWORDS);
-  const drainingHits = countKeywordHits(combinedText, DRAINING_KEYWORDS);
+  const fromTitle = classifyByTitle(input.title, null, combinedText, hostname);
+  if (fromTitle) {
+    return fromTitle;
+  }
+
   const neutralHits = countKeywordHits(combinedText, NEUTRAL_KEYWORDS);
-
-  if (drainingHits >= 2 && drainingHits > nourishingHits) {
-    return {
-      category: 'draining',
-      confidence: Math.min(0.9, 0.55 + drainingHits * 0.1),
-      topic: deriveTopic(combinedText, hostname),
-      source: 'keywords',
-    };
-  }
-
-  if (nourishingHits >= 1 && nourishingHits >= drainingHits) {
-    return {
-      category: 'nourishing',
-      confidence: Math.min(0.9, 0.5 + nourishingHits * 0.12),
-      topic: deriveTopic(combinedText, hostname),
-      source: 'keywords',
-    };
-  }
-
   if (neutralHits >= 1) {
     return {
       category: 'neutral',
