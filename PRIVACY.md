@@ -1,6 +1,6 @@
 # Privacy Policy — Tabby
 
-**Last updated:** July 6, 2026
+**Last updated:** July 10, 2026
 
 **Privacy policy URL (for Chrome Web Store):**
 https://github.com/yanovian/chrome-ext-tabby/blob/master/PRIVACY.md
@@ -56,7 +56,7 @@ Remove Tabby's data by uninstalling the extension or clearing its storage in Chr
 | `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Best-effort inject into already-open tabs |
 
-**Page access:** manifest content script for the floating cat and Lottie animations. No broad `host_permissions`. Animation files are bundled assets loaded from the extension, not fetched from the web.
+**Page access:** manifest content script for the floating cat and GIF animations. No broad `host_permissions`. Animation files are bundled assets loaded from the extension, not fetched from the web.
 
 ## Contact
 

@@ -17,7 +17,7 @@ import {
   shouldShowSpeechBubble as shouldShowSpeechBubbleState,
 } from '../../utils/overlay-chrome';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
-import { CompanionLottiePlayer } from '../../utils/lottie-companion';
+import { CompanionGifPlayer } from '../../utils/gif-companion';
 import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
 import { isFeedingActive } from '../../utils/feeding-moment';
 import { isPlayingActive } from '../../utils/play-moment';
@@ -87,7 +87,7 @@ export class TabbyOverlay {
   private showOverlayEnabled = true;
   private exiting = false;
   private moodTransitionToken = 0;
-  private catPlayer: CompanionLottiePlayer | null = null;
+  private catPlayer: CompanionGifPlayer | null = null;
   private initPromise: Promise<void> | null = null;
   private mountGeneration = 0;
 
@@ -324,8 +324,8 @@ export class TabbyOverlay {
     this.destroy();
   }
 
-  private getCatElement(): HTMLCanvasElement | null {
-    return this.catPlayer?.canvas ?? null;
+  private getCatElement(): HTMLImageElement | null {
+    return this.catPlayer?.image ?? null;
   }
 
   private isOverlayVisible(): boolean {
@@ -831,8 +831,8 @@ export class TabbyOverlay {
     const catSurface = document.createElement('div');
     catSurface.className = 'tabby-cat-surface';
 
-    this.catPlayer = new CompanionLottiePlayer();
-    catSurface.appendChild(this.catPlayer.canvas);
+    this.catPlayer = new CompanionGifPlayer();
+    catSurface.appendChild(this.catPlayer.image);
     await this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
 
     panel.appendChild(catSurface);

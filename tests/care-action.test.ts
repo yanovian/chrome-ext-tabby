@@ -126,7 +126,7 @@ describe('handleCareAction during peek', () => {
       mood: 'peek',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: '/animations/adult/peek.json',
+      sprite: '/gif/adult/peek.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -147,7 +147,7 @@ describe('handleCareAction during peek', () => {
 
     expect(presentation.mood).toBe('happy');
     expect(presentation.ambientActivity).toBeNull();
-    expect(presentation.sprite).toContain('happy.json');
+    expect(presentation.sprite).toContain('happy.gif');
     expect(presentation.speech).toBeTruthy();
   });
 });
@@ -175,7 +175,7 @@ describe('handleCareAction treat while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/eat.json',
+      sprite: 'gif/adult/eat.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -194,7 +194,7 @@ describe('handleCareAction treat while hungry', () => {
 
     const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
 
-    expect(presentation.sprite).toContain('feeding.json');
+    expect(presentation.sprite).toContain('feeding.gif');
     expect(presentation.lastCareAction).toBe('feed');
     expect(presentation.eatingUntil).toBe(NOW + pickFeedingDurationMs(DEFAULT_SETTINGS, NOW));
     expect(presentation.speech).toMatch(/yum|nom|munch|hmm|mmm/i);
@@ -212,7 +212,7 @@ describe('handleCareAction treat while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/feeding.json',
+      sprite: 'gif/adult/feeding.gif',
       speech: '[hmm] yummy…',
       triggerKind: 'happy',
       overlayHidden: false,
@@ -234,7 +234,7 @@ describe('handleCareAction treat while hungry', () => {
     expect(completed?.mood).toBe('happy');
     expect(completed?.eatingUntil).toBeNull();
     expect(completed?.lastCareAction).toBeNull();
-    expect(completed?.sprite).toContain('happy.json');
+    expect(completed?.sprite).toContain('happy.gif');
     expect(completed?.speech).toMatch(/thank|human|delici|best|love|amazing|saved/i);
   });
 });
@@ -263,7 +263,7 @@ describe('handleCareAction ask while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/eat.json',
+      sprite: 'gif/adult/eat.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -283,7 +283,7 @@ describe('handleCareAction ask while hungry', () => {
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('starving');
-    expect(presentation.sprite).toContain('eat.json');
+    expect(presentation.sprite).toContain('eat.gif');
     expect(presentation.speech).toMatch(/hungry|feed|tummy|starv|mew/i);
   });
 });
@@ -307,7 +307,7 @@ describe('handleCareAction pet while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/eat.json',
+      sprite: 'gif/adult/eat.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -327,7 +327,7 @@ describe('handleCareAction pet while hungry', () => {
     const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('starving');
-    expect(presentation.sprite).toContain('eat.json');
+    expect(presentation.sprite).toContain('eat.gif');
     expect(presentation.speech).toMatch(/f\*{3}|d\*{3}|s\*{2,}/i);
     expect(presentation.speech).toMatch(/feed|hungry|starv|food|bowl|tummy/i);
     expect(presentation.speech).not.toMatch(/purrr|that was nice|purr motor/i);
@@ -357,7 +357,7 @@ describe('handleCareAction play', () => {
       mood: 'content',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/idle.json',
+      sprite: 'gif/adult/idle.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -376,7 +376,7 @@ describe('handleCareAction play', () => {
 
     const presentation = await handleCareAction('play', NOW, { url: PAGE_URL });
 
-    expect(presentation.sprite).toContain('playing.json');
+    expect(presentation.sprite).toContain('playing.gif');
     expect(presentation.lastCareAction).toBe('play');
     expect(presentation.playingUntil).toBe(NOW + pickPlayingDurationMs(DEFAULT_SETTINGS, NOW));
     expect(presentation.speech).toMatch(/whee|zoom|pounce|bounce|chaos|wild|mew|mrrp/i);
@@ -394,7 +394,7 @@ describe('handleCareAction play', () => {
       mood: 'content',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'animations/adult/playing.json',
+      sprite: 'gif/adult/playing.gif',
       speech: 'WHEEE! Pounce pounce pounce!',
       triggerKind: 'happy',
       overlayHidden: false,
@@ -416,7 +416,7 @@ describe('handleCareAction play', () => {
     expect(completed?.mood).toBe('happy');
     expect(completed?.playingUntil).toBeNull();
     expect(completed?.lastCareAction).toBeNull();
-    expect(completed?.sprite).toContain('happy.json');
+    expect(completed?.sprite).toContain('happy.gif');
     expect(completed?.speech).toMatch(/thank|fun|play|happy|paws|zoom|amazing|best/i);
   });
 });

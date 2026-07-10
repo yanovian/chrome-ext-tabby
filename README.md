@@ -85,7 +85,9 @@ pnpm dev
 | `pnpm zip` | Create Chrome Web Store zip |
 | `pnpm icons` | Regenerate icons from `scripts/generate-icons.py` |
 | `pnpm locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
-| `pnpm animations` | Regenerate Lottie JSON cat clips in `public/animations/` |
+| `pnpm animations` | Regenerate Lottie JSON source clips in `lottie-json/` |
+| `pnpm gif:convert` | Docker Lottie→GIF (overwrites `public/gif/`; see `public/gif/README.md`) |
+| `pnpm animations:ship` | Regenerate JSON and Docker GIF in one step |
 | `pnpm test` | Run unit tests |
 | `pnpm typecheck` | TypeScript check |
 
@@ -121,7 +123,7 @@ runtime: she works fully offline, and nothing about your browsing is uploaded an
 ## Tech stack
 
 - [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
-- [Lottie](https://lottiefiles.com/) + [dotLottie Web](https://github.com/LottieFiles/dotlottie-web) — vector cat animations (`public/animations/`)
+- Animated **GIF** cat clips (`public/gif/`), authored from Lottie JSON in `lottie-json/` (manual [Lottiefiles](https://lottiefiles.com/tools/lottie-to-gif) export today)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
 - GitHub Actions — CI on PR/push, releases on version tags

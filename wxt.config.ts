@@ -57,12 +57,12 @@ export default defineConfig({
     },
     web_accessible_resources: [
       {
-        resources: ['animations/*/*.json', 'dotlottie-player.wasm'],
+        resources: ['gif/*/*.gif'],
         matches: ['<all_urls>'],
       },
     ],
     content_security_policy: {
-      extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+      extension_pages: "script-src 'self'; object-src 'self'",
     },
   },
   zip: {

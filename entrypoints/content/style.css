@@ -145,6 +145,8 @@
   cursor: grabbing;
 }
 
+/* Display size per life stage. Values must match COMPANION_DISPLAY_SIZE in utils/companion-animation.ts.
+   GIF source files are all 150×150px; CSS scales them so Tabby looks smaller as a newborn and larger as an adult. */
 #tabby-companion-root.tabby-root--newborn .tabby-cat {
   width: 132px;
   height: 132px;
@@ -167,6 +169,7 @@
   pointer-events: none;
   filter: drop-shadow(0 8px 14px rgba(88, 58, 120, 0.28));
   transition: opacity 0.15s ease;
+  image-rendering: auto;
 }
 
 @keyframes tabby-mood-out {

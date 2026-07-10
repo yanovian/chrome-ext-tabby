@@ -18,27 +18,62 @@ export type CompanionAnimationState =
   | 'peek'
   | 'overwhelmed';
 
-export const COMPANION_ANIMATION_SPEED = 0.82;
-
-/** Lottie composition size per life stage (must match generate-scaffold-animations.mjs). */
+/** Lottie composition size per life stage (`lottie-json/` only). */
 export const COMPANION_CANVAS_SIZE: Record<CatLifeStage, number> = {
   newborn: 140,
   playful: 180,
   adult: 220,
 };
 
-/** On-page display size in px. Must match entrypoints/content/style.css. */
+/**
+ * Shipped GIF pixel size. Manual exports from
+ * [Lottiefiles Lottie to GIF](https://lottiefiles.com/tools/lottie-to-gif) use one
+ * resolution (150×150) for every life stage.
+ */
+export const COMPANION_GIF_SOURCE_SIZE = 150;
+
+/**
+ * On-page display size in px. The overlay scales each 150×150 GIF by life stage.
+ * Must match `entrypoints/content/style.css` (`.tabby-root--newborn` etc.).
+ */
 export const COMPANION_DISPLAY_SIZE: Record<CatLifeStage, number> = {
   newborn: 132,
   playful: 162,
   adult: 192,
 };
 
+/** Display box size for a life stage (scales the shared 150px GIF source). */
+export function companionDisplaySizeForStage(stage: CatLifeStage): number {
+  return COMPANION_DISPLAY_SIZE[stage];
+}
+
+/** Scale factor from shipped GIF source (150px) to on-page display size. */
+export function companionDisplayScaleForStage(stage: CatLifeStage): number {
+  return COMPANION_DISPLAY_SIZE[stage] / COMPANION_GIF_SOURCE_SIZE;
+}
+
+/** Popup header preview size for adult; newborn and playful scale down proportionally. */
+export const COMPANION_PREVIEW_MAX = 84;
+
+export function companionPreviewSizeForStage(stage: CatLifeStage): number {
+  return Math.round(
+    (COMPANION_DISPLAY_SIZE[stage] / COMPANION_DISPLAY_SIZE.adult) * COMPANION_PREVIEW_MAX,
+  );
+}
+
+export function lifeStageFromCompanionAssetPath(assetPath: string): CatLifeStage | null {
+  const match = assetPath.match(/^(?:gif|lottie-json)\/(newborn|playful|adult)\//);
+  return match ? (match[1] as CatLifeStage) : null;
+}
+
 /** Share of the cat box that peek mood shows above the bottom edge. */
 export const PEEK_VISIBLE_HEIGHT_RATIO = 0.38;
 
-/** Composition pixel size for a companion animation asset path. */
+/** Pixel size of a companion asset file (GIF source or Lottie composition). */
 export function companionCanvasSizeFromPath(assetPath: string): number {
+  if (assetPath.includes('/gif/') || assetPath.startsWith('gif/')) {
+    return COMPANION_GIF_SOURCE_SIZE;
+  }
   if (assetPath.includes('/newborn/')) {
     return COMPANION_CANVAS_SIZE.newborn;
   }
@@ -106,12 +141,12 @@ export function companionAnimationPath(
   stage: CatLifeStage,
   state: CompanionAnimationState,
 ): string {
-  return `animations/${stage}/${state}.json`;
+  return `gif/${stage}/${state}.gif`;
 }
 
 /** Peek hide animation used when Tabby ducks below the edge. */
 export function peekDuckAnimationPath(stage: CatLifeStage): string {
-  return `animations/${stage}/peek_duck.json`;
+  return `gif/${stage}/peek_duck.gif`;
 }
 
 /** Pick the animated companion asset for Tabby's age, mood, and activity. */

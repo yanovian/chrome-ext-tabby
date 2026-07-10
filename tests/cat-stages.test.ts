@@ -37,13 +37,13 @@ describe('resolveLifeStage', () => {
 describe('resolveCompanionAnimation', () => {
   it('uses animated JSON assets for each age and mood', () => {
     expect(resolveCompanionAnimation({ stage: 'newborn', mood: 'happy' })).toBe(
-      'animations/newborn/happy.json',
+      'gif/newborn/happy.gif',
     );
     expect(resolveCompanionAnimation({ stage: 'playful', mood: 'stressed' })).toBe(
-      'animations/playful/stress.json',
+      'gif/playful/stress.gif',
     );
     expect(resolveCompanionAnimation({ stage: 'adult', mood: 'starving' })).toBe(
-      'animations/adult/eat.json',
+      'gif/adult/eat.gif',
     );
   });
 
@@ -51,6 +51,6 @@ describe('resolveCompanionAnimation', () => {
     expect(lifeStageLabel('newborn')).toBe('Newborn kitten');
     expect(lifeStageLabel('playful')).toBe('Playful kitten');
     expect(lifeStageLabel('adult')).toBe('Grown-up Tabby');
-    expect(companionAnimationPath('adult', 'idle')).toBe('animations/adult/idle.json');
+    expect(companionAnimationPath('adult', 'idle')).toBe('gif/adult/idle.gif');
   });
 });

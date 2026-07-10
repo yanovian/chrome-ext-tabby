@@ -2,7 +2,7 @@
 
 Tabby mood animations as **Lottie JSON** for editing and export.
 
-## Regenerate
+## Regenerate JSON
 
 ```bash
 pnpm animations
@@ -10,22 +10,26 @@ pnpm animations
 
 Writes `lottie-json/{newborn,playful,adult}/*.json`.
 
-## Convert to GIF (Docker)
+Lottie canvas sizes per stage: newborn **140**, playful **180**, adult **220** (see `utils/companion-animation.ts` `COMPANION_CANVAS_SIZE`).
+
+## Ship GIFs (manual, current workflow)
+
+**Today:** convert JSON to GIF with the [Lottiefiles Lottie to GIF](https://lottiefiles.com/tools/lottie-to-gif) website, then place files under `public/gif/{stage}/`. Full steps and settings are in [`public/gif/README.md`](../public/gif/README.md).
+
+The Lottiefiles tool exports **150×150 px** for every stage. The extension scales clips by life stage in the overlay CSS.
+
+## Automated conversion (Docker, not used for shipped assets yet)
 
 ```bash
 pnpm gif:convert
 ```
 
-Uses the pinned image `tabby-lottie-gif:4` (`@lottiefiles/dotlottie-web` + gifenc in Docker). Requires **Docker**. Output lands in `public/gif/` at **60 fps** by default, rendered **2×** then downsampled for quality.
+Uses image `tabby-lottie-gif:4`. See `docker/lottie-gif/README.md`.
 
-Or both steps:
+**Warning:** this **overwrites** `public/gif/`. Do not run it while relying on manual Lottiefiles exports unless you mean to replace them.
 
-```bash
-pnpm animations:ship
-```
+`pnpm animations:ship` runs JSON generation and Docker conversion together.
 
-See `docker/lottie-gif/README.md` for image pinning and options.
+## Later
 
-## Manual export
-
-You can still convert JSON to GIF yourself and place files under `public/gif/{stage}/`. See `public/gif/README.md`.
+Improve `pnpm gif:convert` so Docker output matches Lottiefiles quality (transparent background, smooth motion, sensible per-stage sizing). Tracked in `docker/lottie-gif/README.md`.

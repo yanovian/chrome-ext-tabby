@@ -20,6 +20,13 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['.output/**', '.wxt/**', 'node_modules/**', 'public/ort/**', 'public/models/**'],
+    ignores: [
+      '.output/**',
+      '.wxt/**',
+      'node_modules/**',
+      'public/ort/**',
+      'public/models/**',
+      'docker/lottie-gif/**',
+    ],
   },
 );

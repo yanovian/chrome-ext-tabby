@@ -1,4 +1,5 @@
 import { isTrackableUrl, parseHostname } from '../utils/classifier';
+import { warmCompanionGifCache } from '../utils/companion-gif-preload';
 import { recordDrainingSessionElapsed, syncDrainingSessionToPage } from '../utils/draining-session';
 import { markIntroCompleted, resetIntro } from '../utils/intro';
 import {
@@ -34,7 +35,13 @@ import {
 import { getDoNotDisturbStatus } from '../utils/do-not-disturb';
 import { resolveCareActionPageUrl } from '../utils/care-action';
 import { isPageOverlayHidden, clearAllPageOverlayHides } from '../utils/page-overlay';
-import { effectiveAppearanceLimits, ensureSettingsExist, getSettings, saveSettings } from '../utils/settings';
+import {
+  effectiveAppearanceLimits,
+  ensureSettingsExist,
+  getSettings,
+  saveSettings,
+  settingsChangeRequiresPresent,
+} from '../utils/settings';
 import {
   beginFocus,
   createEmptySnapshot,
@@ -271,6 +278,7 @@ async function bootstrap(): Promise<void> {
 }
 
 async function bootstrapInstall(): Promise<void> {
+  void warmCompanionGifCache();
   const now = Date.now();
   await resetIntro();
   await saveSettings({ showOverlay: true }, IS_DEV_BUILD);
@@ -454,7 +462,10 @@ export default defineBackground(() => {
                 await notifyOverlayDeactivate(activeOverlayTabId);
                 activeOverlayTabId = null;
               }
-            } else if (data.showOverlay && !message.skipPresent) {
+            } else if (
+              data.showOverlay &&
+              (!message.skipPresent || settingsChangeRequiresPresent(before, data))
+            ) {
               const state = await loadOrchestratorState();
               await evaluateAndPresent(
                 { ...state, settings: data },

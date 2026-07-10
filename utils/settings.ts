@@ -175,6 +175,18 @@ export function effectiveAppearanceLimits(settings: ExtensionSettings): {
   };
 }
 
+/** Dev overrides that change sprite or on-screen size need a fresh presentation. */
+export function settingsChangeRequiresPresent(
+  before: ExtensionSettings,
+  after: ExtensionSettings,
+): boolean {
+  return (
+    before.devForceLifeStage !== after.devForceLifeStage ||
+    before.devForceMood !== after.devForceMood ||
+    before.devModeEnabled !== after.devModeEnabled
+  );
+}
+
 export function isQuietHour(hour: number, settings: ExtensionSettings): boolean {
   const { quietHoursStart, quietHoursEnd } = settings;
   if (quietHoursStart === quietHoursEnd) {

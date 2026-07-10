@@ -10,8 +10,14 @@ help: ## Show available commands
 install: ## Install dependencies (pnpm)
 	$(PNPM) install
 
-animations: ## Regenerate companion Lottie JSON (public/animations/)
+animations: ## Regenerate companion Lottie JSON (lottie-json/)
 	$(PNPM) animations
+
+gif-convert: ## Convert lottie-json to public/gif via Docker
+	$(PNPM) gif:convert
+
+animations-ship: ## Regenerate JSON and convert to GIF
+	$(PNPM) animations:ship
 
 assets: ## Prepare bundled assets (locales, animations)
 	$(PNPM) assets

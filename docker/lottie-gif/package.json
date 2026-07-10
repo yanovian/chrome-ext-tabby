@@ -1,0 +1,10 @@
+{
+  "name": "tabby-lottie-gif",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@lottiefiles/dotlottie-web": "0.55.0",
+    "@napi-rs/canvas": "0.1.81",
+    "gifenc": "1.0.3"
+  }
+}

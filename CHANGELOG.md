@@ -2,6 +2,12 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.2.0 (unreleased)
+
+- **Animated GIFs** are used instead of Lottie json.
+- **Preload animations** on first install, so appear smoothly.
+- Tabby **grows and scales in size with age** on screen and in the popup preview.
+
 ## 2.1.0
 
 - **Stressed** on draining pages comes first; after about an hour on **social or news**, Tabby may feel **overwhelmed**: wide eyes with **pink toe-bean paws** sliding in from the sides to cover them. Leave those sites and she eases back to **stressed**, then **happy** after a minute away with a thank-you.

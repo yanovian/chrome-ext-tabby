@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT_DIR = join(ROOT, 'public', 'animations');
+const OUT_DIR = join(ROOT, 'lottie-json');
 
 const COLORS = {
   body: [0.97, 0.62, 0.28],
@@ -1286,4 +1286,4 @@ for (const stage of Object.keys(STAGES)) {
   count += 1;
 }
 
-console.log(`[generate-scaffold-animations] wrote ${count} connected orange Tabby animations`);
+console.log(`[generate-scaffold-animations] wrote ${count} Lottie JSON files to lottie-json/`);

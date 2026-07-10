@@ -17,14 +17,19 @@ import {
   requestShowOverlayOnPage,
 } from '../../utils/runtime-client';
 import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
-import { CompanionLottiePlayer } from '../../utils/lottie-companion';
+import { CompanionGifPlayer } from '../../utils/gif-companion';
+import {
+  companionPreviewSizeForStage,
+  lifeStageFromCompanionAssetPath,
+} from '../../utils/companion-animation';
 import {
   MOOD_TIMER_DEV_SIM_BOUNDS,
   MOOD_TIMER_PRODUCTION,
   formatTemperDuration,
   type TemperSimulation,
 } from '../../utils/mood-timers';
-import type { DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
+import { settingsChangeRequiresPresent } from '../../utils/settings';
+import type { CatLifeStage, DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
 
@@ -83,19 +88,37 @@ let pendingSimulation: Partial<TemperSimulation> | null = null;
 let syncingTemper = false;
 let actionBusy = false;
 let cachedSettings: ExtensionSettings;
-let previewPlayer: CompanionLottiePlayer | null = null;
+let previewPlayer: CompanionGifPlayer | null = null;
 let previewSpritePath: string | null = null;
+let previewStage: CatLifeStage | null = null;
 
-async function updatePreviewCat(assetPath: string, options: { force?: boolean } = {}): Promise<void> {
-  if (!options.force && previewSpritePath === assetPath && previewPlayer) {
+function applyPreviewSize(stage: CatLifeStage): void {
+  const size = companionPreviewSizeForStage(stage);
+  previewHost.style.width = `${size}px`;
+  previewHost.style.height = `${size}px`;
+}
+
+async function updatePreviewCat(
+  assetPath: string,
+  options: { force?: boolean; stage?: CatLifeStage } = {},
+): Promise<void> {
+  const stage = options.stage ?? lifeStageFromCompanionAssetPath(assetPath) ?? 'playful';
+  if (
+    !options.force &&
+    previewSpritePath === assetPath &&
+    previewStage === stage &&
+    previewPlayer
+  ) {
     return;
   }
   if (!previewPlayer) {
-    previewPlayer = new CompanionLottiePlayer();
-    previewHost.appendChild(previewPlayer.canvas);
+    previewPlayer = new CompanionGifPlayer();
+    previewHost.appendChild(previewPlayer.image);
   }
+  applyPreviewSize(stage);
   await previewPlayer.load(publicAnimationAssetUrl, assetPath);
   previewSpritePath = assetPath;
+  previewStage = stage;
 }
 
 interface ActiveTabInfo {
@@ -403,8 +426,17 @@ function scheduleSave(): void {
   }
   saveTimer = setTimeout(() => {
     void (async () => {
+      const before = cachedSettings;
       const saved = await requestSaveSettings(readPartialSettings(), { skipPresent: true });
+      cachedSettings = saved;
       fillForm(saved);
+      if (settingsChangeRequiresPresent(before, saved)) {
+        const presentation = await requestPresentation();
+        await updatePreviewCat(presentation.sprite, {
+          force: true,
+          stage: presentation.stage,
+        });
+      }
       await refreshOverlayButtons(saved);
       showStatus('Saved.');
     })();

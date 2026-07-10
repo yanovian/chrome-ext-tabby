@@ -13,7 +13,7 @@ if (!existsSync(OUT)) {
   process.exit(1);
 }
 
-const forbidden = ['sprites', 'models', 'ort'];
+const forbidden = ['sprites', 'models', 'ort', 'animations', 'lottie-json'];
 const problems = [];
 
 function walk(dir, prefix = '') {
@@ -41,8 +41,15 @@ if (problems.length > 0) {
 }
 
 const wasmPath = join(OUT, 'dotlottie-player.wasm');
-if (!existsSync(wasmPath)) {
-  console.error('[verify-build-output] missing dotlottie-player.wasm — run pnpm assets');
+if (existsSync(wasmPath)) {
+  console.error('[verify-build-output] legacy dotlottie-player.wasm must not ship — remove Lottie assets');
   process.exit(1);
 }
+
+const gifDir = join(OUT, 'gif');
+if (!existsSync(gifDir)) {
+  console.error('[verify-build-output] missing gif/ in build output — add GIFs under public/gif/');
+  process.exit(1);
+}
+
 console.log('[verify-build-output] ok');

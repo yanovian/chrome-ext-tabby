@@ -143,7 +143,7 @@ export function appendAnimationCacheBust(url: string, rand: string | null): stri
   return `${url}${joiner}rand=${rand}`;
 }
 
-/** Resolve companion Lottie JSON. In dev, adds `?rand=…` on every load so JSON is not cached. */
+/** Resolve companion GIF. In dev, adds `?rand=…` on every load so clips are not cached. */
 export function publicAnimationAssetUrl(path: string): string {
   const url = publicAssetUrl(path);
   if (!isDevBuild()) {

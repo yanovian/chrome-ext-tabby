@@ -20,13 +20,12 @@
     "locales": "node scripts/generate-locales.mjs",
     "icons": "python3 scripts/generate-icons.py",
     "animations": "node scripts/generate-scaffold-animations.mjs",
-    "assets": "pnpm locales && pnpm animations && node scripts/copy-dotlottie-wasm.mjs",
+    "gif:convert": "node scripts/convert-lottie-to-gif.mjs",
+    "animations:ship": "pnpm animations && pnpm gif:convert",
+    "assets": "pnpm locales && pnpm animations",
     "postinstall": "wxt prepare && node scripts/generate-locales.mjs"
   },
   "packageManager": "pnpm@10.33.4",
-  "dependencies": {
-    "@lottiefiles/dotlottie-web": "^0.76.0"
-  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/chrome": "^0.0.320",

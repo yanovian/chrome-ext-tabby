@@ -43,8 +43,8 @@ describe('shouldAnimateMoodTransition', () => {
   it('crossfades when the sprite changes on a visible overlay', () => {
     expect(
       shouldAnimateMoodTransition({
-        previousSprite: 'animations/adult/idle.json',
-        nextSprite: 'animations/adult/eat.json',
+        previousSprite: 'gif/adult/idle.gif',
+        nextSprite: 'gif/adult/eat.gif',
         hasVisibleOverlay: true,
       }),
     ).toBe(true);
@@ -54,14 +54,14 @@ describe('shouldAnimateMoodTransition', () => {
     expect(
       shouldAnimateMoodTransition({
         previousSprite: null,
-        nextSprite: 'animations/adult/idle.json',
+        nextSprite: 'gif/adult/idle.gif',
         hasVisibleOverlay: true,
       }),
     ).toBe(false);
     expect(
       shouldAnimateMoodTransition({
-        previousSprite: 'animations/adult/idle.json',
-        nextSprite: 'animations/adult/idle.json',
+        previousSprite: 'gif/adult/idle.gif',
+        nextSprite: 'gif/adult/idle.gif',
         hasVisibleOverlay: true,
       }),
     ).toBe(false);
@@ -69,20 +69,29 @@ describe('shouldAnimateMoodTransition', () => {
 });
 
 describe('preloadCompanionSprite', () => {
-  it('prefetches the animation JSON', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
-    vi.stubGlobal('fetch', fetchMock);
+  it('prefetches the companion GIF', async () => {
+    let loadedSrc = '';
+    class MockImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      private _src = '';
+      set src(value: string) {
+        this._src = value;
+        loadedSrc = value;
+        queueMicrotask(() => this.onload?.());
+      }
+      get src() {
+        return this._src;
+      }
+    }
+    vi.stubGlobal('Image', MockImage);
 
     await preloadCompanionSprite(
       (path) => `chrome-extension://test/${path}`,
-      'animations/adult/idle.json',
+      'gif/adult/idle.gif',
     );
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      'chrome-extension://test/animations/adult/idle.json',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    );
-
+    expect(loadedSrc).toBe('chrome-extension://test/gif/adult/idle.gif');
     vi.unstubAllGlobals();
   });
 });
