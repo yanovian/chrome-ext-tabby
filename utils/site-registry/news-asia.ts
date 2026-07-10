@@ -1,0 +1,36 @@
+import type { SiteRule } from './types';
+
+export const ASIA_NEWS_RULES: readonly SiteRule[] = [
+  {
+    hosts: [
+      'asahi.com',
+      'nhk.or.jp',
+      'mainichi.jp',
+      'nikkei.com',
+      'kyodonews.net',
+      'chinadaily.com.cn',
+      'xinhuanet.com',
+      'caixin.com',
+      'thepaper.cn',
+      'scmp.com',
+      'straitstimes.com',
+      'indiatimes.com',
+      'timesofindia.com',
+      'hindustantimes.com',
+      'indianexpress.com',
+      'thehindu.com',
+      'koreaherald.com',
+      'koreatimes.co.kr',
+      'chosun.com',
+      'hani.co.kr',
+      'kompas.com',
+      'detik.com',
+      'hurriyet.com.tr',
+      'sabah.com.tr',
+      'cumhuriyet.com.tr',
+    ],
+    category: 'draining',
+    drainingKind: 'news',
+    topic: 'News',
+  },
+];

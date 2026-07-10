@@ -14,7 +14,7 @@ describe('matchDrainingSessionKind', () => {
     expect(matchDrainingSessionKind('TMZ', 'https://www.tmz.com/')).toBe('news');
   });
 
-  it('detects BBC Persian and VOA Persian', () => {
+  it('detects BBC Persian and VOA Persian by host, not ambiguous path', () => {
     expect(
       matchDrainingSessionKind('BBC News فارسی', 'https://www.bbc.com/persian'),
     ).toBe('news');
@@ -25,6 +25,30 @@ describe('matchDrainingSessionKind', () => {
       matchDrainingSessionKind('VOA فارسی', 'https://www.persian.voanews.com/'),
     ).toBe('news');
     expect(matchDrainingSessionKind('VOA', 'https://www.voanews.com/')).toBe('news');
+  });
+
+  it('does not treat ambiguous language paths on unknown hosts as news', () => {
+    expect(
+      matchDrainingSessionKind('Learn Farsi', 'https://example.com/farsi/lesson-1'),
+    ).toBeNull();
+    expect(
+      matchDrainingSessionKind('Persian rugs', 'https://shop.example/persian/catalog'),
+    ).toBeNull();
+    expect(
+      matchDrainingSessionKind('For you', 'https://example.com/for-you'),
+    ).toBeNull();
+    expect(
+      matchDrainingSessionKind('Popular items', 'https://example.com/popular'),
+    ).toBeNull();
+  });
+
+  it('still uses high-confidence news paths on unknown hosts', () => {
+    expect(
+      matchDrainingSessionKind('Local paper', 'https://example.com/news/today'),
+    ).toBe('news');
+    expect(
+      matchDrainingSessionKind('Breaking', 'https://example.com/breaking/story'),
+    ).toBe('news');
   });
 
   it('detects Armenian news sites', () => {
@@ -49,12 +73,21 @@ describe('matchDrainingSessionKind', () => {
     expect(matchDrainingSessionKind('Kayhan London', 'https://kayhan.london/')).toBe('news');
   });
 
-  it('detects Danish and Swedish news sites', () => {
+  it('detects Nordic news sites', () => {
     expect(matchDrainingSessionKind('DR', 'https://www.dr.dk/')).toBe('news');
     expect(matchDrainingSessionKind('Politiken', 'https://politiken.dk/')).toBe('news');
     expect(matchDrainingSessionKind('SVT', 'https://www.svt.se/')).toBe('news');
     expect(matchDrainingSessionKind('DN', 'https://www.dn.se/')).toBe('news');
     expect(matchDrainingSessionKind('Aftonbladet', 'https://www.aftonbladet.se/')).toBe('news');
+  });
+
+  it('detects added regional news sites', () => {
+    expect(matchDrainingSessionKind('Nikkei', 'https://www.nikkei.com/')).toBe('news');
+    expect(matchDrainingSessionKind('Hindu', 'https://www.thehindu.com/')).toBe('news');
+    expect(matchDrainingSessionKind('ABC', 'https://www.abc.net.au/')).toBe('news');
+    expect(matchDrainingSessionKind('Haaretz', 'https://www.haaretz.com/')).toBe('news');
+    expect(matchDrainingSessionKind('News24', 'https://www.news24.com/')).toBe('news');
+    expect(matchDrainingSessionKind('Le Monde', 'https://www.lemonde.fr/')).toBe('news');
   });
 
   it('returns null for ordinary pages', () => {

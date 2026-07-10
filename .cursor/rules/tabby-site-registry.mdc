@@ -1,0 +1,39 @@
+---
+description: Site registry layout and conservative path-based mood scoring
+alwaysApply: true
+---
+
+# Tabby site registry (agent)
+
+Known hosts live in `utils/site-registry/` (one file per region or category). Entry: `utils/site-registry/index.ts`.
+
+## Layout
+
+| File | Contents |
+|------|----------|
+| `social.ts` | Social / messaging hosts |
+| `news-gossip.ts` | Western majors, gossip, international broadcasters |
+| `news-europe.ts`, `news-asia.ts`, `news-americas.ts`, … | Regional news hosts |
+| `news-armenia.ts`, `news-iran.ts`, `news-nordic.ts` | Focus regions |
+| `nourishing.ts`, `neutral.ts` | Dev docs, errands, streaming |
+| `path-hints.ts` | High-confidence news path fallbacks only |
+| `title-hints.ts` | Known outlet names in titles |
+| `match.ts` | `matchSiteRule`, `matchDrainingSessionKind` |
+
+Add new hosts to the **regional file**, not a monolithic list.
+
+## Path hints (conservative)
+
+Mood and draining sessions should change only when we are **confident**.
+
+**Do not** use ambiguous path fragments:
+- Feed labels: `/for-you`, `/popular`, `/fyp`, `/explore`, `/trending`, `/feed`, `/reels`
+- Language segments: `/persian`, `/farsi`, `/arabic`, `/fa`, `/en`, `/noticias`, `/nachrichten`, …
+
+**OK** on unknown hosts (`path-hints.ts`): `/news`, `/headlines`, `/breaking`
+
+Prefer **listing the host** (e.g. `bbcpersian.com`, `iranintl.com`) over path guessing.
+
+## Keyword classifier
+
+`utils/classifier.ts` `DRAINING_KEYWORDS` must not include generic feed words (`for you`, `trending`, `explore`). Use outlet hosts or explicit gossip/drama terms instead.

@@ -1,0 +1,37 @@
+import type { SiteRule } from './types';
+
+export const NORDIC_NEWS_RULES: readonly SiteRule[] = [
+  {
+    hosts: [
+      'dr.dk',
+      'tv2.dk',
+      'berlingske.dk',
+      'politiken.dk',
+      'jyllands-posten.dk',
+      'ekstrabladet.dk',
+      'bt.dk',
+      'information.dk',
+      'finans.dk',
+      'svt.se',
+      'dn.se',
+      'aftonbladet.se',
+      'expressen.se',
+      'gp.se',
+      'sydsvenskan.se',
+      'di.se',
+      'tv4.se',
+      'sverigesradio.se',
+      'nrk.no',
+      'aftenposten.no',
+      'vg.no',
+      'dagbladet.no',
+      'yle.fi',
+      'hs.fi',
+      'iltalehti.fi',
+      'is.fi',
+    ],
+    category: 'draining',
+    drainingKind: 'news',
+    topic: 'News',
+  },
+];

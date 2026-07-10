@@ -57,9 +57,6 @@ const DRAINING_KEYWORDS = [
   'leaked',
   'meme',
   'cringe',
-  'for you',
-  'trending',
-  'explore',
 ];
 
 const NEUTRAL_KEYWORDS = [
