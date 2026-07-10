@@ -4,7 +4,7 @@ import { STORAGE_KEYS } from './types';
 export const INTRO_STEPS = [
   "Hi! I'm Tabby — your browser cat.",
   'I live here while you browse. Everything stays on your device.',
-  'I stay off sensitive sites, like email and banking.',
+  'I stay off some sensitive sites.',
   "I'm off to play. Feed me or play with me sometimes, okay?",
 ] as const;
 

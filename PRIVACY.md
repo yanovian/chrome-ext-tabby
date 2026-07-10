@@ -56,7 +56,7 @@ Remove Tabby's data by uninstalling the extension or clearing its storage in Chr
 | `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Best-effort inject into already-open tabs |
 
-**Page access:** manifest content script for the floating cat and GIF animations. No broad `host_permissions`. Animation files are bundled assets loaded from the extension, not fetched from the web.
+**Page access:** manifest content script for the floating cat and GIF animations. No broad `host_permissions`. Tabby does not inject on some sensitive sites. Animation files are bundled assets loaded from the extension, not fetched from the web.
 
 ## Contact
 

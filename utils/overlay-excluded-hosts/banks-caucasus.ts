@@ -1,0 +1,21 @@
+/** Georgia and Azerbaijan retail banks. */
+export const CAUCASUS_BANK_HOST_ROOTS: readonly string[] = [
+  'tbcbank.ge',
+  'bankofgeorgia.ge',
+  'libertybank.ge',
+  'credobank.ge',
+  'terabank.ge',
+  'procreditbank.ge',
+  'basisbank.ge',
+  'cartubank.ge',
+  'kapitalbank.az',
+  'accessbank.az',
+  'pashabank.az',
+  'rabita.az',
+  'bankrespublika.az',
+  'abb-bank.az',
+  'unibank.az',
+  'xalqbank.az',
+  'yelo.az',
+  'leobank.az',
+];

@@ -3,30 +3,51 @@ import {
   isOverlayHostExcluded,
   looksLikeBankingHost,
   overlayExcludeMatchPatterns,
+  OVERLAY_EXCLUDED_HOST_ROOTS,
 } from '../utils/overlay-excluded-hosts';
 
 describe('isOverlayHostExcluded', () => {
-  it('excludes GitHub and subdomains', () => {
-    expect(isOverlayHostExcluded('github.com')).toBe(true);
-    expect(isOverlayHostExcluded('gist.github.com')).toBe(true);
+  it('allows GitHub and other dev platforms', () => {
+    expect(isOverlayHostExcluded('github.com')).toBe(false);
+    expect(isOverlayHostExcluded('gist.github.com')).toBe(false);
+    expect(isOverlayHostExcluded('gitlab.com')).toBe(false);
   });
 
-  it('excludes Gmail and Outlook mail hosts', () => {
-    expect(isOverlayHostExcluded('mail.google.com')).toBe(true);
-    expect(isOverlayHostExcluded('gmail.com')).toBe(true);
-    expect(isOverlayHostExcluded('outlook.live.com')).toBe(true);
+  it('allows email and account sign-in hosts', () => {
+    expect(isOverlayHostExcluded('mail.google.com')).toBe(false);
+    expect(isOverlayHostExcluded('gmail.com')).toBe(false);
+    expect(isOverlayHostExcluded('outlook.live.com')).toBe(false);
+    expect(isOverlayHostExcluded('accounts.google.com')).toBe(false);
+    expect(isOverlayHostExcluded('proton.me')).toBe(false);
   });
 
   it('excludes listed major banks', () => {
     expect(isOverlayHostExcluded('chase.com')).toBe(true);
     expect(isOverlayHostExcluded('secure.chase.com')).toBe(true);
     expect(isOverlayHostExcluded('bankofamerica.com')).toBe(true);
+    expect(isOverlayHostExcluded('deutsche-bank.de')).toBe(true);
+    expect(isOverlayHostExcluded('hdfcbank.com')).toBe(true);
+    expect(isOverlayHostExcluded('bb.com.br')).toBe(true);
+    expect(isOverlayHostExcluded('ameriabank.am')).toBe(true);
+    expect(isOverlayHostExcluded('sberbank.ru')).toBe(true);
+    expect(isOverlayHostExcluded('tbcbank.ge')).toBe(true);
+    expect(isOverlayHostExcluded('ziraatbank.com.tr')).toBe(true);
+    expect(isOverlayHostExcluded('kaspi.kz')).toBe(true);
+    expect(isOverlayHostExcluded('bankmellat.ir')).toBe(true);
+  });
+
+  it('excludes payment and password manager hosts', () => {
+    expect(isOverlayHostExcluded('paypal.com')).toBe(true);
+    expect(isOverlayHostExcluded('stripe.com')).toBe(true);
+    expect(isOverlayHostExcluded('1password.com')).toBe(true);
+    expect(isOverlayHostExcluded('bitwarden.com')).toBe(true);
   });
 
   it('allows ordinary browsing sites', () => {
     expect(isOverlayHostExcluded('developer.mozilla.org')).toBe(false);
     expect(isOverlayHostExcluded('news.ycombinator.com')).toBe(false);
     expect(isOverlayHostExcluded('example.com')).toBe(false);
+    expect(isOverlayHostExcluded('apple.com')).toBe(false);
   });
 
   it('catches unknown bank domains by hostname hint', () => {
@@ -43,16 +64,25 @@ describe('looksLikeBankingHost', () => {
 });
 
 describe('overlayExcludeMatchPatterns', () => {
-  it('includes sensitive hosts but not the Chrome Web Store', () => {
+  it('includes payment hosts but not the Chrome Web Store', () => {
     const patterns = overlayExcludeMatchPatterns();
     expect(patterns).not.toContain('*://chrome.google.com/webstore/*');
     expect(patterns).not.toContain('*://chromewebstore.google.com/*');
-    expect(patterns).toContain('*://github.com/*');
-    expect(patterns).toContain('*://*.github.com/*');
+    expect(patterns).not.toContain('*://github.com/*');
+    expect(patterns).toContain('*://paypal.com/*');
+    expect(patterns).toContain('*://*.paypal.com/*');
   });
 
   it('does not treat the Chrome Web Store as an excluded host', () => {
     expect(isOverlayHostExcluded('chromewebstore.google.com')).toBe(false);
     expect(isOverlayHostExcluded('chrome.google.com')).toBe(false);
+  });
+});
+
+describe('OVERLAY_EXCLUDED_HOST_ROOTS', () => {
+  it('keeps regional bank lists organized without duplicate roots', () => {
+    const unique = new Set(OVERLAY_EXCLUDED_HOST_ROOTS);
+    expect(unique.size).toBe(OVERLAY_EXCLUDED_HOST_ROOTS.length);
+    expect(OVERLAY_EXCLUDED_HOST_ROOTS.length).toBeGreaterThan(100);
   });
 });

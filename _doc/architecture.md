@@ -39,7 +39,7 @@ flowchart TB
 
 ### Content script (`entrypoints/content/`)
 
-Manifest-registered on `<all_urls>` (excluding sensitive sites in `overlay-excluded-hosts.ts`). Renders the floating cat UI on the **single active overlay tab**.
+Manifest-registered on `<all_urls>` (excluding some sensitive sites in `overlay-excluded-hosts/`). Renders the floating cat UI on the **single active overlay tab**.
 
 Responsibilities:
 
@@ -234,7 +234,7 @@ Content scripts also listen for `overlayActivate` and `overlayDeactivate` (not i
 - **No external network:** Lottie assets and speech templates are bundled. No analytics or remote config.
 - **Input validation:** unknown `runtime.onMessage` types return an error; dev-only messages are gated on `import.meta.env.DEV` and `devModeEnabled`.
 - **Local storage only:** IndexedDB and `chrome.storage.local` keep data on-device.
-- **Sensitive sites excluded:** content script `excludeMatches` for hosts in `overlay-excluded-hosts.ts` (email, banking, strict CSP dev sites, and similar). Unknown bank domains are also skipped when the hostname looks like banking. The **Chrome Web Store** is included so Tabby can greet users on install.
+- **Sensitive sites excluded:** content script `excludeMatches` for sensitive sites in `overlay-excluded-hosts/`. Unknown bank domains are also skipped when the hostname looks like banking. The **Chrome Web Store** is included so Tabby can greet users on install.
 
 ## Build system
 

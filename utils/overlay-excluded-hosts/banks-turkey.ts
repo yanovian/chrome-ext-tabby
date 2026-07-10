@@ -1,0 +1,23 @@
+/** Turkish banks and digital wallets. */
+export const TURKEY_BANK_HOST_ROOTS: readonly string[] = [
+  'ziraatbank.com.tr',
+  'isbank.com.tr',
+  'garantibbva.com.tr',
+  'akbank.com',
+  'yapikredi.com.tr',
+  'halkbank.com.tr',
+  'vakifbank.com.tr',
+  'denizbank.com',
+  'qnbfinansbank.com',
+  'teb.com.tr',
+  'ing.com.tr',
+  'kuveytturk.com.tr',
+  'enpara.com',
+  'papara.com',
+  'tosla.com',
+  'param.com.tr',
+  'odeabank.com.tr',
+  'sekerbank.com.tr',
+  'fibabanka.com.tr',
+  'alternatifbank.com.tr',
+];

@@ -1,0 +1,21 @@
+/** Canadian banks and credit unions. */
+export const CANADA_BANK_HOST_ROOTS: readonly string[] = [
+  'rbcroyalbank.com',
+  'rbc.com',
+  'scotiabank.com',
+  'bmo.com',
+  'cibc.com',
+  'tangerine.ca',
+  'desjardins.com',
+  'nationalbank.ca',
+  'laurentianbank.ca',
+  'atb.com',
+  'vancity.com',
+  'coastcapitalsavings.com',
+  'simplii.com',
+  'pcfinancial.ca',
+  'manulifebank.ca',
+  'eqbank.ca',
+  'alterna.ca',
+  'meridiancu.ca',
+];

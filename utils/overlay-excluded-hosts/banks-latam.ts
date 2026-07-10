@@ -1,0 +1,21 @@
+/** Latin America banks. */
+export const LATAM_BANK_HOST_ROOTS: readonly string[] = [
+  'bb.com.br',
+  'itau.com.br',
+  'bradesco.com.br',
+  'santander.com.br',
+  'caixa.gov.br',
+  'banamex.com',
+  'banorte.com',
+  'bbva.mx',
+  'bancochile.cl',
+  'bancogalicia.com.ar',
+  'macro.com.ar',
+  'bancolombia.com',
+  'davivienda.com',
+  'bancopopular.com',
+  'interbank.pe',
+  'bcp.com.pe',
+  'bancoguayaquil.com',
+  'brou.com.uy',
+];
