@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.2.2 (unreleased)
+## 2.2.2
 
 - Update the list of **sensitive sites** to avoid.
 
