@@ -1,0 +1,31 @@
+---
+description: Lottie JSON → shipped GIF pipeline (animations then gif-convert)
+alwaysApply: true
+---
+
+# Tabby GIF pipeline (agent)
+
+Companion clips ship as **GIF** in `public/gif/{stage}/`. Source Lottie JSON lives in `lottie-json/{stage}/` (not shipped).
+
+## When animation JSON changes
+
+1. **`pnpm animations`** (or `make animations`) — regenerate `lottie-json/`
+2. **`pnpm gif:convert`** (or `make gif-convert`) — Docker converts JSON → `public/gif/` (overwrites shipped GIFs)
+
+Or one step: **`pnpm animations:ship`** / **`make animations-ship`**.
+
+Do **not** skip step 2 after step 1. The extension loads GIFs, not Lottie JSON.
+
+## Docker
+
+- Image: `tabby-lottie-gif:8` (`docker/lottie-gif/Dockerfile`)
+- Pipeline: dotlottie-web (PNG frames) → gifski
+- Docs: `docker/lottie-gif/README.md`, `public/gif/README.md`, `lottie-json/README.md`
+
+## Not for GIF export
+
+`@lottiefiles/relottie-cli` only transforms Lottie **JSON** (AST). It does not render GIFs. Do not suggest it for `gif:convert`.
+
+## peek_duck
+
+`peek_duck.gif` uses gifski `--repeat -1` (play once), not `--once`.

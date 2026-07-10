@@ -2,29 +2,36 @@
 
 The extension loads these **animated GIFs** on web pages.
 
-## Current source: manual Lottiefiles export
+## Regenerate from Lottie JSON
 
-Shipped GIFs were converted manually with the [Lottiefiles Lottie to GIF](https://lottiefiles.com/tools/lottie-to-gif) tool.
+**Two steps** when JSON changes: generate source clips, then convert to GIF.
 
-Recommended settings (match the online tool):
+```bash
+pnpm animations        # 1. write lottie-json/{stage}/
+pnpm gif:convert       # 2. Docker → public/gif/{stage}/ (150×150, transparent)
+```
+
+Makefile equivalents: `make animations`, then `make gif-convert`.
+
+**One command** for both steps:
+
+```bash
+pnpm animations:ship
+# or: make animations-ship
+```
+
+Docker runs **dotlottie-web** (transparent PNG frames) then **gifski** (temporal palette, less color flicker). See `docker/lottie-gif/README.md`.
 
 | Setting | Value |
 |---------|--------|
 | Background | **transparent** |
-| Resolution | **Small 150 × 150** |
-| Loop | **on** (except `peek_duck.gif`, play once if the tool allows) |
+| Resolution | **150 × 150** (every life stage) |
+| Frame rate | **native Lottie** (~30 fps) |
+| Loop | **on** (`peek_duck.gif` plays once) |
 
-Steps:
+The extension **scales by age in CSS** (`COMPANION_DISPLAY_SIZE` in `utils/companion-animation.ts`).
 
-1. Regenerate JSON if needed: `pnpm animations` → `lottie-json/{stage}/`.
-2. Open [lottiefiles.com/tools/lottie-to-gif](https://lottiefiles.com/tools/lottie-to-gif).
-3. Upload each `lottie-json/{stage}/{state}.json` (or paste JSON).
-4. Use the settings above and download the GIF.
-5. Save as `public/gif/{stage}/{state}.gif` (same basename as the JSON).
-
-**Important:** the online tool exports every clip at **150×150 px**, regardless of life stage. Newborn, playful, and adult folders all use the same pixel dimensions. The extension **scales by age in CSS** so a kitten looks smaller and an adult cat looks larger (`COMPANION_DISPLAY_SIZE` in `utils/companion-animation.ts`).
-
-Do **not** run `pnpm gif:convert` unless you intend to replace these files with Docker output.
+`pnpm gif:convert` **overwrites** `public/gif/`. Requires Docker.
 
 ## Required files
 
@@ -48,10 +55,6 @@ Each stage needs one GIF per mood clip:
 
 Stages: `newborn`, `playful`, `adult` (**39 files** total).
 
-## Automated conversion (future)
+## Manual export (optional)
 
-`pnpm gif:convert` (Docker) can rebuild GIFs from `lottie-json/`. Output quality and per-stage sizing still need work to match the Lottiefiles tool. See `docker/lottie-gif/README.md` (**TODO**).
-
-```bash
-pnpm animations:ship   # JSON + Docker GIFs (overwrites public/gif/)
-```
+You can still use [lottiefiles.com/tools/lottie-to-gif](https://lottiefiles.com/tools/lottie-to-gif) and save downloads as `public/gif/{stage}/{state}.gif`.

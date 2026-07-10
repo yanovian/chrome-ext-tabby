@@ -1,57 +1,54 @@
 # Lottie → GIF (Docker)
 
-Experimental converter: **@lottiefiles/dotlottie-web** + gifenc in Docker (same renderer family as the [Lottiefiles online tool](https://lottiefiles.com/tools/lottie-to-gif)).
+Local converter: **dotlottie-web** renders transparent PNG frames, then **gifski** builds the GIF with temporal palettes (no color flicker).
 
-## Shipped assets today
+MP4 is not used in the middle step because H.264 MP4 cannot keep a transparent background. PNG → gifski matches the approach recommended for flicker-free GIFs.
 
-**`public/gif/` is maintained manually** via [Lottiefiles Lottie to GIF](https://lottiefiles.com/tools/lottie-to-gif). See [`public/gif/README.md`](../../public/gif/README.md).
-
-Do **not** run `pnpm gif:convert` unless you intend to overwrite those files.
-
-## Quick use (when experimenting)
+## Quick use
 
 ```bash
 pnpm animations      # write lottie-json/
 pnpm gif:convert     # build image if needed → public/gif/
 ```
 
-Or both: `pnpm animations:ship`.
+Makefile: `make animations`, then `make gif-convert`.
+
+Or both in one step: `pnpm animations:ship` / `make animations-ship`.
+
+**After JSON changes**, always run `gif:convert` (or `animations:ship`) so `public/gif/` matches `lottie-json/`.
 
 ## Image
 
-Default: `tabby-lottie-gif:4`, built automatically on first `pnpm gif:convert`.
+Default: `tabby-lottie-gif:8`, built automatically on first `pnpm gif:convert`.
 
 Rebuild:
 
 ```bash
-docker build -t tabby-lottie-gif:4 -f docker/lottie-gif/Dockerfile .
+docker build -t tabby-lottie-gif:8 -f docker/lottie-gif/Dockerfile .
 ```
+
+## Pipeline (inside the container)
+
+1. **dotlottie-web** + canvas — Lottie JSON → `frame-0001.png`, … at 150×150 with transparent background
+2. **gifski** — PNG sequence → GIF with a shared temporal palette
 
 ## Options
 
 | Env / flag | Default | Meaning |
 |------------|---------|---------|
-| `TABBY_GIF_FPS` | `60` | Output fps; upsamples from Lottie source (~30) with interpolation |
-| `TABBY_GIF_SCALE` | `2` | Render scale before downsample (smoother edges) |
-| `TABBY_GIF_COLORS` | `256` | Shared GIF palette size |
+| `TABBY_GIF_FPS` | `0` | `0` = native Lottie `fr` (~30); set e.g. `30` to override |
+| `TABBY_GIF_SCALE` | `1` | Render scale before downsample (`2` = sharper edges, slower) |
+| `TABBY_GIFSKI_QUALITY` | `100` | Gifski quality 1–100 |
 | `--stage adult` | all stages | Convert one life stage only |
 | `--dry-run` | off | Print docker steps only |
 
-Docker output uses per-stage Lottie canvas sizes: newborn **140**, playful **180**, adult **220**.
+Every stage exports at **150×150**. The overlay scales clips by life stage in CSS.
 
-## TODO: match Lottiefiles web output
+## Requirements
 
-The Docker pipeline is **not** the source of shipped GIFs yet. Before switching:
-
-1. **Visual parity** with [lottiefiles.com/tools/lottie-to-gif](https://lottiefiles.com/tools/lottie-to-gif): transparent background, smooth motion, no flicker or halos.
-2. **Export sizing**: support a single **150×150** export (like the web tool’s “Small”) *or* per-stage sizes that match `COMPANION_CANVAS_SIZE`, with the overlay scaling documented in `utils/companion-animation.ts`.
-3. **Stability**: reliable conversion on macOS Docker (retries are a workaround today).
-4. **Validation**: side-by-side compare Docker vs Lottiefiles on `idle`, `peek`, and `overwhelmed` before replacing `public/gif/`.
-
-Reference web settings: transparent background, **150×150** resolution, loop on.
+- Docker (first build compiles gifski from source and installs npm packages; slower once)
 
 ## Notes
 
-- GIFs play at **60 fps** by default (interpolated from ~30 fps Lottie).
-- Each clip is rendered at **2×** resolution, then downsampled for clean edges.
-- A **single shared 256-color palette** from all frames keeps colors steady.
+- `peek_duck.gif` uses gifski `--once` (play a single time).
+- Override the image tag with `TABBY_LOTTIE_GIF_IMAGE` for custom builds.

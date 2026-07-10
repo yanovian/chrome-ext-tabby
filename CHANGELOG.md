@@ -7,6 +7,7 @@ Updates for people who use Tabby. Newest first.
 - **Animated GIFs** are used instead of Lottie json.
 - **Preload animations** on first install, so appear smoothly.
 - Tabby **grows and scales in size with age** on screen and in the popup preview.
+- **`pnpm gif:convert`** rebuilds GIFs with **gifski** for smoother colors.
 
 ## 2.1.0
 

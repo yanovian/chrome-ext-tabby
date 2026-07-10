@@ -1,4 +1,4 @@
-.PHONY: help install prepare animations assets dev build zip icons locales test test-watch \
+.PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales test test-watch \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major
 
 PNPM ?= pnpm
@@ -13,10 +13,10 @@ install: ## Install dependencies (pnpm)
 animations: ## Regenerate companion Lottie JSON (lottie-json/)
 	$(PNPM) animations
 
-gif-convert: ## Convert lottie-json to public/gif via Docker
+gif-convert: ## Convert lottie-json/ to public/gif/ via Docker (dotlottie + gifski)
 	$(PNPM) gif:convert
 
-animations-ship: ## Regenerate JSON and convert to GIF
+animations-ship: ## Regenerate Lottie JSON, then GIFs (animations + gif-convert)
 	$(PNPM) animations:ship
 
 assets: ## Prepare bundled assets (locales, animations)

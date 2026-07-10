@@ -1,49 +1,45 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
- * Convert Lottie JSON to transparent GIFs (dotlottie-web, 2× supersample).
+ * Lottie JSON → PNG frames (dotlottie-web) → GIF (gifski).
+ * Gifski uses temporal palettes to avoid color flicker between frames.
  */
-import { readFile, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
+import { readFile, rm } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { DotLottie } from '@lottiefiles/dotlottie-web';
 import { createCanvas } from '@napi-rs/canvas';
-// @ts-expect-error gifenc has no types in this context
-import { GIFEncoder, quantize, applyPalette, snapColorsToPalette } from 'gifenc';
 import {
-  GIF_DISPOSE_BACKGROUND,
-  GIF_PIXEL_FORMAT,
-  GIF_QUANTIZE_OPTIONS,
-  TABBY_GIF_DEFAULT_FPS,
-  TABBY_GIF_RENDER_SCALE,
   downsampleRgbaFrame,
-  gifFrameDelayMs,
-  mergeRgbaFrames,
   outputFrameCount,
   resolveOutputFps,
   stabilizeFrameAlpha,
-  transparentPaletteIndex,
-} from './gif-alpha-encode.mjs';
+  writeRgbaPng,
+} from './utils/lottie-gif-frames.mjs';
 
 const inputDir = process.env.INPUT_DIR ?? '/input';
 const outputDir = process.env.OUTPUT_DIR ?? '/output';
-const width = Number(process.env.WIDTH ?? 140);
+const width = Number(process.env.WIDTH ?? 150);
 const height = Number(process.env.HEIGHT ?? width);
-const maxFps = Number(process.env.FPS ?? TABBY_GIF_DEFAULT_FPS);
-const renderScale = Math.max(1, Number(process.env.TABBY_GIF_SCALE ?? TABBY_GIF_RENDER_SCALE));
+const maxFps = Number(process.env.FPS ?? 0);
+const renderScale = Math.max(1, Number(process.env.TABBY_GIF_SCALE ?? 1));
 const convertOnly = process.env.CONVERT_ONLY;
-const colors = Number(process.env.TABBY_GIF_COLORS ?? 256);
+const gifskiQuality = process.env.TABBY_GIFSKI_QUALITY ?? '100';
 
 const renderWidth = Math.round(width * renderScale);
 const renderHeight = Math.round(height * renderScale);
-
-function gifRepeatFor(jsonName) {
-  return jsonName === 'peek_duck.json' ? -1 : 0;
-}
 
 function listJsonFiles(dir) {
   return readdirSync(dir)
     .filter((name) => name.endsWith('.json'))
     .sort();
+}
+
+function runGifski(args, label) {
+  const result = spawnSync('gifski', args, { stdio: 'inherit' });
+  if (result.status !== 0) {
+    throw new Error(`${label ?? 'gifski'} failed (exit ${result.status ?? 'unknown'})`);
+  }
 }
 
 async function loadDotLottie(jsonPath) {
@@ -78,59 +74,55 @@ function renderFrames(lottie, canvas) {
       renderScale > 1
         ? downsampleRgbaFrame(raw, renderWidth, renderHeight, width, height, createCanvas)
         : raw;
-    frames.push(sample);
+    frames.push(stabilizeFrameAlpha(sample));
   }
 
   return { frames, outputFps };
 }
 
-async function encodeGif(frames, outputPath, opt) {
-  const stabilized = frames.map((frame) => stabilizeFrameAlpha(frame));
-  const palette = quantize(
-    mergeRgbaFrames(stabilized),
-    opt?.colors ?? 256,
-    GIF_QUANTIZE_OPTIONS,
-  );
-  snapColorsToPalette(palette, [[0, 0, 0, 0]], 0);
-
-  const transparentIndex = transparentPaletteIndex(palette);
-  const delay = gifFrameDelayMs(opt?.outputFps ?? 60);
-  const builder = new GIFEncoder();
-
-  for (let i = 0; i < stabilized.length; i += 1) {
-    const index = applyPalette(stabilized[i], palette, GIF_PIXEL_FORMAT);
-    const frameOpts = {
-      delay,
-      dispose: GIF_DISPOSE_BACKGROUND,
-      palette: i === 0 ? palette : undefined,
-      transparent: transparentIndex >= 0,
-      transparentIndex: transparentIndex >= 0 ? transparentIndex : 0,
-    };
-    if (i === 0) {
-      frameOpts.repeat = opt?.repeat ?? 0;
-    }
-    builder.writeFrame(index, width, height, frameOpts);
-  }
-
-  builder.finish();
-  await writeFile(outputPath, Buffer.from(builder.bytes()));
-}
-
 async function convertFile(jsonPath, outputPath) {
+  const jsonName = basename(jsonPath);
+  const workDir = join(outputDir, `.work-${basename(jsonPath, '.json')}`);
+  await rm(workDir, { recursive: true, force: true });
+  mkdirSync(workDir, { recursive: true });
+
   const { lottie, canvas } = await loadDotLottie(jsonPath);
+  let frames;
+  let outputFps;
   try {
-    const { frames, outputFps } = renderFrames(lottie, canvas);
-    console.log(
-      `[convert]   ${frames.length} frames @ ${outputFps.toFixed(2)} fps (${(frames.length / outputFps).toFixed(2)}s), palette target ${colors}`,
-    );
-    await encodeGif(frames, outputPath, {
-      repeat: gifRepeatFor(basename(jsonPath)),
-      colors,
-      outputFps,
-    });
+    ({ frames, outputFps } = renderFrames(lottie, canvas));
   } finally {
     lottie.destroy();
   }
+
+  console.log(`[convert]   ${frames.length} frames @ ${outputFps.toFixed(2)} fps`);
+  const framePaths = [];
+  for (let i = 0; i < frames.length; i += 1) {
+    const framePath = join(workDir, `frame-${String(i + 1).padStart(4, '0')}.png`);
+    await writeRgbaPng(createCanvas, frames[i], width, height, framePath);
+    framePaths.push(framePath);
+  }
+
+  const gifskiArgs = [
+    '-o',
+    outputPath,
+    '--width',
+    String(width),
+    '--height',
+    String(height),
+    '--fps',
+    String(outputFps),
+    '--quality',
+    gifskiQuality,
+    ...framePaths,
+  ];
+  if (jsonName === 'peek_duck.json') {
+    gifskiArgs.push('--repeat', '-1');
+  }
+
+  console.log(`[convert]   gifski ${framePaths.length} frames → ${basename(outputPath)}`);
+  runGifski(gifskiArgs, 'gifski');
+  await rm(workDir, { recursive: true, force: true });
 }
 
 async function main() {
@@ -155,7 +147,9 @@ async function main() {
   let wrote = 0;
   for (const jsonName of jsonFiles) {
     const gifName = jsonName.replace(/\.json$/, '.gif');
-    console.log(`[convert] ${jsonName} → ${gifName} (${renderWidth}×${renderHeight} → ${width}×${height})`);
+    const scaleLabel =
+      renderScale > 1 ? `${renderWidth}×${renderHeight} → ${width}×${height}` : `${width}×${height}`;
+    console.log(`[convert] ${jsonName} → ${gifName} (${scaleLabel})`);
     try {
       await convertFile(join(inputDir, jsonName), join(outputDir, gifName));
       wrote += 1;

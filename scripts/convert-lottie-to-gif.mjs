@@ -2,10 +2,10 @@
 /**
  * Convert lottie-json/*.json to public/gif/*.gif using a pinned Docker image.
  *
- * WARNING: Overwrites public/gif/. Shipped GIFs are manual Lottiefiles exports today.
- * See public/gif/README.md before running.
+ * Pipeline: dotlottie-web (transparent PNG frames) → gifski (temporal palette).
+ * See public/gif/README.md and docker/lottie-gif/README.md.
  *
- * Image:    tabby-lottie-gif:4 (built from docker/lottie-gif/)
+ * Image: tabby-lottie-gif:8 (built from docker/lottie-gif/)
  *
  * Requires Docker. Does not run during `pnpm assets` (optional, slower).
  *
@@ -23,6 +23,7 @@ import {
   LOTTIE_GIF_DOCKER_IMAGE,
   LOTTIE_GIF_DOCKERFILE_DIR,
   LOTTIE_GIF_STAGES,
+  TABBY_GIF_DEFAULT_FPS,
   convertStagePlan,
 } from '../utils/lottie-gif-convert.mjs';
 
@@ -87,103 +88,81 @@ function ensureDockerImage(dryRun) {
   }
 }
 
-function runDockerConvert(stage, size, dryRun, plan) {
+function dockerRunArgs(stage, size, tempDir) {
   const sourceDir = join(LOTTIE_DIR, stage);
-  const outputDir = join(ROOT, 'public', 'gif', stage);
-  const fps = process.env.TABBY_GIF_FPS ?? '60';
-  const tempDir = join(tmpdir(), `tabby-gif-${stage}-${process.pid}`);
-  const maxAttempts = Number(process.env.TABBY_GIF_RETRIES ?? 25);
+  const fps = process.env.TABBY_GIF_FPS ?? String(TABBY_GIF_DEFAULT_FPS);
   const convertScript = join(ROOT, 'docker/lottie-gif/convert.mjs');
-  const encodeHelpers = join(ROOT, 'utils/gif-alpha-encode.mjs');
+
+  return [
+    'run',
+    '--rm',
+    '--memory',
+    '6g',
+    '--shm-size',
+    '1g',
+    '-e',
+    `WIDTH=${size}`,
+    '-e',
+    `HEIGHT=${size}`,
+    '-e',
+    `FPS=${fps}`,
+    '-e',
+    `TABBY_GIFSKI_QUALITY=${process.env.TABBY_GIFSKI_QUALITY ?? '100'}`,
+    '-e',
+    'INPUT_DIR=/input',
+    '-e',
+    'OUTPUT_DIR=/output',
+    '-v',
+    `${convertScript}:/app/convert.mjs:ro`,
+    '-v',
+    `${sourceDir}:/input:ro`,
+    '-v',
+    `${tempDir}:/output`,
+    LOTTIE_GIF_DOCKER_IMAGE,
+  ];
+}
+
+function runDockerConvert(stage, size, dryRun, plan) {
+  const outputDir = join(ROOT, 'public', 'gif', stage);
+  const fps = process.env.TABBY_GIF_FPS ?? String(TABBY_GIF_DEFAULT_FPS);
+  const tempDir = join(tmpdir(), `tabby-gif-${stage}-${process.pid}`);
+  const maxAttempts = Number(process.env.TABBY_GIF_RETRIES ?? 3);
   mkdirSync(tempDir, { recursive: true });
   mkdirSync(outputDir, { recursive: true });
 
   console.log(
-    `[gif:convert] ${stage}: ${size}×${size}px @ ${fps} fps via ${LOTTIE_GIF_DOCKER_IMAGE}`,
+    `[gif:convert] ${stage}: ${size}×${size}px @ ${fps === '0' ? 'native' : `${fps} fps`} via ${LOTTIE_GIF_DOCKER_IMAGE} (dotlottie + gifski)`,
   );
   if (dryRun) {
-    for (const jsonName of plan.jsonFiles) {
-      console.log(
-        `[gif:convert] dry-run: docker run … -e CONVERT_ONLY=${jsonName} ${LOTTIE_GIF_DOCKER_IMAGE}`,
-      );
-    }
+    console.log(`[gif:convert] dry-run: docker ${dockerRunArgs(stage, size, tempDir).join(' ')}`);
     return;
   }
 
-  for (const jsonName of plan.jsonFiles) {
-    const gifName = jsonName.replace(/\.json$/, '.gif');
-    const outputPath = join(tempDir, gifName);
-    if (existsSync(outputPath)) {
-      continue;
-    }
-
-    let converted = false;
-    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-      const args = [
-        'run',
-        '--rm',
-        '--memory',
-        '4g',
-        '--shm-size',
-        '256m',
-        '-e',
-        `WIDTH=${size}`,
-        '-e',
-        `HEIGHT=${size}`,
-        '-e',
-        `FPS=${fps}`,
-        '-e',
-        `TABBY_GIF_COLORS=${process.env.TABBY_GIF_COLORS ?? '256'}`,
-        '-e',
-        'INPUT_DIR=/input',
-        '-e',
-        'OUTPUT_DIR=/output',
-        '-e',
-        `CONVERT_ONLY=${jsonName}`,
-        '-v',
-        `${convertScript}:/app/convert.mjs:ro`,
-        '-v',
-        `${encodeHelpers}:/app/gif-alpha-encode.mjs:ro`,
-        '-v',
-        `${sourceDir}:/input:ro`,
-        '-v',
-        `${tempDir}:/output`,
-        LOTTIE_GIF_DOCKER_IMAGE,
-      ];
-
-      const result = spawnSync('docker', args, { stdio: 'inherit' });
-      if (result.status === 0 && existsSync(outputPath)) {
-        converted = true;
-        break;
-      }
-      if (attempt < maxAttempts) {
-        console.warn(`[gif:convert] retry ${jsonName} (${attempt}/${maxAttempts})`);
-        spawnSync('sleep', ['0.4']);
-      }
-    }
-
-    if (!converted) {
-      console.error(`[gif:convert] failed ${jsonName} after ${maxAttempts} attempts`);
-      rmSync(tempDir, { recursive: true, force: true });
-      process.exit(1);
-    }
-  }
-
-  const gifNames = readdirSync(tempDir).filter((name) => name.endsWith('.gif'));
-  if (gifNames.length !== plan.jsonFiles.length) {
-    console.error(
-      `[gif:convert] expected ${plan.jsonFiles.length} GIFs in ${tempDir}, found ${gifNames.length}`,
-    );
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     rmSync(tempDir, { recursive: true, force: true });
-    process.exit(1);
+    mkdirSync(tempDir, { recursive: true });
+
+    const result = spawnSync('docker', dockerRunArgs(stage, size, tempDir), { stdio: 'inherit' });
+    const gifNames = existsSync(tempDir)
+      ? readdirSync(tempDir).filter((name) => name.endsWith('.gif'))
+      : [];
+    if (result.status === 0 && gifNames.length === plan.jsonFiles.length) {
+      for (const name of gifNames) {
+        copyFileSync(join(tempDir, name), join(outputDir, name));
+      }
+      rmSync(tempDir, { recursive: true, force: true });
+      console.log(`[gif:convert] shipped ${gifNames.length} GIFs to public/gif/${stage}/`);
+      return;
+    }
+    if (attempt < maxAttempts) {
+      console.warn(`[gif:convert] retry ${stage} (${attempt}/${maxAttempts})`);
+      spawnSync('sleep', ['2']);
+    }
   }
 
-  for (const name of gifNames) {
-    copyFileSync(join(tempDir, name), join(outputDir, name));
-  }
   rmSync(tempDir, { recursive: true, force: true });
-
-  console.log(`[gif:convert] shipped ${gifNames.length} GIFs to public/gif/${stage}/`);
+  console.error(`[gif:convert] failed ${stage} after ${maxAttempts} attempts`);
+  process.exit(1);
 }
 
 function main() {

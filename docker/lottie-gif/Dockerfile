@@ -1,12 +1,27 @@
-# Tabby Lottie → GIF via dotlottie-web + gifenc.
-# Build from repo root: docker build -f docker/lottie-gif/Dockerfile -t tabby-lottie-gif:4 .
-FROM oven/bun:1.2.23
+# Tabby Lottie → GIF via dotlottie-web (PNG frames) + gifski.
+# Build from repo root: docker build -f docker/lottie-gif/Dockerfile -t tabby-lottie-gif:8 .
+FROM rust:1-bookworm AS gifski-builder
+RUN cargo install gifski --locked --version 1.33.0
+
+FROM node:22-bookworm-slim
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libcairo2 \
+    libpango-1.0-0 \
+    libjpeg62-turbo \
+    libgif7 \
+    librsvg2-2 \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=gifski-builder /usr/local/cargo/bin/gifski /usr/local/bin/gifski
 
 WORKDIR /app
-COPY docker/lottie-gif/package.json docker/lottie-gif/bun.lock ./
-RUN bun install --frozen-lockfile
+COPY docker/lottie-gif/package.json ./
+RUN npm install --omit=dev
 
 COPY docker/lottie-gif/convert.mjs ./
-COPY utils/gif-alpha-encode.mjs ./gif-alpha-encode.mjs
+COPY utils/lottie-gif-frames.mjs ./utils/lottie-gif-frames.mjs
 
-ENTRYPOINT ["bun", "convert.mjs"]
+ENTRYPOINT ["node", "convert.mjs"]

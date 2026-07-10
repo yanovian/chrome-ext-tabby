@@ -86,12 +86,15 @@ pnpm dev
 | `pnpm icons` | Regenerate icons from `scripts/generate-icons.py` |
 | `pnpm locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
 | `pnpm animations` | Regenerate Lottie JSON source clips in `lottie-json/` |
-| `pnpm gif:convert` | Docker Lottie→GIF (overwrites `public/gif/`; see `public/gif/README.md`) |
+| `pnpm gif:convert` | Docker Lottie→GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
 | `pnpm animations:ship` | Regenerate JSON and Docker GIF in one step |
+
+After **`pnpm animations`** (or `make animations`), run **`pnpm gif:convert`** (or `make gif-convert`) so shipped GIFs in `public/gif/` match the new JSON. Or use **`pnpm animations:ship`** / **`make animations-ship`** for both steps.
+
 | `pnpm test` | Run unit tests |
 | `pnpm typecheck` | TypeScript check |
 
-A `Makefile` wraps the same tasks (`make check`, `make package`, `make release-patch`, …).
+A `Makefile` wraps the same tasks (`make check`, `make gif-convert`, `make animations-ship`, `make package`, `make release-patch`, …).
 
 ## Localization
 
@@ -123,7 +126,7 @@ runtime: she works fully offline, and nothing about your browsing is uploaded an
 ## Tech stack
 
 - [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
-- Animated **GIF** cat clips (`public/gif/`), authored from Lottie JSON in `lottie-json/` (manual [Lottiefiles](https://lottiefiles.com/tools/lottie-to-gif) export today)
+- Animated **GIF** cat clips (`public/gif/`), built with `pnpm gif:convert` (dotlottie-web + gifski in Docker)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
 - GitHub Actions — CI on PR/push, releases on version tags
