@@ -1,7 +1,7 @@
 {
   "name": "tabby",
   "description": "Tabby — a cat lives in your browser. She reacts to your tabs and grows with you. She stays off some sensitive sites.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "type": "module",
   "scripts": {
