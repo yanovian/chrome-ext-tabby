@@ -5,6 +5,8 @@
 
 **A cat lives in your browser.**
 
+> **[⬇️ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/tabby/bgjfofaekhihaeafccchijbakkhlcngb)**
+>
 > **[How to use Tabby →](./_doc/tutorial.md)**
 
 Tabby is a **virtual pet** who keeps you company while you browse. She floats on the
