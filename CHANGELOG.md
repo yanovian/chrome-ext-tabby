@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.2.0 (unreleased)
+## 2.2.0
 
 - **Animated GIFs** are used instead of Lottie json.
 - **Preload animations** on first install, so appear smoothly.
