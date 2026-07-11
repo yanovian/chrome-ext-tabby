@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.2.3
+
+- Avoid more sites to be **less annoying**.
+
 ## 2.2.2
 
 - Update the list of **sensitive sites** to avoid.

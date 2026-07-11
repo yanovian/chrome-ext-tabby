@@ -36,6 +36,21 @@ describe('isOverlayHostExcluded', () => {
     expect(isOverlayHostExcluded('bankmellat.ir')).toBe(true);
   });
 
+  it('excludes major video streaming services so Tabby stays out of the way', () => {
+    expect(isOverlayHostExcluded('netflix.com')).toBe(true);
+    expect(isOverlayHostExcluded('www.netflix.com')).toBe(true);
+    expect(isOverlayHostExcluded('max.com')).toBe(true);
+    expect(isOverlayHostExcluded('kinopoisk.ru')).toBe(true);
+    expect(isOverlayHostExcluded('ivi.ru')).toBe(true);
+  });
+
+  it('still allows music streaming and general video sites', () => {
+    expect(isOverlayHostExcluded('spotify.com')).toBe(false);
+    expect(isOverlayHostExcluded('music.youtube.com')).toBe(false);
+    expect(isOverlayHostExcluded('youtube.com')).toBe(false);
+    expect(isOverlayHostExcluded('www.youtube.com')).toBe(false);
+  });
+
   it('excludes payment and password manager hosts', () => {
     expect(isOverlayHostExcluded('paypal.com')).toBe(true);
     expect(isOverlayHostExcluded('stripe.com')).toBe(true);
@@ -70,7 +85,7 @@ describe('overlayExcludeMatchPatterns', () => {
     expect(patterns).not.toContain('*://chromewebstore.google.com/*');
     expect(patterns).not.toContain('*://github.com/*');
     expect(patterns).toContain('*://paypal.com/*');
-    expect(patterns).toContain('*://*.paypal.com/*');
+    expect(patterns).toContain('*://*.netflix.com/*');
   });
 
   it('does not treat the Chrome Web Store as an excluded host', () => {
