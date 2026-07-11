@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.2.4 (unreleased)
+
+- Store **description** says she skips some sites to avoid **distraction**.
+
 ## 2.2.3
 
 - Avoid more sites to be **less annoying**.

@@ -15,8 +15,8 @@ describe('intro', () => {
     }
   });
 
-  it('mentions sensitive sites before the closing step', () => {
-    expect(introStepText(2)).toMatch(/sensitive sites/i);
+  it('mentions avoiding distraction before the closing step', () => {
+    expect(introStepText(2)).toMatch(/avoid distraction/i);
   });
 
   it('shows who Tabby is on the first step', () => {
