@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { LocaleRoute } from '@/components/LocaleRoute';
 import { LocaleSync } from '@/components/LocaleSync';
@@ -7,17 +7,29 @@ import { ScrollToTop } from '@/components/ScrollToTop';
 import { HomePage } from '@/pages/HomePage';
 import { PrivacyPage } from '@/pages/PrivacyPage';
 import { TermsPage } from '@/pages/TermsPage';
+import { parseSitePath } from '@/i18n/routes';
 
 const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
+
+function FloatingLanguageSwitcher() {
+  const { pathname } = useLocation();
+  const { page } = parseSitePath(pathname, routerBasename ?? '');
+  if (page !== '') {
+    return null;
+  }
+  return (
+    <div className="site-chrome">
+      <LanguageSwitcher />
+    </div>
+  );
+}
 
 export function App() {
   return (
     <BrowserRouter basename={routerBasename}>
       <LocaleSync />
       <SiteHead />
-      <div className="site-chrome">
-        <LanguageSwitcher />
-      </div>
+      <FloatingLanguageSwitcher />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />

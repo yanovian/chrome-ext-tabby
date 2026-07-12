@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Footer } from '@/components/Footer';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Container } from '@/components/ui';
 import { useLocalizedPath } from '@/hooks/useSiteLocale';
 import { prepareLegalMarkdown, renderMarkdown } from '@/lib/markdown';
@@ -27,6 +28,9 @@ export function LegalPage({ repoUrl, markdown }: LegalPageProps) {
             <Link to={path('privacy')}>{t('privacyNav')}</Link>
             <Link to={path('terms')}>{t('termsNav')}</Link>
           </nav>
+          <div className="legal-header__lang">
+            <LanguageSwitcher />
+          </div>
         </Container>
       </header>
       <main className="legal-page">
