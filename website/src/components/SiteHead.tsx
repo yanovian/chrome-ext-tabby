@@ -2,12 +2,12 @@ import {
   absoluteAssetUrl,
   CHROME_STORE_URL,
   OG_IMAGE_HEIGHT,
-  OG_IMAGE_PATH,
   OG_IMAGE_WIDTH,
   POUYAN_RAZIAN_URL,
   SITE_NAME,
   SITE_URL,
   YANOVIAN_LLC_URL,
+  ogImagePath,
   sitePageUrl,
 } from '../../site-meta';
 import { useHead } from '@unhead/react';
@@ -54,7 +54,7 @@ export function SiteHead() {
   const authorName = t('authorName');
   const creatorName = t('creatorName');
   const ogImageAlt = t('ogImageAlt');
-  const ogImage = absoluteAssetUrl(OG_IMAGE_PATH);
+  const ogImage = absoluteAssetUrl(ogImagePath(language === 'en' ? undefined : language));
   const canonical = sitePageUrl(legalPage, language === 'en' ? undefined : language);
   const ogType = isHome ? 'website' : 'article';
 

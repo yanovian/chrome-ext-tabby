@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,10 +35,12 @@ const staticRoot = join(websiteRoot, 'static');
 const staticAssets = [
   ['robots.txt', 'robots.txt'],
   ['sitemap.xml', 'sitemap.xml'],
+  ['og-image.png', 'og-image.png'],
 ];
 
 mkdirSync(join(outPublic, 'gif'), { recursive: true });
 mkdirSync(join(outPublic, 'lottie'), { recursive: true });
+mkdirSync(join(outPublic, 'og'), { recursive: true });
 
 for (const [from, to] of gifAssets) {
   cpSync(join(repoPublic, from), join(outPublic, to));
@@ -52,6 +54,15 @@ for (const [from, to] of staticAssets) {
   cpSync(join(staticRoot, from), join(outPublic, to));
 }
 
+const ogStaticDir = join(staticRoot, 'og');
+if (existsSync(ogStaticDir)) {
+  for (const file of readdirSync(ogStaticDir)) {
+    if (file.endsWith('.png')) {
+      cpSync(join(ogStaticDir, file), join(outPublic, 'og', file));
+    }
+  }
+}
+
 console.log(
-  `Copied ${gifAssets.length} raster assets and ${lottieAssets.length} Lottie clips to website/public/`,
+  `Copied ${gifAssets.length} raster assets, ${lottieAssets.length} Lottie clips, and OG images to website/public/`,
 );

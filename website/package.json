@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "node scripts/copy-assets.mjs && node scripts/build-og-image.mjs",
-    "predev": "node scripts/copy-assets.mjs && node scripts/build-og-image.mjs",
+    "prebuild": "node scripts/copy-assets.mjs",
+    "predev": "node scripts/copy-assets.mjs",
+    "og-images": "node scripts/copy-assets.mjs && node scripts/build-og-image.mjs && node scripts/copy-assets.mjs",
     "dev": "vite",
     "lint-i18n": "node scripts/lint-i18n.mjs",
     "lint-i18n-fix": "node scripts/lint-i18n.mjs --fix",

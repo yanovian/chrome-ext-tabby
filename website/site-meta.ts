@@ -21,11 +21,19 @@ export const POUYAN_RAZIAN_NAME = 'Pooyan Razian';
 
 export const POUYAN_RAZIAN_URL = 'https://pooyan.info';
 
-export const OG_IMAGE_PATH = 'og-image.png';
-
 export const OG_IMAGE_WIDTH = 1200;
 
 export const OG_IMAGE_HEIGHT = 630;
+
+/** Relative path to the locale OG share image in `public/`. */
+export function ogImagePath(locale?: string): string {
+  if (!locale || locale === 'en') {
+    return 'og-image.png';
+  }
+  return `og/${locale}.png`;
+}
+
+export const OG_IMAGE_PATH = ogImagePath('en');
 
 export function absoluteAssetUrl(assetPath: string): string {
   const path = assetPath.startsWith('/') ? assetPath.slice(1) : assetPath;

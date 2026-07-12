@@ -15,7 +15,10 @@ const SITE_ORIGIN = 'https://yanovian.github.io';
 const SITE_REPO_PATH = 'chrome-ext-tabby';
 const SITE_URL = `${SITE_ORIGIN}/${SITE_REPO_PATH}/`;
 const SITE_NAME = 'Tabby';
-const OG_IMAGE = `${SITE_URL}og-image.png`;
+function siteOgImageUrl(locale) {
+  const path = locale && locale !== 'en' ? `og/${locale}.png` : 'og-image.png';
+  return new URL(path, SITE_URL).href;
+}
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
 
@@ -122,6 +125,7 @@ function buildHtml({
   const authorName = seo.authorName || 'Yanovian LLC';
   const ogImageAlt = seo.ogImageAlt || 'Tabby';
   const ogLocale = ogLocaleTag(locale);
+  const ogImage = siteOgImageUrl(locale);
 
   const hreflangLinks = locales
     .map((code) => {
@@ -170,14 +174,14 @@ function buildHtml({
     <meta property="og:url" content="${escapeHtml(canonical)}" />
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
-    <meta property="og:image" content="${escapeHtml(OG_IMAGE)}" />
+    <meta property="og:image" content="${escapeHtml(ogImage)}" />
     <meta property="og:image:width" content="${String(OG_IMAGE_WIDTH)}" />
     <meta property="og:image:height" content="${String(OG_IMAGE_HEIGHT)}" />
     <meta property="og:image:alt" content="${escapeHtml(ogImageAlt)}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
-    <meta name="twitter:image" content="${escapeHtml(OG_IMAGE)}" />
+    <meta name="twitter:image" content="${escapeHtml(ogImage)}" />
     <meta name="twitter:image:alt" content="${escapeHtml(ogImageAlt)}" />
     ${styleTags}
     ${scriptTags}

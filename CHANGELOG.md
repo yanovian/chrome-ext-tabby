@@ -12,6 +12,8 @@ Updates for people who use Tabby. Newest first.
 - The marketing site is available in **38 languages**, with a language picker and right-to-left layout.
 - The language picker shows a **flag** beside each language name.
 - Page **title and meta tags** follow the language you pick, including in view-source via locale URLs like `/fa/`.
+- **Share preview images** match each language too.
+- Share images ship **in the repo**; CI does not rebuild them every deploy.
 
 ## 2.2.4
 

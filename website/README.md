@@ -25,7 +25,7 @@ pnpm build        # lint-i18n, then uses .env.production → /chrome-ext-tabby/
 pnpm preview      # after build; pass --base /chrome-ext-tabby/ for Pages paths
 ```
 
-Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuild`. `build-og-image.mjs` writes `og-image.png` (1200×630).
+Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuild`. Committed share images live in `static/og-image.png` and `static/og/*.png` (copied into `public/`). Regenerate with `pnpm og-images` after SEO copy changes.
 
 **SEO:** `@unhead/react` + `@unhead/schema-org` in `src/components/SiteHead.tsx`, copy in `src/locales/*/seo.json`. `scripts/prerender-locale-html.mjs` writes a static HTML shell per locale and route (e.g. `/fa/`) so view-source and no-JS crawlers see localized meta on GitHub Pages. English stays at `/`; other locales use a `/{code}/` prefix.
 

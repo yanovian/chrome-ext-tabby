@@ -1,31 +1,88 @@
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
-const SITE_NAME = 'Tabby';
-const SITE_TAGLINE = 'A cat that lives in your browser';
-const SITE_DESCRIPTION =
-  'A free Chrome extension. Pet her, feed her, and watch her grow from kitten to adult. Private, local, and free.';
 const SITE_URL = 'https://yanovian.github.io/chrome-ext-tabby/';
+const RTL_LOCALES = new Set(['ar', 'fa']);
 
 const websiteRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outPath = join(websiteRoot, 'public', 'og-image.png');
-const iconPath = join(websiteRoot, 'public', 'icon.png');
-
-const iconBase64 = readFileSync(iconPath).toString('base64');
+const localesRoot = join(websiteRoot, 'src', 'locales');
+const staticRoot = join(websiteRoot, 'static');
+const ogDir = join(staticRoot, 'og');
+const defaultOutPath = join(staticRoot, 'og-image.png');
+const publicRoot = join(websiteRoot, 'public');
+const catGifPath = join(publicRoot, 'gif', 'happy.gif');
+const iconPath = join(publicRoot, 'icon.png');
 
 function escapeXml(value) {
-  return value
+  return String(value)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
 }
 
-const svg = `<?xml version="1.0" encoding="UTF-8"?>
+function truncate(value, max) {
+  if (value.length <= max) {
+    return value;
+  }
+  return `${value.slice(0, max - 1).trimEnd()}…`;
+}
+
+function wrapLines(text, maxChars, maxLines) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = '';
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= maxChars) {
+      current = candidate;
+      continue;
+    }
+    if (current) {
+      lines.push(current);
+    }
+    current = word;
+    if (lines.length >= maxLines) {
+      break;
+    }
+  }
+
+  if (current && lines.length < maxLines) {
+    lines.push(current);
+  }
+
+  if (lines.length === maxLines && words.join(' ').length > lines.join(' ').length) {
+    lines[maxLines - 1] = truncate(lines[maxLines - 1], maxChars);
+  }
+
+  return lines;
+}
+
+function loadLocales() {
+  return readdirSync(localesRoot).filter((entry) =>
+    existsSync(join(localesRoot, entry, 'seo.json')),
+  );
+}
+
+function buildSvg({ headline, lines, rtl }) {
+  const textX = rtl ? 1120 : 470;
+  const anchor = rtl ? 'end' : 'start';
+  const direction = rtl ? 'rtl' : 'ltr';
+  const titleSize = headline.length > 42 ? 52 : headline.length > 32 ? 58 : 64;
+  const lineYs = [360, 420, 480];
+  const bodyLines = lines
+    .map(
+      (line, index) =>
+        `<tspan x="${textX}" y="${lineYs[index]}">${escapeXml(line)}</tspan>`,
+    )
+    .join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -46,13 +103,68 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow)"/>
   <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow2)"/>
   <circle cx="930" cy="520" r="220" fill="#ff7eb9" fill-opacity="0.08"/>
-  <image href="data:image/png;base64,${iconBase64}" x="120" y="170" width="290" height="290"/>
-  <text x="470" y="250" fill="#ffffff" font-family="Segoe UI, system-ui, sans-serif" font-size="72" font-weight="800">${SITE_NAME}</text>
-  <text x="470" y="330" fill="#f7c4e4" font-family="Segoe UI, system-ui, sans-serif" font-size="42" font-weight="700">${SITE_TAGLINE}</text>
-  <text x="470" y="410" fill="#c9b8e8" font-family="Segoe UI, system-ui, sans-serif" font-size="28" font-weight="500">${escapeXml(SITE_DESCRIPTION)}</text>
-  <text x="470" y="500" fill="#7cf0ff" font-family="Segoe UI, system-ui, sans-serif" font-size="24" font-weight="700">${escapeXml(SITE_URL)}</text>
-  <text x="470" y="560" fill="#c9b8e8" font-family="Segoe UI, system-ui, sans-serif" font-size="22" font-weight="600">Yanovian LLC · yanovian.com · Pooyan Razian · pooyan.info</text>
+  <rect x="80" y="130" width="340" height="370" rx="28" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="${textX}" y="250" fill="#ffffff" direction="${direction}" text-anchor="${anchor}" font-family="'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK SC', 'Noto Sans Devanagari', system-ui, sans-serif" font-size="${titleSize}" font-weight="800">${escapeXml(headline)}</text>
+  <text x="${textX}" y="360" fill="#c9b8e8" direction="${direction}" text-anchor="${anchor}" font-family="'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK SC', 'Noto Sans Devanagari', system-ui, sans-serif" font-size="28" font-weight="500">${bodyLines}</text>
+  <text x="${textX}" y="560" fill="#7cf0ff" direction="${direction}" text-anchor="${anchor}" font-family="'Noto Sans', system-ui, sans-serif" font-size="24" font-weight="700">${escapeXml(SITE_URL)}</text>
 </svg>`;
+}
 
-await sharp(Buffer.from(svg)).png().toFile(outPath);
-console.log(`Wrote ${outPath} (${OG_IMAGE_WIDTH}x${OG_IMAGE_HEIGHT})`);
+async function loadCatImage() {
+  try {
+    return await sharp(catGifPath, { pages: 1 })
+      .resize(300, 300, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png()
+      .toBuffer();
+  } catch {
+    return await sharp(iconPath).resize(300, 300, { fit: 'contain' }).png().toBuffer();
+  }
+}
+
+async function renderOgImage({ locale, seo, catImage }) {
+  const rtl = RTL_LOCALES.has(locale);
+  const headline = truncate(seo.title.replace(/^Tabby:\s*/i, ''), 64);
+  const lines = wrapLines(seo.description, rtl ? 34 : 42, 3);
+  const svg = buildSvg({ headline, lines, rtl });
+  const textLayer = await sharp(Buffer.from(svg)).png().toBuffer();
+
+  return sharp({
+    create: {
+      width: OG_IMAGE_WIDTH,
+      height: OG_IMAGE_HEIGHT,
+      channels: 4,
+      background: '#1a0f2e',
+    },
+  })
+    .composite([
+      { input: textLayer, top: 0, left: 0 },
+      { input: catImage, top: 165, left: 100 },
+    ])
+    .png()
+    .toBuffer();
+}
+
+async function main() {
+  mkdirSync(ogDir, { recursive: true });
+  if (!existsSync(catGifPath) && !existsSync(iconPath)) {
+    console.warn('[build-og-image] Run copy-assets first (needs public/gif or public/icon).');
+  }
+  const catImage = await loadCatImage();
+  const locales = loadLocales();
+  let wrote = 0;
+
+  for (const locale of locales) {
+    const seo = JSON.parse(readFileSync(join(localesRoot, locale, 'seo.json'), 'utf8'));
+    const png = await renderOgImage({ locale, seo, catImage });
+    const outPath = join(ogDir, `${locale}.png`);
+    await sharp(png).toFile(outPath);
+    if (locale === 'en') {
+      await sharp(png).toFile(defaultOutPath);
+    }
+    wrote += 1;
+  }
+
+  console.log(`[build-og-image] wrote ${wrote} OG images (${OG_IMAGE_WIDTH}x${OG_IMAGE_HEIGHT})`);
+}
+
+await main();

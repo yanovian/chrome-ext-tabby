@@ -44,7 +44,7 @@ Equivalent: `cd website && pnpm dev|build|preview`.
 Icons, GIFs, and **Lottie JSON** are not duplicated in git. `website/scripts/copy-assets.mjs` copies from extension `public/` and `lottie-json/` on `predev` and `prebuild`.
 
 - **Marketing animations:** use Lottie via `TabbyLottie` (`@lottiefiles/dotlottie-web`, canvas). Tabby JSON is authored for DotLottie, not `lottie-web`.
-- **SEO / sharing:** `@unhead/react` + `@unhead/schema-org` in `SiteHead.tsx` (route + locale aware). Strings in `src/locales/*/seo.json`. `scripts/prerender-locale-html.mjs` writes static HTML per locale and route for GitHub Pages view-source and crawlers. English at `/`; other locales at `/{code}/`. `vite-plugin-html` seeds the initial English `index.html`.
+- **SEO / sharing:** `@unhead/react` + `@unhead/schema-org` in `SiteHead.tsx` (route + locale aware). Strings in `src/locales/*/seo.json`. Committed share images in `static/og-image.png` and `static/og/*.png` (copied to `public/` on build). Regenerate with `pnpm og-images` when SEO copy changes. `scripts/prerender-locale-html.mjs` writes static HTML per locale and route for GitHub Pages view-source.
 - **i18n:** committed JSON in `website/src/locales/<locale>/` (38 languages, same set as the Chrome Web Store). `website/src/i18n/locales.ts` lists codes, native labels, and RTL (`ar`, `fa`). Language picker in the top bar; choice saved in `localStorage`. Legal page body stays English (`PRIVACY.md` / `TERMS.md`); UI chrome is translated. Vite bundles these files via `import.meta.glob` (shipped in the production JS). **No locale generators.** Edit JSON by hand.
 
 After changing `src/locales/en/`:
