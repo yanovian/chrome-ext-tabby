@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LocaleFlag } from '@/components/LocaleFlag';
 import {
   LOCALE_LABELS,
@@ -7,16 +8,20 @@ import {
   type WebsiteLocale,
   isWebsiteLocale,
 } from '@/i18n/locales';
+import { localizedPath, parseSitePath } from '@/i18n/routes';
+
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation('marketing');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
-  const current = isWebsiteLocale(i18n.resolvedLanguage ?? 'en')
-    ? (i18n.resolvedLanguage as WebsiteLocale)
-    : 'en';
+  const { locale: pathLocale } = parseSitePath(location.pathname, routerBasename);
+  const current = isWebsiteLocale(pathLocale) ? pathLocale : 'en';
 
   useEffect(() => {
     if (!open) {
@@ -41,6 +46,8 @@ export function LanguageSwitcher() {
   }, [open]);
 
   const selectLocale = (locale: WebsiteLocale) => {
+    const { page } = parseSitePath(location.pathname, routerBasename);
+    navigate(localizedPath(locale, page));
     void i18n.changeLanguage(locale);
     setOpen(false);
   };

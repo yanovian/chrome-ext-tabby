@@ -9,5 +9,7 @@
   "terms": {
     "title": "Términos del servicio de Tabby",
     "description": "Términos de uso de la extensión Tabby para Chrome. Software gratuito de Yanovian LLC."
-  }
+  },
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian"
 }

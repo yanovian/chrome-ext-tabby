@@ -9,5 +9,7 @@
   "terms": {
     "title": "Gebruiksvoorwaarden voor Tabby",
     "description": "Voorwaarden voor het gebruik van de Tabby Chrome-extensie. Gratis software van Yanovian LLC."
-  }
+  },
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian"
 }

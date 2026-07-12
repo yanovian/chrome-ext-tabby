@@ -9,5 +9,7 @@
   "terms": {
     "title": "Termes del servei de Tabby",
     "description": "Termes d'ús de l'extensió Tabby per a Chrome. Programari gratuït de Yanovian LLC."
-  }
+  },
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian"
 }

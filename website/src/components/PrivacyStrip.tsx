@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { Button, Section } from '@/components/ui';
+import { useLocalizedPath } from '@/hooks/useSiteLocale';
 import { CHROME_STORE_URL, privacyPointKeys } from '@/content';
 
 export function PrivacyStrip() {
   const { t } = useTranslation('marketing');
+  const path = useLocalizedPath();
 
   return (
     <Section id="privacy" tinted>
@@ -16,7 +18,7 @@ export function PrivacyStrip() {
               <li key={key}>{t(key)}</li>
             ))}
           </ul>
-          <Button to="/privacy" variant="ghost">
+          <Button to={path('privacy')} variant="ghost">
             {t('privacyRead')}
           </Button>
         </div>

@@ -6,8 +6,20 @@ import {
   WEBSITE_LOCALES,
   type WebsiteLocale,
 } from '@/i18n/locales';
+import { parseSitePath } from '@/i18n/routes';
 
 const localeModules = import.meta.glob('../locales/*/*.json', { eager: true });
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const pathLanguageDetector = {
+  name: 'path',
+  lookup(): WebsiteLocale {
+    return parseSitePath(window.location.pathname, routerBasename).locale;
+  },
+};
+
+const languageDetector = new LanguageDetector();
+languageDetector.addDetector(pathLanguageDetector);
 
 type Namespace = 'marketing' | 'common' | 'legal' | 'seo';
 const NAMESPACES: Namespace[] = ['marketing', 'common', 'legal', 'seo'];
@@ -31,7 +43,7 @@ function buildResources() {
 }
 
 void i18n
-  .use(LanguageDetector)
+  .use(languageDetector)
   .use(initReactI18next)
   .init({
     resources: buildResources(),
@@ -43,7 +55,7 @@ void i18n
     load: 'currentOnly',
     interpolation: { escapeValue: false },
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['path', 'localStorage', 'navigator', 'htmlTag'],
       lookupLocalStorage: LANGUAGE_STORAGE_KEY,
       caches: ['localStorage'],
     },

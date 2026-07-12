@@ -32,11 +32,12 @@ export function absoluteAssetUrl(assetPath: string): string {
   return new URL(path, SITE_URL).href;
 }
 
-/** Canonical URL for a site route (e.g. `privacy` → `…/chrome-ext-tabby/privacy`). */
-export function sitePageUrl(path: string): string {
+/** Canonical URL for a site route (e.g. `privacy` → `…/chrome-ext-tabby/privacy`, `fa` + `privacy` → `…/fa/privacy`). */
+export function sitePageUrl(path: string, locale?: string): string {
   const segment = path.replace(/^\/+/, '').replace(/\/+$/, '');
+  const localePrefix = locale && locale !== 'en' ? `${locale}/` : '';
   if (!segment) {
-    return SITE_URL;
+    return new URL(localePrefix, SITE_URL).href;
   }
-  return new URL(segment, SITE_URL).href;
+  return new URL(`${localePrefix}${segment}`, SITE_URL).href;
 }

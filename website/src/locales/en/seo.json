@@ -2,6 +2,8 @@
   "title": "Tabby: a cat that lives in your browser",
   "description": "A free Chrome extension. Pet her, feed her, and watch her grow from kitten to adult. Private, local, and free.",
   "ogImageAlt": "Tabby, an orange cat that lives in your browser",
+  "authorName": "Yanovian LLC",
+  "creatorName": "Pooyan Razian",
   "privacy": {
     "title": "Privacy Policy for Tabby",
     "description": "How Tabby handles your data. Local only, no accounts, no cloud. Active tab title and URL only."

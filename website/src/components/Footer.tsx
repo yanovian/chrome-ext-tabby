@@ -4,10 +4,12 @@ import {
   YANOVIAN_LLC_URL,
 } from '../../site-meta';
 import { GITHUB_URL } from '@/content';
+import { useLocalizedPath } from '@/hooks/useSiteLocale';
 import { Trans, useTranslation } from 'react-i18next';
 
 export function Footer() {
   const { t } = useTranslation('common');
+  const path = useLocalizedPath();
   const year = new Date().getFullYear();
 
   return (
@@ -36,8 +38,8 @@ export function Footer() {
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
             {t('sourceOnGitHub')}
           </a>
-          <Link to="/privacy">{t('privacyLink')}</Link>
-          <Link to="/terms">{t('termsLink')}</Link>
+          <Link to={path('privacy')}>{t('privacyLink')}</Link>
+          <Link to={path('terms')}>{t('termsLink')}</Link>
         </nav>
         <p className="footer__copy">© {year} Tabby</p>
       </div>

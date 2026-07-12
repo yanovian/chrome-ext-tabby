@@ -11,6 +11,7 @@ Updates for people who use Tabby. Newest first.
 - Read the **privacy policy** and **terms of service** on the marketing site, with links to the official files on GitHub.
 - The marketing site is available in **38 languages**, with a language picker and right-to-left layout.
 - The language picker shows a **flag** beside each language name.
+- Page **title and meta tags** follow the language you pick, including in view-source via locale URLs like `/fa/`.
 
 ## 2.2.4
 

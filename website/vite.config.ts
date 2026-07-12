@@ -1,5 +1,4 @@
 import react from '@vitejs/plugin-react';
-import { cpSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
@@ -37,16 +36,6 @@ export default defineConfig({
         },
       },
     }),
-    {
-      name: 'gh-pages-spa-fallback',
-      closeBundle() {
-        const distDir = resolve(__dirname, 'dist');
-        const indexPath = resolve(distDir, 'index.html');
-        if (existsSync(indexPath)) {
-          cpSync(indexPath, resolve(distDir, '404.html'));
-        }
-      },
-    },
   ],
   server: {
     fs: {
