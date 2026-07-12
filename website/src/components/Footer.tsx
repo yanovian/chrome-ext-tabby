@@ -16,7 +16,7 @@ export function Footer() {
     <footer className="footer">
       <div className="container footer__inner">
         <div className="footer__brand">
-          <img src="icon-48.png" width={32} height={32} alt="" />
+          <img src={`${import.meta.env.BASE_URL}icon-48.png`} width={32} height={32} alt="" />
           <span>Tabby</span>
         </div>
         <p className="footer__tagline">{t('footerTagline')}</p>

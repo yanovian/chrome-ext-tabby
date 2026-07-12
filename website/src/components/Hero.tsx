@@ -11,7 +11,7 @@ export function Hero() {
       <div className="hero__glow" aria-hidden="true" />
       <div className="container hero__grid">
         <div className="hero__copy">
-          <img className="hero__logo" src="icon.png" width={72} height={72} alt="" />
+          <img className="hero__logo" src={`${import.meta.env.BASE_URL}icon.png`} width={72} height={72} alt="" />
           <p className="eyebrow">{t('heroEyebrow')}</p>
           <h1>
             {t('heroTitle')}
