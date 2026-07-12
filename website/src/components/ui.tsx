@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 type ContainerProps = {
   children: ReactNode;
@@ -25,18 +26,34 @@ export function Section({ id, children, className = '', tinted = false }: Sectio
 }
 
 type ButtonProps = {
-  href: string;
+  href?: string;
+  to?: string;
   children: ReactNode;
   variant?: 'primary' | 'ghost';
   external?: boolean;
 };
 
-export function Button({ href, children, variant = 'primary', external = true }: ButtonProps) {
+export function Button({ href, to, children, variant = 'primary', external }: ButtonProps) {
+  const className = `btn btn--${variant}`;
+
+  if (to) {
+    return (
+      <Link className={className} to={to}>
+        {children}
+      </Link>
+    );
+  }
+
+  if (!href) {
+    throw new Error('Button requires href or to');
+  }
+
+  const isExternal = external ?? !href.startsWith('/');
   return (
     <a
-      className={`btn btn--${variant}`}
+      className={className}
       href={href}
-      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
     >
       {children}
     </a>

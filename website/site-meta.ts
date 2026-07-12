@@ -31,3 +31,12 @@ export function absoluteAssetUrl(assetPath: string): string {
   const path = assetPath.startsWith('/') ? assetPath.slice(1) : assetPath;
   return new URL(path, SITE_URL).href;
 }
+
+/** Canonical URL for a site route (e.g. `privacy` → `…/chrome-ext-tabby/privacy`). */
+export function sitePageUrl(path: string): string {
+  const segment = path.replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!segment) {
+    return SITE_URL;
+  }
+  return new URL(segment, SITE_URL).href;
+}

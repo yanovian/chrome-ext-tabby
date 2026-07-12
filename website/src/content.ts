@@ -11,7 +11,16 @@ export {
   YANOVIAN_LLC_URL,
 } from '../site-meta';
 
-export const PRIVACY_URL = `${GITHUB_URL}/blob/master/PRIVACY.md`;
+export const PRIVACY_PATH = 'privacy';
+
+export const TERMS_PATH = 'terms';
+
+export const PRIVACY_REPO_URL = `${GITHUB_URL}/blob/master/PRIVACY.md`;
+
+export const TERMS_REPO_URL = `${GITHUB_URL}/blob/master/TERMS.md`;
+
+/** @deprecated Use in-site `/privacy` or {@link PRIVACY_REPO_URL} for the authoritative copy. */
+export const PRIVACY_URL = PRIVACY_REPO_URL;
 
 /** How long each hero tab scene stays visible (ms). */
 export const HERO_SCENE_MS = 8_000;

@@ -1,5 +1,13 @@
 {
   "title": "Tabby: a cat lives in your browser",
   "description": "Tabby keeps you company while you browse. Pet her, feed her, and watch her grow from kitten to adult. Private, local, and free.",
-  "ogImageAlt": "Tabby, an orange cat companion for your browser tabs"
+  "ogImageAlt": "Tabby, an orange cat companion for your browser tabs",
+  "privacy": {
+    "title": "Privacy Policy — Tabby",
+    "description": "How Tabby handles your data. Local only, no accounts, no cloud. Active tab title and URL only."
+  },
+  "terms": {
+    "title": "Terms of Service — Tabby",
+    "description": "Terms for using the Tabby Chrome extension. Free software from Yanovian LLC."
+  }
 }

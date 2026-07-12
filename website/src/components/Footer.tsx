@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import {
   POUYAN_RAZIAN_URL,
   YANOVIAN_LLC_URL,
@@ -39,9 +40,8 @@ export function Footer() {
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
             Source on GitHub
           </a>
-          <a href={`${GITHUB_URL}/blob/master/PRIVACY.md`} target="_blank" rel="noopener noreferrer">
-            Privacy
-          </a>
+          <Link to="/privacy">Privacy policy</Link>
+          <Link to="/terms">Terms of service</Link>
         </nav>
         <p className="footer__copy">© {year} Tabby</p>
       </div>

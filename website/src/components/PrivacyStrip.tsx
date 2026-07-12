@@ -1,5 +1,5 @@
 import { Button, Section } from '@/components/ui';
-import { CHROME_STORE_URL, privacyPoints, PRIVACY_URL } from '@/content';
+import { CHROME_STORE_URL, privacyPoints } from '@/content';
 
 export function PrivacyStrip() {
   return (
@@ -13,7 +13,7 @@ export function PrivacyStrip() {
               <li key={point}>{point}</li>
             ))}
           </ul>
-          <Button href={PRIVACY_URL} variant="ghost">
+          <Button to="/privacy" variant="ghost">
             Read the privacy policy
           </Button>
         </div>

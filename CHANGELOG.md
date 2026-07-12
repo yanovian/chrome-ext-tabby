@@ -8,6 +8,7 @@ Updates for people who use Tabby. Newest first.
 - A **marketing site** for Tabby lives at [yanovian.github.io/chrome-ext-tabby](https://yanovian.github.io/chrome-ext-tabby/).
 - The marketing site shows Tabby in **sharp Lottie animations**, not blurry GIFs.
 - The marketing site has **share previews** and search tags for social links.
+- Read the **privacy policy** and **terms of service** on the marketing site, with links to the official files on GitHub.
 
 ## 2.2.4
 

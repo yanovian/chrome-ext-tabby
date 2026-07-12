@@ -42,7 +42,8 @@ Equivalent: `cd website && pnpm dev|build|preview`.
 Icons, GIFs, and **Lottie JSON** are not duplicated in git. `website/scripts/copy-assets.mjs` copies from extension `public/` and `lottie-json/` on `predev` and `prebuild`.
 
 - **Marketing animations:** use Lottie via `TabbyLottie` (`@lottiefiles/dotlottie-web`, canvas). Tabby JSON is authored for DotLottie, not `lottie-web`.
-- **SEO / sharing:** `@unhead/react` + `@unhead/schema-org` in `Seo.tsx` (i18n via `react-i18next`). English strings in `src/locales/en/seo.json`. `vite-plugin-html` injects the same English meta into `index.html` for crawlers that skip JS. `build-og-image.mjs` writes `og-image.png`. `static/robots.txt` and `static/sitemap.xml` copy into `public/`.
+- **SEO / sharing:** `@unhead/react` + `@unhead/schema-org` in `Seo.tsx` / `PageSeo.tsx` (i18n via `react-i18next`). English strings in `src/locales/en/seo.json`. `vite-plugin-html` injects the same English meta into `index.html` for crawlers that skip JS. `build-og-image.mjs` writes `og-image.png`. `static/robots.txt` and `static/sitemap.xml` copy into `public/`.
+- **Routes:** `react-router-dom` with `/privacy` and `/terms` (legal copy from repo `PRIVACY.md` / `TERMS.md`; GitHub file is authoritative). Build copies `index.html` to `404.html` for GitHub Pages SPA refresh.
 
 After changing extension GIFs, icons, or Lottie source clips, rebuild or restart dev so the site picks them up.
 
