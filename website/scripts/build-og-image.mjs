@@ -5,7 +5,6 @@ import sharp from 'sharp';
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
-const SITE_URL = 'https://yanovian.github.io/chrome-ext-tabby/';
 const RTL_LOCALES = new Set(['ar', 'fa']);
 
 const websiteRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -16,6 +15,10 @@ const defaultOutPath = join(staticRoot, 'og-image.png');
 const publicRoot = join(websiteRoot, 'public');
 const catGifPath = join(publicRoot, 'gif', 'happy.gif');
 const iconPath = join(publicRoot, 'icon.png');
+
+const CAT_LEFT = 100;
+const TEXT_FONT =
+  "'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK SC', 'Noto Sans Devanagari', system-ui, sans-serif";
 
 function escapeXml(value) {
   return String(value)
@@ -69,18 +72,83 @@ function loadLocales() {
   );
 }
 
-function buildSvg({ headline, lines, rtl }) {
-  const textX = rtl ? 1120 : 470;
-  const anchor = rtl ? 'end' : 'start';
-  const direction = rtl ? 'rtl' : 'ltr';
-  const titleSize = headline.length > 42 ? 52 : headline.length > 32 ? 58 : 64;
-  const lineYs = [360, 420, 480];
-  const bodyLines = lines
+function layout(rtl) {
+  // Cat stays on the left. Text uses the wide column to the right of the cat.
+  if (rtl) {
+    return {
+      textX: 1175,
+      anchor: 'start',
+      direction: 'rtl',
+      headlineMaxChars: 36,
+      bodyMaxChars: 44,
+      headlineLines: 2,
+      bodyLines: 3,
+    };
+  }
+
+  return {
+    textX: 470,
+    anchor: 'start',
+    direction: 'ltr',
+    headlineMaxChars: 28,
+    bodyMaxChars: 38,
+    headlineLines: 2,
+    bodyLines: 3,
+  };
+}
+
+function textBlock({ x, anchor, direction, y, size, weight, fill, lines, lineHeight }) {
+  const spans = lines
     .map(
       (line, index) =>
-        `<tspan x="${textX}" y="${lineYs[index]}">${escapeXml(line)}</tspan>`,
+        `<tspan x="${x}" dy="${index === 0 ? 0 : lineHeight}">${escapeXml(line)}</tspan>`,
     )
     .join('');
+  return `<text x="${x}" y="${y}" fill="${fill}" direction="${direction}" text-anchor="${anchor}" font-family="${TEXT_FONT}" font-size="${size}" font-weight="${weight}">${spans}</text>`;
+}
+
+function buildSvg({ headlineLines, bodyLines, rtl }) {
+  const { textX, anchor, direction } = layout(rtl);
+  const longestHeadline = headlineLines.reduce((max, line) => Math.max(max, line.length), 0);
+  const titleSize = rtl
+    ? longestHeadline > 30
+      ? 42
+      : longestHeadline > 24
+        ? 48
+        : 54
+    : longestHeadline > 24
+      ? 46
+      : longestHeadline > 18
+        ? 52
+        : 58;
+  const titleY = rtl ? 210 : 220;
+  const titleLineHeight = rtl ? 56 : 62;
+  const bodyY = titleY + headlineLines.length * titleLineHeight + (rtl ? 28 : 32);
+  const bodyLineHeight = rtl ? 48 : 52;
+
+  const title = textBlock({
+    x: textX,
+    anchor,
+    direction,
+    y: titleY,
+    size: titleSize,
+    weight: 800,
+    fill: '#ffffff',
+    lines: headlineLines,
+    lineHeight: titleLineHeight,
+  });
+
+  const body = textBlock({
+    x: textX,
+    anchor,
+    direction,
+    y: bodyY,
+    size: rtl ? 28 : 28,
+    weight: 500,
+    fill: '#c9b8e8',
+    lines: bodyLines,
+    lineHeight: bodyLineHeight,
+  });
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" viewBox="0 0 ${OG_IMAGE_WIDTH} ${OG_IMAGE_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
@@ -104,9 +172,8 @@ function buildSvg({ headline, lines, rtl }) {
   <rect width="${OG_IMAGE_WIDTH}" height="${OG_IMAGE_HEIGHT}" fill="url(#glow2)"/>
   <circle cx="930" cy="520" r="220" fill="#ff7eb9" fill-opacity="0.08"/>
   <rect x="80" y="130" width="340" height="370" rx="28" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.08"/>
-  <text x="${textX}" y="250" fill="#ffffff" direction="${direction}" text-anchor="${anchor}" font-family="'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK SC', 'Noto Sans Devanagari', system-ui, sans-serif" font-size="${titleSize}" font-weight="800">${escapeXml(headline)}</text>
-  <text x="${textX}" y="360" fill="#c9b8e8" direction="${direction}" text-anchor="${anchor}" font-family="'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK SC', 'Noto Sans Devanagari', system-ui, sans-serif" font-size="28" font-weight="500">${bodyLines}</text>
-  <text x="${textX}" y="560" fill="#7cf0ff" direction="${direction}" text-anchor="${anchor}" font-family="'Noto Sans', system-ui, sans-serif" font-size="24" font-weight="700">${escapeXml(SITE_URL)}</text>
+  ${title}
+  ${body}
 </svg>`;
 }
 
@@ -123,9 +190,12 @@ async function loadCatImage() {
 
 async function renderOgImage({ locale, seo, catImage }) {
   const rtl = RTL_LOCALES.has(locale);
-  const headline = truncate(seo.title.replace(/^Tabby:\s*/i, ''), 64);
-  const lines = wrapLines(seo.description, rtl ? 34 : 42, 3);
-  const svg = buildSvg({ headline, lines, rtl });
+  const { headlineMaxChars, bodyMaxChars, headlineLines: maxHeadlineLines, bodyLines: maxBodyLines } =
+    layout(rtl);
+  const headline = truncate(seo.title.replace(/^Tabby:\s*/i, ''), rtl ? 66 : 64);
+  const headlineLines = wrapLines(headline, headlineMaxChars, maxHeadlineLines);
+  const bodyLines = wrapLines(seo.description, bodyMaxChars, maxBodyLines);
+  const svg = buildSvg({ headlineLines, bodyLines, rtl });
   const textLayer = await sharp(Buffer.from(svg)).png().toBuffer();
 
   return sharp({
@@ -138,7 +208,7 @@ async function renderOgImage({ locale, seo, catImage }) {
   })
     .composite([
       { input: textLayer, top: 0, left: 0 },
-      { input: catImage, top: 165, left: 100 },
+      { input: catImage, top: 165, left: CAT_LEFT },
     ])
     .png()
     .toBuffer();
