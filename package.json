@@ -13,7 +13,7 @@
     "zip": "pnpm locales && wxt zip && node scripts/verify-build-output.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit -p .wxt/tsconfig.json",
+    "typecheck": "node scripts/patch-wxt-tsconfig.mjs && tsc --noEmit -p .wxt/tsconfig.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "check": "pnpm typecheck && pnpm lint && pnpm lint:extension-i18n && pnpm test",
