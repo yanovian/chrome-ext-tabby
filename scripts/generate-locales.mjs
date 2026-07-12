@@ -64,6 +64,10 @@ const MESSAGES = {
     'Кішка живе у браузері. Реагує на вкладки й росте з вами. Не з’являється на деяких сайтах, щоб не відволікати.',
     'Tabby, ваша кішка в браузері',
   ],
+  hy: [
+    'Ներդիրներում կատու է ապրում։ Արձագանքում է ներդիրներին և մեծանում է ձեզ հետ։ Որոշ կայքերում չի երևում, որ չխանգարի։',
+    'Tabby, ձեր ներդիրների կատուն',
+  ],
   tr: [
     'Tarayıcında bir kedi yaşıyor. Sekmelere tepki verir ve seninle büyür. Dikkat dağıtmamak için bazı sitelerde görünmez.',
     'Tabby, tarayıcı kedinin',

@@ -88,6 +88,10 @@ function resolveAssetHref(href) {
   return `${assetBase}${href}`;
 }
 
+function singleLineMeta(text) {
+  return String(text).replace(/\s+/g, ' ').trim();
+}
+
 function pageMeta(seo, page) {
   if (page === 'privacy') {
     return {
@@ -104,8 +108,8 @@ function pageMeta(seo, page) {
     };
   }
   return {
-    title: seo.title,
-    description: seo.description,
+    title: singleLineMeta(seo.title),
+    description: singleLineMeta(seo.description),
     ogType: 'website',
   };
 }

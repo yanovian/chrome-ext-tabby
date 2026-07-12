@@ -1,3 +1,4 @@
+import AM from 'country-flag-icons/react/3x2/AM';
 import BD from 'country-flag-icons/react/3x2/BD';
 import BG from 'country-flag-icons/react/3x2/BG';
 import BR from 'country-flag-icons/react/3x2/BR';
@@ -39,6 +40,7 @@ import { LOCALE_COUNTRY_CODES, type WebsiteLocale } from '@/i18n/locales';
 type FlagComponent = typeof US;
 
 const FLAGS: Record<string, FlagComponent> = {
+  AM,
   BD,
   BG,
   BR,

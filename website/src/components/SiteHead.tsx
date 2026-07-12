@@ -39,6 +39,10 @@ function resolveHtmlLang(language: string): string {
   return 'en';
 }
 
+function singleLineMeta(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}
+
 /** Route- and locale-aware document title, meta tags, and schema.org. */
 export function SiteHead() {
   const { pathname } = useLocation();
@@ -49,8 +53,10 @@ export function SiteHead() {
   const locale = resolveOgLocale(language);
   const isHome = legalPage === '';
 
-  const title = legalPage ? t(`${legalPage}.title`) : t('title');
-  const description = legalPage ? t(`${legalPage}.description`) : t('description');
+  const title = singleLineMeta(legalPage ? t(`${legalPage}.title`) : t('title'));
+  const description = singleLineMeta(
+    legalPage ? t(`${legalPage}.description`) : t('description'),
+  );
   const authorName = t('authorName');
   const creatorName = t('creatorName');
   const ogImageAlt = t('ogImageAlt');

@@ -9,7 +9,8 @@ Updates for people who use Tabby. Newest first.
 - The marketing site shows Tabby in **sharp Lottie animations**, not blurry GIFs.
 - The marketing site has **share previews** and search tags for social links.
 - Read the **privacy policy** and **terms of service** on the marketing site, with links to the official files on GitHub.
-- The marketing site is available in **38 languages**, with a language picker and right-to-left layout.
+- The marketing site is available in **39 languages**, with a language picker and right-to-left layout.
+- Supports **Armenian** language.
 - The language picker shows a **flag** beside each language name.
 - Page **title and meta tags** follow the language you pick, including in view-source via locale URLs like `/fa/`.
 - **Share preview images** match each language too.

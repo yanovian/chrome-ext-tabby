@@ -29,7 +29,7 @@ Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuil
 
 **SEO:** `@unhead/react` + `@unhead/schema-org` in `src/components/SiteHead.tsx`, copy in `src/locales/*/seo.json`. `scripts/prerender-locale-html.mjs` writes a static HTML shell per locale and route (e.g. `/fa/`) so view-source and no-JS crawlers see localized meta on GitHub Pages. English stays at `/`; other locales use a `/{code}/` prefix.
 
-**Languages:** 38 locales in `src/locales/<code>/` (`marketing.json`, `common.json`, `legal.json`, `seo.json`). Same set as the Chrome Web Store (`src/i18n/locales.ts`). RTL for `ar` and `fa`. Edit English in `src/locales/en/`, run `pnpm lint-i18n-fix` to sync keys, translate, then `pnpm lint-i18n`. Bundled into the production build via `import.meta.glob`.
+**Languages:** 39 locales in `src/locales/<code>/` (`marketing.json`, `common.json`, `legal.json`, `seo.json`). Same set as the Chrome Web Store (`src/i18n/locales.ts`). RTL for `ar` and `fa`. Edit English in `src/locales/en/`, run `pnpm lint-i18n-fix` to sync keys, translate, then `pnpm lint-i18n`. Bundled into the production build via `import.meta.glob`.
 
 ## GitHub Pages
 
