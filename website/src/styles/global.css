@@ -796,7 +796,14 @@ ul {
   white-space: nowrap;
 }
 
-.language-switcher__select {
+.language-switcher__menu-wrap {
+  position: relative;
+}
+
+.language-switcher__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   min-width: 9rem;
   max-width: 12rem;
   padding: 0.35rem 0.5rem;
@@ -809,9 +816,83 @@ ul {
   cursor: pointer;
 }
 
-.language-switcher__select:focus-visible {
+.language-switcher__trigger:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 2px;
+}
+
+.language-switcher__current {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}
+
+.language-switcher__chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.language-switcher__flag {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.language-switcher__list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  inset-inline-end: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(16rem, calc(100vw - 2rem));
+  max-height: min(18rem, calc(100vh - 6rem));
+  margin: 0;
+  padding: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: var(--bg-elevated);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.language-switcher__option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: none;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+.language-switcher__option:hover,
+.language-switcher__option:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.language-switcher__option:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: -2px;
+}
+
+.language-switcher__option--selected {
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
 }
 
 [dir='rtl'] {

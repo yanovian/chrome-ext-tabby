@@ -42,8 +42,6 @@ export const WEBSITE_LOCALES = [
 
 export type WebsiteLocale = (typeof WEBSITE_LOCALES)[number];
 
-export const RTL_LOCALES = new Set<WebsiteLocale>(['ar', 'fa']);
-
 export const LOCALE_LABELS: Record<WebsiteLocale, string> = {
   en: 'English',
   es: 'Español',
@@ -84,6 +82,50 @@ export const LOCALE_LABELS: Record<WebsiteLocale, string> = {
   sr: 'Српски',
   ca: 'Català',
 };
+
+/** ISO 3166-1 alpha-2 code for the language picker flag (visual hint only). */
+export const LOCALE_COUNTRY_CODES: Record<WebsiteLocale, string> = {
+  en: 'US',
+  es: 'ES',
+  fr: 'FR',
+  de: 'DE',
+  it: 'IT',
+  pt_BR: 'BR',
+  nl: 'NL',
+  pl: 'PL',
+  ru: 'RU',
+  uk: 'UA',
+  tr: 'TR',
+  ar: 'SA',
+  fa: 'IR',
+  hi: 'IN',
+  bn: 'BD',
+  ta: 'IN',
+  ja: 'JP',
+  ko: 'KR',
+  zh_CN: 'CN',
+  vi: 'VN',
+  th: 'TH',
+  id: 'ID',
+  ms: 'MY',
+  fil: 'PH',
+  sw: 'KE',
+  sv: 'SE',
+  da: 'DK',
+  no: 'NO',
+  fi: 'FI',
+  cs: 'CZ',
+  sk: 'SK',
+  hu: 'HU',
+  ro: 'RO',
+  bg: 'BG',
+  el: 'GR',
+  hr: 'HR',
+  sr: 'RS',
+  ca: 'ES',
+};
+
+export const RTL_LOCALES = new Set<WebsiteLocale>(['ar', 'fa']);
 
 export const LANGUAGE_STORAGE_KEY = 'tabby-website-lang';
 

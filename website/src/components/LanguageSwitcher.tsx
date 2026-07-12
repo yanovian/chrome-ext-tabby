@@ -1,4 +1,6 @@
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LocaleFlag } from '@/components/LocaleFlag';
 import {
   LOCALE_LABELS,
   WEBSITE_LOCALES,
@@ -8,29 +10,90 @@ import {
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation('marketing');
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const listId = useId();
+
   const current = isWebsiteLocale(i18n.resolvedLanguage ?? 'en')
-    ? i18n.resolvedLanguage
+    ? (i18n.resolvedLanguage as WebsiteLocale)
     : 'en';
 
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onPointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const selectLocale = (locale: WebsiteLocale) => {
+    void i18n.changeLanguage(locale);
+    setOpen(false);
+  };
+
   return (
-    <div className="language-switcher">
-      <label className="language-switcher__label" htmlFor="tabby-language">
+    <div className="language-switcher" ref={containerRef}>
+      <span className="language-switcher__label" id={`${listId}-label`}>
         {t('languageLabel')}
-      </label>
-      <select
-        id="tabby-language"
-        className="language-switcher__select"
-        value={current}
-        onChange={(event) => {
-          void i18n.changeLanguage(event.target.value);
-        }}
-      >
-        {WEBSITE_LOCALES.map((locale) => (
-          <option key={locale} value={locale}>
-            {LOCALE_LABELS[locale as WebsiteLocale]}
-          </option>
-        ))}
-      </select>
+      </span>
+      <div className="language-switcher__menu-wrap">
+        <button
+          type="button"
+          className="language-switcher__trigger"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-labelledby={`${listId}-label`}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <LocaleFlag locale={current} className="language-switcher__flag" />
+          <span className="language-switcher__current">{LOCALE_LABELS[current]}</span>
+          <span className="language-switcher__chevron" aria-hidden="true">
+            ▾
+          </span>
+        </button>
+        {open ? (
+          <ul
+            id={listId}
+            className="language-switcher__list"
+            role="listbox"
+            aria-labelledby={`${listId}-label`}
+          >
+            {WEBSITE_LOCALES.map((locale) => {
+              const selected = locale === current;
+              return (
+                <li key={locale} role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    className={`language-switcher__option${
+                      selected ? ' language-switcher__option--selected' : ''
+                    }`}
+                    onClick={() => selectLocale(locale)}
+                  >
+                    <LocaleFlag locale={locale} className="language-switcher__flag" />
+                    <span>{LOCALE_LABELS[locale]}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+      </div>
     </div>
   );
 }

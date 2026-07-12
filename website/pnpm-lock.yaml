@@ -17,6 +17,9 @@ importers:
       '@unhead/schema-org':
         specifier: ^2.0.19
         version: 2.1.15(@unhead/react@2.1.15(react@19.2.7))
+      country-flag-icons:
+        specifier: ^1.6.20
+        version: 1.6.20
       i18next:
         specifier: ^25.8.14
         version: 25.10.10(typescript@5.9.3)
@@ -759,6 +762,9 @@ packages:
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
+
+  country-flag-icons@1.6.20:
+    resolution: {integrity: sha512-py8JiEKzjhYw6HPJ0L7SxLgCYim36UPRTZX43/kqGueUCZLSvnrqAiwW8HtQibur7mdkFQUkjOgdK+o/9FBtaw==}
 
   css-select@4.3.0:
     resolution: {integrity: sha512-wPpOYtnsVontu2mODhA19JrqWxNsfdatRKd64kmpRbQgh1KtItko5sTnEpPdpSaJszTOhEMlF/RPz28qj4HqhQ==}
@@ -1711,6 +1717,8 @@ snapshots:
   convert-source-map@2.0.0: {}
 
   cookie@1.1.1: {}
+
+  country-flag-icons@1.6.20: {}
 
   css-select@4.3.0:
     dependencies:

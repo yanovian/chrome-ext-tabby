@@ -10,6 +10,7 @@ Updates for people who use Tabby. Newest first.
 - The marketing site has **share previews** and search tags for social links.
 - Read the **privacy policy** and **terms of service** on the marketing site, with links to the official files on GitHub.
 - The marketing site is available in **38 languages**, with a language picker and right-to-left layout.
+- The language picker shows a **flag** beside each language name.
 
 ## 2.2.4
 
