@@ -24,14 +24,10 @@ export function Footer() {
             t={t}
             components={{
               yanovian: (
-                <a href={YANOVIAN_LLC_URL} target="_blank" rel="noopener noreferrer">
-                  Yanovian LLC
-                </a>
+                <a href={YANOVIAN_LLC_URL} target="_blank" rel="noopener noreferrer" />
               ),
               pooyan: (
-                <a href={POUYAN_RAZIAN_URL} target="_blank" rel="noopener noreferrer">
-                  Pooyan Razian
-                </a>
+                <a href={POUYAN_RAZIAN_URL} target="_blank" rel="noopener noreferrer" />
               ),
             }}
           />
