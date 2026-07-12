@@ -6,9 +6,9 @@ import sharp from 'sharp';
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
 const SITE_NAME = 'Tabby';
-const SITE_TAGLINE = 'A virtual cat companion for Chrome';
+const SITE_TAGLINE = 'A cat that lives in your browser';
 const SITE_DESCRIPTION =
-  'Tabby keeps you company while you browse. Pet her, feed her, and watch her grow from kitten to adult. Private, local, and free.';
+  'A free Chrome extension. Pet her, feed her, and watch her grow from kitten to adult. Private, local, and free.';
 const SITE_URL = 'https://yanovian.github.io/chrome-ext-tabby/';
 
 const websiteRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

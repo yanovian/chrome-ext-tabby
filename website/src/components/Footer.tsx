@@ -17,7 +17,7 @@ export function Footer() {
           <img src="icon-48.png" width={32} height={32} alt="" />
           <span>Tabby</span>
         </div>
-        <p className="footer__tagline">A cat lives in your browser.</p>
+        <p className="footer__tagline">A cat that lives in your browser.</p>
         <p className="footer__credit">
           <Trans
             i18nKey="footerCredit"
