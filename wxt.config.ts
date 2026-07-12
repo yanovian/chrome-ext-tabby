@@ -2,7 +2,8 @@ import { readdirSync, rmSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig } from 'wxt';
 
-const FORBIDDEN_OUTPUT_DIRS = ['sprites', 'models', 'ort'];
+const FORBIDDEN_OUTPUT_DIRS = ['sprites', 'models', 'ort', '_metadata', '__MACOSX'];
+const FORBIDDEN_OUTPUT_FILES = ['.DS_Store'];
 
 function removeForbiddenDirs(dir: string, prefix = ''): void {
   let entries: string[];
@@ -17,6 +18,16 @@ function removeForbiddenDirs(dir: string, prefix = ''): void {
     if (FORBIDDEN_OUTPUT_DIRS.includes(entry) && statSync(full).isDirectory()) {
       rmSync(full, { recursive: true, force: true });
       console.log(`ℹ Removed ${rel}/ from build output`);
+      continue;
+    }
+    if (FORBIDDEN_OUTPUT_FILES.includes(entry) && statSync(full).isFile()) {
+      rmSync(full, { force: true });
+      console.log(`ℹ Removed ${rel} from build output`);
+      continue;
+    }
+    if (entry.startsWith('._') && statSync(full).isFile()) {
+      rmSync(full, { force: true });
+      console.log(`ℹ Removed ${rel} from build output`);
       continue;
     }
     if (statSync(full).isDirectory()) {
@@ -67,6 +78,7 @@ export default defineConfig({
   },
   zip: {
     name: 'tabby',
+    exclude: ['_metadata/**', '__MACOSX/**', '**/.DS_Store', '**/._*'],
   },
   webExt: {
     startUrls: ['https://www.google.com'],
