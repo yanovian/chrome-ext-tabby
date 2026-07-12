@@ -2,7 +2,7 @@
 /**
  * Generate public/_locales/<locale>/messages.json for manifest-facing strings
  * (extension description + toolbar tooltip). The extension NAME "Tabby" is a
- * brand and stays in Latin script for most locales. RTL locales (ar, fa, he)
+ * brand and stays in Latin script for most locales. RTL locales (ar, fa)
  * use native words for "cat" instead of "Tabby".
  *
  * Translations live in the MESSAGES map below. Output is written to
@@ -75,10 +75,6 @@ const MESSAGES = {
   fa: [
     'گربه‌ای در مرورگر شما زندگی می‌کند. به تب‌ها واکنش می‌دهد و با شما بزرگ می‌شود. برای جلوگیری از حواس‌پرتی در برخی سایت‌ها نیست.',
     'گربه مرورگر شما',
-  ],
-  he: [
-    'חתולה גרה בדפדפן שלך. היא מגיבה ללשוניות וגדלה איתך. לא מופיעה בחלק מהאתרים כדי לא להסיח את דעתך.',
-    'חתולת הדפדפן שלך',
   ],
   hi: [
     'ब्राउज़र में बिल्ली रहती है। टैब पर प्रतिक्रिया देती है और बढ़ती है। ध्यान भटकाने से बचने के लिए कुछ साइटों पर नहीं।',

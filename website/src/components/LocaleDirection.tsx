@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isRtlLocale } from '@/i18n/locales';
 
-/** Sync `lang` and `dir` on `<html>` when the active locale changes (RTL for ar, fa, he). */
+/** Sync `lang` and `dir` on `<html>` when the active locale changes (RTL for ar, fa). */
 export function LocaleDirection() {
   const { i18n } = useTranslation();
 

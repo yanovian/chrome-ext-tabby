@@ -13,7 +13,6 @@ export const WEBSITE_LOCALES = [
   'tr',
   'ar',
   'fa',
-  'he',
   'hi',
   'bn',
   'ta',
@@ -43,7 +42,7 @@ export const WEBSITE_LOCALES = [
 
 export type WebsiteLocale = (typeof WEBSITE_LOCALES)[number];
 
-export const RTL_LOCALES = new Set<WebsiteLocale>(['ar', 'fa', 'he']);
+export const RTL_LOCALES = new Set<WebsiteLocale>(['ar', 'fa']);
 
 export const LOCALE_LABELS: Record<WebsiteLocale, string> = {
   en: 'English',
@@ -59,7 +58,6 @@ export const LOCALE_LABELS: Record<WebsiteLocale, string> = {
   tr: 'Türkçe',
   ar: 'العربية',
   fa: 'فارسی',
-  he: 'עברית',
   hi: 'हिन्दी',
   bn: 'বাংলা',
   ta: 'தமிழ்',

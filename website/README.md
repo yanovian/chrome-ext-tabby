@@ -29,7 +29,7 @@ Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuil
 
 **SEO:** `@unhead/react` + `@unhead/schema-org` in `src/components/Seo.tsx`, copy in `src/locales/*/seo.json`, i18n via `react-i18next`. `vite-plugin-html` mirrors English meta in `index.html` for crawlers.
 
-**Languages:** 39 locales in `src/locales/<code>/` (`marketing.json`, `common.json`, `legal.json`, `seo.json`). Same set as the Chrome Web Store (`src/i18n/locales.ts`). RTL for `ar`, `fa`, `he`. Edit English in `src/locales/en/`, run `pnpm lint-i18n-fix` to sync keys, translate, then `pnpm lint-i18n`. Bundled into the production build via `import.meta.glob`.
+**Languages:** 38 locales in `src/locales/<code>/` (`marketing.json`, `common.json`, `legal.json`, `seo.json`). Same set as the Chrome Web Store (`src/i18n/locales.ts`). RTL for `ar` and `fa`. Edit English in `src/locales/en/`, run `pnpm lint-i18n-fix` to sync keys, translate, then `pnpm lint-i18n`. Bundled into the production build via `import.meta.glob`.
 
 ## GitHub Pages
 
