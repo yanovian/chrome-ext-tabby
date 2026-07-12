@@ -1,10 +1,7 @@
 import { matchDrainingSessionKind } from './site-registry';
-import { resolveMoodTimers, MOOD_TIMER_PRODUCTION } from './mood-timers';
+import { resolveMoodTimers } from './mood-timers';
 import type { DrainingSessionKind, ExtensionSettings } from './types';
 import { STORAGE_KEYS } from './types';
-
-/** Production defaults (re-exported for tests and docs). */
-export { MOOD_TIMER_PRODUCTION };
 export const DRAINING_SESSION_THRESHOLD_MS = 60 * 60_000;
 export const DEV_DRAINING_SESSION_THRESHOLD_MS = 3 * 60_000;
 export const RECOVERY_THANKS_THRESHOLD_MS = 60_000;

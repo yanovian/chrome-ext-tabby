@@ -16,8 +16,6 @@ export const MOOD_TIMER_DEV_DEFAULTS = {
   simulatedRecoveryAwayMs: 0,
 } as const;
 
-export type { DevTemperScenario };
-
 export interface MoodTimers {
   overwhelmedThresholdMs: number;
   recoveryThanksThresholdMs: number;

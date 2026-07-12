@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.2.5 (unreleased)
+
+- Fix bugs
+
 ## 2.2.4
 
 - Store **description** says she skips some sites to avoid **distraction**.

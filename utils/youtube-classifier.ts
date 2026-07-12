@@ -1,8 +1,5 @@
 import type { BrowseCategory } from './types';
-import {
-  classifyVideoPlatform,
-  isVideoPlatformHost,
-} from './video-platform-classifier';
+import { classifyVideoPlatform } from './video-platform-classifier';
 
 export function isYouTubeHost(hostname: string): boolean {
   const normalized = hostname.replace(/^www\./, '').toLowerCase();
@@ -21,5 +18,3 @@ export function classifyYouTube(
 ): { category: BrowseCategory; confidence: number } {
   return classifyVideoPlatform(title, path);
 }
-
-export { isVideoPlatformHost };
