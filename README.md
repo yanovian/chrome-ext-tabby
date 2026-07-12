@@ -109,6 +109,9 @@ Source in [`website/`](./website/). Published at **https://yanovian.github.io/ch
 | `make website-build` | Production build for GitHub Pages |
 | `make website-preview` | Build and preview the Pages URL locally (`http://localhost:4173/chrome-ext-tabby/`) |
 | `make website-clean` | Remove website `dist/` and copied assets |
+| `make website-lint-i18n` | Check locale JSON keys match `en/` |
+| `make website-lint-i18n-fix` | Add missing locale keys as `""` |
+| `make website-og-images` | Regenerate committed OG share images (`static/og/*.png`) |
 
 Deploys automatically on push to `master` via [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) when `website/`, extension GIFs/icons, or that workflow change. Enable **Settings → Pages → GitHub Actions** once on the repo.
 
