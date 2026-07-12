@@ -25,7 +25,7 @@ export function moodForAmbient(activity: AmbientActivity): CatMood {
   return 'content';
 }
 
-/** Pick the mood shown on screen — dev override, ambient activity, vitals, or long draining session. */
+/** Pick the mood shown on screen — dev override, vitals, ambient activity, or long draining session. */
 export function resolveDisplayMood(input: {
   settings: ExtensionSettings;
   derivedMood: CatMood;
@@ -36,14 +36,8 @@ export function resolveDisplayMood(input: {
   if (input.moodOverride) {
     return input.moodOverride;
   }
-  if (input.ambientActivity) {
-    return moodForAmbient(input.ambientActivity);
-  }
-  if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
-    return input.settings.devForceMood;
-  }
 
-  const urgentMoods: CatMood[] = ['starving', 'hungry', 'sleepy'];
+  const urgentMoods: CatMood[] = ['starving', 'hungry'];
   if (urgentMoods.includes(input.derivedMood)) {
     return input.derivedMood;
   }
@@ -60,6 +54,22 @@ export function resolveDisplayMood(input: {
   }
   if (isDrainingSessionStressed(session, input.settings)) {
     return 'stressed';
+  }
+
+  if (
+    input.ambientActivity &&
+    (input.derivedMood === 'content' || input.derivedMood === 'curious')
+  ) {
+    return moodForAmbient(input.ambientActivity);
+  }
+
+  if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
+    return input.settings.devForceMood;
+  }
+
+  const stickyMoods: CatMood[] = ['sleepy', 'happy', 'stressed'];
+  if (stickyMoods.includes(input.derivedMood)) {
+    return input.derivedMood;
   }
 
   return input.derivedMood;

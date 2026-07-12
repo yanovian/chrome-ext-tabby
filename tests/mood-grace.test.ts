@@ -127,6 +127,22 @@ describe('deriveMoodFromVitals with grace', () => {
     ).toBe('happy');
   });
 
+  it('shows hungry mood before sleepy when idle at night', () => {
+    const cat = catWithVitals(
+      { hunger: 70, happiness: 60, stress: 20, energy: 30 },
+    );
+
+    expect(
+      deriveMoodFromVitals({
+        vitals: cat.vitals,
+        cat,
+        now: QUIET_NIGHT,
+        settings: DEFAULT_SETTINGS,
+        isUserIdle: true,
+      }),
+    ).toBe('hungry');
+  });
+
   it('returns sleepy again after the sleep defer window ends', () => {
     const cat = catWithVitals(
       { hunger: 40, happiness: 60, stress: 20, energy: 30 },

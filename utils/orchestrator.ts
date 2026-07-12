@@ -362,6 +362,15 @@ async function completePlayingPresentation(
     now,
     state.settings.devForceLifeStage,
   );
+  const derivedMood = deriveMoodFromVitals({
+    vitals: state.cat.vitals,
+    cat: state.cat,
+    now,
+    settings: state.settings,
+    isUserIdle: state.isUserIdle,
+  });
+  const thankYouMood =
+    derivedMood === 'starving' || derivedMood === 'hungry' ? derivedMood : 'happy';
   const presentation = buildPresentation({
     cat: state.cat,
     vitals: state.cat.vitals,
@@ -371,7 +380,7 @@ async function completePlayingPresentation(
     speech: playingThanksSpeech(stage, now),
     triggerKind: 'happy',
     overlayHidden: state.lastPresentation?.overlayHidden ?? false,
-    moodOverride: 'happy',
+    moodOverride: thankYouMood,
     lastCareAction: null,
     companionVisible: state.lastPresentation?.companionVisible ?? false,
     ambientActivity: null,
@@ -485,7 +494,9 @@ export async function handleCareAction(
     cat = applyCareAction(cat, action, now);
     triggerKind = null;
     await saveCatState(cat);
-    if (action === 'pet' && hungryBeforeCare) {
+    if ((action === 'pet' || action === 'play') && hungryBeforeCare) {
+      cat = { ...cat, happyUntil: state.cat.happyUntil };
+      await saveCatState(cat);
       moodOverride = hungryBeforeCare;
     } else {
       const derivedAfterCare = deriveMoodFromVitals({

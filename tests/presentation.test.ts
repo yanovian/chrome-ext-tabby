@@ -56,6 +56,26 @@ describe('resolveDisplayMood', () => {
     expect(moodOverrideWhileHiding('happy', false)).toBeUndefined();
   });
 
+  it('keeps hungry mood during ambient grooming', () => {
+    expect(
+      resolveDisplayMood({
+        settings: DEFAULT_SETTINGS,
+        derivedMood: 'hungry',
+        ambientActivity: 'grooming',
+      }),
+    ).toBe('hungry');
+  });
+
+  it('keeps happy mood during ambient grooming', () => {
+    expect(
+      resolveDisplayMood({
+        settings: DEFAULT_SETTINGS,
+        derivedMood: 'happy',
+        ambientActivity: 'grooming',
+      }),
+    ).toBe('happy');
+  });
+
   it('honors explicit mood overrides from care actions', () => {
     expect(
       resolveDisplayMood({

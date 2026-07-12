@@ -125,6 +125,25 @@ describe('deriveMoodFromVitals', () => {
     expect(mood).toBe('hungry');
   });
 
+  it('shows hungry mood before sleepy when idle at night', () => {
+    const mood = deriveMoodFromVitals(
+      moodInput(
+        {
+          hunger: 70,
+          happiness: 60,
+          stress: 20,
+          energy: 30,
+        },
+        {
+          now: Date.parse('2026-07-05T02:00:00.000Z'),
+          isUserIdle: true,
+        },
+      ),
+    );
+
+    expect(mood).toBe('hungry');
+  });
+
   it('shows stressed mood when the internet noise overwhelms Tabby', () => {
     const mood = deriveMoodFromVitals(
       moodInput({

@@ -195,16 +195,16 @@ export function deriveMoodFromVitals(input: MoodInput): CatMood {
   const sleepDeferred = isSleepDeferred(cat, now);
   const satiated = isSatiated(cat, now);
 
-  if (!sleepDeferred && (isUserIdle || (quiet && vitals.energy < 45))) {
-    return 'sleepy';
-  }
-
   if (!satiated && vitals.hunger >= 88) {
     return 'starving';
   }
 
   if (!satiated && vitals.hunger >= 65) {
     return 'hungry';
+  }
+
+  if (!sleepDeferred && (isUserIdle || (quiet && vitals.energy < 45))) {
+    return 'sleepy';
   }
 
   if (vitals.stress >= resolveMoodTimers(settings).stressedVitalThreshold) {
