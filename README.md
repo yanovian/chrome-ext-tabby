@@ -7,7 +7,7 @@
 
 > **[⬇️ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/tabby/bgjfofaekhihaeafccchijbakkhlcngb)**
 >
-> **[How to use Tabby →](./_doc/tutorial.md)**
+> **[Marketing site →](https://yanovian.github.io/chrome-ext-tabby/)** · **[How to use Tabby →](./_doc/tutorial.md)**
 
 Tabby is a **virtual pet** who keeps you company while you browse. She floats on the
 pages you visit, reacts from the active tab title and web address, and grows from a
@@ -98,6 +98,20 @@ After **`pnpm animations`** (or `make animations`), run **`pnpm gif:convert`** (
 
 A `Makefile` wraps the same tasks (`make check`, `make gif-convert`, `make animations-ship`, `make package`, `make release-patch`, …).
 
+## Marketing site (GitHub Pages)
+
+Source in [`website/`](./website/). Published at **https://yanovian.github.io/chrome-ext-tabby/** (shortest path for this repo: org pages + repo name only).
+
+| Command | Description |
+|---------|-------------|
+| `make website-install` | Install website dependencies |
+| `make website-dev` | Local dev with hot reload (`http://localhost:5173/`) |
+| `make website-build` | Production build for GitHub Pages |
+| `make website-preview` | Build and preview the Pages URL locally (`http://localhost:4173/chrome-ext-tabby/`) |
+| `make website-clean` | Remove website `dist/` and copied assets |
+
+Deploys automatically on push to `master` via [`.github/workflows/pages.yml`](./.github/workflows/pages.yml) when `website/`, extension GIFs/icons, or that workflow change. Enable **Settings → Pages → GitHub Actions** once on the repo.
+
 ## Localization
 
 The store description and toolbar tooltip are translated into ~40 languages via
@@ -131,7 +145,8 @@ runtime: she works fully offline, and nothing about your browsing is uploaded an
 - Animated **GIF** cat clips (`public/gif/`), built with `pnpm gif:convert` (dotlottie-web + gifski in Docker)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
-- GitHub Actions — CI on PR/push, releases on version tags
+- GitHub Actions — CI on PR/push, releases on version tags, marketing site deploy
+- [`website/`](./website/) — Vite + React landing page on GitHub Pages
 
 ## License
 

@@ -5,6 +5,7 @@ Updates for people who use Tabby. Newest first.
 ## 2.2.5 (unreleased)
 
 - Fix bugs
+- A **marketing site** for Tabby lives at [yanovian.github.io/chrome-ext-tabby](https://yanovian.github.io/chrome-ext-tabby/).
 
 ## 2.2.4
 

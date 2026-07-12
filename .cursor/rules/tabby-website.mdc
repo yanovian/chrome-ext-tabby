@@ -1,0 +1,58 @@
+---
+description: Marketing site in website/ (GitHub Pages, Vite + React)
+globs: website/**,.github/workflows/pages.yml
+---
+
+# Tabby marketing site (`website/`)
+
+Static landing page for Tabby. **Separate** from the Chrome extension build; do not mix WXT and website dependencies.
+
+## Published URL
+
+**https://yanovian.github.io/chrome-ext-tabby/**
+
+This is the **shortest** GitHub Pages URL for repo `yanovian/chrome-ext-tabby`: one path segment (`chrome-ext-tabby`), no `/website/` suffix. The site source lives in `website/` but deploys to the repo root on Pages.
+
+Do not add a custom domain or rename the extension repo in docs or config.
+
+## Base path
+
+- Production / preview: `VITE_BASE_PATH=/chrome-ext-tabby/` (see `website/.env.production`)
+- Local dev (`make website-dev`): base `/` for simpler localhost URLs
+- CI: `VITE_BASE_PATH=/${{ github.event.repository.name }}/` in `.github/workflows/pages.yml`
+
+Keep these aligned. If the GitHub repo name ever changed, update `.env.production`, `Makefile` `GITHUB_PAGES_BASE`, and README links together.
+
+## Local commands
+
+Prefer **Makefile** from repo root:
+
+| Command | Purpose |
+|---------|---------|
+| `make website-install` | `pnpm install` in `website/` |
+| `make website-dev` | Hot reload at `http://localhost:5173/` |
+| `make website-build` | Production build to `website/dist/` |
+| `make website-preview` | Build + preview at `http://localhost:4173/chrome-ext-tabby/` |
+| `make website-clean` | Remove `website/dist/` and generated `website/public/` |
+
+Equivalent: `cd website && pnpm dev|build|preview`.
+
+## Assets
+
+Icons and GIFs are **not** duplicated in git. `website/scripts/copy-assets.mjs` copies a small set from extension `public/` on `predev` and `prebuild`. After changing extension GIFs or icons, rebuild or restart dev so the site picks them up.
+
+## Extension repo isolation
+
+- `website/` has its own `package.json` and `pnpm-lock.yaml`
+- Root `pnpm check` does **not** build the website; extension typecheck excludes `website/` (see `scripts/patch-wxt-tsconfig.mjs`)
+- ESLint ignores `website/**`
+- Deploy: `.github/workflows/pages.yml` (not `ci.yml`)
+
+## When changing the site
+
+1. `make website-dev` or `make website-preview` to verify layout
+2. User-facing copy: no em dashes (`tabby-prose.mdc`)
+3. Add a short **CHANGELOG** bullet only for user-visible marketing changes (not dev-only Makefile tweaks)
+4. Update root **README** if URLs or workflow for contributors changed
+
+Stack: Vite, React, TypeScript. No extra UI libraries unless justified.

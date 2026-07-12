@@ -1,7 +1,11 @@
 .PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales test test-watch \
-	typecheck lint lint-fix check package clean release-patch release-minor release-major
+	typecheck lint lint-fix check package clean release-patch release-minor release-major \
+	website-install website-dev website-build website-preview website-clean
 
 PNPM ?= pnpm
+WEBSITE ?= website
+# Shortest GitHub Pages path for yanovian/chrome-ext-tabby (repo name, no extra folder).
+GITHUB_PAGES_BASE ?= /chrome-ext-tabby/
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*##; printf "Usage: make <target>\n\nTargets:\n"} \
@@ -61,6 +65,21 @@ package: zip ## Build and zip for Chrome Web Store
 
 clean: ## Remove build output
 	rm -rf .output
+
+website-install: ## Install marketing site dependencies (website/)
+	cd $(WEBSITE) && $(PNPM) install
+
+website-dev: ## Marketing site dev server (localhost, hot reload, base /)
+	cd $(WEBSITE) && $(PNPM) dev
+
+website-build: ## Production build for GitHub Pages (base $(GITHUB_PAGES_BASE))
+	cd $(WEBSITE) && VITE_BASE_PATH=$(GITHUB_PAGES_BASE) $(PNPM) build
+
+website-preview: website-build ## Preview production build at http://localhost:4173$(GITHUB_PAGES_BASE)
+	cd $(WEBSITE) && $(PNPM) exec vite preview --host --base $(GITHUB_PAGES_BASE)
+
+website-clean: ## Remove marketing site dist and copied public assets
+	rm -rf $(WEBSITE)/dist $(WEBSITE)/public
 
 release-patch: check ## Bump patch version, tag vX.Y.Z, push (triggers GitHub release)
 	$(PNPM) version patch -m "Release v%s"

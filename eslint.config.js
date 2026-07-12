@@ -24,6 +24,7 @@ export default tseslint.config(
       '.output/**',
       '.wxt/**',
       'node_modules/**',
+      'website/**',
       'public/ort/**',
       'public/models/**',
       'docker/lottie-gif/**',

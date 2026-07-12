@@ -1,0 +1,23 @@
+{
+  "name": "tabby-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "node scripts/copy-assets.mjs",
+    "predev": "node scripts/copy-assets.mjs",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host --base /chrome-ext-tabby/"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2"
+  }
+}

@@ -2,6 +2,9 @@ node_modules/
 .output/
 .wxt/
 dist/
+website/node_modules/
+website/dist/
+website/public/
 *.zip
 .DS_Store
 

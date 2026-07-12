@@ -1,0 +1,83 @@
+export const CHROME_STORE_URL =
+  'https://chromewebstore.google.com/detail/tabby/bgjfofaekhihaeafccchijbakkhlcngb';
+
+export const GITHUB_URL = 'https://github.com/yanovian/chrome-ext-tabby';
+
+export const PRIVACY_URL = `${GITHUB_URL}/blob/master/PRIVACY.md`;
+
+/** How long each hero tab scene stays visible (ms). */
+export const HERO_SCENE_MS = 8_000;
+
+/** Crossfade / slide between hero scenes (ms). */
+export const HERO_TRANSITION_MS = 700;
+
+export const heroScenes = [
+  {
+    id: 'happy',
+    tab: 'Morning inbox',
+    gif: 'gif/happy.gif',
+    speech: 'Pet me?',
+    alt: 'Tabby feeling happy',
+  },
+  {
+    id: 'play',
+    tab: 'Break time',
+    gif: 'gif/playing.gif',
+    speech: 'Play with me!',
+    alt: 'Tabby playing',
+  },
+  {
+    id: 'feed',
+    tab: 'Snack o’clock',
+    gif: 'gif/feeding.gif',
+    speech: 'Got a treat?',
+    alt: 'Tabby eating a treat',
+  },
+  {
+    id: 'curious',
+    tab: 'Late-night scroll',
+    gif: 'gif/curious.gif',
+    speech: 'Still here with you',
+    alt: 'Tabby looking curious',
+  },
+] as const;
+
+export const features = [
+  {
+    title: 'Floating companion',
+    body: 'Tabby appears on the pages you visit. Drag her anywhere you like.',
+    gif: 'gif/idle.gif',
+  },
+  {
+    title: 'Care menu',
+    body: 'Tap to pet, feed, play, or ask what is up. She answers in a speech bubble.',
+    gif: 'gif/happy.gif',
+  },
+  {
+    title: 'Feeding moments',
+    body: 'Short treat scenes when her belly is empty and you share a snack.',
+    gif: 'gif/feeding.gif',
+  },
+  {
+    title: 'Play until wild',
+    body: 'Wind her up with play time. She has moods that match the moment.',
+    gif: 'gif/playing.gif',
+  },
+  {
+    title: 'Peeks and murmurs',
+    body: 'She may wander in from the edge or whisper a silly line while you browse.',
+    gif: 'gif/peek.gif',
+  },
+  {
+    title: 'Grows with you',
+    body: 'Newborn kitten, playful teen, then adult cat over real calendar weeks.',
+    gif: 'gif/newborn.gif',
+  },
+] as const;
+
+export const privacyPoints = [
+  'Reads only the active tab title and web address',
+  'Never reads page body text or browsing history',
+  'No accounts, analytics, or cloud',
+  'Everything stays on your device',
+] as const;

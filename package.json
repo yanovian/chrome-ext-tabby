@@ -23,7 +23,7 @@
     "gif:convert": "node scripts/convert-lottie-to-gif.mjs",
     "animations:ship": "pnpm animations && pnpm gif:convert",
     "assets": "pnpm locales && pnpm animations",
-    "postinstall": "wxt prepare && node scripts/generate-locales.mjs"
+    "postinstall": "wxt prepare && node scripts/patch-wxt-tsconfig.mjs && node scripts/generate-locales.mjs"
   },
   "packageManager": "pnpm@10.33.4",
   "devDependencies": {
