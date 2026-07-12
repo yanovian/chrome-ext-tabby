@@ -15,28 +15,28 @@ export const heroScenes = [
   {
     id: 'happy',
     tab: 'Morning inbox',
-    gif: 'gif/happy.gif',
+    lottie: 'lottie/happy.json',
     speech: 'Pet me?',
     alt: 'Tabby feeling happy',
   },
   {
     id: 'play',
     tab: 'Break time',
-    gif: 'gif/playing.gif',
+    lottie: 'lottie/playing.json',
     speech: 'Play with me!',
     alt: 'Tabby playing',
   },
   {
     id: 'feed',
     tab: 'Snack o’clock',
-    gif: 'gif/feeding.gif',
+    lottie: 'lottie/feeding.json',
     speech: 'Got a treat?',
     alt: 'Tabby eating a treat',
   },
   {
     id: 'curious',
     tab: 'Late-night scroll',
-    gif: 'gif/curious.gif',
+    lottie: 'lottie/curious.json',
     speech: 'Still here with you',
     alt: 'Tabby looking curious',
   },
@@ -46,32 +46,32 @@ export const features = [
   {
     title: 'Floating companion',
     body: 'Tabby appears on the pages you visit. Drag her anywhere you like.',
-    gif: 'gif/idle.gif',
+    lottie: 'lottie/idle.json',
   },
   {
     title: 'Care menu',
     body: 'Tap to pet, feed, play, or ask what is up. She answers in a speech bubble.',
-    gif: 'gif/happy.gif',
+    lottie: 'lottie/happy.json',
   },
   {
     title: 'Feeding moments',
     body: 'Short treat scenes when her belly is empty and you share a snack.',
-    gif: 'gif/feeding.gif',
+    lottie: 'lottie/feeding.json',
   },
   {
     title: 'Play until wild',
     body: 'Wind her up with play time. She has moods that match the moment.',
-    gif: 'gif/playing.gif',
+    lottie: 'lottie/playing.json',
   },
   {
     title: 'Peeks and murmurs',
     body: 'She may wander in from the edge or whisper a silly line while you browse.',
-    gif: 'gif/peek.gif',
+    lottie: 'lottie/peek.json',
   },
   {
     title: 'Grows with you',
     body: 'Newborn kitten, playful teen, then adult cat over real calendar weeks.',
-    gif: 'gif/newborn.gif',
+    lottie: 'lottie/newborn.json',
   },
 ] as const;
 

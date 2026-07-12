@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { TabbyLottie } from '@/components/TabbyLottie';
 import { HERO_SCENE_MS, HERO_TRANSITION_MS, heroScenes } from '@/content';
 
 function sceneAt(offset: number, from: number) {
@@ -84,12 +85,15 @@ export function HeroTabShowcase() {
             <p className="tab-showcase__speech" aria-live="polite">
               {scene.speech}
             </p>
-            <img
-              className="tab-showcase__cat"
-              src={scene.gif}
-              alt={scene.alt}
-              loading="eager"
-            />
+            <div className="tab-showcase__cat-wrap">
+              <TabbyLottie
+                key={scene.id}
+                src={scene.lottie}
+                size="hero"
+                alt={scene.alt}
+                className="tab-showcase__cat"
+              />
+            </div>
           </div>
         </div>
       </div>

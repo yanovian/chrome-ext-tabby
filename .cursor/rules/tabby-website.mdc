@@ -39,7 +39,12 @@ Equivalent: `cd website && pnpm dev|build|preview`.
 
 ## Assets
 
-Icons and GIFs are **not** duplicated in git. `website/scripts/copy-assets.mjs` copies a small set from extension `public/` on `predev` and `prebuild`. After changing extension GIFs or icons, rebuild or restart dev so the site picks them up.
+Icons, GIFs, and **Lottie JSON** are not duplicated in git. `website/scripts/copy-assets.mjs` copies from extension `public/` and `lottie-json/` on `predev` and `prebuild`.
+
+- **Marketing animations:** use Lottie via `TabbyLottie` (`@lottiefiles/dotlottie-web`, canvas) for sharp scaling. Tabby JSON is authored for DotLottie, not `lottie-web`.
+- **GIFs** are still copied for fallback paths if needed; prefer Lottie for on-site clips.
+
+After changing extension GIFs, icons, or Lottie source clips, rebuild or restart dev so the site picks them up.
 
 ## Extension repo isolation
 
@@ -55,4 +60,4 @@ Icons and GIFs are **not** duplicated in git. `website/scripts/copy-assets.mjs` 
 3. Add a short **CHANGELOG** bullet only for user-visible marketing changes (not dev-only Makefile tweaks)
 4. Update root **README** if URLs or workflow for contributors changed
 
-Stack: Vite, React, TypeScript. No extra UI libraries unless justified.
+Stack: Vite, React, TypeScript, `@lottiefiles/dotlottie-web` (same renderer as the GIF pipeline). No other UI libraries unless justified.

@@ -1,4 +1,5 @@
 import { Section } from '@/components/ui';
+import { TabbyLottie } from '@/components/TabbyLottie';
 
 const moods = [
   { label: 'Hungry', tone: 'warm' },
@@ -29,7 +30,7 @@ export function Showcase() {
           </ul>
         </div>
         <div className="showcase__frame">
-          <img src="gif/curious.gif" alt="Tabby looking curious" loading="lazy" />
+          <TabbyLottie src="lottie/curious.json" size="showcase" className="showcase__lottie" alt="Tabby looking curious" />
           <div className="showcase__caption">Tap her anytime for the care menu</div>
         </div>
       </div>

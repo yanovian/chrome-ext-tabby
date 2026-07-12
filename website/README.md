@@ -23,7 +23,7 @@ pnpm build        # uses .env.production → /chrome-ext-tabby/
 pnpm preview      # after build; pass --base /chrome-ext-tabby/ for Pages paths
 ```
 
-Assets copy from extension `public/` on `predev` and `prebuild` (`scripts/copy-assets.mjs`).
+Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuild` (`scripts/copy-assets.mjs`). Clips play as **Lottie** via `@lottiefiles/dotlottie-web` (same renderer as the GIF pipeline), not `lottie-web`.
 
 ## GitHub Pages
 

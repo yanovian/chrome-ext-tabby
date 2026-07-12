@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - 'website/**'
+      - 'lottie-json/**'
       - 'public/gif/**'
       - 'public/icon/**'
       - '.github/workflows/pages.yml'

@@ -3,10 +3,12 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const websiteRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const repoPublic = join(websiteRoot, '..', 'public');
+const repoRoot = join(websiteRoot, '..');
+const repoPublic = join(repoRoot, 'public');
+const lottieRoot = join(repoRoot, 'lottie-json');
 const outPublic = join(websiteRoot, 'public');
 
-const assets = [
+const gifAssets = [
   ['icon/128.png', 'icon.png'],
   ['icon/48.png', 'icon-48.png'],
   ['gif/adult/happy.gif', 'gif/happy.gif'],
@@ -18,10 +20,28 @@ const assets = [
   ['gif/adult/curious.gif', 'gif/curious.gif'],
 ];
 
-mkdirSync(join(outPublic, 'gif'), { recursive: true });
+/** Source Lottie JSON for sharp vector playback on the marketing site. */
+const lottieAssets = [
+  ['adult/idle.json', 'lottie/idle.json'],
+  ['adult/happy.json', 'lottie/happy.json'],
+  ['adult/feeding.json', 'lottie/feeding.json'],
+  ['playful/playing.json', 'lottie/playing.json'],
+  ['newborn/peek.json', 'lottie/peek.json'],
+  ['newborn/idle.json', 'lottie/newborn.json'],
+  ['adult/curious.json', 'lottie/curious.json'],
+];
 
-for (const [from, to] of assets) {
+mkdirSync(join(outPublic, 'gif'), { recursive: true });
+mkdirSync(join(outPublic, 'lottie'), { recursive: true });
+
+for (const [from, to] of gifAssets) {
   cpSync(join(repoPublic, from), join(outPublic, to));
 }
 
-console.log(`Copied ${assets.length} assets from extension public/ to website/public/`);
+for (const [from, to] of lottieAssets) {
+  cpSync(join(lottieRoot, from), join(outPublic, to));
+}
+
+console.log(
+  `Copied ${gifAssets.length} raster assets and ${lottieAssets.length} Lottie clips to website/public/`,
+);
