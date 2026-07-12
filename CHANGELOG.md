@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.3.0 (unreleased)
+## 2.3.0
 
 - Fix bugs
 - Tabby speaks your **language**: pick from 39 languages in settings.
