@@ -7,7 +7,7 @@
 
 > **[⬇️ Install from the Chrome Web Store](https://chromewebstore.google.com/detail/tabby/bgjfofaekhihaeafccchijbakkhlcngb)**
 >
-> **[Marketing site →](https://yanovian.github.io/chrome-ext-tabby/)** · **[How to use Tabby →](./_doc/tutorial.md)**
+> **[Website →](https://yanovian.github.io/chrome-ext-tabby/)** · **[How to use Tabby →](./_doc/tutorial.md)**
 
 Tabby is a **virtual pet** who keeps you company while you browse. She floats on the
 pages you visit, reacts from the active tab title and web address, and grows from a
