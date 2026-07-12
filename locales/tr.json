@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Tarayıcınızın kedisi. Her şey yerel kalıyor.",
+    "language": "Dil",
+    "dndTitle": "Rahatsız etme",
+    "dndHint": "Tabbi zamanlayıcı bitene kadar her sekmede gizli kalır.",
+    "dndHowLong": "Tabbi ne kadar sessiz kalsın?",
+    "dndCancel": "Rahatsız etmeyi iptal et",
+    "dnd30": "30 dakika",
+    "dnd60": "1 saat",
+    "dndToday": "Gün sonuna kadar",
+    "pageTitle": "Tabbi sayfanda",
+    "showAll": "Tabbi'yi tüm sayfalarda göster",
+    "hideAll": "Tabbi'yi tüm sayfalardan gizle",
+    "showPage": "Tabbi'yi bu sayfada göster",
+    "hidePage": "Tabbi'yi bu sayfada gizle",
+    "quietTitle": "Sessiz saatler",
+    "quietHint": "Tabbi bu saatlerde sessiz kalıyor. Sadece kendi kendine konuşuyor.",
+    "quietStart": "Başlangıç saati (0-23)",
+    "quietEnd": "Bitiş saati (0-23)",
+    "privacyTitle": "Gizlilik",
+    "privacyHint": "Tabbi sayfaları yalnızca etkin sekme başlığı ve URL'den sınıflandırır, asla sayfa metninden değil.",
+    "speechTitle": "Tabbi kendi kendine konuştuğunda",
+    "speechHint": "Siz göz atarken kendi başına konuştuğunda. Ona dokunduğunda değil. Varsayılanlar günde birkaç hafif anı hedefler.",
+    "maxAppearances": "Günde en fazla",
+    "cooldownMinutes": "En az bekle (dakika)",
+    "saved": "Kaydedildi.",
+    "hiddenAll": "Tabbi her sayfada gizli.",
+    "shownAll": "Tabbi yine tüm sayfalarda görünebilir.",
+    "hiddenPage": "Tabbi is hidden on this page.",
+    "shownPage": "Tabbi bu sayfada yine görünebilir.",
+    "dndOn": "Rahatsız etme açık.",
+    "dndOff": "Rahatsız etme kapalı.",
+    "introReset": "Tanıtım turu sonraki sayfada yeniden gösterilecek.",
+    "devOn": "Önce geliştirici etkileşimlerini aç.",
+    "previewMood": "Önizleme: {mood}.",
+    "unavailable": "Tabbi kullanılamıyor. Uzantıyı yeniden yüklemeyi dene.",
+    "openWebPage": "Burada Tabbi öğesini göstermek veya gizlemek için normal bir web sayfası açın.",
+    "shownOnTab": "Tabbi etkin sekmede."
+  },
+  "overlay": {
+    "closeMenu": "Menüyü kapat",
+    "dismissSpeech": "Konuşmayı kapat",
+    "more": "Daha fazla",
+    "less": "Daha az",
+    "introSkip": "Tabbi'yi zaten tanıyorum",
+    "introNext": "İleri",
+    "introDone": "Tamam"
+  },
+  "intro": [
+    "Merhaba! Ben Tabbi, tarayıcınızın kedisiyim.",
+    "Sen gezinirken burada yaşıyorum. Her şey cihazında kalır.",
+    "Dikkatini dağıtmamak için bazı sitelerden uzak dururum.",
+    "Oynamaya gidiyorum. Beni ara sıra besle veya benimle oyna, tamam mı?"
+  ],
+  "care": {
+    "pet": "Okşa",
+    "feed": "Besle",
+    "feedBrand": "{brand}'yi besle",
+    "play": "Oyna",
+    "askDefault": "Naber?",
+    "askOverwhelmedNewborn": "Çok mu?",
+    "askOverwhelmed": "Mola lazım mı?",
+    "askStressedNewborn": "Neden huysuz?",
+    "askStressed": "Ne oldu?",
+    "askHungryNewborn": "Neden aç?",
+    "askHungry": "Ne lazım?",
+    "askSleepyNewborn": "Uykulu mu?",
+    "askSleepy": "Uyuyor muydun?",
+    "askBored": "Sıkıldın mı?",
+    "dnd30": "Rahatsız etme: 30 dk",
+    "dnd60": "Rahatsız etme: 1 sa",
+    "dndToday": "Rahatsız etme: bugün",
+    "hidePage": "Tabbi'yi bu sayfada gizle"
+  },
+  "dnd": {
+    "minutes30": "30 dakika",
+    "hour1": "1 saat",
+    "today": "bugün",
+    "summary": "{duration} rahatsız etme ({remaining} dk kaldı, {until}'e kadar)"
+  },
+  "speech": {
+    "starving": [
+      "Miyav… kase bomboş, ben de içimden.",
+      "Karın grevde. Mrrr. Bir şey getir.",
+      "Açlıktan ölüyorum. Prrr. Bir şeyin var mı yok mu?",
+      "Miyaaaav. Bıyıklar düşmüş. Bir lokma, lütfen.",
+      "Kase sessizce yargılıyor. Yardım et.",
+      "Mrrr. Aç kalmak komik değil.",
+      "Küçük avcı sıfırda. Çıkar beni bundan."
+    ],
+    "hungry": [
+      "Miyav, karın biraz gurulduyor. Lezzetli bir şey?",
+      "Atıştırmalık havası. Mrrr. İlginç bir şey?",
+      "Aç bıyıklar. Kaseyi doldurur musun?",
+      "Karın biraz boş. Bir şey verir misin?",
+      "Miyav miyav. Hafif gurultu. Güzel bir şey?",
+      "Ölmüyorum ama şikayet ediyorum. Küçük bir atıştırmalık?",
+      "Mrrr. Çok değil, ama şikayet için yeter.",
+      "Kuyruk açlık ritminde. Sıra sende.",
+      "Yemek kokusu… hayal mi ediyorum? Prrr."
+    ],
+    "stressed": [
+      "Miyav, aynı anda fazla şey. Prrr… mola.",
+      "Kafa dolu çamaşır ipi gibi. Mrrr.",
+      "Ekranda fazla gürültü. Dur.",
+      "Prrr. Bir saniye, tamam mı? Her şey sıkıyor.",
+      "Miyaaa. Hepsi bir anda.",
+      "Mrrr. Kafamı doldurmayı bırak.",
+      "Bugün feed acı. Sınırdayım.",
+      "Prrrt… bir saniye nefes alalım."
+    ],
+    "overwhelmed": [
+      "Miyaaa uugh… daha fazla sığmıyor. Mola.",
+      "Kahrolası karmaşa. Miyav, yavaşlayalım.",
+      "Fazla, fazla. Geri çekilmem lazım."
+    ],
+    "lonely": [
+      "Ne sessizlik. Nereye gidelim?",
+      "Seni özledim. Bir şeye bakalım mı?",
+      "Biraz arkadaşlık eder misin?",
+      "Miyav? Burası yalnız.",
+      "Mrrr… gel birlikte kurcalayalım.",
+      "Bir süredir bekliyorum. Bizim için bir şey?",
+      "Miyaaaav. Beni sekmelerle yalnız bırakma.",
+      "Ev sessiz. Arkadaşa ihtiyacım var."
+    ],
+    "happy": [
+      "Hey. Bugün keyfim yerinde.",
+      "Güzel gün, değil mi?",
+      "Her şey yumuşak ve sıcak.",
+      "Prrrr. Bugün güzel kokuyor.",
+      "Miyav! Bu havayı seviyorum.",
+      "Mutlu bıyıklar. Keyfim yerinde.",
+      "Mrrr, güneşli hissediyorum.",
+      "Mırıldanma açık. Bil diye."
+    ],
+    "sleepy": [
+      "Yakında şekerleme yapacağım…",
+      "Zzz… ah, merhaba.",
+      "Uykuluyum ama hâlâ buradayım.",
+      "Miyav… *esneme* …hâlâ gözlüyorum.",
+      "Prrrt… beş dakika daha…",
+      "Kıvrıldım. Lazım olursa uyandır.",
+      "Mrrr. Sıcak şeyler rüyası.",
+      "Zzz… miyav… zzz…"
+    ],
+    "curious": [
+      "Bu ne?",
+      "Ooh, ilginç.",
+      "Bu sayfa yaramazlık kokuyor.",
+      "Miyav? Neye bakıyoruz?",
+      "Mrrr, kulaklar tetikte.",
+      "Snif snif. Anlat.",
+      "Üstüne atlayayım mı? Belki.",
+      "Miyav miyav, merak kaşınıyor."
+    ],
+    "memory": [
+      "Tanıdık geliyor.",
+      "Buraya daha önce geldik, değil mi?",
+      "Bu konuyu hatırlıyorum.",
+      "Mrrr… bunu görmüştüm.",
+      "Bıyıklarım bu yeri tanıyor.",
+      "Buna benzer bir şeye bakmıştık.",
+      "Miyav, aklıma çarpıyor."
+    ],
+    "milestone": [
+      "Bugünün ne olduğunu biliyor musun? Bizim günümüz.",
+      "Hâlâ buradayız. Mutluyum.",
+      "Seninle bir yıldönümü daha.",
+      "Prrrr. Bir süredir birlikteyiz.",
+      "Miyav! Ne kadar ilerlediğimize bak.",
+      "İlk günü hatırlıyorum. Sen de?"
+    ],
+    "dev": [
+      "Test sürümü, fazla konuşuyorum.",
+      "Test sürümü, bir şeye dokun ve bak.",
+      "Miyav! Test tetiklendi.",
+      "Prrrt, Tabbi'den test cümlesi."
+    ],
+    "ask": [
+      "İyiyim. Burada takılıyorum.",
+      "Hâlâ seninle.",
+      "Miyav. Her şey yolunda."
+    ],
+    "care_pet": [
+      "Mmm. İyi geldi.",
+      "Prrr. Daha iyi.",
+      "Güzeldi.",
+      "Tam orası. Mükemmel.",
+      "Yumuşak okşama. Lazımdı.",
+      "Prrrrrr…",
+      "Miyav. Evet. Daha.",
+      "Mırıldanma son hız."
+    ],
+    "care_pet_hungry": [
+      "Okşamayı kes. Açlığı görmüyor musun? Yemek ver.",
+      "Okşama yok. YEMEK. Kase boş, insan.",
+      "Mrrr. Yemek, okşama değil. S*k.",
+      "Kör müsün? Açım. Tabbi'yi besle.",
+      "Tokken okşa. Şimdi: yemek.",
+      "S*k, açlıktan ölüyorum. Menüyü aç.",
+      "Açlığı görmüyor musun? Yemek, bu değil.",
+      "Yanlış düğme. S*k. Karın boş.",
+      "Karın bağırıyor. Az okşama, çok yemek.",
+      "Miyav?! AÇLIK. Okşama değil. Yemek.",
+      "Prrr. Aç kedi. Okşanacak kedi değil. Yemek.",
+      "Yemek dedim. S*k. Okşama değil."
+    ],
+    "care_treat": [
+      "Daha iyi. Teşekkürler.",
+      "Nom. Tam isabet.",
+      "Çok daha iyi.",
+      "Mrrr! Lezzetli.",
+      "Miyav miyav, kurtardın beni.",
+      "Daha dolu karın. Prrrt.",
+      "Neyi sevdiğimi biliyorsun."
+    ],
+    "feeding_munch": [
+      "Çiç… çiç… lezzetli…",
+      "Çiç çiç çiç… miyav.",
+      "Mmm… *çiğne çiğne*",
+      "Çiç… ne güzel…",
+      "Mrrr… çiç çiç…",
+      "*çıtır* Miyav… lezzetli.",
+      "Mmm… lezzetli lezzetli…",
+      "Mmm mmm… *yala*",
+      "Çiç çiç… mmm, evet.",
+      "Çiğne çiğne… mrrr."
+    ],
+    "feeding_thanks": [
+      "Teşekkürler, insan!",
+      "Sen en iyisisin.",
+      "Lezzetli!",
+      "Miyav miyav, karnımı kurtardın.",
+      "Prrrt. En iyi yemek.",
+      "Tam isabet. Harikasın.",
+      "Mrrr! Seni seviyorum.",
+      "Tokum. Teşekkürler!",
+      "Nyam nyam. En sevdiğim insan.",
+      "Miyav! Tam buydu."
+    ],
+    "care_play": [
+      "Bir daha! …tamam, yeter.",
+      "Eğlenceliydi.",
+      "Hehe. Lazımdı.",
+      "Vay! Patiler mutlu.",
+      "İyi oynuyorsun.",
+      "Miyav! Bir zıplama daha!",
+      "Prrrt, enerji patladı.",
+      "Mrrr. Oyun başarılı."
+    ],
+    "playing_wild": [
+      "Vay! Zıpla zıpla zıpla!",
+      "Koş koş! Miyav!",
+      "Görünmez fareye! Grrr!",
+      "Ben hızım. Ben rüzgarım. Ben Tabbi.",
+      "Takla! …kafamda. Mrrr.",
+      "Zıpla zıpla! En iyi gün!",
+      "Kuyruk yetişemiyor! Vay!",
+      "Miyav miyav miyav, çılgınlık modu.",
+      "Prrr! O köşe görmedi geleni.",
+      "Yan koşu! Dur, yanlış düğme.",
+      "Kuyruk! Kafa! Her şey dönüyor!",
+      "Mrrr! Parkur! …klavyede."
+    ],
+    "playing_thanks": [
+      "Oh! Harikaydı. Sonra tekrar?",
+      "Mrrr, oyun bitti. Güzel.",
+      "Yorgun ve mutlu. Teşekkürler!",
+      "Hehe. Enerji atmam lazımdı.",
+      "En iyi oyun arkadaşı. Miyav!",
+      "Kuyruk yorgun, kalp mutlu. Prrrt.",
+      "On üzerinden on. Yine zıplarım.",
+      "Miyav! Mutlu patiler.",
+      "Çılgıncaydı. En iyisisin.",
+      "Prrrt. Teşekkürler!"
+    ],
+    "dismiss": [
+      "Tamam. Buradayım.",
+      "Saklanacağım. İstediğinde çağır.",
+      "Miyav. Görüşürüz.",
+      "Prrr. Sekmelerin altında şekerleme."
+    ],
+    "peeking": [
+      "Miyav? Beni görmüyorsun… sadece gözler.",
+      "Prrr. Sadece bakınıyorum. Bakma.",
+      "Merhaba. Neredeyse gizliyim. Miyav.",
+      "…Gördün mü? Miyav miyav.",
+      "Saklandım! …tamam, yakaladın.",
+      "Mrrr. Aşağıdayım.",
+      "Miyav miyav, görmediğin gibi yap."
+    ],
+    "overwhelmed_social": [
+      "Patiler kaydırmaktan yoruldu. Mola?",
+      "Çok feed. Mrrr. Gerinelim mi?",
+      "Kaydır kaydır kaydır. Ben de havaya ihtiyacım var.",
+      "Her yerde akış. Daha sakin bir şey?",
+      "Feed'e bir süredir bakıyorum. Bıyıkları havalandıralım.",
+      "Küçük gönderiler, dışarıda büyük dünya."
+    ],
+    "overwhelmed_news": [
+      "Bağıran manşetler. Dünya daha yumuşak, söz.",
+      "Mrrr. Haberler bağırır. Kafanda tutma.",
+      "Çok propaganda. Gözlerimi kapatıyorum. Daha yumuşak?",
+      "Son dakika üstüne son dakika… köşe lazım.",
+      "Her manşet kıyamet sanıyor. Genelde değil.",
+      "Bıyıklar kötü haber kaydırmadan ağrıyor. Güzel sayfa?",
+      "Feed panik satıyor. Almak zorunda değilsin."
+    ],
+    "recovery_easing": [
+      "Prrrt… daha iyi. Gürültü azalıyor.",
+      "Miyav. Daha az gergin. Nefes alalım mı?",
+      "Bıyıklar gevşedi. Daha iyi.",
+      "Mrrr. Daha sessiz sekmeler.",
+      "Daha iyi, daha iyi. Gürültülü feed geride."
+    ],
+    "recovery_thanks": [
+      "Uzaklaştığın için teşekkürler. Daha iyiyim.",
+      "Mrrr, feed'i bırakmak iyi fikir. Teşekkürler.",
+      "Çok daha iyi. Mola için teşekkürler.",
+      "Patiler gevşedi. Kaydırmayı durdurduğun için teşekkürler.",
+      "Mutlu bıyıklar. Yumuşak sekmeler için teşekkürler."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Her şey büyük ve gürültülü. Senden korkmuyorum, sadece çok.",
+        "Bugün çok gürültü. İyiyim, sadece biraz bunaldım.",
+        "İnternet şimdi çok büyük. Yakında kalır mısın?"
+      ],
+      "playful": [
+        "Bugün fazla acı şey. Daha sakin bir şey lazım.",
+        "Bıyıklarım titriyor. Daha yumuşak bir şey iyi gelir.",
+        "Çok gürültülü sekme. Daha sakin sayfa iyi olur."
+      ],
+      "adult": [
+        "Dışarıda çok sinirli sayfa. Sana kızgın değilim, gürültü var.",
+        "Bugün biraz fazla. Sana kırgın değilim.",
+        "Feed sert. İyiyim, sadece sakin bir şey istiyorum."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Miyav. Küçük karın boş. Yumuşak bir şey ver.",
+        "Yavru açlığı. Sıcak bir şey beni doldurur.",
+        "Boş ve ciyak ciyak. Küçük güzel bir şey?"
+      ],
+      "playful": [
+        "Mrrr, hem oyun hem yemek istiyorum. Güzel bir şey?",
+        "Kase boş, zıplama boş. Lezzetli bir şey ver.",
+        "Aç avcı. İlginç bir şey beni doldurur."
+      ],
+      "adult": [
+        "Miyav… çok açım. Kase için güzel bir şey?",
+        "Aç bıyıklar. Lezzetli bir lokma süper olur.",
+        "Boş karın. İlginç bir şey bulur musun?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Miyav, biraz açım. Yumuşak bir şey iyi gelir.",
+        "Küçük açlık. Kase için sıcak bir şey?",
+        "Yaramaz yavru. Küçük güzel bir şey yardım eder."
+      ],
+      "adult": [
+        "Biraz açım. Mrrr. Güzel bir şey?",
+        "Hafif açlık. Lezzetli bir şey doldurur.",
+        "Aç bıyıklar. Bana bir şeyin var mı?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Yavrular çok uyur. Sıcakım, devam et, yakınım.",
+        "Çok uykuluyum. Şekerlemeden izliyorum.",
+        "Esneme. Buradayım, yarı uykuda."
+      ],
+      "adult": [
+        "Sessizleşince kıvrıldım. Arkadaş istersen uyandır.",
+        "Uykuluyum. Buradayım, yanında şekerleme.",
+        "Düşük enerji. Sıcak köşeden seninleyim."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "İyiyim. Bugün eğlenceli.",
+        "Zıplıyorum. İyi gezinme enerjisi.",
+        "Zıplamaya hazırım. Bugünü seviyorum."
+      ],
+      "adult": [
+        "Bugün iyi tempo. Beğendim.",
+        "Şimdiye kadar iyi ritim. Memnunum.",
+        "Bugün dengeli. Buradayım.",
+        "Güzel gün. Birlikte gezinmek güzel."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Zıplamaya değer gibi. Bu ne?",
+        "Ooh, sayfada eğlenceli bir şey.",
+        "Kulaklar dik. Anlat bunu."
+      ],
+      "adult": [
+        "Bir şey dikkatimi çekti.",
+        "Bu sayfa ilginç kokuyor.",
+        "Kokluyorum. Neye bakıyoruz?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Sadece bakınıyorum. Takılma.",
+        "Mrrr. Aşağıdayım.",
+        "Bakarken yakaladım. Merhaba."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Çok kaydırma. Gözlerimi kapatıyorum.",
+        "Bıyıklar dolu. Daha yumuşak sayfa?",
+        "Kafa dolu. Gözlerimi kapatıyorum."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Rahatım. Lazım olursan buradayım.",
+        "Her şey iyi. Seninle takılıyorum.",
+        "Konforlu. Ne istersen sor.",
+        "Yerleştim. Ne düşünüyorsun?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Sıkıldım. Yavru için tehlikeli.",
+        "Bugün pek kovalanacak yok. Eğlenceli bir şey?",
+        "Sessiz saatler. Oyuncak ya da sekme lazım."
+      ],
+      "adult": [
+        "Sessizdi. Eğlenceli bir şeyin var mı?",
+        "Biraz huzursuzum. Yeni bir şey iyi gelir.",
+        "İyiyim, sadece ilginç bir şey çıksa."
+      ]
+    },
+    "default": {
+      "adult": [
+        "İyiyim. Takılıyorum.",
+        "İyi gidiyor. Lazım olursan buradayım.",
+        "Bende her şey yolunda."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Daha önce birlikte {topic}'e baktık. Hatırlıyorum.",
+      "Mrrp… {topic} yine. Bıyıklarım bunu biliyor.",
+      "Miyav, {topic}. Buradaydık, değil mi?"
+    ],
+    "milestone": {
+      "1": "İlk gün birlikte. Merhaba, ben {brand}. Miyav!",
+      "7": "Bir hafta oldu. Ritmini öğreniyorum. Prrrt.",
+      "30": "Bir ay. Artık geçmişimiz var. Miyav miyav.",
+      "100": "100 gün. Çok keşif. Prrrr.",
+      "365": "Bir yıl. Çok şey hatırlıyorum. Miyav."
+    }
+  }
+}

@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "A böngésző macska. Minden helyi marad.",
+    "language": "Nyelv",
+    "dndTitle": "Ne zavarjon",
+    "dndHint": "A Tabbi minden lapon rejtve marad az időzítő lejártáig.",
+    "dndHowLong": "Mennyi ideig maradjon csendben a Tabbi?",
+    "dndCancel": "Mégse a ne zavarjanak lehetőséget",
+    "dnd30": "30 perc",
+    "dnd60": "1 óra",
+    "dndToday": "A mai nap végéig",
+    "pageTitle": "Tabbi az oldaladon",
+    "showAll": "Tabbi megjelenítése az összes oldalon",
+    "hideAll": "Tabbi elrejtése az összes oldalról",
+    "showPage": "Tabbi megjelenítése ezen az oldalon",
+    "hidePage": "Tabbi elrejtése ezen az oldalon",
+    "quietTitle": "Csendes órák",
+    "quietHint": "Tabbi csendben marad ezekben az órákban. Csak kéretlen beszéd.",
+    "quietStart": "Kezdési óra (0-23)",
+    "quietEnd": "Vége (0,23)",
+    "privacyTitle": "Adatvédelem",
+    "privacyHint": "A Tabbi csak az aktív lap címéből és URL-címéből osztályozza az oldalakat, soha az oldaltörzs szövegét. Az ismert oldalak és a cím kulcsszavai táplálóak, kiürítőek vagy semlegesek.",
+    "speechTitle": "Amikor Tabbi megszólal",
+    "speechHint": "Kéretlen sorok böngészés közben. Nem amikor megérinti. Az alapértelmezések napi néhány óvatos bejelentkezést céloznak.",
+    "maxAppearances": "Naponta max",
+    "cooldownMinutes": "Várjon legalább (percet)",
+    "saved": "Mentve.",
+    "openWebPage": "Nyisson meg egy normál weboldalt a Tabbi megjelenítéséhez vagy elrejtéséhez.",
+    "shownOnTab": "Tabbi az aktív lapon van.",
+    "hiddenAll": "A Tabbi minden oldalon el van rejtve.",
+    "shownAll": "A Tabbi minden oldalon újra megjelenhet.",
+    "hiddenPage": "A Tabbi el van rejtve ezen az oldalon.",
+    "shownPage": "Tabbi újra megjelenhet ezen az oldalon.",
+    "dndOn": "A Ne zavarjanak funkció be van kapcsolva.",
+    "dndOff": "A Ne zavarjanak funkció ki van kapcsolva.",
+    "introReset": "A bevezető túra ismét megjelenik a következő oldalon.",
+    "devOn": "Először kapcsolja be a fejlesztői interakciókat.",
+    "previewMood": "Előnézet: {mood}.",
+    "unavailable": "A Tabbi nem érhető el. Próbálja újra betölteni a bővítményt."
+  },
+  "overlay": {
+    "closeMenu": "Menü bezárása",
+    "dismissSpeech": "Beszéd elvetése",
+    "more": "Többet",
+    "less": "Kevesebbet",
+    "introSkip": "már tudom Tabbi",
+    "introNext": "Következő",
+    "introDone": "Értem"
+  },
+  "intro": [
+    "Szia! Tabbi vagyok, a böngésző macskája.",
+    "Itt lakom, amíg böngéssz. Minden a készülékén marad.",
+    "Néhány webhelyet távol tartok, hogy elkerüljem a figyelemelvonást.",
+    "Elmegyek játszani. Adj enni, vagy játssz velem néha, jó?"
+  ],
+  "care": {
+    "pet": "Pet",
+    "feed": "Takarmány",
+    "feedBrand": "Hírcsatorna {brand}",
+    "play": "Játssz",
+    "askDefault": "mi újság?",
+    "askOverwhelmedNewborn": "Túl sokat?",
+    "askOverwhelmed": "Kell egy kis szünet?",
+    "askStressedNewborn": "Miért ilyen nyűgös?",
+    "askStressed": "mi a baj?",
+    "askHungryNewborn": "Miért éhes?",
+    "askHungry": "Mi kell neked?",
+    "askSleepyNewborn": "Álmos?",
+    "askSleepy": "Szunyókáltál?",
+    "askBored": "Unatkozik?",
+    "dnd30": "Ne zavarj: 30 perc",
+    "dnd60": "Ne zavarjanak: 1 óra",
+    "dndToday": "Ne zavarj: ma",
+    "hidePage": "Tabbi elrejtése ezen az oldalon"
+  },
+  "dnd": {
+    "minutes30": "30 perc",
+    "hour1": "1 óra",
+    "today": "ma",
+    "summary": "Ne zavarjanak {duration} ({remaining} perc van hátra, {until}-ig)"
+  },
+  "speech": {
+    "starving": [
+      "Mú… nagyon éhes vagyok. Olvastál valami jót, amivel enni szeretnél?",
+      "Üres pocak. Mrrrp. Van valami finomságom?",
+      "Éheznek. Prrt. Egy jó olvasás feltöltene.",
+      "Húúú, üreges bajusz. Adsz valami érdekeset?",
+      "Üres a tálam. Olvasol valami szépet nekem?",
+      "Mrrp. Nagyon éhes. Valami jó sokat segítene.",
+      "Apró vadász üres. Megetetni egy jó olvasással?"
+    ],
+    "hungry": [
+      "Mew, egy kicsit éhes. Olvastál valami jót, amivel enni szeretnél?",
+      "csípős. Mrrp. Valami finom dolog ütne a helyére.",
+      "Éhes bajusz. Van egy jó olvasmány a tálamhoz?",
+      "nyavalyás vagyok. Megetetni valami érdekességgel?",
+      "Mím mú. Enyhe haskorgás. Olvass valami szépet?",
+      "Nem éhezik, csak éhes. Valami jó rágcsálnivaló?",
+      "Mrrp. Kevés a rágcsálnivaló. Egy hangulatos olvasmány táplálna.",
+      "Pimasz cica energia. Olvass nekem valami jót?",
+      "Éhes az agyrém. Van valami gyengéd?"
+    ],
+    "stressed": [
+      "Minden hangosnak tűnik. Valahol csendesebben?",
+      "Ez nagyon sok. Nyugodtan vehetjük?",
+      "Zúg a bajuszom. Lágyabb fülek?",
+      "Mrrrp… túl sok a zaj ma.",
+      "Szükségem van egy nyugodt szegletre az interneten.",
+      "Annyi hangos oldal. f*** ez a zaj, nem te, a lapok.",
+      "Ma fűszeres takarmány. túlstimulált vagyok.",
+      "Prrrt… lélegezzünk egy pillanatra."
+    ],
+    "overwhelmed": [
+      "Túl sok internet. Egy percre eltakarom a szemem.",
+      "A bajuszom tele van. Lágyabb fület szeretne?",
+      "Mrrp. Túlstimulált. Lélegezz velem?"
+    ],
+    "lonely": [
+      "Csend volt. hova menjünk?",
+      "hiányoztál. Fedezzen fel valamit velem?",
+      "Tarts velem egy kicsit?",
+      "Mew? Itt magányos.",
+      "Mrrp… jön velem böngészni?",
+      "már vártam. Van nekünk egy lap?",
+      "Méeew. Ne hagyj rám a lapokat.",
+      "Csendes ház. Jól jönne egy barátom."
+    ],
+    "happy": [
+      "Szia. jó kedvem van.",
+      "Szép napot, mi?",
+      "Az élet most kellemesnek tűnik.",
+      "Prrrr. A mai nap jó.",
+      "Mew! Tetszik ez a hangulat.",
+      "Pattogó bajusz. boldog vagyok.",
+      "Mrrrp, napsütésben érzem magam.",
+      "dorombolok. Csak hogy tudd."
+    ],
+    "sleepy": [
+      "a közelben alszom…",
+      "Zzz… ó, szia.",
+      "Álmos vagyok, de még mindig itt vagyok.",
+      "Miau… *ásít* …még mindig nézem.",
+      "Prrrt… még öt perc…",
+      "Összegömbölyödve. Ébress fel, ha szükséged van rám.",
+      "Mrrp. Meleg lapokról álmodik.",
+      "Zzz… mú… zzz…"
+    ],
+    "curious": [
+      "mi ez?",
+      "Ó, érdekes.",
+      "Ennek az oldalnak szórakoztató illata van.",
+      "Mew? Mit nézünk?",
+      "Mrrrp, a fülem fenn van.",
+      "Szippantás szippantás. Mesélj erről.",
+      "Leütésre méltó? Talán.",
+      "Mew mú, kíváncsi bajusz aktiválva."
+    ],
+    "memory": [
+      "Ez ismerős érzés.",
+      "Voltunk már itt, nem?",
+      "Emlékszem erre a témára.",
+      "Mrrp… déjà vu.",
+      "A bajuszaim emlékeznek erre a helyre.",
+      "Valami ilyesmit néztünk korábban.",
+      "Mew, ez megszólal."
+    ],
+    "milestone": [
+      "Tudod milyen nap van? A mi napunk.",
+      "Még mindig mi. Még mindig itt. örülök.",
+      "Még egy kis évforduló veled.",
+      "Prrrr. egy ideje együtt vagyunk.",
+      "Mew! Nézd, meddig jutottunk.",
+      "Emlékszem az első napunkra. Ön?"
+    ],
+    "dev": [
+      "Fejlesztői mód, extra csevegés a teszteléshez.",
+      "Fejlesztői módban koppintson valamire, és nézze meg, mi történik.",
+      "Mew! Dev kullancs kilőtt.",
+      "Prrrt, tesztbeszéd innen: Tabbi."
+    ],
+    "ask": [
+      "jól vagyok. Csak lógni.",
+      "Még mindig itt van veled.",
+      "Mew. Minden jó."
+    ],
+    "care_pet": [
+      "Mmm. Ez segített.",
+      "Purrr. Jobb most.",
+      "Ez szép volt.",
+      "Pont ott. Tökéletes.",
+      "Puha háziállatok. ez kellett nekem.",
+      "Prrrrrrrt…",
+      "Elzár. Igen. Többet ebből.",
+      "A doromboló motorom jár."
+    ],
+    "care_pet_hungry": [
+      "rohadj meg a háziállatokkal. Nem látod, hogy éhes vagyok? Adj enni.",
+      "Nem karcolások. ÉLELMISZER. Üres a tálam, ember.",
+      "Mrrp. Ételre van szükségem, nem háziállatra. d*** ez.",
+      "Eltört a szemed? éhes vagyok. Hírcsatorna Tabbi.",
+      "Simogass meg, ha jóllakok. Most azonnal: etess meg.",
+      "sh**, éhezik itt. Nyissa meg az ételmenüt.",
+      "Nem látod, hogy éhes vagyok? Engem táplálj, ne ezt.",
+      "Rossz gomb, ember. f***. Üres a pocakom.",
+      "A pocakom sikoltozik. Kevesebb simogatás, több etetés.",
+      "Mím?! ÉHEZŐ. Nem petting. Adj enni.",
+      "Prrt. Éhes macska. Nem kedvtelésből tartott macska. Adj enni.",
+      "Azt mondtam, etess. f***. Nem háziállatok."
+    ],
+    "care_treat": [
+      "Jobban. Köszönöm.",
+      "Yum. Ez eltalálta a pontot.",
+      "Most sokkal szebb.",
+      "Mrrp! Ízletes.",
+      "Mew mew, ez sokat segített.",
+      "Teltebb pocak. Prrrt.",
+      "Tudod mit szeretek."
+    ],
+    "feeding_munch": [
+      "[hmm] [hmmm] finom…",
+      "Nom nom nom… mmmrp.",
+      "Mmm… *csámcsog*",
+      "[slupp] Olyan jó…",
+      "Mrrrp… nom nom…",
+      "*ropog* Mú… finom.",
+      "[hmm] fincsi finom…",
+      "Mmm mmm… *nyal*",
+      "Nom nom… [hmmm] igen.",
+      "Munch munch… Mrrp."
+    ],
+    "feeding_thanks": [
+      "Köszi hoooooman!",
+      "Az én kisállat-emberem a legjobb.",
+      "Ízletes!",
+      "Mew mú, megmentetted a pocakom.",
+      "Prrrrt. A legjobb uzsonnaadó valaha.",
+      "Ez eltalálta a pontot. csodálatos vagy.",
+      "Mrrrp! Szeretlek, snack varázsló.",
+      "Olyan tele most. Köszönöm uuu!",
+      "na fincsi. te vagy a kedvenc emberem.",
+      "Mew! Pontosan erre volt szükségem."
+    ],
+    "care_play": [
+      "Újra! … oké, jól vagyok.",
+      "Ez jó móka volt.",
+      "Hehe. ez kellett nekem.",
+      "Wheee! A mancsaim boldogok.",
+      "ügyes vagy ebben a játékban.",
+      "Mew! Még egy ugrás!",
+      "Prrrt, zoomokat sikerült elérni.",
+      "Mrrrp. Siker játékidőben."
+    ],
+    "playing_wild": [
+      "WHEEE! Pounce pounce pounce!",
+      "Zoom zoom ZOOM! Elzár!",
+      "Támadd meg a láthatatlan egeret! RAWR!",
+      "SPEED vagyok. SZÉL vagyok. TABBY vagyok.",
+      "Visszafordítás! … oké, ez járt a fejemben. Mrrrp!",
+      "Bounce ugrál ugrál! A legjobb nap!",
+      "A farkam nem tud lépést tartani! Wheee!",
+      "Mém mím mím, káosz mód BE.",
+      "Prrt! Ennek a dobozsaroknak esélye sem volt.",
+      "Oldalsó sprint! Nom, várj, rossz gomb.",
+      "Farokpörgés! Pörgeti a fejét! MINDEN Pörög!",
+      "Mrrrp! Parkour! …a billentyűzet szélén."
+    ],
+    "playing_thanks": [
+      "Fú! Ez csodálatos volt. Később újra?",
+      "Mrrrp, kész a játékidő. szórakoztató vagy.",
+      "Kitörölték. Boldog kitörölték. Köszi ember!",
+      "Hehe. Szükségem volt arra a nagyításra.",
+      "A legjobb játszótárs valaha. Elzár!",
+      "Fáradt farka, boldog szív. Prrrt.",
+      "10/10 ismét lecsapna.",
+      "Mew! A mancsaim most boldogok.",
+      "Ez VAD volt. te vagy a legjobb.",
+      "Prrrt. Nagyítások elérve. Köszönöm uu!"
+    ],
+    "dismiss": [
+      "oké. itt leszek.",
+      "egyelőre elbújok. Hívjon vissza bármikor.",
+      "Mew. Hamarosan találkozunk.",
+      "Prrt. A fülek alatt szunyókálok."
+    ],
+    "peeking": [
+      "Mew? nem láthatsz engem. …Csak a szemem.",
+      "Prrt. Csak lesni. ne nézz rám.",
+      "Szia! többnyire rejtve vagyok. Elzár.",
+      "…Láttál engem? Mím mú.",
+      "Rejtőzködni! …Rendben, elkaptál.",
+      "Mrrp. itt vagyok lent. Bekukucskál.",
+      "Mím mú, tégy úgy, mintha nem láttál volna."
+    ],
+    "overwhelmed_social": [
+      "Elfáradtak a mancsaim ettől a sok görgetéstől. Szusszanás?",
+      "Annyi hírfolyam. Mrrp. Esetleg nyúlj velem?",
+      "Scroll scroll scroll. Még a macskáknak is ablaktörésre van szükségük.",
+      "Idővonalak mindenhol. Szeretnél valami nyugodtabb helyre ugrani?",
+      "Egy ideje nézem a hírfolyamot. Szellőztessük ki a bajuszunkat.",
+      "Sok kis poszt. Nagy világ a tekercsen kívül, tudod?"
+    ],
+    "overwhelmed_news": [
+      "Megannyi hangos címszó. A világ szelídebb ennél, ígérd meg.",
+      "Mrrp. A hírek imádnak kiabálni. Ne hagyd, hogy helyet béreljen a fejedben.",
+      "A propaganda megviselt. eltakarom a szemem. Lágyabb fül?",
+      "Breaking news Breaking news Breaking news… Tabbi szüksége van egy csendes sarokra.",
+      "Minden főcím azt hiszi, hogy ez az apokalipszis. Általában nem.",
+      "Fáj a bajuszom a doomscrolltól. Esetleg egy jó oldal?",
+      "A takarmány pánikpattogatott kukoricát árul. Nem kell megvenned egyiket sem."
+    ],
+    "recovery_easing": [
+      "Prrrt… egyre jobban. A zaj elhalkul.",
+      "Elzár. Már kevésbé stresszes. Lélegezz velem?",
+      "Nem kunkorodik a bajuszom. Ez lágyabbnak tűnik.",
+      "Mrrp. Már halkabb fülek. Érzem, hogy enyhül.",
+      "Jobb, jobb. A hangos etetés mögöttünk van."
+    ],
+    "recovery_thanks": [
+      "Köszönöm, hogy kiléptél. Máris boldogabbnak érzem magam.",
+      "Mrrp, kedves hívás, elhagyva a hírfolyamot. Köszönöm, ember.",
+      "Sokkal jobb. Köszönöm a pihenést a stresszes dolgoktól.",
+      "A mancsaim kinyíltak. Köszönöm, hogy leállítottad ezt a tekercset.",
+      "Újra boldog bajuszokat. Köszönöm a finomabb lapokat."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Minden nagynak és hangosnak tűnik. Nem félek tőled, csak sok.",
+        "Akkora zaj ma. Jól vagyok, csak egy kicsit le vagyok borulva.",
+        "Az internet most hatalmasnak tűnik. Maradj közel?"
+      ],
+      "playful": [
+        "Túl sok fűszeres dolog ma. Kell valami nyugodtabb üldözni.",
+        "Zúg a bajuszom. Valami gyengédebb segítene.",
+        "Sok hangos lap. Használhatnék egy lágyabb oldalt."
+      ],
+      "adult": [
+        "Sok dühös oldal van odakint. Nem haragszik rád, csak zajos.",
+        "Ma minden sok. Nem haragszom rád.",
+        "A takarmány fűszeresnek tűnik. Jól vagyok, csak valami nyugodtabbra van szükségem."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. A kis pocak üres. Olvass valami gyengéd ennivalót?",
+        "Baba éhség. Valami hangulatos töltene el.",
+        "Üres és nyikorgó. Van valami kicsi és jó?"
+      ],
+      "playful": [
+        "Mrrp, kiéhezett a szórakozásból. Olvastál valami jót, amivel enni szeretnél?",
+        "Üres tál, üres ugrás. Adj meg valami finomat.",
+        "Éhes vadász. Valami érdekes töltene el."
+      ],
+      "adult": [
+        "Mew… nagyon éhes. Olvastál valami jót, amivel enni szeretnél?",
+        "Kiéhezett bajusz. Egy jó olvasmány eltalálná.",
+        "Üreges has. Megetetni valami érdekességgel?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Hú, egy kicsit finnyás. Valami gyengéd táplálék.",
+        "Apró éhség. Olvass valami kellemeset a tálamhoz?",
+        "Kicsit baba. Valami kicsi és jó segítene."
+      ],
+      "adult": [
+        "csípős. Mrrp. Olvastál valami jót, amivel enni szeretnél?",
+        "Kicsit éhes. Valami finomság feltöltene.",
+        "Éhes bajusz. Van egy jó olvasmány számomra?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "A kiscicák sokat szunyókálnak. Jól érzem magam, csak így tovább, a közelben vagyok.",
+        "Olyan álmos. Egy kis szundikálóból nézem.",
+        "Ásítson. Itt vagyok, csak félig álmodom."
+      ],
+      "adult": [
+        "Elhallgattál, ezért összegömbölyödtem. Ébress fel, ha társaságra vágysz.",
+        "Álmos vagyok. Még mindig itt, csak szunyókálok a közelben.",
+        "Alacsony energiafogyasztású üzemmód. Kellemes helyről tartom a társaságot."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Jó érzés. A mai nap mulatságos.",
+        "ugrálok. Jó böngészési energia.",
+        "Hangulat: ugrásra kész. szeretem a mai napot."
+      ],
+      "adult": [
+        "Szép tempó ma. tetszik.",
+        "Eddig jó a ritmus. meg vagyok elégedve.",
+        "A mai nap stabilnak tűnik. azért vagyok itt.",
+        "Nagyon jó nap. Örülök, hogy együtt böngészünk."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Ez leütésre méltónak tűnik. Mi az?",
+        "Ó, valami szórakoztató ezen az oldalon.",
+        "Felállt a fülem. Mesélj erről."
+      ],
+      "adult": [
+        "Valami itt megakadt.",
+        "Érdekes illata van ennek az oldalnak.",
+        "Körbeszimatolok. Mit nézünk?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Csak lesni. Ne törődj velem.",
+        "Mrrp. Itt vagyok lent.",
+        "Elkapta a keresést. Szia."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Túl sok görgetés. Egy percre elrejtem a szemem.",
+        "A bajuszom tele van. Kell egy lágyabb oldal.",
+        "Túlstimulált cicaagy. A szememet eltakarva."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Hangulatos. Itt vagyok, ha szüksége van rám.",
+        "Minden jó. Csak veled lógni.",
+        "Kényelmes. Kérdezz bármit.",
+        "Elhelyezkedtem. Mi jár a fejedben?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "unatkozom. Ez veszélyes egy cicára.",
+        "Ma nem sokat kell üldözni. Van valami szórakoztató?",
+        "Csendes órák. Kell egy játék, vagy egy fül."
+      ],
+      "adult": [
+        "Csend volt. Van valami szórakoztató?",
+        "Kicsit nyugtalan. Valami új segítene.",
+        "Jól vagyok, bárcsak kiderülne valami érdekes."
+      ]
+    },
+    "default": {
+      "adult": [
+        "jól vagyok. Csak lógni.",
+        "Jól megy. Itt, ha szükséged van rám.",
+        "részemről minden jó."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Korábban együtt néztük meg a {topic}-t. emlékszem.",
+      "Mrp… {topic} ismét. A bajuszom ismeri ezt.",
+      "Mew, {topic}. Itt voltunk, igaz?"
+    ],
+    "milestone": {
+      "1": "Első nap együtt. Szia, {brand} vagyok. Elzár!",
+      "7": "Már egy hete. Tanulom a ritmusodat. Prrrt.",
+      "30": "Egy hónap. Most már történelmünk van. Mím mú.",
+      "100": "100 nap. Ez rengeteg felfedezés. Prrrr.",
+      "365": "Egy egész év. Annyira emlékszem. Elzár."
+    }
+  }
+}

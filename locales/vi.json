@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Con mèo trình duyệt của bạn. Mọi thứ vẫn ở địa phương.",
+    "language": "Ngôn ngữ",
+    "dndTitle": "Đừng làm phiền",
+    "dndHint": "Tabbi vẫn ẩn trên mọi tab cho đến khi hết giờ.",
+    "dndHowLong": "Tabbi nên im lặng trong bao lâu?",
+    "dndCancel": "Hủy đừng làm phiền",
+    "dnd30": "30 phút",
+    "dnd60": "1 giờ",
+    "dndToday": "Cho đến hết ngày hôm nay",
+    "pageTitle": "Tabbi trên trang của bạn",
+    "showAll": "Hiển thị Tabbi trong tất cả các trang",
+    "hideAll": "Ẩn Tabbi khỏi tất cả các trang",
+    "showPage": "Hiển thị Tabbi trên trang này",
+    "hidePage": "Ẩn Tabbi trên trang này",
+    "quietTitle": "Giờ yên tĩnh",
+    "quietHint": "Tabbi giữ im lặng trong những giờ này. Chỉ có lời nói không được nhắc nhở.",
+    "quietStart": "Giờ bắt đầu (0,23)",
+    "quietEnd": "Giờ kết thúc (0,23)",
+    "privacyTitle": "Quyền riêng tư",
+    "privacyHint": "Tabbi chỉ phân loại các trang từ tiêu đề và URL của tab đang hoạt động, không bao giờ phân loại văn bản nội dung trang. Các trang web đã biết và từ khóa tiêu đề quyết định nuôi dưỡng, tiêu hao hoặc trung tính.",
+    "speechTitle": "Khi Tabbi lên tiếng",
+    "speechHint": "Các dòng không được nhắc nhở trong khi bạn duyệt. Không phải khi bạn chạm vào cô ấy. Mặc định nhắm đến một vài lượt đăng ký nhẹ nhàng mỗi ngày.",
+    "maxAppearances": "Số lần tối đa mỗi ngày",
+    "cooldownMinutes": "Chờ ít nhất (phút)",
+    "saved": "Đã lưu.",
+    "openWebPage": "Mở một trang web bình thường để hiển thị hoặc ẩn Tabbi tại đây.",
+    "shownOnTab": "Tabbi nằm trên tab đang hoạt động.",
+    "hiddenAll": "Tabbi bị ẩn trên mọi trang.",
+    "shownAll": "Tabbi có thể hiển thị lại trên mọi trang.",
+    "hiddenPage": "Tabbi bị ẩn trên trang này.",
+    "shownPage": "Tabbi có thể hiển thị lại trên trang này.",
+    "dndOn": "Không làm phiền đang bật.",
+    "dndOff": "Tính năng Không làm phiền đang tắt.",
+    "introReset": "Chuyến tham quan giới thiệu sẽ hiển thị lại ở trang tiếp theo.",
+    "devOn": "Trước tiên hãy bật tương tác của nhà phát triển.",
+    "previewMood": "Xem trước: {mood}.",
+    "unavailable": "Tabbi không có sẵn. Hãy thử tải lại tiện ích mở rộng."
+  },
+  "overlay": {
+    "closeMenu": "Đóng trình đơn",
+    "dismissSpeech": "Loại bỏ bài phát biểu",
+    "more": "Thêm",
+    "less": "Ít hơn",
+    "introSkip": "Tôi đã biết rồi Tabbi",
+    "introNext": "Tiếp theo",
+    "introDone": "Hiểu rồi"
+  },
+  "intro": [
+    "Xin chào! Tôi là Tabbi, con mèo trình duyệt của bạn.",
+    "Tôi sống ở đây trong khi bạn duyệt. Mọi thứ vẫn còn trên thiết bị của bạn.",
+    "Tôi tránh xa một số trang web để tránh bị phân tâm.",
+    "Tôi đi chơi đây. Thỉnh thoảng cho tôi ăn hoặc chơi với tôi, được chứ?"
+  ],
+  "care": {
+    "pet": "Thú cưng",
+    "feed": "Nguồn cấp dữ liệu",
+    "feedBrand": "Nguồn cấp dữ liệu {brand}",
+    "play": "Chơi",
+    "askDefault": "Có chuyện gì thế?",
+    "askOverwhelmedNewborn": "Quá nhiều?",
+    "askOverwhelmed": "Cần nghỉ ngơi?",
+    "askStressedNewborn": "Tại sao lại cầu kỳ như vậy?",
+    "askStressed": "Có chuyện gì vậy?",
+    "askHungryNewborn": "Tại sao lại đói?",
+    "askHungry": "Bạn cần gì?",
+    "askSleepyNewborn": "Buồn ngủ?",
+    "askSleepy": "Bạn đang ngủ trưa phải không?",
+    "askBored": "Chán?",
+    "dnd30": "Không làm phiền: 30 phút",
+    "dnd60": "Không làm phiền: 1 giờ",
+    "dndToday": "Đừng làm phiền: hôm nay",
+    "hidePage": "Ẩn Tabbi trên trang này"
+  },
+  "dnd": {
+    "minutes30": "30 phút",
+    "hour1": "1 giờ",
+    "today": "hôm nay",
+    "summary": "Không làm phiền trong {duration} (còn {remaining} phút, cho đến {until})"
+  },
+  "speech": {
+    "starving": [
+      "Meo meo… bát trống, bụng tôi cũng trống.",
+      "Bụng đình công rồi. Mrrr. Mang gì đó đi.",
+      "Đói muốn chết. Prrr. Có gì không?",
+      "Meooo. Râu buồn. Cho miếng nhé.",
+      "Bát im lặng phán xét tôi. Cứu tôi.",
+      "Mrrr. Đói không phải trò đùa.",
+      "Thợ săn nhỏ về số không. Cứu tôi đi."
+    ],
+    "hungry": [
+      "Meo, bụng gầm gầm chút. Có gì ngon không?",
+      "Hơi đói. Mrrr. Có gì thú vị?",
+      "Râu đói. Sẽ đổ đầy bát chứ?",
+      "Bụng hơi trống. Cho tôi chút gì?",
+      "Meo meo. Gầm nhẹ. Có gì dễ thương?",
+      "Chưa chết đói, nhưng than phiền. Ăn vặt?",
+      "Mrrr. Không nhiều, đủ để than.",
+      "Đuôi theo nhịp đói. Đến lượt bạn.",
+      "Mùi đồ ăn… hay tưởng tượng? Prrr."
+    ],
+    "stressed": [
+      "Meo, quá nhiều cùng lúc. Prrr… nghỉ chút.",
+      "Đầu như dây thun căng. Mrrr.",
+      "Ồn quá trên màn hình. Nghỉ đi.",
+      "Prrr. Một giây nhé? Mọi thứ đè nặng.",
+      "Meooo. Quá tải rồi.",
+      "Mrrr. Đừng nhồi thêm vào đầu tôi.",
+      "Feed hôm nay cay. Tôi sắp vỡ.",
+      "Prrrt… thở một chút."
+    ],
+    "overwhelmed": [
+      "Meooo ugh… không chứa thêm. Nghỉ.",
+      "Ôi trời ơi. Meo, chậm lại.",
+      "Quá nhiều. Phải lùi lại."
+    ],
+    "lonely": [
+      "Yên quá. Đi đâu đây?",
+      "Nhớ bạn. Xem gì cùng nhau?",
+      "Ở với tôi chút?",
+      "Meo? Ở đây cô đơn.",
+      "Mrrr… đến ngửi cùng tôi.",
+      "Đợi lâu rồi. Có tab cho hai ta?",
+      "Meooo. Đừng bỏ tôi với các tab.",
+      "Nhà yên. Cần bạn đồng hành."
+    ],
+    "happy": [
+      "Này. Hôm nay tôi vui.",
+      "Ngày đẹp, phải không?",
+      "Mọi thứ mềm và ấm.",
+      "Prrrr. Hôm nay thơm.",
+      "Meo! Thích vibe này.",
+      "Râu vui. Tôi hạnh phúc.",
+      "Mrrr, cảm giác nắng.",
+      "Đang rừ rừ. Cho bạn biết thôi."
+    ],
+    "sleepy": [
+      "Ngủ gật ở đây…",
+      "Zzz… à, chào.",
+      "Buồn ngủ nhưng vẫn ở đây.",
+      "Meo… *ngáp* …vẫn tỉnh.",
+      "Prrrt… thêm năm phút…",
+      "Cuộn tròn. Gọi nếu cần.",
+      "Mrrr. Mơ đồ ấm.",
+      "Zzz… meo… zzz…"
+    ],
+    "curious": [
+      "Cái gì đây?",
+      "Ồ, thú vị.",
+      "Trang này có mùi nghịch.",
+      "Meo? Nhìn gì đây?",
+      "Mrrr, tai dựng.",
+      "Ngửi ngửi. Kể đi.",
+      "Nhảy lên? Có lẽ.",
+      "Meo meo, tò mò ngứa."
+    ],
+    "memory": [
+      "Quen quen.",
+      "Đã từng ở đây, đúng không?",
+      "Nhớ chủ đề này.",
+      "Mrrr… đã thấy rồi.",
+      "Râu nhớ chỗ này.",
+      "Đã xem cái tương tự.",
+      "Meo, có gì quen."
+    ],
+    "milestone": [
+      "Biết hôm nay ngày gì không? Ngày của ta.",
+      "Vẫn ở đây. Vui lắm.",
+      "Thêm một kỷ niệm nhỏ với bạn.",
+      "Prrrr. Bên nhau lâu rồi.",
+      "Meo! Xem xa tới đâu.",
+      "Nhớ ngày đầu. Bạn nhớ không?"
+    ],
+    "dev": [
+      "Bản test, nói nhiều.",
+      "Bản test, bấm gì đó xem.",
+      "Meo! Test chạy rồi.",
+      "Prrrt, câu test từ Tabbi."
+    ],
+    "ask": [
+      "Ổn. Ở đây thôi.",
+      "Vẫn với bạn.",
+      "Meo. Mọi thứ ok."
+    ],
+    "care_pet": [
+      "Mmm. Đỡ rồi.",
+      "Prrr. Tốt hơn.",
+      "Hay đấy.",
+      "Đúng chỗ. Hoàn hảo.",
+      "Vuốt nhẹ. Cần lắm.",
+      "Prrrrrr…",
+      "Meo. Vâng. Thêm.",
+      "Rừ rừ hết cỡ."
+    ],
+    "care_pet_hungry": [
+      "Đủ vuốt rồi. Không thấy đói à? Cho ăn.",
+      "Không vuốt. ĐỒ ĂN. Bát trống, người ơi.",
+      "Mrrr. Ăn, không vuốt. Đ*t mẹ.",
+      "Mù à? Đói. Cho Tabbi ăn.",
+      "Vuốt khi no. Giờ: ăn.",
+      "Đ*t, đói lắm. Mở menu đi.",
+      "Không thấy đói? Ăn, không phải này.",
+      "Sai nút. Đ*t. Bụng trống.",
+      "Bụng la hét. Ít vuốt, nhiều ăn.",
+      "Meo?! ĐÓI. Không vuốt. Cho ăn.",
+      "Prrr. Mèo đói. Không mèo cưng. Ăn.",
+      "Bảo cho ăn. Đ*t. Không vuốt."
+    ],
+    "care_treat": [
+      "Tốt hơn. Cảm ơn.",
+      "Nham. Đúng cái đó.",
+      "Đỡ hơn nhiều.",
+      "Mrrr! Ngon.",
+      "Meo meo, cứu tôi rồi.",
+      "Bụng đầy hơn. Prrrt.",
+      "Biết tôi thích gì."
+    ],
+    "feeding_munch": [
+      "Nham… nham… ngon…",
+      "Nham nham nham… meo.",
+      "Mmm… *nhai nhai*",
+      "Nham… ngon quá…",
+      "Mrrr… nham nham…",
+      "*giòn* Meo… ngon.",
+      "Mmm… ngon ngon…",
+      "Mmm mmm… *liếm*",
+      "Nham nham… mmm, vâng.",
+      "Nhai nhai… mrrr."
+    ],
+    "feeding_thanks": [
+      "Cảm ơn, người ơi!",
+      "Bạn giỏi nhất.",
+      "Ngon!",
+      "Meo meo, cứu bụng tôi.",
+      "Prrrt. Đồ ăn tuyệt nhất.",
+      "Đúng cái đó. Tuyệt.",
+      "Mrrr! Yêu bạn.",
+      "No rồi. Cảm ơn!",
+      "Nham nham. Người yêu thích.",
+      "Meo! Đúng cái đó."
+    ],
+    "care_play": [
+      "Nữa! …thôi, đủ.",
+      "Vui đấy.",
+      "Hehe. Cần lắm.",
+      "Whee! Chân vui.",
+      "Chơi giỏi.",
+      "Meo! Nhảy thêm!",
+      "Prrrt, xả năng lượng.",
+      "Mrrr. Chơi thành công."
+    ],
+    "playing_wild": [
+      "Whee! Nhảy nhảy nhảy!",
+      "Chạy chạy! Meo!",
+      "Tấn công chuột vô hình! Grrr!",
+      "Tôi là tốc độ. Tôi là gió. Tôi là Tabbi.",
+      "Lộn ngược! …trong đầu. Mrrr.",
+      "Nhảy nhảy! Ngày tuyệt nhất!",
+      "Đuôi không theo kịp! Whee!",
+      "Meo meo meo, hỗn loạn.",
+      "Prrr! Góc đó không đoán được.",
+      "Sprint ngang! Khoan, sai nút.",
+      "Đuôi! Đầu! Mọi thứ quay!",
+      "Mrrr! Parkour! …trên bàn phím."
+    ],
+    "playing_thanks": [
+      "Phù! Tuyệt. Lát nữa?",
+      "Mrrr, chơi xong. Hay.",
+      "Mệt mà vui. Cảm ơn!",
+      "Hehe. Cần xả hơi.",
+      "Bạn chơi tốt nhất. Meo!",
+      "Đuôi mệt, tim vui. Prrrt.",
+      "Mười trên mười. Nhảy lại.",
+      "Meo! Chân vui.",
+      "Điên. Bạn giỏi nhất.",
+      "Prrrt. Cảm ơn!"
+    ],
+    "dismiss": [
+      "Ok. Tôi ở đây.",
+      "Ẩn đây. Gọi khi cần.",
+      "Meo. Gặp sau.",
+      "Prrr. Ngủ dưới tab."
+    ],
+    "peeking": [
+      "Meo? Không thấy tôi… chỉ mắt.",
+      "Prrr. Chỉ nhìn lén. Đừng nhìn.",
+      "Chào. Gần như ẩn. Meo.",
+      "…Thấy tôi chưa? Meo meo.",
+      "Ẩn! …ok, bắt được.",
+      "Mrrr. Tôi ở dưới.",
+      "Meo meo, làm như không thấy."
+    ],
+    "overwhelmed_social": [
+      "Chân mỏi scroll. Nghỉ?",
+      "Nhiều feed. Mrrr. Giãn người?",
+      "Scroll scroll scroll. Cần không khí.",
+      "Timeline khắp nơi. Yên hơn?",
+      "Xem feed lâu rồi. Thông gió râu.",
+      "Post nhỏ, thế giới lớn ngoài kia."
+    ],
+    "overwhelmed_news": [
+      "Tiêu đề la hét. Thế giới dịu hơn, hứa.",
+      "Mrrr. Tin tức ồn. Đừng giữ trong đầu.",
+      "Propaganda nhiều. Che mắt. Nhẹ hơn?",
+      "Breaking chồng breaking… cần góc.",
+      "Mỗi tiêu đề nghĩ là hết. Thường không.",
+      "Râu đau vì tin xấu. Trang đẹp?",
+      "Feed bán hoảng. Không cần mua."
+    ],
+    "recovery_easing": [
+      "Prrrt… đỡ hơn. Ồn lắng.",
+      "Meo. Ít căng. Thở nhé?",
+      "Râu thả lỏng. Tốt hơn.",
+      "Mrrr. Tab yên hơn.",
+      "Tốt hơn. Feed ồn phía sau."
+    ],
+    "recovery_thanks": [
+      "Cảm ơn đã rời đi. Đỡ rồi.",
+      "Mrrr, bỏ feed hay đấy. Cảm ơn.",
+      "Tốt hơn nhiều. Cảm ơn nghỉ.",
+      "Chân thả lỏng. Cảm ơn dừng scroll.",
+      "Râu vui. Cảm ơn tab dịu."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Mọi thứ đều có cảm giác lớn và ồn ào. Tôi không sợ bạn, nó chỉ là rất nhiều.",
+        "Hôm nay ồn ào quá. Tôi không sao, chỉ hơi choáng váng một chút thôi.",
+        "Internet bây giờ có cảm giác rất lớn. Ở gần?"
+      ],
+      "playful": [
+        "Hôm nay nhiều đồ cay quá. Tôi cần thứ gì đó bình tĩnh hơn để theo đuổi.",
+        "Râu của tôi đang vo ve. Một cái gì đó nhẹ nhàng hơn sẽ giúp ích.",
+        "Rất nhiều tab lớn. Tôi có thể sử dụng một trang nhẹ nhàng hơn."
+      ],
+      "adult": [
+        "Có rất nhiều trang giận dữ ngoài kia. Không giận bạn, chỉ ồn ào thôi.",
+        "Hôm nay mọi thứ hơi nhiều. Tôi không khó chịu với bạn.",
+        "Thức ăn có cảm giác cay. Tôi ổn, chỉ cần thứ gì đó bình tĩnh hơn thôi."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Meo. Bụng nhỏ trống rỗng. Đọc cái gì đó nhẹ nhàng để nuôi tôi?",
+        "Bé đói. Một cái gì đó ấm cúng sẽ lấp đầy tôi.",
+        "Trống rỗng và kêu cót két. Có một cái gì đó nhỏ và tốt?"
+      ],
+      "playful": [
+        "Mrrp, đang đói cho vui đây. Đọc cái gì tốt để nuôi tôi?",
+        "Cái bát rỗng, cái vồ trống rỗng. Cho tôi ăn thứ gì đó ngon lành.",
+        "Thợ săn đói. Một cái gì đó thú vị sẽ lấp đầy tôi."
+      ],
+      "adult": [
+        "Mew… đói quá. Đọc cái gì tốt để nuôi tôi?",
+        "Râu đói. Một bài đọc hay sẽ thành công.",
+        "Bụng rỗng. Cho tôi ăn thứ gì đó thú vị?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, hơi đói bụng một chút. Một cái gì đó nhẹ nhàng sẽ nuôi sống tôi.",
+        "Cơn đói nhỏ. Đọc cái gì đó ấm cúng cho bát của tôi?",
+        "Em bé đáng thương. Một cái gì đó nhỏ và tốt sẽ giúp ích."
+      ],
+      "adult": [
+        "Đắt quá. Ông ơi. Đọc cái gì tốt để nuôi tôi?",
+        "Có chút đói. Một cái gì đó ngon sẽ lấp đầy tôi.",
+        "Râu đói. Có một bài đọc tốt cho tôi?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Mèo con ngủ trưa rất nhiều. Tôi ấm cúng, cứ đi đi, tôi ở gần đây.",
+        "Buồn ngủ quá. Tôi sẽ xem từ một đống giấc ngủ ngắn.",
+        "Ngáp. Tôi ở đây, chỉ nửa mơ nửa vời."
+      ],
+      "adult": [
+        "Bạn im lặng nên tôi cuộn tròn lại. Đánh thức tôi nếu bạn muốn bầu bạn.",
+        "Tôi buồn ngủ. Vẫn ở đây, chỉ ngủ trưa gần đây.",
+        "Chế độ năng lượng thấp. Tôi sẽ đồng hành cùng bạn ở một nơi ấm cúng."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Cảm thấy tốt. Hôm nay là một ngày vui vẻ.",
+        "Tôi đang nảy lên. Năng lượng duyệt web tốt.",
+        "Tâm trạng: sẵn sàng vồ lấy. Tôi thích ngày hôm nay."
+      ],
+      "adult": [
+        "Tốc độ tốt đẹp ngày hôm nay. Tôi thích nó.",
+        "Nhịp điệu tốt cho đến nay. Tôi hài lòng.",
+        "Hôm nay cảm thấy ổn định. Tôi ở đây vì điều đó.",
+        "Một ngày khá tốt. Tôi rất vui vì chúng ta cùng duyệt web."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Điều đó có vẻ xứng đáng. Nó là gì?",
+        "Ồ, có điều gì đó thú vị trên trang này.",
+        "Tai tôi dựng lên. Hãy kể cho tôi nghe về điều này."
+      ],
+      "adult": [
+        "Một cái gì đó ở đây thu hút sự chú ý của tôi.",
+        "Trang này có mùi thú vị.",
+        "Tôi đang đánh hơi xung quanh. Chúng ta đang nhìn vào cái gì?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Chỉ nhìn trộm thôi. Đừng bận tâm đến tôi.",
+        "Ông ơi. Tôi ở dưới này.",
+        "Bắt gặp bạn đang nhìn. CHÀO."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Quá nhiều cuộn. Tôi đang giấu mắt mình trong một phút.",
+        "Râu của tôi đã đầy. Cần một trang nhẹ nhàng hơn.",
+        "Bộ não mèo con bị kích thích quá mức. Che mắt tôi."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Ấm cúng. Tôi ở ngay đây nếu bạn cần tôi.",
+        "Tất cả đều tốt. Chỉ đi chơi với bạn thôi.",
+        "Thoải mái. Hãy hỏi tôi bất cứ điều gì.",
+        "Tôi đã ổn định cuộc sống. Bạn đang nghĩ gì vậy?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Tôi chán. Điều đó thật nguy hiểm cho một con mèo con.",
+        "Không có nhiều thứ để theo đuổi ngày hôm nay. Có gì vui à?",
+        "Giờ yên tĩnh. Tôi cần một món đồ chơi hoặc một cái thẻ."
+      ],
+      "adult": [
+        "Nó đã yên tĩnh. Có gì vui không?",
+        "Một chút bồn chồn. Một cái gì đó mới sẽ giúp ích.",
+        "Tôi ổn, chỉ ước điều gì đó thú vị sẽ xuất hiện."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Tôi ổn. Chỉ đi chơi thôi.",
+        "Làm tốt. Ở đây nếu bạn cần tôi.",
+        "Tất cả đều tốt về phía tôi."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Trước đây chúng tôi đã cùng nhau xem xét {topic}. Tôi nhớ.",
+      "Ông ơi… {topic} nữa. Râu của tôi biết điều này.",
+      "Meo, {topic}. Chúng ta đã ở đây rồi phải không?"
+    ],
+    "milestone": {
+      "1": "Ngày đầu tiên bên nhau. Xin chào, tôi là {brand}. Meo!",
+      "7": "Một tuần rồi. Tôi đang học nhịp điệu của bạn. Prrrt.",
+      "30": "Một tháng. Bây giờ chúng ta đã có lịch sử. Meo meo.",
+      "100": "100 ngày. Đó là rất nhiều khám phá. Prrrr.",
+      "365": "Cả một năm. Tôi nhớ rất nhiều. Meo."
+    }
+  }
+}

@@ -30,8 +30,32 @@ import {
 } from '../../utils/mood-timers';
 import { settingsChangeRequiresPresent } from '../../utils/settings';
 import type { CatLifeStage, DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
+import { APP_LOCALES, LOCALE_FLAGS, LOCALE_LABELS } from '../../utils/locale-registry';
+import { applyDataI18n, applyDocumentLocale, loadAppLocale, t } from '../../utils/i18n';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
+
+const localeSelect = document.getElementById('locale-select') as HTMLSelectElement;
+
+function populateLocaleSelect(select: HTMLSelectElement, current: string): void {
+  select.replaceChildren();
+  for (const code of APP_LOCALES) {
+    const option = document.createElement('option');
+    option.value = code;
+    option.textContent = `${LOCALE_FLAGS[code]} ${LOCALE_LABELS[code]}`;
+    select.appendChild(option);
+  }
+  if (APP_LOCALES.includes(current as (typeof APP_LOCALES)[number])) {
+    select.value = current;
+  }
+}
+
+async function applyPopupLocale(locale: string): Promise<void> {
+  await loadAppLocale(locale);
+  applyDocumentLocale();
+  applyDataI18n();
+  document.title = `${t('settings.title')} settings`;
+}
 
 const fields = {
   quietStart: document.getElementById('quiet-start') as HTMLInputElement,
@@ -193,13 +217,13 @@ async function refreshOverlayButtons(settings = cachedSettings): Promise<void> {
   hidePageButton.hidden = true;
 
   if (!settings.showOverlay) {
-    pageOverlayHint.textContent = 'Tabby is hidden on every page.';
+    pageOverlayHint.textContent = t('settings.hiddenAll');
     return;
   }
 
   const state = await requestPageOverlayState(tab.url);
   if (!state.applicable) {
-    pageOverlayHint.textContent = 'Open a normal web page to show or hide Tabby here.';
+    pageOverlayHint.textContent = t('settings.openWebPage');
     return;
   }
 
@@ -295,7 +319,7 @@ async function applyDevMoodOrSimulation(
   },
 ): Promise<void> {
   if (!cachedSettings.devModeEnabled) {
-    showStatus('Turn on dev interactions first.');
+    showStatus(t('settings.devOn'));
     return;
   }
   try {
@@ -310,7 +334,7 @@ async function applyDevMoodOrSimulation(
     fields.devForceMood.value = result.settings.devForceMood;
     await updatePreviewCat(result.presentation.sprite, { force: true });
     void requestSyncActiveOverlay();
-    showStatus(`Preview: ${result.previewMood}.`);
+    showStatus(t('settings.previewMood', { mood: result.previewMood }));
   } catch (error) {
     showStatus(error instanceof Error ? error.message : 'Could not update preview.');
   } finally {
@@ -391,6 +415,7 @@ function bindTemperControls(): void {
 
 function fillForm(settings: ExtensionSettings): void {
   cachedSettings = settings;
+  populateLocaleSelect(localeSelect, settings.locale);
   fields.quietStart.value = String(settings.quietHoursStart);
   fields.quietEnd.value = String(settings.quietHoursEnd);
   fields.maxAppearances.value = String(settings.maxAppearancesPerDay);
@@ -406,6 +431,7 @@ function fillForm(settings: ExtensionSettings): void {
 
 function readPartialSettings(): Partial<ExtensionSettings> {
   return {
+    locale: localeSelect.value,
     showOverlay: cachedSettings.showOverlay,
     quietHoursStart: Number(fields.quietStart.value),
     quietHoursEnd: Number(fields.quietEnd.value),
@@ -429,6 +455,9 @@ function scheduleSave(): void {
       const before = cachedSettings;
       const saved = await requestSaveSettings(readPartialSettings(), { skipPresent: true });
       cachedSettings = saved;
+      if (before.locale !== saved.locale) {
+        await applyPopupLocale(saved.locale);
+      }
       fillForm(saved);
       if (settingsChangeRequiresPresent(before, saved)) {
         const presentation = await requestPresentation();
@@ -438,7 +467,7 @@ function scheduleSave(): void {
         });
       }
       await refreshOverlayButtons(saved);
-      showStatus('Saved.');
+      showStatus(t('settings.saved'));
     })();
   }, 350);
 }
@@ -453,7 +482,7 @@ async function setGlobalOverlayVisible(show: boolean): Promise<void> {
     await requestSyncActiveOverlay();
   }
   await refreshOverlayButtons(cachedSettings);
-  showStatus(show ? 'Tabby is on the active tab.' : 'Tabby is hidden on every page.');
+  showStatus(show ? t('settings.shownOnTab') : t('settings.hiddenAll'));
 }
 
 async function setPageOverlayVisible(show: boolean): Promise<void> {
@@ -461,10 +490,10 @@ async function setPageOverlayVisible(show: boolean): Promise<void> {
   if (show) {
     await requestShowOverlayOnPage(tab.url, tab.title);
     await ensureOverlayOnActiveTab(tab.id);
-    showStatus('Tabby is on this page.');
+    showStatus(t('settings.shownPage'));
   } else {
     await requestHideOverlayOnPage(tab.url);
-    showStatus('Tabby is hidden on this page.');
+    showStatus(t('settings.hiddenPage'));
   }
   const next = await requestPresentation();
   await updatePreviewCat(next.sprite);
@@ -477,7 +506,7 @@ async function cancelDoNotDisturb(): Promise<void> {
   await updatePreviewCat(next.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons();
-  showStatus('Do not disturb turned off.');
+  showStatus(t('settings.dndOff'));
 }
 
 async function enableDoNotDisturb(duration: DoNotDisturbDuration): Promise<void> {
@@ -485,7 +514,7 @@ async function enableDoNotDisturb(duration: DoNotDisturbDuration): Promise<void>
   await updatePreviewCat(next.sprite);
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons();
-  showStatus('Do not disturb is on.');
+  showStatus(t('settings.dndOn'));
 }
 
 function bindActionButton(
@@ -502,13 +531,29 @@ function bindActionButton(
       try {
         await action();
       } catch (error) {
-        showStatus(error instanceof Error ? error.message : 'Could not update Tabby.');
+        showStatus(error instanceof Error ? error.message : t('settings.unavailable'));
         await refreshDoNotDisturbSection();
         await refreshOverlayButtons();
       } finally {
         button.disabled = false;
         actionBusy = false;
       }
+    })();
+  });
+}
+
+function bindLocaleControl(): void {
+  localeSelect.addEventListener('change', () => {
+    void (async () => {
+      const nextLocale = localeSelect.value;
+      await applyPopupLocale(nextLocale);
+      const saved = await requestSaveSettings(
+        { locale: nextLocale },
+        { skipPresent: false },
+      );
+      cachedSettings = saved;
+      await refreshDoNotDisturbSection();
+      await refreshOverlayButtons(saved);
     })();
   });
 }
@@ -521,7 +566,9 @@ async function initialize(): Promise<void> {
       requestSettings(),
       requestPresentation(),
     ]);
+    await applyPopupLocale(settings.locale);
     fillForm(settings);
+    bindLocaleControl();
     void updatePreviewCat(presentation.sprite);
     await refreshDoNotDisturbSection();
     await refreshOverlayButtons(settings);
@@ -561,7 +608,9 @@ async function initialize(): Promise<void> {
     requestPresentation(),
   ]);
 
+  await applyPopupLocale(settings.locale);
   fillForm(settings);
+  bindLocaleControl();
   await refreshDoNotDisturbSection();
   await refreshOverlayButtons(settings);
   if (settings.devModeEnabled) {
@@ -645,7 +694,7 @@ async function initialize(): Promise<void> {
   resetIntroButton.addEventListener('click', () => {
     void (async () => {
       await requestResetIntro();
-      showStatus('Intro reset — the tour should appear on the active tab.');
+      showStatus(t('settings.introReset'));
     })();
   });
 }

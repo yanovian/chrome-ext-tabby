@@ -2,9 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.2.5 (unreleased)
+## 2.3.0 (unreleased)
 
 - Fix bugs
+- Tabby speaks your **language**: pick from 39 languages in settings.
 - A **marketing site** for Tabby lives at [yanovian.github.io/chrome-ext-tabby](https://yanovian.github.io/chrome-ext-tabby/).
 - The marketing site shows Tabby in **sharp Lottie animations**, not blurry GIFs.
 - The marketing site has **share previews** and search tags for social links.
@@ -15,6 +16,7 @@ Updates for people who use Tabby. Newest first.
 - Page **title and meta tags** follow the language you pick, including in view-source via locale URLs like `/fa/`.
 - **Share preview images** match each language too.
 - Share images ship **in the repo**; CI does not rebuild them every deploy.
+- Tabby's **mood lines** sound like a real cat in every language, not machine translation.
 
 ## 2.2.4
 

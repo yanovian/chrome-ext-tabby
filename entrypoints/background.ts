@@ -2,6 +2,7 @@ import { isTrackableUrl, parseHostname } from '../utils/classifier';
 import { warmCompanionGifCache } from '../utils/companion-gif-preload';
 import { recordDrainingSessionElapsed, syncDrainingSessionToPage } from '../utils/draining-session';
 import { markIntroCompleted, resetIntro } from '../utils/intro';
+import { loadAppLocale, loadLocaleFromSettings } from '../utils/i18n';
 import {
   notifyOverlayActivate,
   notifyOverlayDeactivate,
@@ -262,6 +263,7 @@ function activePageContext(): PageContext {
 }
 
 async function bootstrap(): Promise<void> {
+  await loadLocaleFromSettings(IS_DEV_BUILD);
   await ensureSettingsExist(IS_DEV_BUILD);
   await ensureCatExists(Date.now());
   await scheduleTickAlarm();
@@ -446,6 +448,9 @@ export default defineBackground(() => {
           case 'saveSettings': {
             const before = await getSettings(IS_DEV_BUILD);
             const data = await saveSettings(message.settings, IS_DEV_BUILD);
+            if (before.locale !== data.locale) {
+              await loadAppLocale(data.locale);
+            }
             if (data.showOverlay && !before.showOverlay) {
               await clearAllPageOverlayHides();
               const [activeTab] = await browser.tabs.query({

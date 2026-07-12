@@ -15,8 +15,21 @@ Before finishing any task that changes code or behavior:
 4. Update **`README.md`** if user-facing behavior or permissions changed.
 5. Add **tests** for new or fixed behavior (see `tabby-testing.mdc`).
 6. Follow **prose style**: no em dashes (`tabby-prose.mdc`).
+7. **Delete one-time scaffolding** when the task is done (see below).
 
 Skip docs/changelog only for pure refactors with zero user-visible effect unless the user asks.
+
+## One-time scripts and scaffolding
+
+Scripts created only to **bootstrap, bulk-migrate, or batch-fix** data (e.g. locale generators, brand appliers, machine-translation rebuilders) are **not** part of the product.
+
+**Before finishing the task:**
+
+1. If the script is **not** wired into `package.json`, CI, or `postinstall`, and its output is already committed, **delete the script**.
+2. Keep only **ongoing** tooling (e.g. `scripts/lint-extension-i18n.mjs` in `pnpm check`, `scripts/generate-locales.mjs` for Chrome `_locales/`).
+3. Do not leave dead `scripts/*.mjs` that future agents might re-run and undo hand-polished work.
+
+**Source of truth** for in-app UI strings: `locales/*.json`, edited directly or with tests. Brand names: `LOCALE_BRANDS` in `utils/locale-registry.ts`.
 
 ## Changelog (`CHANGELOG.md`)
 

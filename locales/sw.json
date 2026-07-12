@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Paka wa kivinjari chako. Kila kitu kinakaa ndani.",
+    "language": "Lugha",
+    "dndTitle": "Usisumbue",
+    "dndHint": "Tabbi husalia kufichwa kwenye kila kichupo hadi kipima muda kiishe.",
+    "dndHowLong": "Tabbi inapaswa kukaa kimya kwa muda gani?",
+    "dndCancel": "Ghairi usisumbue",
+    "dnd30": "Dakika 30",
+    "dnd60": "Saa 1",
+    "dndToday": "Hadi mwisho wa leo",
+    "pageTitle": "Tabbi kwenye ukurasa wako",
+    "showAll": "Onyesha Tabbi katika kurasa zote",
+    "hideAll": "Ficha Tabbi kutoka kwa kurasa zote",
+    "showPage": "Onyesha Tabbi kwenye ukurasa huu",
+    "hidePage": "Ficha Tabbi kwenye ukurasa huu",
+    "quietTitle": "Saa za utulivu",
+    "quietHint": "Tabbi hukaa kimya saa hizi. Hotuba isiyosababishwa pekee.",
+    "quietStart": "Saa ya kuanza (0,23)",
+    "quietEnd": "Saa ya mwisho (0,23)",
+    "privacyTitle": "Faragha",
+    "privacyHint": "Tabbi huainisha kurasa kutoka kwa kichwa cha kichupo kinachotumika na URL pekee, kamwe sio maandishi ya kiini cha ukurasa. Tovuti zinazojulikana na maneno muhimu ya mada huamua kurutubisha, kuondoa maji au kutopendelea.",
+    "speechTitle": "Tabbi inapozungumza",
+    "speechHint": "Mistari ambayo haijaulizwa unapovinjari. Si wakati wewe bomba yake. Chaguomsingi hulenga kuingia kwa upole mara chache kwa siku.",
+    "maxAppearances": "Mara nyingi kwa siku",
+    "cooldownMinutes": "Subiri angalau (dakika)",
+    "saved": "Imehifadhiwa.",
+    "openWebPage": "Fungua ukurasa wa wavuti wa kawaida ili kuonyesha au kuficha Tabbi hapa.",
+    "shownOnTab": "Tabbi iko kwenye kichupo kinachotumika.",
+    "hiddenAll": "Tabbi imefichwa kwenye kila ukurasa.",
+    "shownAll": "Tabbi inaweza kuonekana kwenye kila ukurasa tena.",
+    "hiddenPage": "Tabbi imefichwa kwenye ukurasa huu.",
+    "shownPage": "Tabbi inaweza kuonekana kwenye ukurasa huu tena.",
+    "dndOn": "Kipengele cha Usinisumbue kimewashwa.",
+    "dndOff": "Usinisumbue umezimwa.",
+    "introReset": "Ziara ya utangulizi itaonyeshwa tena kwenye ukurasa unaofuata.",
+    "devOn": "Washa mwingiliano wa dev kwanza.",
+    "previewMood": "Hakiki: {mood}.",
+    "unavailable": "Tabbi haipatikani. Jaribu kupakia upya kiendelezi."
+  },
+  "overlay": {
+    "closeMenu": "Funga menyu",
+    "dismissSpeech": "Ondoa hotuba",
+    "more": "Zaidi",
+    "less": "Chini",
+    "introSkip": "Tayari najua Tabbi",
+    "introNext": "Inayofuata",
+    "introDone": "Nimeipata"
+  },
+  "intro": [
+    "Habari! Mimi ni Tabbi, paka wako wa kivinjari.",
+    "Ninaishi hapa unapovinjari. Kila kitu kitabaki kwenye kifaa chako.",
+    "Ninakaa nje ya tovuti zingine ili kuepusha usumbufu.",
+    "Nimeenda kucheza. Nilishe au ucheze nami wakati mwingine, sawa?"
+  ],
+  "care": {
+    "pet": "Pet",
+    "feed": "Kulisha",
+    "feedBrand": "Mlisho {brand}",
+    "play": "Cheza",
+    "askDefault": "Kuna nini?",
+    "askOverwhelmedNewborn": "sana?",
+    "askOverwhelmed": "Je, unahitaji mapumziko?",
+    "askStressedNewborn": "Kwa nini fussy?",
+    "askStressed": "Kuna nini?",
+    "askHungryNewborn": "Kwa nini njaa?",
+    "askHungry": "Unahitaji nini?",
+    "askSleepyNewborn": "Usingizi?",
+    "askSleepy": "Ulikuwa unalala?",
+    "askBored": "Umechoka?",
+    "dnd30": "Usisumbue: Dakika 30",
+    "dnd60": "Usisumbue: Saa 1",
+    "dndToday": "Usisumbue: leo",
+    "hidePage": "Ficha Tabbi kwenye ukurasa huu"
+  },
+  "dnd": {
+    "minutes30": "Dakika 30",
+    "hour1": "Saa 1",
+    "today": "leo",
+    "summary": "Usisumbue kwa {duration} ({remaining} dakika zimesalia, hadi {until})"
+  },
+  "speech": {
+    "starving": [
+      "Miao… bakuli tupu, na mimi ndani tupu.",
+      "Tumbo limegoma. Mrrr. Leta kitu.",
+      "Nafa njaa. Prrr. Una kitu au la?",
+      "Miaaau. Masharubu za huzuni. Kipande kidogo tafadhali.",
+      "Bakuli inanihukumu kimya. Saidia.",
+      "Mrrr. Njaa si mchezo.",
+      "Mwindaji mdogo sifuri. Niondoe."
+    ],
+    "hungry": [
+      "Miao, tumbo linanguruma kidogo. Kitu kitamu?",
+      "Njaa kidogo. Mrrr. Kitu cha kuvutia?",
+      "Masharubu za njaa. Utaijaza bakuli?",
+      "Tumbo tupu kidogo. Utanipa kitu?",
+      "Miao miao. Ngurumo nyororo. Kitu kizuri?",
+      "Sikufa, ninalalamika tu. Vitafunio?",
+      "Mrrr. Sio sana, lakini kutosha kulalamika.",
+      "Mkia kwa mpigo wa njaa. Zamu yako.",
+      "Harufu ya chakula… au nafikiria? Prrr."
+    ],
+    "stressed": [
+      "Miao, mengi kwa wakati mmoja. Prrr… pumzika.",
+      "Kichwa kama kamba iliyojaa. Mrrr.",
+      "Kelele nyingi skrini. Pumzika.",
+      "Prrr. Sekunde moja? Kila kitu kinabana.",
+      "Miaaa. Mengi sana.",
+      "Mrrr. Acha kujaza kichwa changu.",
+      "Feed leo ni kali. Niko ukingoni.",
+      "Prrrt… tupumue kidogo."
+    ],
+    "overwhelmed": [
+      "Miaaa ugh… haiwezi kutoshea. Pumzika.",
+      "Kasoro gani. Miao, polepole.",
+      "Mengi sana. Lazima nirudi nyuma."
+    ],
+    "lonely": [
+      "Kimya sana. Twende wapi?",
+      "Nilikukosa. Tuangalie kitu pamoja?",
+      "Unanipa ushirika kidogo?",
+      "Miao? Hapa ni upweke.",
+      "Mrrr… njoo kunusa nami.",
+      "Nimesubiri muda. Kichupo kwa sisi?",
+      "Miaaau. Usiniache na vichupo.",
+      "Nyumba tulivu. Nahitaji rafiki."
+    ],
+    "happy": [
+      "Hujambo. Leo niko vizuri.",
+      "Siku nzuri, sivyo?",
+      "Kila kitu laini na joto.",
+      "Prrrr. Leo harufu nzuri.",
+      "Miao! Napenda hali hii.",
+      "Masharubu za furaha. Nimefurahi.",
+      "Mrrr, nahisi jua.",
+      "Ninapiga purr. Kwa kujua tu."
+    ],
+    "sleepy": [
+      "Nitalala hapa karibu…",
+      "Zzz… ah, hujambo.",
+      "Ninataka usingizi lakini bado hapa.",
+      "Miao… *piga miayo* …bado macho.",
+      "Prrrt… dakika tano zaidi…",
+      "Nimejikunja. Amsha ukihitaji.",
+      "Mrrr. Naota vitu vya joto.",
+      "Zzz… miao… zzz…"
+    ],
+    "curious": [
+      "Hii ni nini?",
+      "Ooh, ya kuvutia.",
+      "Ukurasa huu una harufu ya ujanja.",
+      "Miao? Tunaangalia nini?",
+      "Mrrr, masikio juu.",
+      "Nusa nusa. Niambie.",
+      "Niruke? Labda.",
+      "Miao miao, udadisi unawasha."
+    ],
+    "memory": [
+      "Inajulikana.",
+      "Tumekuwa hapa, sivyo?",
+      "Nakumbuka mada hii.",
+      "Mrrr… nimeona hii.",
+      "Masharubu zinajua mahali hapa.",
+      "Tumeona kitu kama hiki.",
+      "Miao, kuna kitu kinanikumbusha."
+    ],
+    "milestone": [
+      "Unajua leo ni siku gani? Siku yetu.",
+      "Bado hapa. Nimefurahi.",
+      "Maadhimisho mengine kidogo nawe.",
+      "Prrrr. Tumekuwa pamoja muda.",
+      "Miao! Angalia tumefika wapi.",
+      "Nakumbuka siku ya kwanza. Wewe pia?"
+    ],
+    "dev": [
+      "Toleo la majaribio, nazungumza sana.",
+      "Toleo la majaribio, gusa kitu.",
+      "Miao! Jaribio limeanza.",
+      "Prrrt, sentensi ya majaribio kutoka Tabbi."
+    ],
+    "ask": [
+      "Niko sawa. Niko hapa tu.",
+      "Bado nawe.",
+      "Miao. Kila kitu sawa."
+    ],
+    "care_pet": [
+      "Mmm. Imenisaidia.",
+      "Prrr. Bora zaidi.",
+      "Ilikuwa nzuri.",
+      "Hapo hapo. Kamili.",
+      "Kugusa laini. Nilihaji.",
+      "Prrrrrr…",
+      "Miao. Ndiyo. Zaidi.",
+      "Purr kamili."
+    ],
+    "care_pet_hungry": [
+      "Bas kugusa. Huoni njaa? Nipe chakula.",
+      "Si kugusa. CHAKULA. Bakuli tupu, mwanadamu.",
+      "Mrrr. Chakula, si kugusa. M*mbo.",
+      "Uko kipofu? Nina njaa. Lisha Tabbi.",
+      "Niguse nikiwa shiba. Sasa: chakula.",
+      "M*mbo, nina njaa. Fungua menyu.",
+      "Huoni njaa? Chakula, si hii.",
+      "Kitufe kibaya. M*mbo. Tumbo tupu.",
+      "Tumbo linapiga kelele. Kugusa kidogo, chakula zaidi.",
+      "Miao?! NJAA. Si kugusa. Nipe chakula.",
+      "Prrr. Paka wa njaa. Si paka wa kugusa. Chakula.",
+      "Nilisema chakula. M*mbo. Si kugusa."
+    ],
+    "care_treat": [
+      "Bora. Asante.",
+      "Nyam. Hicho hicho.",
+      "Bora sana.",
+      "Mrrr! Kitamu.",
+      "Miao miao, umeniokoa.",
+      "Tumbo lilijaa zaidi. Prrrt.",
+      "Unajua ninachopenda."
+    ],
+    "feeding_munch": [
+      "Nyam… nyam… kitamu…",
+      "Nyam nyam nyam… miao.",
+      "Mmm… *tafuna tafuna*",
+      "Nyam… kitamu sana…",
+      "Mrrr… nyam nyam…",
+      "*kakavu* Miao… kitamu.",
+      "Mmm… kitamu kitamu…",
+      "Mmm mmm… *lamba*",
+      "Nyam nyam… mmm, ndiyo.",
+      "Tafuna tafuna… mrrr."
+    ],
+    "feeding_thanks": [
+      "Asante, mwanadamu!",
+      "Wewe ni bora.",
+      "Kitamu!",
+      "Miao miao, umeokoa tumbo langu.",
+      "Prrrt. Chakula bora.",
+      "Hicho hicho. Bora.",
+      "Mrrr! Ninakupenda.",
+      "Nimeshiba. Asante!",
+      "Nyam nyam. Mwanadamu wangu wa kupenda.",
+      "Miao! Hicho hicho."
+    ],
+    "care_play": [
+      "Tena! …sawa, basi.",
+      "Ilikuwa ya kufurahisha.",
+      "Hehe. Nilihaji.",
+      "Whee! Vidole vya furaha.",
+      "Unacheza vizuri.",
+      "Miao! Rukia tena!",
+      "Prrrt, nishatoa nguvu.",
+      "Mrrr. Mchezo umefanikiwa."
+    ],
+    "playing_wild": [
+      "Whee! Rukia rukia rukia!",
+      "Kimbia kimbia! Miao!",
+      "Shambulia panya asiyoonekana! Grrr!",
+      "Mimi ni kasi. Mimi ni upepo. Mimi ni Tabbi.",
+      "Salto! …kichwani. Mrrr.",
+      "Rukia rukia! Siku bora!",
+      "Mkia hauwezi kufuata! Whee!",
+      "Miao miao miao, fujo.",
+      "Prrr! Kona hiyo haikutarajia.",
+      "Kimbia pembeni! Subiri, kitufe kibaya.",
+      "Mkia! Kichwa! Kila kitu kinazunguka!",
+      "Mrrr! Parkour! …kwenye kibodi."
+    ],
+    "playing_thanks": [
+      "Phew! Bora. Tena baadaye?",
+      "Mrrr, mchezo umekwisha. Nzuri.",
+      "Nimechoka lakini nimefurahi. Asante!",
+      "Hehe. Nilihaji kutoa nguvu.",
+      "Rafiki bora wa mchezo. Miao!",
+      "Mkia umechoka, moyo wa furaha. Prrrt.",
+      "Kumi kati ya kumi. Ningearuka tena.",
+      "Miao! Vidole vya furaha.",
+      "Wazimu. Wewe ni bora.",
+      "Prrrt. Asante!"
+    ],
+    "dismiss": [
+      "Sawa. Niko hapa.",
+      "Najificha. Nipigie ukihitaji.",
+      "Miao. Tuonane hivi karibuni.",
+      "Prrr. Nitalala chini ya vichupo."
+    ],
+    "peeking": [
+      "Miao? Huoni… macho tu.",
+      "Prrr. Ninaangalia tu. Usiangalie.",
+      "Hujambo. Nimefichwa karibu. Miao.",
+      "…Umeniona? Miao miao.",
+      "Nimeficha! …sawa, umenishika.",
+      "Mrrr. Niko hapa chini.",
+      "Miao miao, fanya kama hukuniona."
+    ],
+    "overwhelmed_social": [
+      "Vidole vimechoka kusogeza. Pumzika?",
+      "Feeds nyingi. Mrrr. Tunanyoosha?",
+      "Scroll scroll scroll. Nahitaji hewa.",
+      "Timelines kila mahali. Tulivu zaidi?",
+      "Nimekuwa feed muda. Tupepeshe masharubu.",
+      "Machapisho madogo, ulimwengu mkubwa nje."
+    ],
+    "overwhelmed_news": [
+      "Vichwa vya habari vinapiga kelele. Ulimwengu ni laini, naahidi.",
+      "Mrrr. Habari kelele. Usiweke kichwani.",
+      "Propaganda nyingi. Ninafunika macho. Laini zaidi?",
+      "Breaking juu ya breaking… nahitaji kona.",
+      "Kila kichwa kinafikiri ni mwisho. Kawaida sio.",
+      "Masharubu zinauma kutoka habari mbaya. Ukurasa mzuri?",
+      "Feed inauza hofu. Huna haja kununua."
+    ],
+    "recovery_easing": [
+      "Prrrt… bora. Kelele inapungua.",
+      "Miao. Msongo mdogo. Tupumue?",
+      "Masharubu zimetulia. Bora.",
+      "Mrrr. Vichupo tulivu.",
+      "Bora, bora. Feed kelele nyuma yetu."
+    ],
+    "recovery_thanks": [
+      "Asante kwa kuondoka. Tayari bora.",
+      "Mrrr, kuacha feed ilikuwa wazo nzuri. Asante.",
+      "Bora sana. Asante kwa mapumziko.",
+      "Vidole vimetulia. Asante kwa kuacha scroll.",
+      "Masharubu za furaha. Asante kwa vichupo laini."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Kila kitu kinasikika kuwa kikubwa na kikubwa. Sikuogopi, ni nyingi tu.",
+        "Kelele nyingi sana leo. Niko sawa, nimezidiwa kidogo tu.",
+        "Mtandao unahisi kuwa mkubwa hivi sasa. Ukae karibu?"
+      ],
+      "playful": [
+        "Vitu vya viungo vingi sana leo. Ninahitaji kitu chenye utulivu ili kukimbiza.",
+        "Masharubu yangu yanapiga kelele. Kitu cha upole kitasaidia.",
+        "Vichupo vingi vya sauti. Ningeweza kutumia ukurasa laini zaidi."
+      ],
+      "adult": [
+        "Kurasa nyingi za hasira huko nje. Sio hasira na wewe, kelele tu.",
+        "Kila kitu ni kidogo sana leo. Sina hasira na wewe.",
+        "Mlisho unahisi kuwa na viungo. Sijambo, nahitaji tu kitu cha utulivu."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. Tumbo dogo ni tupu. Umesoma kitu cha upole ili kunilisha?",
+        "Mtoto njaa. Kitu kizuri kingenijaza.",
+        "Tupu na squeaky. Una kitu kidogo na kizuri?"
+      ],
+      "playful": [
+        "Mrrp, njaa kwa ajili ya kujifurahisha. Umesoma kitu kizuri cha kunilisha?",
+        "Bakuli tupu, ruka tupu. Nilishe na kitu kitamu.",
+        "Mwindaji mwenye njaa. Kitu cha kuvutia kingenijaza."
+      ],
+      "adult": [
+        "Mew... njaa sana. Umesoma kitu kizuri cha kunilisha?",
+        "Masharubu yenye njaa. Usomaji mzuri ungefika mahali.",
+        "Tumbo tupu. Nilishe na kitu cha kuvutia?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, peckish kidogo. Kitu cha upole kingenilisha.",
+        "Njaa ndogo. Umesoma kitu kizuri kwa bakuli langu?",
+        "Mtoto mchanga. Kitu kidogo na kizuri kitasaidia."
+      ],
+      "adult": [
+        "Peckish. Bw. Umesoma kitu kizuri cha kunilisha?",
+        "Njaa kidogo. Kitu kitamu kingenijaza.",
+        "Masharubu yenye njaa. Umenisoma vizuri?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Watoto wa paka hulala sana. Nina utulivu, endelea, niko karibu.",
+        "Hivyo usingizi. Nitatazama kutoka kwenye rundo kidogo la nap.",
+        "Mwayo. Niko hapa, ninaota nusu tu."
+      ],
+      "adult": [
+        "Ulikwenda kimya, kwa hivyo nilijikunja. Niamshe ikiwa unataka kampuni.",
+        "Nina usingizi. Bado hapa, nalala tu karibu.",
+        "Hali ya chini ya nishati. Nitakuweka karibu na mahali pazuri."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Kujisikia vizuri. Leo ni furaha.",
+        "Ninaruka. Nishati nzuri ya kuvinjari.",
+        "Hali: tayari kuruka. Naipenda leo."
+      ],
+      "adult": [
+        "Mwendo mzuri leo. Naipenda.",
+        "Mdundo mzuri hadi sasa. Nimeridhika.",
+        "Leo anahisi thabiti. niko hapa kwa ajili yake.",
+        "Siku njema sana. Nimefurahi kuwa tunavinjari pamoja."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Hiyo inaonekana inastahili kuruka. Ni nini?",
+        "Lo, kitu cha kufurahisha kwenye ukurasa huu.",
+        "Masikio yangu juu. Niambie kuhusu hili."
+      ],
+      "adult": [
+        "Kitu hapa kilivutia macho yangu.",
+        "Ukurasa huu una harufu ya kuvutia.",
+        "Ninanusa huku na kule. Tunaangalia nini?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Kuchungulia tu. Usinijali.",
+        "Bw. Niko hapa chini.",
+        "Hakupata kuangalia. Habari."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Tembeza sana. Ninaficha macho yangu kwa dakika moja.",
+        "Masharubu yangu yamejaa. Unahitaji ukurasa laini zaidi.",
+        "Ubongo wa paka uliosisimka kupita kiasi. Kufunika macho yangu."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Inapendeza. Niko hapa ikiwa unanihitaji.",
+        "Zote nzuri. Kubarizi na wewe tu.",
+        "Starehe. Niulize chochote.",
+        "Nimetulia. Unafikiria nini?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Nimechoka. Hiyo ni hatari kwa paka.",
+        "Si mengi ya kufukuza leo. Una kitu cha kufurahisha?",
+        "Saa za utulivu. Nahitaji toy, au tabo."
+      ],
+      "adult": [
+        "Imekuwa kimya. Una chochote cha kufurahisha?",
+        "Kutotulia kidogo. Kitu kipya kingesaidia.",
+        "Niko sawa, ninatamani tu kitu cha kupendeza kingejitokeza."
+      ]
+    },
+    "default": {
+      "adult": [
+        "niko sawa. Kubarizi tu.",
+        "Kufanya vizuri. Hapa kama unanihitaji.",
+        "Kila la kheri mwisho wangu."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Tuliangalia {topic} pamoja hapo awali. Nakumbuka.",
+      "Mrrp… {topic} tena. Masharubu yangu yanamjua huyu.",
+      "Mew, {topic}. Tumekuwa hapa, sawa?"
+    ],
+    "milestone": {
+      "1": "Siku ya kwanza pamoja. Habari, mimi ni {brand}. Mew!",
+      "7": "Wiki tayari. Ninajifunza mdundo wako. Prrrt.",
+      "30": "Mwezi. Tuna historia sasa. Mew mwao.",
+      "100": "siku 100. Hiyo ni mengi ya kuchunguza. Prrr.",
+      "365": "Mwaka mzima. Nakumbuka sana. Mew."
+    }
+  }
+}

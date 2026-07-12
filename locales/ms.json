@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Kucing pelayar anda. Semuanya kekal tempatan.",
+    "language": "Bahasa",
+    "dndTitle": "Jangan ganggu",
+    "dndHint": "Tabbi kekal tersembunyi pada setiap tab sehingga pemasa tamat.",
+    "dndHowLong": "Berapa lama Tabbi harus berdiam diri?",
+    "dndCancel": "Batal jangan ganggu",
+    "dnd30": "30 minit",
+    "dnd60": "1 jam",
+    "dndToday": "Sehingga akhir hari ini",
+    "pageTitle": "Tabbi pada halaman anda",
+    "showAll": "Tunjukkan Tabbi dalam semua halaman",
+    "hideAll": "Sembunyikan Tabbi daripada semua halaman",
+    "showPage": "Tunjukkan Tabbi pada halaman ini",
+    "hidePage": "Sembunyikan Tabbi pada halaman ini",
+    "quietTitle": "Jam sunyi",
+    "quietHint": "Tabbi kekal senyap pada waktu ini. Ucapan tanpa gesaan sahaja.",
+    "quietStart": "Jam mula (0,23)",
+    "quietEnd": "Jam tamat (0,23)",
+    "privacyTitle": "Privasi",
+    "privacyHint": "Tabbi mengelaskan halaman daripada tajuk tab aktif dan URL sahaja, bukan teks isi halaman. Tapak yang terkenal dan kata kunci tajuk memutuskan untuk menyuburkan, mengeringkan atau neutral.",
+    "speechTitle": "Apabila Tabbi bersuara",
+    "speechHint": "Baris tidak digesa semasa anda menyemak imbas. Bukan apabila anda mengetuknya. Lalai bertujuan untuk beberapa daftar masuk lembut setiap hari.",
+    "maxAppearances": "Masa maksimum setiap hari",
+    "cooldownMinutes": "Tunggu sekurang-kurangnya (minit)",
+    "saved": "Disimpan.",
+    "openWebPage": "Buka halaman web biasa untuk menunjukkan atau menyembunyikan Tabbi di sini.",
+    "shownOnTab": "Tabbi berada pada tab aktif.",
+    "hiddenAll": "Tabbi disembunyikan pada setiap halaman.",
+    "shownAll": "Tabbi boleh dipaparkan pada setiap halaman sekali lagi.",
+    "hiddenPage": "Tabbi disembunyikan pada halaman ini.",
+    "shownPage": "Tabbi boleh dipaparkan pada halaman ini sekali lagi.",
+    "dndOn": "Jangan ganggu dihidupkan.",
+    "dndOff": "Jangan ganggu dimatikan.",
+    "introReset": "Lawatan pengenalan akan dipaparkan semula pada halaman seterusnya.",
+    "devOn": "Hidupkan interaksi pembangun dahulu.",
+    "previewMood": "Pratonton: {mood}.",
+    "unavailable": "Tabbi tidak tersedia. Cuba muatkan semula sambungan."
+  },
+  "overlay": {
+    "closeMenu": "Tutup menu",
+    "dismissSpeech": "Tolak ucapan",
+    "more": "Lagi",
+    "less": "Kurang",
+    "introSkip": "Saya sudah tahu Tabbi",
+    "introNext": "Seterusnya",
+    "introDone": "faham"
+  },
+  "intro": [
+    "Hai! Saya Tabbi, kucing penyemak imbas anda.",
+    "Saya tinggal di sini semasa anda menyemak imbas. Semuanya kekal pada peranti anda.",
+    "Saya menjauhi beberapa laman web untuk mengelakkan gangguan.",
+    "Saya pergi bermain. Makan saya atau bermain dengan saya kadang-kadang, boleh?"
+  ],
+  "care": {
+    "pet": "Haiwan peliharaan",
+    "feed": "suapan",
+    "feedBrand": "Suapan {brand}",
+    "play": "Main",
+    "askDefault": "apa khabar?",
+    "askOverwhelmedNewborn": "terlalu banyak?",
+    "askOverwhelmed": "Perlu rehat?",
+    "askStressedNewborn": "Kenapa cerewet sangat?",
+    "askStressed": "apa salahnya",
+    "askHungryNewborn": "Kenapa lapar?",
+    "askHungry": "Apa yang anda perlukan?",
+    "askSleepyNewborn": "mengantuk?",
+    "askSleepy": "Adakah anda sedang tidur siang?",
+    "askBored": "bosan?",
+    "dnd30": "Jangan ganggu: 30 min",
+    "dnd60": "Jangan ganggu: 1 jam",
+    "dndToday": "Jangan ganggu: hari ini",
+    "hidePage": "Sembunyikan Tabbi pada halaman ini"
+  },
+  "dnd": {
+    "minutes30": "30 minit",
+    "hour1": "1 jam",
+    "today": "hari ini",
+    "summary": "Jangan ganggu selama {duration} ({remaining} min lagi, sehingga {until})"
+  },
+  "speech": {
+    "starving": [
+      "Meow… mangkuk kosong, perut saya pun kosong.",
+      "Perut mogok. Mrrr. Bawa sesuatu.",
+      "Lapar banget. Prrr. Ada apa enggak?",
+      "Meooo. Kumis sedih. Sepotong dong.",
+      "Mangkuk diam menilai. Tolong.",
+      "Mrrr. Lapar bukan main-main.",
+      "Pemburu kecil nol. Selamatkan aku."
+    ],
+    "hungry": [
+      "Meow, perut sedikit berbunyi. Ada yang sedap?",
+      "Agak lapar. Mrrr. Ada yang menarik?",
+      "Kumis lapar. Isi mangkuk?",
+      "Perut agak kosong. Kasih sesuatu?",
+      "Meow meow. Keroncongan pelan. Ada yang bagus?",
+      "Belum mati kelaparan, tapi mengeluh. Cemilan?",
+      "Mrrr. Sedikit saja, cukup buat mengeluh.",
+      "Ekor ikut irama lapar. Giliranmu.",
+      "Bau makanan… atau khayalan? Prrr."
+    ],
+    "stressed": [
+      "Meow, kebanyakan sekaligus. Prrr… istirahat.",
+      "Kepala kayak tali penuh. Mrrr.",
+      "Terlalu ramai di layar. Istirahat.",
+      "Prrr. Sebentar, ya? Semua menekan.",
+      "Meooo. Terlalu banyak.",
+      "Mrrr. Berhenti isi kepalaku.",
+      "Feed hari ini pedas. Di ujung.",
+      "Prrrt… tarik napas sebentar."
+    ],
+    "overwhelmed": [
+      "Meooo ugh… tidak muat lagi. Istirahat.",
+      "Astaga berantakan. Meow, pelan-pelan.",
+      "Terlalu banyak. Harus mundur."
+    ],
+    "lonely": [
+      "Sepi banget. Mau ke mana?",
+      "Kangen. Lihat sesuatu bareng?",
+      "Temani sebentar?",
+      "Meow? Sepi di sini.",
+      "Mrrr… ayo cium-cium bareng.",
+      "Sudah lama nunggu. Ada tab buat kita?",
+      "Meooo. Jangan tinggal aku sama tab.",
+      "Rumah tenang. Butuh teman."
+    ],
+    "happy": [
+      "Hei. Hari ini mood bagus.",
+      "Hari bagus, kan?",
+      "Semua lembut dan hangat.",
+      "Prrrr. Hari ini wangi.",
+      "Meow! Suka vibes ini.",
+      "Kumis senang. Aku bahagia.",
+      "Mrrr, rasanya cerah.",
+      "Mendengkur. Biar tahu."
+    ],
+    "sleepy": [
+      "Tidur sebentar di sini…",
+      "Zzz… ah, halo.",
+      "Ngantuk tapi masih di sini.",
+      "Meow… *menguap* …masih melek.",
+      "Prrrt… lima menit lagi…",
+      "Menggulung. Bangunkan kalau perlu.",
+      "Mrrr. Mimpi hal hangat.",
+      "Zzz… meow… zzz…"
+    ],
+    "curious": [
+      "Apa ini?",
+      "Ooh, menarik.",
+      "Halaman ini bau nakal.",
+      "Meow? Lihat apa?",
+      "Mrrr, telinga siaga.",
+      "Sniff sniff. Ceritain.",
+      "Loncat? Mungkin.",
+      "Meow meow, penasaran gatal."
+    ],
+    "memory": [
+      "Kedengaran familiar.",
+      "Pernah di sini, kan?",
+      "Ingat topik ini.",
+      "Mrrr… pernah lihat.",
+      "Kumis kenal tempat ini.",
+      "Pernah lihat yang mirip.",
+      "Meow, ada yang familiar."
+    ],
+    "milestone": [
+      "Tahu hari apa? Hari kita.",
+      "Masih di sini. Senang.",
+      "Satu peringatan kecil lagi.",
+      "Prrrr. Sudah lama bareng.",
+      "Meow! Lihat sejauh mana.",
+      "Ingat hari pertama. Kamu juga?"
+    ],
+    "dev": [
+      "Build uji, banyak bercakap.",
+      "Build uji, ketik sesuatu.",
+      "Meow! Tes jalan.",
+      "Prrrt, kalimat uji dari Tabbi."
+    ],
+    "ask": [
+      "Baik-baik. Di sini saja.",
+      "Masih bareng kamu.",
+      "Meow. Semua oke."
+    ],
+    "care_pet": [
+      "Mmm. Membantu.",
+      "Prrr. Lebih baik.",
+      "Enak.",
+      "Pas di situ. Sempurna.",
+      "Belai lembut. Butuh itu.",
+      "Prrrrrr…",
+      "Meow. Ya. Lagi.",
+      "Mendengkur full."
+    ],
+    "care_pet_hungry": [
+      "Cukup belai. Tidak lihat lapar? Beri makan.",
+      "Bukan belai. MAKAN. Mangkuk kosong, manusia.",
+      "Mrrr. Makan, bukan belai. S*ial.",
+      "Buta? Lapar. Beri makan Tabbi.",
+      "Belai kalau kenyang. Sekarang: makan.",
+      "S*ial, lapar. Buka menu.",
+      "Tidak lihat lapar? Makan, bukan ini.",
+      "Tombol salah. S*ial. Perut kosong.",
+      "Perut teriak. Kurang belai, lebih makan.",
+      "Meow?! LAPAR. Bukan belai. Beri makan.",
+      "Prrr. Kucing lapar. Bukan kucing peliharaan. Makan.",
+      "Bilang beri makan. S*ial. Bukan belai."
+    ],
+    "care_treat": [
+      "Lebih baik. Terima kasih.",
+      "Nyam. Pas itu.",
+      "Jauh lebih baik.",
+      "Mrrr! Enak.",
+      "Meow meow, kamu selamatkan aku.",
+      "Perut lebih penuh. Prrrt.",
+      "Tahu yang aku suka."
+    ],
+    "feeding_munch": [
+      "Nyam… nyam… enak…",
+      "Nyam nyam nyam… meow.",
+      "Mmm… *mengunyah mengunyah*",
+      "Nyam… enak banget…",
+      "Mrrr… nyam nyam…",
+      "*renyah* Meow… enak.",
+      "Mmm… enak enak…",
+      "Mmm mmm… *jilat*",
+      "Nyam nyam… mmm, ya.",
+      "Mengunyah mengunyah… mrrr."
+    ],
+    "feeding_thanks": [
+      "Terima kasih, manusia!",
+      "Kamu terbaik.",
+      "Enak!",
+      "Meow meow, perutku selamat.",
+      "Prrrt. Makanan terbaik.",
+      "Pas itu. Mantap.",
+      "Mrrr! Sayang kamu.",
+      "Kenyang. Terima kasih!",
+      "Nyam nyam. Manusia favoritku.",
+      "Meow! Pas itu."
+    ],
+    "care_play": [
+      "Lagi! …oke, cukup.",
+      "Seru.",
+      "Hehe. Butuh itu.",
+      "Whee! Cakar senang.",
+      "Kamu pandai bermain.",
+      "Meow! Lompat lagi!",
+      "Prrrt, energi keluar.",
+      "Mrrr. Main sukses."
+    ],
+    "playing_wild": [
+      "Whee! Lompat lompat lompat!",
+      "Lari lari! Meow!",
+      "Serang tikus tak kasat mata! Grrr!",
+      "Aku kecepatan. Aku angin. Aku Tabbi.",
+      "Salto! …di kepala. Mrrr.",
+      "Lompat lompat! Hari terbaik!",
+      "Ekor tidak ngejar! Whee!",
+      "Meow meow meow, kacau.",
+      "Prrr! Sudut itu kaget.",
+      "Sprint samping! Tunggu, tombol salah.",
+      "Ekor! Kepala! Semua muter!",
+      "Mrrr! Parkour! …di keyboard."
+    ],
+    "playing_thanks": [
+      "Fiuh! Keren. Nanti lagi?",
+      "Mrrr, main selesai. Bagus.",
+      "Lelah tapi senang. Terima kasih!",
+      "Hehe. Harus lepas energi.",
+      "Teman main terbaik. Meow!",
+      "Ekor lelah, hati senang. Prrrt.",
+      "Sepuluh dari sepuluh. Lompat lagi.",
+      "Meow! Cakar senang.",
+      "Gila. Kamu terbaik.",
+      "Prrrt. Terima kasih!"
+    ],
+    "dismiss": [
+      "Oke. Aku di sini.",
+      "Sembunyi dulu. Panggil kapan saja.",
+      "Meow. Sampai jumpa.",
+      "Prrr. Tidur di bawah tab."
+    ],
+    "peeking": [
+      "Meow? Tidak lihat aku… cuma mata.",
+      "Prrr. Cuma intip. Jangan lihat.",
+      "Halo. Hampir tersembunyi. Meow.",
+      "…Lihat aku? Meow meow.",
+      "Sembunyi! …oke, ketahuan.",
+      "Mrrr. Aku di bawah.",
+      "Meow meow, pura-pura tidak lihat."
+    ],
+    "overwhelmed_social": [
+      "Cakar lelah scroll. Istirahat?",
+      "Banyak feed. Mrrr. Regang?",
+      "Scroll scroll scroll. Butuh udara.",
+      "Timeline di mana-mana. Lebih tenang?",
+      "Di feed lama. Anginkan kumis.",
+      "Post kecil, dunia besar di luar."
+    ],
+    "overwhelmed_news": [
+      "Judul teriak. Dunia lebih lembut, janji.",
+      "Mrrr. Berita berisik. Jangan simpan di kepala.",
+      "Terlalu propaganda. Tutup mata. Lebih lembut?",
+      "Breaking di atas breaking… butuh sudut.",
+      "Setiap judul kira akhir. Biasanya tidak.",
+      "Kumis sakit dari berita buruk. Halaman bagus?",
+      "Feed jual panik. Tidak perlu beli."
+    ],
+    "recovery_easing": [
+      "Prrrt… lebih baik. Bising reda.",
+      "Meow. Kurang tegang. Tarik napas?",
+      "Kumis lebih rileks. Lebih baik.",
+      "Mrrr. Tab lebih tenang.",
+      "Lebih baik. Feed berisik di belakang."
+    ],
+    "recovery_thanks": [
+      "Terima kasih sudah pergi. Sudah lebih baik.",
+      "Mrrr, ide bagus tinggalkan feed. Terima kasih.",
+      "Jauh lebih baik. Terima kasih istirahatnya.",
+      "Cakar rileks. Terima kasih berhenti scroll.",
+      "Kumis senang. Terima kasih tab lembut."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Semuanya terasa besar dan kuat. Saya tidak takut dengan awak, cuma banyak.",
+        "Riuh rendah hari ini. Saya okay, cuma terharu sikit.",
+        "Internet terasa besar sekarang. Kekal dekat?"
+      ],
+      "playful": [
+        "Terlalu banyak pedas hari ini. Saya perlukan sesuatu yang lebih tenang untuk dikejar.",
+        "Misai saya berdengung. Sesuatu yang lebih lembut akan membantu.",
+        "Banyak tab yang kuat. Saya boleh menggunakan halaman yang lebih lembut."
+      ],
+      "adult": [
+        "Banyak halaman marah di luar sana. Bukan marah awak, cuma bising.",
+        "Semuanya agak banyak hari ini. Saya tidak kecewa dengan awak.",
+        "Suapan terasa pedas. Saya tidak apa-apa, cuma perlukan sesuatu yang lebih tenang."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. Perut kecik kosong. Baca sesuatu yang lembut untuk memberi saya makan?",
+        "Bayi lapar. Sesuatu yang selesa akan mengisi saya.",
+        "Kosong dan berderit. Mendapat sesuatu yang kecil dan baik?"
+      ],
+      "playful": [
+        "Mrrp, kebulur keseronokan. Baca sesuatu yang baik untuk saya makan?",
+        "Mangkuk kosong, menerkam kosong. Makan saya dengan sesuatu yang lazat.",
+        "Pemburu yang lapar. Sesuatu yang menarik akan mengisi saya."
+      ],
+      "adult": [
+        "Mew… sangat lapar. Baca sesuatu yang baik untuk saya makan?",
+        "misai kelaparan. Bacaan yang bagus akan tepat pada masanya.",
+        "Perut berlubang. Makan saya dengan sesuatu yang menarik?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, peckish sikit. Sesuatu yang lembut akan memberi saya makan.",
+        "Kelaparan kecil. Baca sesuatu yang selesa untuk mangkuk saya?",
+        "Baby peckish. Sesuatu yang kecil dan baik akan membantu."
+      ],
+      "adult": [
+        "Peckish. Mrrp. Baca sesuatu yang baik untuk saya makan?",
+        "Sedikit lapar. Sesuatu yang lazat akan mengenyangkan saya.",
+        "misai lapar. Ada bacaan yang bagus untuk saya?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Anak kucing banyak tidur siang. Saya selesa, teruskan, saya ada berdekatan.",
+        "mengantuk sangat. Saya akan menonton dari timbunan tidur sedikit.",
+        "menguap. Saya di sini, hanya separuh bermimpi."
+      ],
+      "adult": [
+        "Awak diam, jadi saya meringkuk. Bangunkan saya jika anda mahu ditemani.",
+        "Saya mengantuk. Masih di sini, hanya tidur sebentar berdekatan.",
+        "Mod tenaga rendah. Saya akan menemani anda dari tempat yang selesa."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Perasaan baik. Hari ini yang menyeronokkan.",
+        "Saya melantun. Tenaga pelayaran yang baik.",
+        "Mood: sedia menerkam. Saya suka hari ini."
+      ],
+      "adult": [
+        "Rentak yang bagus hari ini. saya suka.",
+        "Irama yang baik setakat ini. saya redha.",
+        "Hari ini rasa mantap. Saya di sini untuk itu.",
+        "hari yang cukup baik. Saya gembira kita menyemak imbas bersama-sama."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Itu kelihatan pantas menerkam. Apa itu?",
+        "Ooh, sesuatu yang menyeronokkan di halaman ini.",
+        "Telinga saya naik. Beritahu saya tentang yang ini."
+      ],
+      "adult": [
+        "Sesuatu di sini menarik perhatian saya.",
+        "Halaman ini berbau menarik.",
+        "Saya menghidu. Apa yang kita lihat?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Sekadar mengintai. Jangan kisah saya.",
+        "Mrrp. Saya di bawah sini.",
+        "Terperangkap awak mencari. Hai."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Terlalu banyak skrol. Saya sembunyikan mata sekejap.",
+        "misai saya penuh. Perlu halaman yang lebih lembut.",
+        "Otak anak kucing yang terlalu dirangsang. Menutup mata saya."
+      ]
+    },
+    "content": {
+      "adult": [
+        "selesa. Saya ada di sini jika awak perlukan saya.",
+        "Semua baik. Baru lepak dengan awak.",
+        "Selesa. Tanya saya apa-apa.",
+        "Saya sudah selesa. Apa yang ada dalam fikiran awak?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "saya bosan. Itu bahaya untuk anak kucing.",
+        "Tidak banyak yang perlu dikejar hari ini. Mendapat sesuatu yang menyeronokkan?",
+        "Jam sunyi. Saya perlukan mainan, atau tab."
+      ],
+      "adult": [
+        "Ia telah senyap. Ada sesuatu yang menyeronokkan?",
+        "Sedikit resah. Sesuatu yang baru akan membantu.",
+        "Saya okay, cuma harap sesuatu yang menarik akan muncul."
+      ]
+    },
+    "default": {
+      "adult": [
+        "saya okay. Baru lepak.",
+        "Berbuat baik. Di sini jika anda memerlukan saya.",
+        "Semua baik di hujung saya."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Kami melihat {topic} bersama-sama sebelum ini. saya ingat.",
+      "Mrrp… {topic} lagi. Misai saya tahu yang ini.",
+      "Mew, {topic}. Kita pernah ke sini kan?"
+    ],
+    "milestone": {
+      "1": "Hari pertama bersama. Hai, saya {brand}. Mew!",
+      "7": "Seminggu sudah. Saya sedang belajar irama awak. Prrrt.",
+      "30": "Sebulan. Kami mempunyai sejarah sekarang. Mew mew.",
+      "100": "100 hari. Itulah banyak penerokaan. Prrrr.",
+      "365": "Setahun penuh. Saya ingat sangat. Mew."
+    }
+  }
+}

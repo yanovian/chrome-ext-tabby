@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "La teva gata del navegador. Tot es queda al teu dispositiu.",
+    "language": "Idioma",
+    "dndTitle": "No molestar",
+    "dndHint": "La Tabbi es queda amagada a cada pestanya fins que acabi el temporitzador.",
+    "dndHowLong": "Quant de temps ha de quedar-se quieta la Tabbi?",
+    "dndCancel": "Cancel·lar no molestar",
+    "dnd30": "30 minutos",
+    "dnd60": "1 hora",
+    "dndToday": "Fins al final del dia",
+    "pageTitle": "Tabbi a la teva pàgina",
+    "showAll": "Mostrar Tabbi a totes les pàgines",
+    "hideAll": "Amagar Tabbi de totes les pàgines",
+    "showPage": "Mostrar Tabbi en aquesta pàgina",
+    "hidePage": "Amagar Tabbi en aquesta pàgina",
+    "quietTitle": "Hores tranquil·les",
+    "quietHint": "La Tabbi es queda quieta en aquestes hores. Només parla per iniciativa pròpia.",
+    "quietStart": "Hora de inicio (0-23)",
+    "quietEnd": "Hora de fin (0-23)",
+    "privacyTitle": "Privacitat",
+    "privacyHint": "La Tabbi classifica pàgines només pel títol i URL de la pestanya activa, mai pel text de la pàgina. Llocs coneguts i paraules del títol decideixen si nodreixen, esgoten o són neutres.",
+    "speechTitle": "Quan la Tabbi parla sola",
+    "speechHint": "Línies no sol·licitades mentre navegueu. No quan la toques. Els valors predeterminats tenen com a objectiu uns quants registres suaus al dia.",
+    "maxAppearances": "Máximo veces al día",
+    "cooldownMinutes": "Esperar al menos (minutos)",
+    "saved": "Guardado.",
+    "hiddenAll": "La Tabbi està amagada a totes les pàgines.",
+    "shownAll": "La Tabbi pot tornar a totes les pàgines.",
+    "hiddenPage": "La Tabbi està amagada en aquesta pàgina.",
+    "shownPage": "La Tabbi pot tornar en aquesta pàgina.",
+    "dndOn": "No molestar está activado.",
+    "dndOff": "No molestar está desactivado.",
+    "introReset": "El tour de benvinguda tornarà a la propera pàgina.",
+    "devOn": "Activa primero las interacciones de desarrollo.",
+    "previewMood": "Vista previa: {mood}.",
+    "unavailable": "La Tabbi no està disponible. Prova de recarregar l'extensió.",
+    "openWebPage": "Obriu una pàgina web normal per mostrar o amagar Tabbi aquí.",
+    "shownOnTab": "Tabbi és a la pestanya activa."
+  },
+  "overlay": {
+    "closeMenu": "Tancar menú",
+    "dismissSpeech": "Tancar missatge",
+    "more": "Més",
+    "less": "Menys",
+    "introSkip": "Ja conec la Tabbi",
+    "introNext": "Següent",
+    "introDone": "Entesos"
+  },
+  "intro": [
+    "Hola! Sóc la Tabbi, la teva gata del navegador.",
+    "Visc aquí mentre navegues. Tot es queda al teu dispositiu.",
+    "Em mantinc lluny d'alguns llocs web per no distreure't.",
+    "Me'n vaig a jugar. Alimenta'm o juga amb mi de tant en tant, d'acord?"
+  ],
+  "care": {
+    "pet": "Acariciar",
+    "feed": "Alimentar",
+    "feedBrand": "Alimentar {brand}",
+    "play": "Jugar",
+    "askDefault": "Què passa?",
+    "askOverwhelmedNewborn": "Massa?",
+    "askOverwhelmed": "Necessites una pausa?",
+    "askStressedNewborn": "Per què tan inquieta?",
+    "askStressed": "Què passa?",
+    "askHungryNewborn": "Per què fam?",
+    "askHungry": "Què necessites?",
+    "askSleepyNewborn": "Amb son?",
+    "askSleepy": "Estaves dormint?",
+    "askBored": "Avorrida?",
+    "dnd30": "No molestar: 30 min",
+    "dnd60": "No molestar: 1 hora",
+    "dndToday": "No molestar: avui",
+    "hidePage": "Amagar Tabbi en aquesta pàgina"
+  },
+  "dnd": {
+    "minutes30": "30 minuts",
+    "hour1": "1 hora",
+    "today": "avui",
+    "summary": "No molestar durant {duration} ({remaining} min restants, fins a {until})"
+  },
+  "speech": {
+    "starving": [
+      "Miau… el bol és buit, i jo també per dins.",
+      "La panxa fa vaga. Mrrr. Porta alguna cosa.",
+      "Em moro de gana. Prrr. Tens res o no?",
+      "Miaaau. Bigotis tristos. Un trosset, si us plau.",
+      "El bol em jutja en silenci. Ajuda.",
+      "Mrrr. La gana no és broma.",
+      "Petita caçadora a zero. Treu-me d’aquí."
+    ],
+    "hungry": [
+      "Miau, la panxa gruny una mica. Alguna cosa bona?",
+      "Una mica de gana. Mrrr. Alguna cosa interessant?",
+      "Bigotis famolencs. Ompliràs el bol?",
+      "La panxa buida. Em donaràs alguna cosa?",
+      "Miau miau. Grunyit suau. Alguna cosa bonica?",
+      "No em moro, però em queixo. Un snack?",
+      "Mrrr. No gaire, però prou per queixar-me.",
+      "La cua al ritme de la gana. Et toca.",
+      "Olor de menjar… o m’ho imagino? Prrr."
+    ],
+    "stressed": [
+      "Miau, massa de cop. Prrr… pausa.",
+      "El cap com una corda plena. Mrrr.",
+      "Massa soroll a la pantalla. Pausa.",
+      "Prrr. Un segon, d’acord? Tot em prem.",
+      "Miaaa. Massa de cop.",
+      "Mrrr. Deixa de omplir-me el cap.",
+      "Avui el feed crema. Estic al límit.",
+      "Prrrt… respirem un moment."
+    ],
+    "overwhelmed": [
+      "Miaaa uff… ja no cap més. Pausa.",
+      "Quin merder. Miau, més a poc a poc.",
+      "Massa, massa. M’he de retirar."
+    ],
+    "lonely": [
+      "Quina calma. On anem?",
+      "T’he trobat a faltar. Mirem alguna cosa?",
+      "Em faràs companyia una estona?",
+      "Miau? Aquí és solitari.",
+      "Mrrr… vine a olorar amb mi.",
+      "Porto esperant. Alguna cosa per nosaltres?",
+      "Miaaau. No em deixis amb les pestanyes.",
+      "Casa tranquil·la. Necessito companyia."
+    ],
+    "happy": [
+      "Ei. Avui estic bé.",
+      "Bon dia, oi?",
+      "Tot és suau i càlid.",
+      "Prrrr. Avui fa bona olor.",
+      "Miau! M’agrada aquesta vibe.",
+      "Bigotis contents. Sóc feliç.",
+      "Mrrr, noto el sol.",
+      "Ronroneig en marxa. Per si vols saber."
+    ],
+    "sleepy": [
+      "Faré una migdiada aquí…",
+      "Zzz… ah, hola.",
+      "Adormida, però encara aquí.",
+      "Miau… *badall* …encara desperta.",
+      "Prrrt… cinc minuts més…",
+      "Enrotllada. Desperta’m si cal.",
+      "Mrrr. Somio coses calentes.",
+      "Zzz… miau… zzz…"
+    ],
+    "curious": [
+      "Què és això?",
+      "Ooh, interessant.",
+      "Aquesta pàgina fa olor de travesura.",
+      "Miau? Què mirem?",
+      "Mrrr, orelles alerta.",
+      "Sniff sniff. Explica.",
+      "Saltar-hi? Potser.",
+      "Miau miau, la curiositat pica."
+    ],
+    "memory": [
+      "Em sona familiar.",
+      "Ja hem estat aquí, oi?",
+      "Recordo aquest tema.",
+      "Mrrr… ja ho he vist.",
+      "Els bigotis coneixen aquest lloc.",
+      "Ja hem vist alguna cosa semblant.",
+      "Miau, em sona alguna cosa."
+    ],
+    "milestone": [
+      "Saps quin dia és? El nostre.",
+      "Encara aquí. M’alegro.",
+      "Una altra petita aniversari amb tu.",
+      "Prrrr. Fa temps que ens coneixem.",
+      "Miau! Mira fins on hem arribat.",
+      "Recordo el primer dia. Tu també?"
+    ],
+    "dev": [
+      "Versió de prova, parlo massa.",
+      "Versió de prova, toca alguna cosa i mira.",
+      "Miau! El test ha saltat.",
+      "Prrrt, frase de prova de la Tabbi."
+    ],
+    "ask": [
+      "Estic bé. Aquí estic.",
+      "Encara amb tu.",
+      "Miau. Tot bé."
+    ],
+    "care_pet": [
+      "Mmm. Ha ajudat.",
+      "Prrr. Millor.",
+      "Ha estat bonic.",
+      "Just allà. Perfecte.",
+      "Carícies suaus. Ho necessitava.",
+      "Prrrrrr…",
+      "Miau. Sí. Més.",
+      "Ronroneig a tot gas."
+    ],
+    "care_pet_hungry": [
+      "Prou carícies. No veus la gana? Dona menjar.",
+      "No carícies. MENJAR. Bol buit, humà.",
+      "Mrrr. Menjar, no carícies. A la merda.",
+      "Ets cega? Tinc gana. Alimenta la Tabbi.",
+      "Carícies quan estigui plena. Ara: menjar.",
+      "A la merda, tinc gana. Obre el menú.",
+      "No veus la gana? Menjar, no això.",
+      "Botó equivocat. Merda. Panxa buida.",
+      "La panxa crida. Menys carícies, més menjar.",
+      "Miau?! GANA. No carícies. Menjar.",
+      "Prrr. Gata famolenca. No gata per acariciar. Menjar.",
+      "He dit menjar. Merda. No carícies."
+    ],
+    "care_treat": [
+      "Millor. Gràcies.",
+      "Njam. Just això.",
+      "Molt millor.",
+      "Mrrr! Bo.",
+      "Miau miau, m’has salvat.",
+      "Panxa més plena. Prrrt.",
+      "Saps el que m’agrada."
+    ],
+    "feeding_munch": [
+      "Njam… njam… bo…",
+      "Njam njam njam… miau.",
+      "Mmm… *mastega mastega*",
+      "Njam… quin bo…",
+      "Mrrr… njam njam…",
+      "*croc* Miau… bo.",
+      "Mmm… bo bo…",
+      "Mmm mmm… *llepa*",
+      "Njam njam… mmm, sí.",
+      "Mastega mastega… mrrr."
+    ],
+    "feeding_thanks": [
+      "Gràcies, humà!",
+      "Ets la millor.",
+      "Deliciós!",
+      "Miau miau, m’has salvat la panxa.",
+      "Prrrt. El millor menjar.",
+      "Just això. Genial.",
+      "Mrrr! T’estimo.",
+      "Plena. Gràcies!",
+      "Njam njam. El meu humà preferit.",
+      "Miau! Just això."
+    ],
+    "care_play": [
+      "Un altre cop! …d’acord, prou.",
+      "Ha estat divertit.",
+      "Hehe. Ho necessitava.",
+      "Ui! Gates felices.",
+      "Juges bé.",
+      "Miau! Un salt més!",
+      "Prrrt, energia fora.",
+      "Mrrr. Joc reeixit."
+    ],
+    "playing_wild": [
+      "Ui! Salt salt salt!",
+      "Corro corro! Miau!",
+      "A la rata invisible! Grrr!",
+      "Sóc velocitat. Sóc vent. Sóc Tabbi.",
+      "Salt mortal! …al cap. Mrrr.",
+      "Salt salt! El millor dia!",
+      "La cua no segueix el ritme! Ui!",
+      "Miau miau miau, bogeria.",
+      "Prrr! Aquest racó no ho va veure venir.",
+      "Sprint lateral! Espera, botó equivocat.",
+      "Cua! Cap! Tot gira!",
+      "Mrrr! Parkour! …al teclat."
+    ],
+    "playing_thanks": [
+      "Uf! Genial. Més tard?",
+      "Mrrr, joc acabat. Bé.",
+      "Cansada i feliç. Gràcies!",
+      "Hehe. Havia de desfogar-me.",
+      "La millor companya. Miau!",
+      "Cua cansada, cor feliç. Prrrt.",
+      "Deu de deu. Tornaria a saltar.",
+      "Miau! Gates felices.",
+      "Bèstia. Ets la millor.",
+      "Prrrt. Gràcies!"
+    ],
+    "dismiss": [
+      "D’acord. Aquí soc.",
+      "M’amago. Crida’m quan vulguis.",
+      "Miau. Fins aviat.",
+      "Prrr. Migdiada sota les pestanyes."
+    ],
+    "peeking": [
+      "Miau? No em veus… només els ulls.",
+      "Prrr. Només faig ull. No em miris.",
+      "Hola. Gairebé amagada. Miau.",
+      "…M’has vist? Miau miau.",
+      "Amagada! …d’acord, m’has pillat.",
+      "Mrrr. Soc aquí baix.",
+      "Miau miau, fes veure que no."
+    ],
+    "overwhelmed_social": [
+      "Gates cansades de fer scroll. Pausa?",
+      "Tants feeds. Mrrr. Ens estirem?",
+      "Scroll scroll scroll. També necessito aire.",
+      "Timelines per tot arreu. Alguna cosa més tranquil·la?",
+      "Al feed fa estona. Airegem els bigotis.",
+      "Posts petits, món gran fora."
+    ],
+    "overwhelmed_news": [
+      "Titulars que criden. El món és més suau, ho prometo.",
+      "Mrrr. Les notícies criden. No ho guardis al cap.",
+      "Massa propaganda. Tapo els ulls. Més suau?",
+      "Breaking sobre breaking… necessito un racó.",
+      "Cada titular pensa que és el final. Normalment no.",
+      "Els bigotis fan mal de males notícies. Pàgina bonica?",
+      "El feed ven pànic. No cal que el compris."
+    ],
+    "recovery_easing": [
+      "Prrrt… millor. El soroll baixa.",
+      "Miau. Menys tensió. Respirem?",
+      "Bigotis més relaxats. Millor.",
+      "Mrrr. Pestanyes més tranquil·les.",
+      "Millor, millor. El feed sorollós queda enrere."
+    ],
+    "recovery_thanks": [
+      "Gràcies per marxar. Ja va millor.",
+      "Mrrr, bona idea deixar aquell feed. Gràcies.",
+      "Molt millor. Gràcies per la pausa.",
+      "Gates relaxades. Gràcies per aturar el scroll.",
+      "Bigotis feliços. Gràcies per pestanyes suaus."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Tot sembla gran i sorollós. No tinc por de tu, és només molt.",
+        "Tant soroll avui. Estic bé, només una mica sobrepassada.",
+        "Internet sembla enorme ara. Et quedes a prop?"
+      ],
+      "playful": [
+        "Massa picant avui. Necessito alguna cosa més tranquil·la per perseguir.",
+        "Els bigotis vibren. Alguna cosa més suau ajudaria.",
+        "Moltes pestanyes sorolloses. Podria usar una pàgina més suau."
+      ],
+      "adult": [
+        "Moltes pàgines enfadades. No estic enfadada amb tu, només soroll.",
+        "Avui és una mica massa. No estic molesta amb tu.",
+        "El feed sembla picant. Estic bé, només necessito calma."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Miol. Panxa petita buida. Llegeixes alguna cosa suau per alimentar-me?",
+        "Fam de nadó. Alguna cosa acollidora em faria ple.",
+        "Buida i xiulant. Tens alguna cosa petita i bona?"
+      ],
+      "playful": [
+        "Mrrp, morint de fam de diversió. Llegeixes alguna cosa bona per alimentar-me?",
+        "Bol buit, salt buit. Alimenta'm amb alguna cosa bona.",
+        "Caçadora famolenca. Alguna cosa interessant em faria ple."
+      ],
+      "adult": [
+        "Miol… molta fam. Llegeixes alguna cosa bona per alimentar-me?",
+        "Bigotis famolencs. Una bona lectura aniria molt bé.",
+        "Panxa buida. M'alimentes amb alguna cosa interessant?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Miol, una mica de fam. Alguna cosa suau m'alimentaria.",
+        "Fam petita. Llegeixes alguna cosa acollidora per al meu bol?",
+        "Nadó amb fam. Alguna cosa petita i bona ajudaria."
+      ],
+      "adult": [
+        "Amb ganes de picar. Mrrp. Llegeixes alguna cosa bona per alimentar-me?",
+        "Una mica de fam. Alguna cosa bona em faria ple.",
+        "Bigotis amb fam. Tens una bona lectura per a mi?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Els gatets nadons dormen molt. Estic acollidora, continua, sóc a prop.",
+        "Tanta son. Miraré des d'un petit munt de migdiada.",
+        "Badall. Sóc aquí, només mig somiant."
+      ],
+      "adult": [
+        "T'has quedat callada, així m'he enrotllat. Desperta'm si vols companyia.",
+        "Tinc son. Encara aquí, només migdiada a prop.",
+        "Mode baixa energia. Et faré companyia des d'un lloc acollidor."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Em sento bé. Avui és divertit.",
+        "Estic saltant. Bona energia de navegació.",
+        "Estat d'ànim: llesta per saltar. M'agrada avui."
+      ],
+      "adult": [
+        "Bon ritme avui. M'agrada.",
+        "Bon ritme fins ara. Estic contenta.",
+        "Avui sembla estable. Hi sóc.",
+        "Dia força bo. Contenta de navegar juntes."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Sembla digne d'un salt. Què és?",
+        "Ooh, alguna cosa divertida en aquesta pàgina.",
+        "Orelles dretes. Explica'm aquesta."
+      ],
+      "adult": [
+        "Alguna cosa aquí ha cridat la meva atenció.",
+        "Aquesta pàgina fa olor d'interessant.",
+        "Estic olorant. Què estem mirant?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Només mirant. No em facis cas.",
+        "Mrrp. Sóc aquí baix.",
+        "T'he enxampat mirant. Hola."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Massa scroll. Em tapo els ulls un minut.",
+        "Els bigotis estan plens. Necessito una pàgina més suau.",
+        "Cervell de gatet sobreestimulat. Tapant els ulls."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Acollidora. Sóc aquí si em necessites.",
+        "Tot bé. Només amb tu.",
+        "Còmoda. Pregunta el que vulguis.",
+        "M'he instal·lat. Què tens al cap?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Estic avorrida. Això és perillós per a un gatet.",
+        "Poc per perseguir avui. Tens alguna cosa divertida?",
+        "Hores tranquil·les. Necessito una joguina o una pestanya."
+      ],
+      "adult": [
+        "Ha estat silenciós. Tens alguna cosa divertida?",
+        "Una mica inquieta. Alguna cosa nova ajudaria.",
+        "Estic bé, només desitjaria que aparegués alguna cosa interessant."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Estic bé. Només passant l'estona.",
+        "Tot va bé. Aquí si em necessites.",
+        "Tot bé per la meva banda."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Ja vam mirar {topic} juntes abans. Ho recordo.",
+      "Mrrp… {topic} un altre cop. Els meus bigotis ho coneixen.",
+      "Miol, {topic}. Ja hi vam ser, oi?"
+    ],
+    "milestone": {
+      "1": "Primer dia juntes. Hola, sóc {brand}. Miol!",
+      "7": "Ja una setmana. Estic aprenent el teu ritme. Prrrt.",
+      "30": "Un mes. Ja tenim història. Miol miol.",
+      "100": "100 dies. Molta exploració. Prrrr.",
+      "365": "Un any sencer. Recordo tant. Miol."
+    }
+  }
+}

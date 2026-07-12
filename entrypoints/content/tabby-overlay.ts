@@ -3,13 +3,14 @@ import {
   type InteractionAction,
 } from '../../utils/cat-interactions';
 import {
-  INTRO_SKIP_LABEL,
   introNextLabel,
+  introSkipLabel,
   introStepCount,
   introStepText,
   isIntroCompleted,
   markIntroCompleted,
 } from '../../utils/intro';
+import { loadAppLocale, t, applyNodeLocale } from '../../utils/i18n';
 import {
   hasOverlayChrome,
   hasUnpromptedSpeech,
@@ -115,6 +116,7 @@ export class TabbyOverlay {
     if (!this.isActiveInstance()) {
       return;
     }
+    await loadAppLocale(settings.locale);
     this.showOverlayEnabled = settings.showOverlay;
 
     if (!this.showOverlayEnabled) {
@@ -244,8 +246,17 @@ export class TabbyOverlay {
       }
       if (STORAGE_KEYS.settings in changes) {
         const next = changes[STORAGE_KEYS.settings]?.newValue as ExtensionSettings | undefined;
+        const prev = changes[STORAGE_KEYS.settings]?.oldValue as ExtensionSettings | undefined;
         if (!next) {
           return;
+        }
+        if (prev?.locale !== next.locale) {
+          void loadAppLocale(next.locale).then(() => {
+            if (this.root) {
+              applyNodeLocale(this.root);
+            }
+            this.render();
+          });
         }
         this.showOverlayEnabled = next.showOverlay;
         if (!next.showOverlay) {
@@ -823,6 +834,7 @@ export class TabbyOverlay {
   ): Promise<HTMLElement> {
     const root = document.createElement('div');
     root.id = ROOT_ID;
+    applyNodeLocale(root);
     this.applyRootPresentationClasses(root, presentation);
 
     const panel = document.createElement('div');
@@ -896,7 +908,7 @@ export class TabbyOverlay {
     const skipButton = document.createElement('button');
     skipButton.type = 'button';
     skipButton.className = 'tabby-btn tabby-btn--link';
-    skipButton.textContent = INTRO_SKIP_LABEL;
+    skipButton.textContent = introSkipLabel();
     skipButton.addEventListener('click', (event) => {
       event.stopPropagation();
       void this.completeIntro();
@@ -940,8 +952,8 @@ export class TabbyOverlay {
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
     closeButton.className = 'tabby-card-close';
-    closeButton.title = 'Close menu';
-    closeButton.setAttribute('aria-label', 'Close menu');
+    closeButton.title = t('overlay.closeMenu');
+    closeButton.setAttribute('aria-label', t('overlay.closeMenu'));
     closeButton.textContent = '×';
     closeButton.addEventListener('click', (event) => {
       event.stopPropagation();
@@ -962,7 +974,7 @@ export class TabbyOverlay {
       moreButton.type = 'button';
       moreButton.className = 'tabby-btn tabby-btn--ghost';
       moreButton.setAttribute('aria-expanded', this.moreOpen ? 'true' : 'false');
-      moreButton.textContent = this.moreOpen ? 'Less' : 'More';
+      moreButton.textContent = this.moreOpen ? t('overlay.less') : t('overlay.more');
       moreButton.addEventListener('click', (event) => {
         event.stopPropagation();
         this.moreOpen = !this.moreOpen;
@@ -1004,8 +1016,8 @@ export class TabbyOverlay {
       const closeButton = document.createElement('button');
       closeButton.type = 'button';
       closeButton.className = 'tabby-speech-bubble-close';
-      closeButton.title = 'Dismiss';
-      closeButton.setAttribute('aria-label', 'Dismiss speech');
+      closeButton.title = t('overlay.dismissSpeech');
+      closeButton.setAttribute('aria-label', t('overlay.dismissSpeech'));
       closeButton.textContent = '×';
       closeButton.addEventListener('click', (event) => {
         event.stopPropagation();

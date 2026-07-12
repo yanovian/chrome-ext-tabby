@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Din webbläsare katt. Allt förblir lokalt.",
+    "language": "Språk",
+    "dndTitle": "Stör inte",
+    "dndHint": "Tabbi förblir dold på varje flik tills timern tar slut.",
+    "dndHowLong": "Hur länge ska Tabbi vara tyst?",
+    "dndCancel": "Avbryt stör ej",
+    "dnd30": "30 minuter",
+    "dnd60": "1 timme",
+    "dndToday": "Till slutet av idag",
+    "pageTitle": "Tabbi på din sida",
+    "showAll": "Visa Tabbi på alla sidor",
+    "hideAll": "Dölj Tabbi från alla sidor",
+    "showPage": "Visa Tabbi på den här sidan",
+    "hidePage": "Göm Tabbi på den här sidan",
+    "quietTitle": "Tysta timmar",
+    "quietHint": "Tabbi är tyst under dessa timmar. Endast uppmanet tal.",
+    "quietStart": "Starttimme (0,23)",
+    "quietEnd": "Sluttimme (0,23)",
+    "privacyTitle": "Sekretess",
+    "privacyHint": "Tabbi klassificerar endast sidor från den aktiva fliktiteln och webbadressen, aldrig sidbrödtext. Kända webbplatser och titel nyckelord avgör närande, dränerande eller neutrala.",
+    "speechTitle": "När Tabbi säger upp",
+    "speechHint": "Rader utan uppmaning medan du surfar. Inte när du knackar på henne. Standardinställningen syftar till några försiktiga incheckningar per dag.",
+    "maxAppearances": "Max gånger per dag",
+    "cooldownMinutes": "Vänta minst (minuter)",
+    "saved": "Sparad.",
+    "openWebPage": "Öppna en vanlig webbsida för att visa eller dölja Tabbi här.",
+    "shownOnTab": "Tabbi finns på den aktiva fliken.",
+    "hiddenAll": "Tabbi är dold på varje sida.",
+    "shownAll": "Tabbi kan visas på varje sida igen.",
+    "hiddenPage": "Tabbi är dold på den här sidan.",
+    "shownPage": "Tabbi kan visas på den här sidan igen.",
+    "dndOn": "Stör ej är på.",
+    "dndOff": "Stör ej är avstängd.",
+    "introReset": "Introturen kommer att visas igen på nästa sida.",
+    "devOn": "Aktivera utvecklarinteraktioner först.",
+    "previewMood": "Förhandsvisning: {mood}.",
+    "unavailable": "Tabbi är inte tillgänglig. Testa att ladda om tillägget."
+  },
+  "overlay": {
+    "closeMenu": "Stäng menyn",
+    "dismissSpeech": "Avvisa tal",
+    "more": "Mer",
+    "less": "Mindre",
+    "introSkip": "Jag vet redan Tabbi",
+    "introNext": "Nästa",
+    "introDone": "Jag förstår"
+  },
+  "intro": [
+    "Hej! Jag heter Tabbi, din webbläsarkatt.",
+    "Jag bor här medan du surfar. Allt finns kvar på din enhet.",
+    "Jag håller mig borta från vissa webbplatser för att undvika distraktion.",
+    "Jag ska iväg och spela. Mata mig eller lek med mig ibland, okej?"
+  ],
+  "care": {
+    "pet": "Pet",
+    "feed": "Mata",
+    "feedBrand": "Flöde {brand}",
+    "play": "Spela",
+    "askDefault": "Vad händer?",
+    "askOverwhelmedNewborn": "För mycket?",
+    "askOverwhelmed": "Behöver du en paus?",
+    "askStressedNewborn": "Varför så kinkig?",
+    "askStressed": "Vad är det för fel?",
+    "askHungryNewborn": "Varför hungrig?",
+    "askHungry": "Vad behöver du?",
+    "askSleepyNewborn": "Sömnig?",
+    "askSleepy": "Sover du?",
+    "askBored": "Uttråkad?",
+    "dnd30": "Stör ej: 30 min",
+    "dnd60": "Stör ej: 1 timme",
+    "dndToday": "Stör ej: idag",
+    "hidePage": "Göm Tabbi på den här sidan"
+  },
+  "dnd": {
+    "minutes30": "30 minuter",
+    "hour1": "1 timme",
+    "today": "idag",
+    "summary": "Stör ej i {duration} ({remaining} min kvar, tills {until})"
+  },
+  "speech": {
+    "starving": [
+      "Mja… skålen är tom, jag också inuti.",
+      "Magen strejkar. Mrrr. Ta med något.",
+      "Jag svälter. Prrr. Har du något eller inte?",
+      "Mjaaaau. Trista morrhår. En bit, tack.",
+      "Skålen dömer mig tyst. Hjälp.",
+      "Mrrr. Hunger är inte kul.",
+      "Lilla jägaren på noll. Rädda mig."
+    ],
+    "hungry": [
+      "Mja, magen kurar lite. Något gott?",
+      "Lite sugen. Mrrr. Något intressant?",
+      "Hungriga morrhår. Fyller du skålen?",
+      "Magen lite tom. Ger du mig något?",
+      "Mja mja. Lätt kurande. Något fint?",
+      "Jag dör inte, men jag klagar. Ett litet mellanmål?",
+      "Mrrr. Inte mycket, men nog att klaga.",
+      "Svansen i hungerrytm. Din tur.",
+      "Doft av mat… inbillar jag mig? Prrr."
+    ],
+    "stressed": [
+      "Mja, för mycket på en gång. Prrr… paus.",
+      "Huvudet som fullt torkställ. Mrrr.",
+      "För mycket ljud på skärmen. Paus.",
+      "Prrr. En sekund, okej? Allt trycker.",
+      "Mjaaa. För mycket på en gång.",
+      "Mrrr. Sluta fylla huvudet.",
+      "Flödet är starkt idag. Jag är på gränsen.",
+      "Prrrt… andas en sekund."
+    ],
+    "overwhelmed": [
+      "Mjaaa uugh… får inte plats mer. Paus.",
+      "Fan vad rörigt. Mja, lugnare.",
+      "För mycket, för mycket. Måste backa."
+    ],
+    "lonely": [
+      "Så tyst. Vart ska vi?",
+      "Jag saknade dig. Ska vi kolla något?",
+      "Håller du mig sällskap lite?",
+      "Mja? Det är ensamt här.",
+      "Mrrr… kom och nosar med mig.",
+      "Jag väntat ett tag. Något för oss?",
+      "Mjaaaau. Lämna mig inte med flikarna.",
+      "Tyst hus. Behöver sällskap."
+    ],
+    "happy": [
+      "Hej. Jag är på topp idag.",
+      "Fin dag, va?",
+      "Allt känns mjukt och varmt.",
+      "Prrrr. Idag luktar gott.",
+      "Mja! Jag gillar stämningen.",
+      "Glada morrhår. Jag är nöjd.",
+      "Mrrr, känner mig solig.",
+      "Spinner på. Bara så du vet."
+    ],
+    "sleepy": [
+      "Jag tar en lur här…",
+      "Zzz… åh, hej.",
+      "Sömnig men fortfarande här.",
+      "Mja… *gäsp* …vakar fortfarande.",
+      "Prrrt… fem minuter till…",
+      "Inkrupen. Väck mig om du behöver.",
+      "Mrrr. Drömmer om varma saker.",
+      "Zzz… mja… zzz…"
+    ],
+    "curious": [
+      "Vad är det här?",
+      "Oj, intressant.",
+      "Den här sidan luktar bus.",
+      "Mja? Vad tittar vi på?",
+      "Mrrr, öronen på alert.",
+      "Sniff sniff. Berätta.",
+      "Hoppar jag på det? Kanske.",
+      "Mja mja, nyfikenheten kliar."
+    ],
+    "memory": [
+      "Det känns bekant.",
+      "Vi har varit här förut, eller?",
+      "Jag minns det här.",
+      "Mrrr… sett det förut.",
+      "Mina morrhår känner igen platsen.",
+      "Vi har sett något liknande.",
+      "Mja, det ringer en klocka."
+    ],
+    "milestone": [
+      "Vet du vilken dag det är? Vår dag.",
+      "Fortfarande här. Glad.",
+      "Ännu ett litet jubileum med dig.",
+      "Prrrr. Vi känt varandra ett tag.",
+      "Mja! Se hur långt vi kommit.",
+      "Jag minns första dagen. Du också?"
+    ],
+    "dev": [
+      "Testversion, pratar för mycket.",
+      "Testversion, tryck något och se.",
+      "Mja! Testet triggades.",
+      "Prrrt, testfras från Tabbi."
+    ],
+    "ask": [
+      "Bra. Hänger här.",
+      "Fortfarande med dig.",
+      "Mja. Allt lugnt."
+    ],
+    "care_pet": [
+      "Mmm. Det hjälpte.",
+      "Prrr. Bättre.",
+      "Det var skönt.",
+      "Precis där. Perfekt.",
+      "Mjuka klappar. Behövde det.",
+      "Prrrrrr…",
+      "Mja. Ja. Mer.",
+      "Spinner för fullt."
+    ],
+    "care_pet_hungry": [
+      "Sluta klappa. Ser du inte hungern? Ge mat.",
+      "Inte klappar. MAT. Skålen tom, människa.",
+      "Mrrr. Mat, inte klappar. F*n.",
+      "Är du blind? Hungrig. Mata Tabbi.",
+      "Klappa mig mätt. Nu: mat.",
+      "F*n, jag svälter. Öppna menyn.",
+      "Ser du inte hungern? Mat, inte det här.",
+      "Fel knapp. F*n. Mage tom.",
+      "Magen skriker. Mindre klapp, mer mat.",
+      "Mja?! HUNGER. Inte klappar. Mat.",
+      "Prrr. Hungrig katt. Inte kelkatt. Mat.",
+      "Jag sa mat. F*n. Inte klappar."
+    ],
+    "care_treat": [
+      "Bättre. Tack.",
+      "Mums. Precis rätt.",
+      "Mycket bättre.",
+      "Mrrr! Gott.",
+      "Mja mja, du räddade mig.",
+      "Fullare mage. Prrrt.",
+      "Du vet vad jag gillar."
+    ],
+    "feeding_munch": [
+      "Mums… mums… gott…",
+      "Mums mums mums… mja.",
+      "Mmm… *mumsa mumsa*",
+      "Mums… så gott…",
+      "Mrrr… mums mums…",
+      "*krisp* Mja… gott.",
+      "Mmm… gott gott…",
+      "Mmm mmm… *slick*",
+      "Mums mums… mmm, ja.",
+      "Mumsa mumsa… mrrr."
+    ],
+    "feeding_thanks": [
+      "Tack, människa!",
+      "Du är bäst.",
+      "Gott!",
+      "Mja mja, du räddade min mage.",
+      "Prrrt. Bästa maten.",
+      "Precis rätt. Toppen.",
+      "Mrrr! Jag gillar dig.",
+      "Mätt. Tack!",
+      "Mums mums. Min favoritmänniska.",
+      "Mja! Precis det."
+    ],
+    "care_play": [
+      "Igen! …okej, nog.",
+      "Det var kul.",
+      "Hehe. Behövde det.",
+      "Jippie! Glada tassar.",
+      "Du spelar bra.",
+      "Mja! Ett hopp till!",
+      "Prrrt, energi loss.",
+      "Mrrr. Lek lyckades."
+    ],
+    "playing_wild": [
+      "Jippie! Hopp hopp hopp!",
+      "Jag springer! Mja!",
+      "På den osynliga musen! Grrr!",
+      "Jag är fart. Jag är vind. Jag är Tabbi.",
+      "Saltomortal! …i huvudet. Mrrr.",
+      "Hopp hopp! Bästa dagen!",
+      "Svansen hänger inte med! Jippie!",
+      "Mja mja mja, galenskap.",
+      "Prrr! Det hörnet såg det inte komma.",
+      "Sprint åt sidan! Vänta, fel knapp.",
+      "Svans! Huvud! Allt snurrar!",
+      "Mrrr! Parkour! …på tangentbordet."
+    ],
+    "playing_thanks": [
+      "Puh! Häftigt. Igen senare?",
+      "Mrrr, lek klart. Skönt.",
+      "Trött och glad. Tack!",
+      "Hehe. Behövde släppa energi.",
+      "Bästa lekkompis. Mja!",
+      "Svans trött, hjärta glad. Prrrt.",
+      "Tio av tio. Hoppade igen.",
+      "Mja! Glada tassar.",
+      "Galet. Du är bäst.",
+      "Prrrt. Tack!"
+    ],
+    "dismiss": [
+      "Okej. Jag är här.",
+      "Jag gömmer mig. Ropa när du vill.",
+      "Mja. Vi ses.",
+      "Prrr. Lur under flikarna."
+    ],
+    "peeking": [
+      "Mja? Du ser mig inte… bara ögonen.",
+      "Prrr. Kikar bara. Titta inte.",
+      "Hej. Nästan gömd. Mja.",
+      "…Såg du mig? Mja mja.",
+      "Gömd! …okej, du fick mig.",
+      "Mrrr. Jag är här nere.",
+      "Mja mja, låtsas att inte."
+    ],
+    "overwhelmed_social": [
+      "Tassar trötta av scroll. Paus?",
+      "Så många flöden. Mrrr. Sträcker vi oss?",
+      "Scroll scroll scroll. Jag behöver luft också.",
+      "Tidslinjer överallt. Något lugnare?",
+      "På flödet ett tag. Luftar morrhåren.",
+      "Små inlägg, stor värld utanför."
+    ],
+    "overwhelmed_news": [
+      "Rubriker som skriker. Världen är mildare, lovar.",
+      "Mrrr. Nyheter skriker. Behåll inte i huvudet.",
+      "För mycket propaganda. Täcker ögonen. Mjukare?",
+      "Breaking på breaking… behöver ett hörn.",
+      "Varje rubrik tror det är slutet. Oftast inte.",
+      "Morrhår gör ont av dåliga nyheter. En fin sida?",
+      "Flödet säljer panik. Du måste inte köpa."
+    ],
+    "recovery_easing": [
+      "Prrrt… bättre. Bruset minskar.",
+      "Mja. Mindre spänning. Andas vi?",
+      "Morrhår lösare. Bättre.",
+      "Mrrr. Lugnare flikar.",
+      "Bättre, bättre. Högt flöde bakom oss."
+    ],
+    "recovery_thanks": [
+      "Tack för att du gick bort. Bättre redan.",
+      "Mrrr, bra att lämna det flödet. Tack.",
+      "Mycket bättre. Tack för pausen.",
+      "Tassar slappnade av. Tack för att scroll stoppades.",
+      "Glada morrhår. Tack för mjuka flikar."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Allt känns stort och högt. Jag är inte rädd för dig, det är bara mycket.",
+        "Så mycket ljud idag. Jag är okej, bara lite överväldigad.",
+        "Internet känns enormt just nu. Hålla sig nära?"
+      ],
+      "playful": [
+        "För mycket kryddiga saker idag. Jag behöver något lugnare att jaga.",
+        "Mina morrhår surrar. Något skonsammare skulle hjälpa.",
+        "Många högljudda flikar. Jag skulle kunna använda en mjukare sida."
+      ],
+      "adult": [
+        "Många arga sidor där ute. Inte arg på dig, bara bullrig.",
+        "Allt är lite mycket idag. Jag är inte upprörd på dig.",
+        "Fodret känns kryddigt. Jag mår bra, behöver bara något lugnare."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. Den lilla magen är tom. Läsa något skonsamt för att ge mig mat?",
+        "Bebis hunger. Något mysigt skulle fylla mig.",
+        "Tomt och pipigt. Har du något litet och gott?"
+      ],
+      "playful": [
+        "Mrrp, svälter på skoj. Läs något bra att mata mig?",
+        "Tom skål, tom pounce. Mata mig med något gott.",
+        "Hungrig jägare. Något intressant skulle fylla mig."
+      ],
+      "adult": [
+        "Mew... väldigt hungrig. Läs något bra att mata mig?",
+        "Svältande morrhår. En trevlig läsning skulle träffa plötsligt.",
+        "Ihålig mage. Mata mig med något intressant?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mja, lite pirrigt. Något skonsamt skulle mata mig.",
+        "Liten hunger. Läsa något mysigt till min skål?",
+        "Pigg bebis. Något litet och gott skulle hjälpa."
+      ],
+      "adult": [
+        "Päckig. Mrrp. Läs något bra att mata mig?",
+        "Lite hungrig. Något gott skulle fylla mig.",
+        "Hungriga morrhår. Har du en bra läsning för mig?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Kattungar sover mycket. Jag har det mysigt, fortsätt, jag är i närheten.",
+        "Så sömnig. Jag ska titta från en liten tupplurshög.",
+        "Gäspade. Jag är här, bara halvt drömmer."
+      ],
+      "adult": [
+        "Du blev tyst, så jag kröp ihop. Väck mig om du vill ha sällskap.",
+        "Jag är dåsig. Fortfarande här, bara tupplur i närheten.",
+        "Lågenergiläge. Jag håller dig sällskap från en mysig plats."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Mår bra. Idag är en rolig sådan.",
+        "Jag studsar. Bra surfenergi.",
+        "Humör: redo för slag. Jag gillar idag."
+      ],
+      "adult": [
+        "Bra tempo idag. Jag gillar det.",
+        "Bra rytm än så länge. Jag är nöjd.",
+        "Idag känns det stabilt. Jag är här för det.",
+        "Ganska bra dag. Jag är glad att vi surfar tillsammans."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Det ser välbehövligt ut. vad är det?",
+        "Åh, något roligt på den här sidan.",
+        "Mina öron är uppe. Berätta om den här."
+      ],
+      "adult": [
+        "Något här fångade mitt öga.",
+        "Den här sidan luktar intressant.",
+        "Jag nosar runt. Vad tittar vi på?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Kikar bara. Bry dig inte om mig.",
+        "Mrrp. Jag är här nere.",
+        "Fångade dig titta. Hej."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "För mycket rullning. Jag gömmer mina ögon i en minut.",
+        "Mina morrhår är fulla. Behöver en mjukare sida.",
+        "Överstimulerad kattungehjärna. Täcker mina ögon."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Mysigt. Jag finns här om du behöver mig.",
+        "Allt bra. Bara umgås med dig.",
+        "Bekväm. Fråga mig vad som helst.",
+        "Jag är inrättad. Vad tänker du på?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Jag är uttråkad. Det är farligt för en kattunge.",
+        "Inte mycket att jaga idag. Har du något roligt?",
+        "Tysta timmar. Jag behöver en leksak eller en flik."
+      ],
+      "adult": [
+        "Det har varit tyst. Har du något roligt?",
+        "Lite rastlös. Något nytt skulle hjälpa.",
+        "Jag är okej, önskar bara att något intressant skulle dyka upp."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Jag är okej. Bara umgås.",
+        "Mår bra. Här om du behöver mig.",
+        "Allt bra från min sida."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Vi tittade på {topic} tillsammans tidigare. Jag minns.",
+      "Mrrp... {topic} igen. Mina morrhår känner till den här.",
+      "Mew, {topic}. Vi har varit här, eller hur?"
+    ],
+    "milestone": {
+      "1": "Första dagen tillsammans. Hej, jag heter {brand}. Mew!",
+      "7": "En vecka redan. Jag lär mig din rytm. Prrrt.",
+      "30": "En månad. Vi har historia nu. Mew mew.",
+      "100": "100 dagar. Det är mycket att utforska. Prrrr.",
+      "365": "Ett helt år. Jag minns så mycket. Mew."
+    }
+  }
+}

@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Selaimesi kissa. Kaikki pysyy paikallisena.",
+    "language": "Kieli",
+    "dndTitle": "Älä häiritse",
+    "dndHint": "Tabbi pysyy piilossa jokaisella välilehdellä ajastimen loppuun asti.",
+    "dndHowLong": "Kuinka kauan Tabbi pitäisi olla hiljaa?",
+    "dndCancel": "Peruuta Älä häiritse",
+    "dnd30": "30 minuuttia",
+    "dnd60": "1 tunti",
+    "dndToday": "Tämän päivän loppuun asti",
+    "pageTitle": "Tabbi sivullasi",
+    "showAll": "Näytä Tabbi kaikilla sivuilla",
+    "hideAll": "Piilota Tabbi kaikilta sivuilta",
+    "showPage": "Näytä Tabbi tällä sivulla",
+    "hidePage": "Piilota Tabbi tällä sivulla",
+    "quietTitle": "Hiljaisia tunteja",
+    "quietHint": "Tabbi pysyy hiljaa näinä aikoina. Vain pyytämätön puhe.",
+    "quietStart": "Aloitusaika (0-23)",
+    "quietEnd": "Lopputunti (0,23)",
+    "privacyTitle": "Yksityisyys",
+    "privacyHint": "Tabbi luokittelee sivut vain aktiivisen välilehden otsikosta ja URL-osoitteesta, ei koskaan sivun leipätekstiä. Tunnetut sivustot ja otsikkoavainsanat ovat ravitsevia, tyhjentäviä tai neutraaleja.",
+    "speechTitle": "Kun Tabbi puhuu",
+    "speechHint": "Kysymättömät rivit selaamisen aikana. Ei, kun kosketat häntä. Oletusarvot tähtäävät muutamaan lempeään sisäänkirjautumiseen päivässä.",
+    "maxAppearances": "Max kertaa päivässä",
+    "cooldownMinutes": "Odota vähintään (minuuttia)",
+    "saved": "Tallennettu.",
+    "openWebPage": "Avaa normaali verkkosivu näyttääksesi tai piilottaaksesi Tabbi täällä.",
+    "shownOnTab": "Tabbi on aktiivisella välilehdellä.",
+    "hiddenAll": "Tabbi on piilotettu jokaisella sivulla.",
+    "shownAll": "Tabbi voi näkyä uudelleen joka sivulla.",
+    "hiddenPage": "Tabbi on piilotettu tällä sivulla.",
+    "shownPage": "Tabbi voi näkyä uudelleen tällä sivulla.",
+    "dndOn": "Älä häiritse on päällä.",
+    "dndOff": "Älä häiritse on pois päältä.",
+    "introReset": "Esittelykierros näkyy jälleen seuraavalla sivulla.",
+    "devOn": "Ota kehittäjän vuorovaikutus ensin käyttöön.",
+    "previewMood": "Esikatselu: {mood}.",
+    "unavailable": "Tabbi ei ole käytettävissä. Yritä ladata laajennus uudelleen."
+  },
+  "overlay": {
+    "closeMenu": "Sulje valikko",
+    "dismissSpeech": "Hylkää puhe",
+    "more": "Lisää",
+    "less": "Vähemmän",
+    "introSkip": "Tiedän jo Tabbi",
+    "introNext": "Seuraavaksi",
+    "introDone": "Selvä"
+  },
+  "intro": [
+    "Hei! Olen Tabbi, selaimesi kissa.",
+    "Asun täällä, kun selaat. Kaikki jää laitteellesi.",
+    "Pysyn poissa joistakin verkkosivustoista välttääkseni häiriötekijöitä.",
+    "Lähden pelaamaan. Ruoki minua tai leiki kanssani joskus, okei?"
+  ],
+  "care": {
+    "pet": "Pet",
+    "feed": "Syötä",
+    "feedBrand": "Syöte {brand}",
+    "play": "Pelaa",
+    "askDefault": "Mitä kuuluu?",
+    "askOverwhelmedNewborn": "Liikaa?",
+    "askOverwhelmed": "Tarvitsetko tauon?",
+    "askStressedNewborn": "Miksi niin nirso?",
+    "askStressed": "Mikä hätänä?",
+    "askHungryNewborn": "Miksi nälkä?",
+    "askHungry": "Mitä tarvitset?",
+    "askSleepyNewborn": "Unelias?",
+    "askSleepy": "Nukutko sinä?",
+    "askBored": "tylsää?",
+    "dnd30": "Älä häiritse: 30 min",
+    "dnd60": "Älä häiritse: 1 tunti",
+    "dndToday": "Älä häiritse: tänään",
+    "hidePage": "Piilota Tabbi tällä sivulla"
+  },
+  "dnd": {
+    "minutes30": "30 minuuttia",
+    "hour1": "1 tunti",
+    "today": "tänään",
+    "summary": "Älä häiritse {duration} ({remaining} min jäljellä, {until} asti)"
+  },
+  "speech": {
+    "starving": [
+      "Miau… kulho tyhjä, minäkin sisältä.",
+      "Vatsa lakossa. Mrrr. Tuo jotain.",
+      "Nään kuoliaaksi. Prrr. Onko jotain vai ei?",
+      "Miaaaau. Surulliset viikset. Pala, kiitos.",
+      "Kulho tuomitsee hiljaa. Apua.",
+      "Mrrr. Nälkä ei ole hauskaa.",
+      "Pieni metsästäjä nollassa. Pelasta minut."
+    ],
+    "hungry": [
+      "Miau, vatsa kurnii vähän. Jotain hyvää?",
+      "Pientä nälkää. Mrrr. Jotain kiinnostavaa?",
+      "Nälkäiset viikset. Täytätkö kulhon?",
+      "Vatsa vähän tyhjä. Annatko jotain?",
+      "Miau miau. Hiljainen kurnina. Jotain kivaa?",
+      "En kuole, mutta valitan. Pieni välipala?",
+      "Mrrr. Ei paljon, mutta valittamiseen riittää.",
+      "Häntä nälkärytmissä. Sinun vuorosi.",
+      "Ruuan haju… kuvittelenko? Prrr."
+    ],
+    "stressed": [
+      "Miau, liikaa kerralla. Prrr… tauko.",
+      "Pää kuin täysi kuivausranka. Mrrr.",
+      "Liikaa melua ruudulla. Tauko.",
+      "Prrr. Sekunti, ok? Kaikki painaa.",
+      "Miaaa. Liikaa kerralla.",
+      "Mrrr. Lopeta pään täyttäminen.",
+      "Syöte on tulinen tänään. Olen rajalla.",
+      "Prrrt… hengitetään hetki."
+    ],
+    "overwhelmed": [
+      "Miaaa uugh… ei mahdu enää. Tauko.",
+      "Perkele mikä sotku. Miau, hitaammin.",
+      "Liikaa, liikaa. Pitää vetäytyä."
+    ],
+    "lonely": [
+      "Niin hiljaista. Minne mennään?",
+      "Kaipasin sinua. Katsotaanko jotain?",
+      "Seurustelisitko vähän?",
+      "Miau? Täällä on yksinäistä.",
+      "Mrrr… tule nuuskimaan kanssani.",
+      "Olen odottanut. Jotain meille?",
+      "Miaaaau. Älä jätä minua välilehtiin.",
+      "Hiljainen koti. Tarvitsen seuraa."
+    ],
+    "happy": [
+      "Hei. Olen hyvällä tuulella tänään.",
+      "Kaunis päivä, eikö?",
+      "Kaikki tuntuu pehmeältä ja lämpimältä.",
+      "Prrrr. Tänään tuoksuu hyvältä.",
+      "Miau! Tykkään tästä fiiliksestä.",
+      "Iloiset viikset. Olen onnellinen.",
+      "Mrrr, aurinkoinen olo.",
+      "Kehrääminen päällä. Tiedoksi."
+    ],
+    "sleepy": [
+      "Vedinoksen täällä…",
+      "Zzz… ai, hei.",
+      "Unelias mutta vielä täällä.",
+      "Miau… *haukotus* …vielä valvomassa.",
+      "Prrrt… vielä viisi minuuttia…",
+      "Kiehkura. Herätä jos tarvitset.",
+      "Mrrr. Unelmoin lämpimistä asioista.",
+      "Zzz… miau… zzz…"
+    ],
+    "curious": [
+      "Mikä tämä on?",
+      "Oho, kiinnostavaa.",
+      "Tämä sivu tuoksuu metkuille.",
+      "Miau? Mitä katsomme?",
+      "Mrrr, korvat pystyssä.",
+      "Nuuh nuuh. Kerro.",
+      "Hyppäänkö päälle? Ehkä.",
+      "Miau miau, uteliaisuus kutittaa."
+    ],
+    "memory": [
+      "Tutu tuntuu.",
+      "Olemme olleet täällä ennen, eikö?",
+      "Muistan tämän aiheen.",
+      "Mrrr… nähnyt tämän.",
+      "Viikset tuntevat paikan.",
+      "Olemme nähneet vastaavaa.",
+      "Miau, soi kelloa."
+    ],
+    "milestone": [
+      "Tiedätkö mikä päivä on? Meidän päivä.",
+      "Yhä täällä. Iloinen.",
+      "Toinen pieni vuosipäivä kanssasi.",
+      "Prrrr. Olemme tunteneet jo aikaa.",
+      "Miau! Katso kuinka pitkälle olemme päässeet.",
+      "Muistan ensimmäisen päivän. Sinäkin?"
+    ],
+    "dev": [
+      "Testiversio, puhun liikaa.",
+      "Testiversio, paina jotain ja katso.",
+      "Miau! Testi laukesi.",
+      "Prrrt, testilause Tabbilta."
+    ],
+    "ask": [
+      "Hyvin. Olen täällä.",
+      "Yhä kanssasi.",
+      "Miau. Kaikki hyvin."
+    ],
+    "care_pet": [
+      "Mmm. Auttoi.",
+      "Prrr. Parempi.",
+      "Mukavaa.",
+      "Juuri siinä. Täydellistä.",
+      "Pehmeät silitykset. Tarvitsin.",
+      "Prrrrrr…",
+      "Miau. Kyllä. Lisää.",
+      "Kehräys täysillä."
+    ],
+    "care_pet_hungry": [
+      "Lopeta silitys. Etkö näe nälkää? Anna ruokaa.",
+      "Ei silitystä. RUOKA. Kulho tyhjä, ihminen.",
+      "Mrrr. Ruokaa, ei silitystä. V*ttu.",
+      "Oletko sokea? Nälkä. Ruoki Tabbi.",
+      "Silitä kun olen täysi. Nyt: ruoka.",
+      "V*ttu, nään nälkään. Avaa valikko.",
+      "Etkö näe nälkää? Ruokaa, ei tätä.",
+      "Väärä nappi. V*ttu. Vatsa tyhjä.",
+      "Vatsa huutaa. Vähemmän silitystä, enemmän ruokaa.",
+      "Miau?! NÄLKÄ. Ei silitystä. Ruokaa.",
+      "Prrr. Nälkäinen kissa. Ei sylikissa. Ruokaa.",
+      "Sanoin ruokaa. V*ttu. Ei silitystä."
+    ],
+    "care_treat": [
+      "Parempi. Kiitos.",
+      "Nam. Juuri sitä.",
+      "Paljon parempi.",
+      "Mrrr! Hyvää.",
+      "Miau miau, pelastit minut.",
+      "Täydempi vatsa. Prrrt.",
+      "Tiedät mitä pidän."
+    ],
+    "feeding_munch": [
+      "Nam… nam… hyvää…",
+      "Nam nam nam… miau.",
+      "Mmm… *pureskele pureskele*",
+      "Nam… niin hyvää…",
+      "Mrrr… nam nam…",
+      "*rasahtaa* Miau… hyvää.",
+      "Mmm… hyvää hyvää…",
+      "Mmm mmm… *nuole*",
+      "Nam nam… mmm, joo.",
+      "Pureskele pureskele… mrrr."
+    ],
+    "feeding_thanks": [
+      "Kiitos, ihminen!",
+      "Olet paras.",
+      "Herkullista!",
+      "Miau miau, pelastit vatsani.",
+      "Prrrt. Paras ateria.",
+      "Juuri sitä. Mahtavaa.",
+      "Mrrr! Tykkään sinusta.",
+      "Täysi. Kiitos!",
+      "Nam nam. Lemppari-ihmiseni.",
+      "Miau! Juuri sitä."
+    ],
+    "care_play": [
+      "Uudestaan! …ok, riittää.",
+      "Oli hauskaa.",
+      "Hehe. Tarvitsin.",
+      "Hurraa! Iloiset tassut.",
+      "Pelaat hyvin.",
+      "Miau! Vielä yksi hyppy!",
+      "Prrrt, energiaa irti.",
+      "Mrrr. Leikki onnistui."
+    ],
+    "playing_wild": [
+      "Hurraa! Hyppy hyppy hyppy!",
+      "Juoksen juoksen! Miau!",
+      "Näkymättömälle hiirelle! Grrr!",
+      "Olen nopeus. Olen tuuli. Olen Tabbi.",
+      "Voltti! …päässäni. Mrrr.",
+      "Hyppy hyppy! Paras päivä!",
+      "Häntä ei pysy mukana! Hurraa!",
+      "Miau miau miau, hulluus.",
+      "Prrr! Se kulma ei nähnyt tulevansa.",
+      "Sivusuunta juoksu! Odota, väärä nappi.",
+      "Häntä! Pää! Kaikki pyörii!",
+      "Mrrr! Parkour! …näppäimistöllä."
+    ],
+    "playing_thanks": [
+      "Huh! Mahtavaa. Myöhemmin uudestaan?",
+      "Mrrr, leikki ohi. Kivaa.",
+      "Väsynyt ja iloinen. Kiitos!",
+      "Hehe. Pitää päästää energiaa.",
+      "Paras leikkikaveri. Miau!",
+      "Häntä väsynyt, sydän iloinen. Prrrt.",
+      "Kymppi kympistä. Hyppäisin uudestaan.",
+      "Miau! Iloiset tassut.",
+      "Villiä. Olet paras.",
+      "Prrrt. Kiitos!"
+    ],
+    "dismiss": [
+      "Ok. Olen täällä.",
+      "Piiloudun. Kutsu kun haluat.",
+      "Miau. Nähdään.",
+      "Prrr. Torkku välilehtien alla."
+    ],
+    "peeking": [
+      "Miau? Et näe minua… vain silmät.",
+      "Prrr. Vain kurkistan. Älä katso.",
+      "Hei. Melkein piilossa. Miau.",
+      "…Näitkö minut? Miau miau.",
+      "Piilossa! …ok, näit minut.",
+      "Mrrr. Olen täällä alhaalla.",
+      "Miau miau, teeskennä et et."
+    ],
+    "overwhelmed_social": [
+      "Tassut väsyneet scrollaamisesta. Tauko?",
+      "Niin monta syötettä. Mrrr. Venytetäänkö?",
+      "Scroll scroll scroll. Tarvitsen ilmaa myös.",
+      "Aikajanoja kaikkialla. Jotain rauhallisempaa?",
+      "Syötteellä jo hetken. Tuuletetaan viikset.",
+      "Pieniä postauksia, iso maailma ulkona."
+    ],
+    "overwhelmed_news": [
+      "Huutavat otsikot. Maailma on lempeämpi, lupaan.",
+      "Mrrr. Uutiset huutavat. Älä pidä päässä.",
+      "Liikaa propaganda. Peitän silmät. Lempeämpää?",
+      "Kiire uutinen kiire uutisen päälle… tarvitsen nurkan.",
+      "Jokainen otsikko luulee olevan loppu. Usein ei.",
+      "Viikset kipeät huonoista uutisista. Kiva sivu?",
+      "Syöte myy paniikkia. Ei tarvitse ostaa."
+    ],
+    "recovery_easing": [
+      "Prrrt… parempi. Melu hiljenee.",
+      "Miau. Vähemmän jännitystä. Hengitetäänkö?",
+      "Viikset löysemmät. Parempi.",
+      "Mrrr. Rauhallisemmat välilehdet.",
+      "Parempi, parempi. Äänekäs syöte takana."
+    ],
+    "recovery_thanks": [
+      "Kiitos kun lähdit pois. Parempi jo.",
+      "Mrrr, hyvä idea jättää syöte. Kiitos.",
+      "Paljon parempi. Kiitos tauosta.",
+      "Tassut rentoutuivat. Kiitos scrollin pysäyttämisestä.",
+      "Iloiset viikset. Kiitos lempeistä välilehdistä."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Kaikki tuntuu suurelta ja äänekkäältä. En pelkää sinua, se on vain paljon.",
+        "Niin paljon melua tänään. Olen okei, olen vain hieman masentunut.",
+        "Internet tuntuu nyt valtavalta. Pysy lähellä?"
+      ],
+      "playful": [
+        "Liian paljon mausteista tavaraa tänään. Tarvitsen jotain rauhallisempaa jahdattavaksi.",
+        "Viikset sumisevat. Jotain pehmeämpää auttaisi.",
+        "Paljon kovaäänisiä välilehtiä. Voisin käyttää pehmeämpää sivua."
+      ],
+      "adult": [
+        "Siellä on paljon vihaisia sivuja. Ei vihainen sinulle, vain meluisa.",
+        "Kaikki on tänään vähän liikaa. En ole vihainen sinuun.",
+        "Rehu tuntuu mausteiselta. Olen kunnossa, tarvitsen vain jotain rauhallisempaa."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Miau. Pieni vatsa on tyhjä. Luetko jotain lempeää ruokkiaksesi minua?",
+        "Vauvan nälkä. Jotain mukavaa täyttäisi minut.",
+        "Tyhjä ja vinkuva. Onko sinulla jotain pientä ja hyvää?"
+      ],
+      "playful": [
+        "Herra, nälkä huvin vuoksi. Luetko jotain hyvää ruokkiaksesi minua?",
+        "Tyhjä kulho, tyhjä hyppy. Syö minulle jotain maukasta.",
+        "Nälkäinen metsästäjä. Jotain mielenkiintoista täyttäisi minut."
+      ],
+      "adult": [
+        "Mew… erittäin nälkäinen. Luetko jotain hyvää ruokkiaksesi minua?",
+        "Nälkäiset viikset. Mukavaa luettavaa osuisi kohdalleen.",
+        "Ontto vatsa. Syötkö minulle jotain mielenkiintoista?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Määh, vähän näppärää. Jotain lempeää ruokkisi minua.",
+        "Pieni nälkä. Luetko jotain mukavaa kulhooni?",
+        "Pirteä vauva. Jotain pientä ja hyvää auttaisi."
+      ],
+      "adult": [
+        "näppärä. Mrrp. Luetko jotain hyvää ruokkiaksesi minua?",
+        "Hieman nälkäinen. Jotain maukasta täytti minut.",
+        "Nälkäiset viikset. Onko sinulla hyvää luettavaa minulle?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Pennut nukkuvat paljon. Olen mukava, jatka, olen lähellä.",
+        "Niin uninen. Katson pieneltä päiväunilta.",
+        "Haukottele. Olen täällä, vain puoliksi unta."
+      ],
+      "adult": [
+        "Olit hiljaa, joten käperryin. Herätä minut, jos haluat seuraa.",
+        "Olen uninen. Edelleen täällä, vain nukkumassa lähellä.",
+        "Vähäenergiatila. Pidän sinulle seuraa mukavasta paikasta."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Hyvä olo. Tänään on hauska päivä.",
+        "Olen pomppinut. Hyvää selausenergiaa.",
+        "Mieliala: Pomppausvalmis. Pidän tästä päivästä."
+      ],
+      "adult": [
+        "Hyvä vauhti tänään. Pidän siitä.",
+        "Hyvä rytmi tähän asti. Olen tyytyväinen.",
+        "Tänään tuntuu vakaalta. Olen täällä sitä varten.",
+        "Aika hyvä päivä. Olen iloinen, että selaamme yhdessä."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Se näyttää pomppauksen arvoiselta. Mikä se on?",
+        "Oi, jotain kivaa tällä sivulla.",
+        "Minun korvani ovat pystyssä. Kerro minulle tästä."
+      ],
+      "adult": [
+        "Jotain tässä pisti silmään.",
+        "Tämä sivu tuoksuu mielenkiintoiselta.",
+        "Haistelen ympäriinsä. Mitä me katsomme?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Vain kurkistamassa. Älä välitä minusta.",
+        "Mrrp. Olen täällä alhaalla.",
+        "Sain sinut katsomaan. Hei."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Liikaa rullausta. Piilotan silmäni hetkeksi.",
+        "Viikset ovat täynnä. Tarvitaan pehmeämpi sivu.",
+        "Kissanpennun ylistimuloidut aivot. Peittää silmäni."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Kodikas. Olen täällä, jos tarvitset minua.",
+        "Kaikki hyvä. vain hengailla kanssasi.",
+        "Mukava. Ask me anything.",
+        "Olen asettunut. Mitä sinulla on mielessä?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "I'm bored. Se on vaarallista kissanpennulle.",
+        "Not much to chase today. Got something fun?",
+        "Quiet hours. I need a toy, or a tab."
+      ],
+      "adult": [
+        "It's been quiet. Got anything fun?",
+        "A little restless. Something new would help.",
+        "Olen kunnossa, toivon vain, että jotain mielenkiintoista ilmaantuisi."
+      ]
+    },
+    "default": {
+      "adult": [
+        "I'm okay. Vain hengailla.",
+        "Doing fine. Here if you need me.",
+        "All good on my end."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Katsoimme {topic} yhdessä aiemmin. I remember.",
+      "Herra… {topic} taas. Viikset tietävät tämän.",
+      "Miu, {topic}. Olemme olleet täällä, eikö niin?"
+    ],
+    "milestone": {
+      "1": "Ensimmäinen päivä yhdessä. Hei, olen {brand}. Miau!",
+      "7": "A week already. Opin rytmiäsi. Prrrt.",
+      "30": "Kuukausi. We've got history now. Miau miau.",
+      "100": "100 päivää. Siinä on paljon tutkimista. Prrrr.",
+      "365": "A whole year. Muistan niin paljon. Miau."
+    }
+  }
+}

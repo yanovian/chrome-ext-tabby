@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
-  INTRO_SKIP_LABEL,
-  INTRO_STEPS,
   introNextLabel,
+  introSkipLabel,
   introStepCount,
   introStepText,
 } from '../utils/intro';
+import { tLines } from '../utils/i18n';
 
 describe('intro', () => {
   it('keeps the tour short', () => {
     expect(introStepCount()).toBe(4);
-    for (const line of INTRO_STEPS) {
+    for (const line of tLines('intro')) {
       expect(line.split(/\s+/).length).toBeLessThanOrEqual(16);
     }
   });
@@ -33,6 +33,6 @@ describe('intro', () => {
   });
 
   it('offers a skip link for returning users', () => {
-    expect(INTRO_SKIP_LABEL).toMatch(/already know Tabby/i);
+    expect(introSkipLabel()).toMatch(/already know Tabby/i);
   });
 });

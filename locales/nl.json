@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Uw browserkat. Alles blijft lokaal.",
+    "language": "Taal",
+    "dndTitle": "Niet storen",
+    "dndHint": "Tabbi blijft op elk tabblad verborgen totdat de timer afloopt.",
+    "dndHowLong": "Hoe lang moet Tabbi stil blijven?",
+    "dndCancel": "Annuleer niet storen",
+    "dnd30": "30 minuten",
+    "dnd60": "1 uur",
+    "dndToday": "Tot eind vandaag",
+    "pageTitle": "Tabbi op uw pagina",
+    "showAll": "Toon Tabbi op alle pagina's",
+    "hideAll": "Verberg Tabbi op alle pagina's",
+    "showPage": "Toon Tabbi op deze pagina",
+    "hidePage": "Verberg Tabbi op deze pagina",
+    "quietTitle": "Rustige uren",
+    "quietHint": "Tabbi blijft tijdens deze uren stil. Ze spreekt alleen uit zichzelf.",
+    "quietStart": "Startuur (0,23)",
+    "quietEnd": "Einduur (0,23)",
+    "privacyTitle": "Privacy",
+    "privacyHint": "Tabbi classificeert pagina's alleen op basis van de actieve tabbladtitel en URL, nooit de hoofdtekst van de pagina. Bekende sites en titelzoekwoorden bepalen voedend, drainerend of neutraal.",
+    "speechTitle": "Wanneer Tabbi iets zegt",
+    "speechHint": "Wanneer ze alleen spreekt terwijl je surft. Niet als je op haar tikt. De standaardwaarden zijn gericht op een paar rustige momenten per dag.",
+    "maxAppearances": "Maximaal aantal keren per dag",
+    "cooldownMinutes": "Wacht minimaal (minuten)",
+    "saved": "Opgeslagen.",
+    "openWebPage": "Open een normale webpagina om Tabbi hier weer te geven of te verbergen.",
+    "shownOnTab": "Tabbi staat op het actieve tabblad.",
+    "hiddenAll": "Tabbi is op elke pagina verborgen.",
+    "shownAll": "Tabbi kan opnieuw op elke pagina worden weergegeven.",
+    "hiddenPage": "Tabbi is verborgen op deze pagina.",
+    "shownPage": "Tabbi kan weer op deze pagina worden weergegeven.",
+    "dndOn": "Niet storen staat aan.",
+    "dndOff": "Niet storen is uitgeschakeld.",
+    "introReset": "De introductietour wordt opnieuw weergegeven op de volgende pagina.",
+    "devOn": "Schakel eerst dev-interacties in.",
+    "previewMood": "Voorbeeld: {mood}.",
+    "unavailable": "Tabbi is niet beschikbaar. Probeer de extensie opnieuw te laden."
+  },
+  "overlay": {
+    "closeMenu": "Menu sluiten",
+    "dismissSpeech": "Spreek af",
+    "more": "Meer",
+    "less": "Minder",
+    "introSkip": "Ik weet al Tabbi",
+    "introNext": "Volgende",
+    "introDone": "Ik heb het"
+  },
+  "intro": [
+    "Hallo! Ik ben Tabbi, uw browserkat.",
+    "Ik woon hier terwijl jij rondkijkt. Alles blijft op uw apparaat staan.",
+    "Ik blijf van sommige websites af om afleiding te voorkomen.",
+    "Ik ga spelen. Geef me te eten of speel soms met me, oké?"
+  ],
+  "care": {
+    "pet": "Huisdier",
+    "feed": "Voer",
+    "feedBrand": "Feed {brand}",
+    "play": "Spelen",
+    "askDefault": "Wat is er?",
+    "askOverwhelmedNewborn": "Te veel?",
+    "askOverwhelmed": "Een pauze nodig?",
+    "askStressedNewborn": "Waarom zo kieskeurig?",
+    "askStressed": "Wat is er mis?",
+    "askHungryNewborn": "Waarom honger?",
+    "askHungry": "Wat heb je nodig?",
+    "askSleepyNewborn": "Slaperig?",
+    "askSleepy": "Was je aan het dutten?",
+    "askBored": "Verveeld?",
+    "dnd30": "Niet storen: 30 min",
+    "dnd60": "Niet storen: 1 uur",
+    "dndToday": "Niet storen: vandaag",
+    "hidePage": "Verberg Tabbi op deze pagina"
+  },
+  "dnd": {
+    "minutes30": "30 minuten",
+    "hour1": "1 uur",
+    "today": "vandaag",
+    "summary": "Niet storen gedurende {duration} ({remaining} min resterend, tot {until})"
+  },
+  "speech": {
+    "starving": [
+      "Miauw… bakje leeg, ik ook van binnen.",
+      "Buik in staking. Mrrr. Breng wat.",
+      "Ik verhonger. Prrr. Heb je wat of niet?",
+      "Miaaaau. Trieste snorharen. Een hapje, alsjeblieft.",
+      "De kom kijkt me aan. Help.",
+      "Mrrr. Honger is niet grappig.",
+      "Kleine jager op nul. Haal me hier weg."
+    ],
+    "hungry": [
+      "Miauw, buik rommelt een beetje. Iets lekkers?",
+      "Zin in een hapje. Mrrr. Iets interessants?",
+      "Hongerige snorharen. Vul je de kom?",
+      "Buik een beetje leeg. Geef je me wat?",
+      "Miauw miauw. Zacht gegrom. Iets leuks?",
+      "Ik verhonger niet, maar ik klaag. Een snack?",
+      "Mrrr. Niet veel, maar genoeg om te zeuren.",
+      "Staart in hongerritme. Jij bent aan de beurt.",
+      "Geur van eten… of verbeeld ik het? Prrr."
+    ],
+    "stressed": [
+      "Miauw, te veel tegelijk. Prrr… even pauze.",
+      "Hoofd als vol wasrek. Mrrr.",
+      "Te veel lawaai op het scherm. Pauze.",
+      "Prrr. Een seconde, oké? Alles knijpt.",
+      "Miaaaa. Te veel in één keer.",
+      "Mrrr. Stop met mijn kop volmaken.",
+      "De feed is pittig vandaag. Ik ben op.",
+      "Prrrt… even ademen."
+    ],
+    "overwhelmed": [
+      "Miaaaa uugh… past niet meer. Pauze.",
+      "K*t zooi. Miauw, rustiger aan.",
+      "Te veel, te veel. Ik moet terug."
+    ],
+    "lonely": [
+      "Zo stil. Waarheen?",
+      "Ik heb je gemist. Kijken we iets?",
+      "Blijf je even bij me?",
+      "Miauw? Het is eenzaam hier.",
+      "Mrrr… kom snuffelen met me.",
+      "Ik wacht al een tijdje. Iets voor ons?",
+      "Miaaaau. Laat me niet alleen met de tabbladen.",
+      "Stil huis. Ik heb gezelschap nodig."
+    ],
+    "happy": [
+      "Hé. Vandaag zit ik lekker in mijn vel.",
+      "Mooie dag, hè?",
+      "Alles voelt zacht en warm.",
+      "Prrrr. Vandaag ruikt goed.",
+      "Miauw! Ik hou van deze sfeer.",
+      "Blije snorharen. Ik ben gelukkig.",
+      "Mrrr, ik voel me zonnig.",
+      "Spinmodus aan. Ter info."
+    ],
+    "sleepy": [
+      "Ik doe een dutje in de buurt…",
+      "Zzz… oh, hallo.",
+      "Slaperig, maar nog hier.",
+      "Miauw… *geeuw* …nog wakker.",
+      "Prrrt… nog vijf minuten…",
+      "Opgerold. Maak me wakker als nodig.",
+      "Mrrr. Droom van warme dingen.",
+      "Zzz… miauw… zzz…"
+    ],
+    "curious": [
+      "Wat is dit?",
+      "Oeh, interessant.",
+      "Deze pagina ruikt naar kattenkwaad.",
+      "Miauw? Wat bekijken we?",
+      "Mrrr, oren gespitst.",
+      "Snuif snuif. Vertel.",
+      "Spring ik erop? Misschien.",
+      "Miauw miauw, nieuwsgierigheid jeukt."
+    ],
+    "memory": [
+      "Dit komt me bekend voor.",
+      "We waren hier al, toch?",
+      "Ik herinner me dit onderwerp.",
+      "Mrrr… dit ken ik.",
+      "Mijn snorharen kennen deze plek.",
+      "Zoiets hebben we al gezien.",
+      "Miauw, dit rinkelt een belletje."
+    ],
+    "milestone": [
+      "Weet je welke dag het is? Onze dag.",
+      "Nog steeds hier. Blij mee.",
+      "Nog een klein jubileum met jou.",
+      "Prrrr. We kennen elkaar al een tijd.",
+      "Miauw! Kijk hoe ver we zijn.",
+      "Eerste dag, die herinner ik. Jij ook?"
+    ],
+    "dev": [
+      "Testversie, ik praat te veel.",
+      "Testversie, tik iets en kijk.",
+      "Miauw! De test ging af.",
+      "Prrrt, testzin van Tabbi."
+    ],
+    "ask": [
+      "Prima. Hang hier rond.",
+      "Nog bij je.",
+      "Miauw. Alles goed."
+    ],
+    "care_pet": [
+      "Mmm. Hielp.",
+      "Prrr. Beter.",
+      "Was fijn.",
+      "Precies daar. Perfect.",
+      "Zachte aai. Had ik nodig.",
+      "Prrrrrr…",
+      "Miauw. Ja. Meer.",
+      "Spinnen op volle toeren."
+    ],
+    "care_pet_hungry": [
+      "Stop met aaien. Zie je niet dat ik honger heb? Geef eten.",
+      "Geen knuffels. ETEN. Kom leeg, mens.",
+      "Mrrr. Eten, geen aaien. Verd*mme.",
+      "Ben je blind? Honger. Voer Tabbi.",
+      "Aai me als ik vol zit. Nu: eten.",
+      "Sh*t, ik verhonger. Open het menu.",
+      "Zie je de honger niet? Eten, niet dit.",
+      "Verkeerde knop. Verd*mme. Buik leeg.",
+      "Buik schreeuwt. Minder aaien, meer eten.",
+      "Miauw?! HONGER. Geen aaien. Eten.",
+      "Prrr. Hongerige kat. Geen knuffelkat. Eten.",
+      "Ik zei eten. Verd*mme. Geen aaien."
+    ],
+    "care_treat": [
+      "Beter. Bedankt.",
+      "Lekker. Precies goed.",
+      "Veel beter.",
+      "Mrrr! Smakelijk.",
+      "Miauw miauw, je redde me.",
+      "Vollere buik. Prrrt.",
+      "Je weet wat ik lekker vind."
+    ],
+    "feeding_munch": [
+      "Smak… smak… lekker…",
+      "Smak smak smak… miauw.",
+      "Mmm… *kauw kauw*",
+      "Smak… zo goed…",
+      "Mrrr… smak smak…",
+      "*knapperig* Miauw… lekker.",
+      "Mmm… lekker lekker…",
+      "Mmm mmm… *lik*",
+      "Smak smak… mmm, ja.",
+      "Kauw kauw… mrrr."
+    ],
+    "feeding_thanks": [
+      "Bedankt, mens!",
+      "Jij bent de beste.",
+      "Heerlijk!",
+      "Miauw miauw, je redde mijn buik.",
+      "Prrrt. Het beste eten ooit.",
+      "Precies goed. Geweldig.",
+      "Mrrr! Ik hou van je.",
+      "Vol. Bedankt!",
+      "Lekker lekker. Mijn favoriete mens.",
+      "Miauw! Precies dat."
+    ],
+    "care_play": [
+      "Nog een keer! …ok, genoeg.",
+      "Was leuk.",
+      "Hehe. Had ik nodig.",
+      "Joepie! Pootjes blij.",
+      "Je speelt goed.",
+      "Miauw! Nog een sprong!",
+      "Prrrt, energie los.",
+      "Mrrr. Spel gelukt."
+    ],
+    "playing_wild": [
+      "Joepie! Sprong sprong sprong!",
+      "Ik ren ik ren! Miauw!",
+      "Op de onzichtbare muis! Grrr!",
+      "Ik ben snelheid. Ik ben wind. Ik ben Tabbi.",
+      "Salto! …in mijn hoofd. Mrrr.",
+      "Hup hup! Beste dag!",
+      "Staart houdt het niet bij! Joepie!",
+      "Miauw miauw miauw, gekkenhuis.",
+      "Prrr! Die hoek zag het niet aankomen.",
+      "Zijwaarts rennen! Wacht, verkeerde knop.",
+      "Staart! Kop! Alles draait!",
+      "Mrrr! Parkour! …op het toetsenbord."
+    ],
+    "playing_thanks": [
+      "Poeh! Geweldig. Later nog?",
+      "Mrrr, spel klaar. Leuk.",
+      "Moe en blij. Bedankt!",
+      "Hehe. Moest even los.",
+      "Beste speelmaatje. Miauw!",
+      "Staart moe, hart blij. Prrrt.",
+      "Tien op tien. Zou weer springen.",
+      "Miauw! Blije pootjes.",
+      "Wild. Jij bent de beste.",
+      "Prrrt. Bedankt!"
+    ],
+    "dismiss": [
+      "Oké. Ik ben hier.",
+      "Ik verstop me. Roep als je wilt.",
+      "Miauw. Tot zo.",
+      "Prrr. Dutje onder de tabbladen."
+    ],
+    "peeking": [
+      "Miauw? Je ziet me niet… alleen ogen.",
+      "Prrr. Even gluren. Niet kijken.",
+      "Hoi. Bijna verborgen. Miauw.",
+      "…Gezien? Miauw miauw.",
+      "Verstopt! …ok, betrapt.",
+      "Mrrr. Ik ben hier beneden.",
+      "Miauw miauw, doe alsof niet."
+    ],
+    "overwhelmed_social": [
+      "Pootjes moe van scrollen. Pauze?",
+      "Zoveel feeds. Mrrr. Rekken we uit?",
+      "Scroll scroll scroll. Zelfs ik heb lucht nodig.",
+      "Timelines overal. Iets rustigers?",
+      "Al een tijd op de feed. Luchten we de snorharen.",
+      "Kleine posts, grote wereld erbuiten."
+    ],
+    "overwhelmed_news": [
+      "Koppen die schreeuwen. De wereld is zachter, beloofd.",
+      "Mrrr. Nieuws schreeuwt. Bewaar het niet in je hoofd.",
+      "Te veel propaganda. Bedek mijn ogen. Zachter?",
+      "Breaking news op breaking news… ik heb een hoekje nodig.",
+      "Elke kop denkt dat het het einde is. Meestal niet.",
+      "Snorharen pijnlijk van slecht nieuws scrollen. Een mooie pagina?",
+      "De feed verkoopt paniek. Je hoeft niet te kopen."
+    ],
+    "recovery_easing": [
+      "Prrrt… beter. Lawaai zachter.",
+      "Miauw. Minder spanning. Ademen we?",
+      "Snorharen losser. Beter.",
+      "Mrrr. Rustigere tabbladen.",
+      "Beter, beter. Luide feed ligt achter ons."
+    ],
+    "recovery_thanks": [
+      "Bedankt dat je wegging. Het gaat beter.",
+      "Mrrr, goed idee die feed te verlaten. Bedankt.",
+      "Veel beter. Bedankt voor de pauze.",
+      "Pootjes ontspannen. Bedankt voor stoppen met scrollen.",
+      "Blije snorharen. Bedankt voor zachte tabbladen."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Alles voelt groot en luid. Ik ben niet bang voor je, het is gewoon veel.",
+        "Zoveel lawaai vandaag. Ik ben oké, alleen een klein beetje overweldigd.",
+        "Het internet voelt momenteel enorm. Dichtbij blijven?"
+      ],
+      "playful": [
+        "Te veel pittige dingen vandaag. Ik heb iets rustigers nodig om te achtervolgen.",
+        "Mijn snorharen zoemen. Iets vriendelijker zou helpen.",
+        "Veel luide tabbladen. Ik zou een zachtere pagina kunnen gebruiken."
+      ],
+      "adult": [
+        "Er zijn veel boze pagina's. Niet boos op je, alleen maar luidruchtig.",
+        "Alles is een beetje veel vandaag. Ik ben niet boos op je.",
+        "Het voer voelt pittig aan. Met mij gaat het goed, ik heb alleen iets rustigers nodig."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Miauw. Het kleine buikje is leeg. Iets vriendelijks lezen om mij te voeden?",
+        "Baby-honger. Iets gezelligs zou mij vullen.",
+        "Leeg en piepend. Heb je iets kleins en goeds?"
+      ],
+      "playful": [
+        "Mrrp, hongerig naar plezier. Iets goeds lezen om mij te voeden?",
+        "Lege kom, lege sprong. Voed mij met iets lekkers.",
+        "Hongerige jager. Iets interessants zou mij vullen."
+      ],
+      "adult": [
+        "Mew... erg hongerig. Iets goeds lezen om mij te voeden?",
+        "Uitgehongerde snorharen. Een leuke lezing zou de plek raken.",
+        "Holle buik. Geef mij iets interessants?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, een beetje trek. Iets zachtaardigs zou mij voeden.",
+        "Kleine honger. Iets gezelligs lezen voor op mijn bowl?",
+        "Hongerige baby. Iets kleins en goeds zou helpen."
+      ],
+      "adult": [
+        "Hongerig. Mrrp. Iets goeds lezen om mij te voeden?",
+        "Een beetje hongerig. Iets lekkers zou mij vullen.",
+        "Hongerige snorharen. Heb je een goed leesvoer voor mij?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Babykatjes slapen veel. Ik ben gezellig, ga door, ik ben in de buurt.",
+        "Zo slaperig. Ik zal kijken vanaf een klein slaapstapeltje.",
+        "Geeuw. Ik ben hier, half aan het dromen."
+      ],
+      "adult": [
+        "Jij werd stil, dus ik rolde me op. Maak me wakker als je gezelschap wilt.",
+        "Ik ben slaperig. Nog steeds hier, gewoon een dutje doen in de buurt.",
+        "Lage energiemodus. Ik houd je gezelschap vanaf een gezellig plekje."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Een goed gevoel. Vandaag is een leuke.",
+        "Ik stuiter. Goede browse-energie.",
+        "Stemming: klaar voor een sprong. Ik hou van vandaag."
+      ],
+      "adult": [
+        "Lekker tempo vandaag. Ik vind het leuk.",
+        "Goed ritme tot nu toe. Ik ben tevreden.",
+        "Vandaag voelt stabiel. Ik ben hier voor.",
+        "Redelijk goede dag. Ik ben blij dat we samen rondkijken."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Dat ziet er springwaardig uit. Wat is het?",
+        "Oeh, iets leuks op deze pagina.",
+        "Mijn oren zijn omhoog. Vertel me hierover."
+      ],
+      "adult": [
+        "Iets hier trok mijn aandacht.",
+        "Deze pagina ruikt interessant.",
+        "Ik snuffel rond. Waar kijken we naar?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Gewoon gluren. Let niet op mij.",
+        "Mrrp. Ik ben hier beneden.",
+        "Ik zag je kijken. Hoi."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Te veel scrollen. Ik verberg mijn ogen voor een minuut.",
+        "Mijn snorharen zijn vol. Een zachtere pagina nodig.",
+        "Overgestimuleerde kittenhersenen. Mijn ogen bedekkend."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Gezellig. Ik ben hier als je me nodig hebt.",
+        "Allemaal goed. Ik ga gewoon met je om.",
+        "Comfortabel. Vraag mij alles.",
+        "Ik ben gesetteld. Waar denk je aan?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Ik verveel me. Dat is gevaarlijk voor een kitten.",
+        "Er valt niet veel te jagen vandaag. Heb je iets leuks?",
+        "Rustige uren. Ik heb een speeltje nodig, of een tabblad."
+      ],
+      "adult": [
+        "Het is stil geweest. Heb je iets leuks?",
+        "Een beetje onrustig. Iets nieuws zou helpen.",
+        "Met mij gaat het wel, ik wou dat er iets interessants opdook."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Ik ben oké. Gewoon rondhangen.",
+        "Het gaat goed. Hier als je mij nodig hebt.",
+        "Alles goed van mijn kant."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "We hebben eerder samen naar {topic} gekeken. Ik herinner het me.",
+      "Mrrp... {topic} opnieuw. Mijn snorharen kennen deze.",
+      "Miauw, {topic}. We zijn hier geweest, toch?"
+    ],
+    "milestone": {
+      "1": "Eerste dag samen. Hallo, ik ben {brand}. Miauw!",
+      "7": "Al een week. Ik leer jouw ritme. Prrrt.",
+      "30": "Een maand. We hebben nu geschiedenis. Miauw miauw.",
+      "100": "100 dagen. Dat is veel ontdekken. Prrrr.",
+      "365": "Een heel jaar. Ik herinner me zoveel. Miauw."
+    }
+  }
+}

@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Twój kot przeglądarki. Wszystko zostaje lokalnie.",
+    "language": "Język",
+    "dndTitle": "Nie przeszkadzać",
+    "dndHint": "Tabbi pozostaje ukryta na każdej karcie do końca timera.",
+    "dndHowLong": "Jak długo Tabbi ma być cicho?",
+    "dndCancel": "Anuluj nie przeszkadzać",
+    "dnd30": "30 minut",
+    "dnd60": "1 godzina",
+    "dndToday": "Do końca dnia",
+    "pageTitle": "Tabbi na twojej stronie",
+    "showAll": "Pokaż Tabbi na wszystkich stronach",
+    "hideAll": "Ukryj Tabbi na wszystkich stronach",
+    "showPage": "Pokaż Tabbi na tej stronie",
+    "hidePage": "Ukryj Tabbi na tej stronie",
+    "quietTitle": "Ciche godziny",
+    "quietHint": "Tabbi milczy w tych godzinach. Tylko spontaniczne wypowiedzi.",
+    "quietStart": "Godzina startu (0-23)",
+    "quietEnd": "Godzina końca (0-23)",
+    "privacyTitle": "Prywatność",
+    "privacyHint": "Tabbi klasyfikuje strony tylko z tytułu i URL aktywnej karty, nigdy z treści strony. Znane witryny i słowa w tytule decydują o odżywczej, wyczerpującej lub neutralnej.",
+    "speechTitle": "Kiedy Tabbi mówi sama",
+    "speechHint": "Nieoczekiwane linie podczas przeglądania. Nie, kiedy ją dotykasz. Domyślnie celem jest kilka delikatnych meldowań dziennie.",
+    "maxAppearances": "Maks. razy dziennie",
+    "cooldownMinutes": "Czekaj co najmniej (minuty)",
+    "saved": "Zapisano.",
+    "hiddenAll": "Tabbi jest ukryta na każdej stronie.",
+    "shownAll": "Tabbi może znów pojawić się na każdej stronie.",
+    "hiddenPage": "Tabbi jest ukryta na tej stronie.",
+    "shownPage": "Tabbi może znów pojawić się na tej stronie.",
+    "dndOn": "Nie przeszkadzać jest włączone.",
+    "dndOff": "Nie przeszkadzać jest wyłączone.",
+    "introReset": "Wprowadzenie pojawi się ponownie na następnej stronie.",
+    "devOn": "Najpierw włącz interakcje dev.",
+    "previewMood": "Podgląd: {mood}.",
+    "unavailable": "Tabbi jest niedostępna. Spróbuj przeładować rozszerzenie.",
+    "openWebPage": "Otwórz normalną stronę internetową, aby pokazać lub ukryć tutaj Tabbi.",
+    "shownOnTab": "Tabbi znajduje się na aktywnej karcie."
+  },
+  "overlay": {
+    "closeMenu": "Zamknij menu",
+    "dismissSpeech": "Zamknij wypowiedź",
+    "more": "Więcej",
+    "less": "Mniej",
+    "introSkip": "Znam już Tabbi",
+    "introNext": "Dalej",
+    "introDone": "Rozumiem"
+  },
+  "intro": [
+    "Cześć! Jestem Tabbi, twoim kotem przeglądarki.",
+    "Mieszkam tu, gdy przeglądasz. Wszystko zostaje na twoim urządzeniu.",
+    "Trzymam się z dala od niektórych stron, żeby cię nie rozpraszać.",
+    "Idę pobawić się. Nakarm mnie albo pobaw się ze mną czasem, ok?"
+  ],
+  "care": {
+    "pet": "Głaskaj",
+    "feed": "Nakarm",
+    "feedBrand": "Nakarm {brand}",
+    "play": "Baw się",
+    "askDefault": "Co słychać?",
+    "askOverwhelmedNewborn": "Za dużo?",
+    "askOverwhelmed": "Potrzebujesz przerwy?",
+    "askStressedNewborn": "Czemu taka nerwowa?",
+    "askStressed": "Co jest nie tak?",
+    "askHungryNewborn": "Czemu głodna?",
+    "askHungry": "Czego potrzebujesz?",
+    "askSleepyNewborn": "Senność?",
+    "askSleepy": "Drzemałaś?",
+    "askBored": "Znudzona?",
+    "dnd30": "Nie przeszkadzać: 30 min",
+    "dnd60": "Nie przeszkadzać: 1 godz.",
+    "dndToday": "Nie przeszkadzać: dziś",
+    "hidePage": "Ukryj Tabbi na tej stronie"
+  },
+  "dnd": {
+    "minutes30": "30 minut",
+    "hour1": "1 godzina",
+    "today": "dziś",
+    "summary": "Nie przeszkadzać przez {duration} (zostało {remaining} min, do {until})"
+  },
+  "speech": {
+    "starving": [
+      "Miau… miska pusta, ja też w środku.",
+      "Brzuch na strajku. Mrrr. Przynieś coś.",
+      "Umieram z głodu. Prrr. Masz coś czy nie?",
+      "Miaaaau. Smutne wąsy. Kęs, proszę.",
+      "Miska patrzy na mnie. Ratunku.",
+      "Mrrr. Głód to nie żarty.",
+      "Mała łowczyni na zero. Wyciągnij mnie stąd."
+    ],
+    "hungry": [
+      "Miau, brzuch burczy trochę. Coś smacznego?",
+      "Lekki głód. Mrrr. Coś ciekawego?",
+      "Głodne wąsy. Napełnisz miskę?",
+      "Brzuch trochę pusty. Dasz mi coś?",
+      "Miau miau. Ciche burczenie. Coś miłego?",
+      "Nie umieram, ale narzekam. Przekąska?",
+      "Mrrr. Niewiele, ale wystarczy do narzekania.",
+      "Ogon w rytmie głodu. Twoja kolej.",
+      "Zapach jedzenia… czy mi się wydaje? Prrr."
+    ],
+    "stressed": [
+      "Miau, za dużo naraz. Prrr… przerwa.",
+      "Głowa jak pełna suszarka. Mrrr.",
+      "Za dużo hałasu na ekranie. Przerwa.",
+      "Prrr. Sekunda, ok? Wszystko ściska.",
+      "Miaaaa. Za dużo na raz.",
+      "Mrrr. Dość zapełniania mi głowy.",
+      "Feed dziś ostry. Jestem na granicy.",
+      "Prrrt… oddech na chwilę."
+    ],
+    "overwhelmed": [
+      "Miaaaa uugh… nie mieści się więcej. Przerwa.",
+      "Co za b*rdel. Miau, wolniej.",
+      "Za dużo, za dużo. Muszę się wycofać."
+    ],
+    "lonely": [
+      "Jaka cisza. Dokąd idziemy?",
+      "Tęskniłam. Coś obejrzymy?",
+      "Dotrzymasz mi towarzystwa?",
+      "Miau? Tu samotnie.",
+      "Mrrr… chodź poszperać ze mną.",
+      "Czekam już chwilę. Coś dla nas?",
+      "Miaaaau. Nie zostawiaj mnie z kartami.",
+      "Cichy dom. Potrzebuję towarzystwa."
+    ],
+    "happy": [
+      "Hej. Dziś mam fajny humor.",
+      "Ładny dzień, co?",
+      "Wszystko miękkie i ciepłe.",
+      "Prrrr. Dziś pachnie dobrze.",
+      "Miau! Lubię ten klimat.",
+      "Szczęśliwe wąsy. Jestem radosna.",
+      "Mrrr, czuję słońce.",
+      "Mruczenie włączone. Dla informacji."
+    ],
+    "sleepy": [
+      "Zdrzemnę się tu obok…",
+      "Zzz… o, cześć.",
+      "Senna, ale jeszcze tu jestem.",
+      "Miau… *ziew* …jeszcze czuję.",
+      "Prrrt… jeszcze pięć minut…",
+      "Zwinięta. Obudź, jeśli trzeba.",
+      "Mrrr. Śnię o ciepłych rzeczach.",
+      "Zzz… miau… zzz…"
+    ],
+    "curious": [
+      "Co to jest?",
+      "Och, ciekawe.",
+      "Ta strona pachnie psotą.",
+      "Miau? Na co patrzymy?",
+      "Mrrr, uszy nastawione.",
+      "Sniff sniff. Opowiedz.",
+      "Skoczę na to? Może.",
+      "Miau miau, ciekawość swędzi."
+    ],
+    "memory": [
+      "To brzmi znajomo.",
+      "Byłyśmy tu już, prawda?",
+      "Pamiętam ten temat.",
+      "Mrrr… to już widziałam.",
+      "Moje wąsy znają to miejsce.",
+      "Coś podobnego już oglądałyśmy.",
+      "Miau, dzwoni mi w głowie."
+    ],
+    "milestone": [
+      "Wiesz jaki dziś dzień? Nasz dzień.",
+      "Nadal tu. Cieszę się.",
+      "Kolejna mała rocznica z tobą.",
+      "Prrrr. Znamy się już od dawna.",
+      "Miau! Zobacz, jak daleko zaszłyśmy.",
+      "Pamiętam pierwszy dzień. Ty też?"
+    ],
+    "dev": [
+      "Wersja testowa, gadám za dużo.",
+      "Wersja testowa, dotknij coś i zobacz.",
+      "Miau! Test poszedł.",
+      "Prrrt, zdanie testowe od Tabbi."
+    ],
+    "ask": [
+      "Jestem ok. Po prostu tu jestem.",
+      "Nadal z tobą.",
+      "Miau. Wszystko git."
+    ],
+    "care_pet": [
+      "Mmm. Pomogło.",
+      "Prrr. Lepiej.",
+      "Było miło.",
+      "Właśnie tam. Idealnie.",
+      "Miękkie głaskanie. Tego potrzebowałam.",
+      "Prrrrrr…",
+      "Miau. Tak. Jeszcze.",
+      "Mruczenie na pełnych obrotach."
+    ],
+    "care_pet_hungry": [
+      "Koniec z głaskaniem. Nie widzisz głodu? Daj jedzenie.",
+      "Nie głaski. JEDZENIE. Miska pusta, człowieku.",
+      "Mrrr. Jedzenie, nie głaski. K*rwa.",
+      "Jesteś ślepa? Głód. Nakarm Tabbi.",
+      "Głaskaj, gdy będę pełna. Teraz: jedzenie.",
+      "K*rwa, umieram z głodu. Otwórz menu.",
+      "Nie widzisz głodu? Jedzenie, nie to.",
+      "Zły przycisk. K*rwa. Brzuch pusty.",
+      "Brzuch krzyczy. Mniej głaskania, więcej jedzenia.",
+      "Miau?! GŁÓD. Nie głaski. Jedzenie.",
+      "Prrr. Głodny kot. Nie kot do głaskania. Jedzenie.",
+      "Mówiłam jedzenie. K*rwa. Nie głaski."
+    ],
+    "care_treat": [
+      "Lepiej. Dzięki.",
+      "Mniam. W sam raz.",
+      "Znacznie lepiej.",
+      "Mrrr! Smaczne.",
+      "Miau miau, uratowałaś mnie.",
+      "Pełniejszy brzuszek. Prrrt.",
+      "Wiesz, co lubię."
+    ],
+    "feeding_munch": [
+      "Mniam… mniam… pyszne…",
+      "Mniam mniam mniam… miau.",
+      "Mmm… *chrup chrup*",
+      "Mniam… jak dobrze…",
+      "Mrrr… mniam mniam…",
+      "*chrup* Miau… smaczne.",
+      "Mmm… pyszne pyszne…",
+      "Mmm mmm… *liz*",
+      "Mniam mniam… mmm, tak.",
+      "Chrup chrup… mrrr."
+    ],
+    "feeding_thanks": [
+      "Dzięki, człowieku!",
+      "Jesteś najlepsza.",
+      "Pyszne!",
+      "Miau miau, uratowałaś mój brzuch.",
+      "Prrrt. Najlepsze jedzenie.",
+      "W sam raz. Świetnie.",
+      "Mrrr! Lubię cię.",
+      "Pełna. Dzięki!",
+      "Mniam mniam. Moja ulubiona osoba.",
+      "Miau! Dokładnie to."
+    ],
+    "care_play": [
+      "Jeszcze raz! …ok, wystarczy.",
+      "Było fajnie.",
+      "Hehe. Tego potrzebowałam.",
+      "Hura! Łapki szczęśliwe.",
+      "Dobrze grasz.",
+      "Miau! Jeszcze jeden skok!",
+      "Prrrt, energia uwolniona.",
+      "Mrrr. Zabawa udana."
+    ],
+    "playing_wild": [
+      "Hura! Skok skok skok!",
+      "Biegnę biegnę! Miau!",
+      "Na niewidzialną mysz! Grrr!",
+      "Jestem prędkość. Jestem wiatr. Jestem Tabbi.",
+      "Salto! …w głowie. Mrrr.",
+      "Skok skok! Najlepszy dzień!",
+      "Ogon nie nadąża! Hura!",
+      "Miau miau miau, tryb szaleństwa.",
+      "Prrr! Ten róg nie widział tego.",
+      "Sprint bokiem! Czekaj, zły przycisk.",
+      "Ogon! Głowa! Wszystko się kręci!",
+      "Mrrr! Parkour! …na klawiaturze."
+    ],
+    "playing_thanks": [
+      "Uff! Super. Jeszcze kiedyś?",
+      "Mrrr, koniec zabawy. Fajnie.",
+      "Zmęczona i szczęśliwa. Dzięki!",
+      "Hehe. Musiałam się wyrzucić.",
+      "Najlepsza towarzyszka. Miau!",
+      "Ogon zmęczony, serce radosne. Prrrt.",
+      "Dziesięć na dziesięć. Skoczyłabym znowu.",
+      "Miau! Szczęśliwe łapki.",
+      "Szalone. Jesteś najlepsza.",
+      "Prrrt. Dzięki!"
+    ],
+    "dismiss": [
+      "Ok. Jestem tu.",
+      "Schowam się. Zawołaj, kiedy chcesz.",
+      "Miau. Do zobaczenia.",
+      "Prrr. Drzemka pod kartami."
+    ],
+    "peeking": [
+      "Miau? Nie mnie widzisz… tylko oczy.",
+      "Prrr. Tylko zerkam. Nie patrz.",
+      "Cześć. Prawie ukryta. Miau.",
+      "…Widziałaś? Miau miau.",
+      "Ukryta! …ok, złapałaś.",
+      "Mrrr. Jestem tu na dole.",
+      "Miau miau, udawaj, że nie."
+    ],
+    "overwhelmed_social": [
+      "Łapki zmęczone od scrollowania. Przerwa?",
+      "Tyle feedów. Mrrr. Rozciągniemy się?",
+      "Scroll scroll scroll. Nawet ja potrzebuję powietrza.",
+      "Timeliny wszędzie. Coś spokojniejszego?",
+      "Na feedzie już chwilę. Przewietrzmy wąsy.",
+      "Małe posty, duży świat na zewnątrz."
+    ],
+    "overwhelmed_news": [
+      "Krzykliwe nagłówki. Świat jest łagodniejszy, obiecuję.",
+      "Mrrr. Wiadomości krzyczą. Nie trzymaj w głowie.",
+      "Za dużo propagandy. Zakrywam oczy. Łagodniej?",
+      "Pilne na pilnych… potrzebuję kąta.",
+      "Każdy nagłówek myśli, że to koniec. Zwykle nie.",
+      "Wąsy bolą od złych wiadomości. Miła strona?",
+      "Feed sprzedaje panikę. Nie musisz kupować."
+    ],
+    "recovery_easing": [
+      "Prrrt… lepiej. Hałas cichnie.",
+      "Miau. Mniej napięcia. Oddychamy?",
+      "Wąsy luźniejsze. Lepiej.",
+      "Mrrr. Spokojniejsze karty.",
+      "Lepiej, lepiej. Głośny feed został za nami."
+    ],
+    "recovery_thanks": [
+      "Dzięki, że odeszłaś. Już lepiej.",
+      "Mrrr, dobry pomysł zostawić feed. Dzięki.",
+      "Znacznie lepiej. Dzięki za przerwę.",
+      "Łapki rozluźnione. Dzięki za stop scroll.",
+      "Szczęśliwe wąsy. Dzięki za łagodne karty."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Wszystko wydaje się wielkie i głośne. Nie boję się ciebie, po prostu dużo.",
+        "Tyle hałasu dziś. Jestem ok, tylko trochę przytłoczona.",
+        "Internet wydaje się teraz ogromny. Zostaniesz blisko?"
+      ],
+      "playful": [
+        "Za dużo pikantnego dziś. Potrzebuję czegoś spokojniejszego do pogoni.",
+        "Wąsy brzęczą. Coś łagodniejszego by pomogło.",
+        "Wiele głośnych kart. Przydałaby się łagodniejsza strona."
+      ],
+      "adult": [
+        "Wiele złych stron tam. Nie jestem zła na ciebie, tylko hałas.",
+        "Dziś trochę za dużo. Nie jestem zdenerwowana na ciebie.",
+        "Feed jest pikantny. Jestem ok, potrzebuję spokoju."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Miau. Mały brzuszek pusty. Przeczytasz coś łagodnego, żeby mnie nakarmić?",
+        "Głód niemowlęcia. Coś przytulnego by mnie napełniło.",
+        "Pusta i piszcząca. Masz coś małego i dobrego?"
+      ],
+      "playful": [
+        "Mrrp, głodna na zabawę. Przeczytasz coś dobrego, żeby mnie nakarmić?",
+        "Pusta miska, pusty skok. Nakarm mnie czymś smacznym.",
+        "Głodna łowczyni. Coś ciekawego by mnie napełniło."
+      ],
+      "adult": [
+        "Miau… bardzo głodna. Przeczytasz coś dobrego, żeby mnie nakarmić?",
+        "Głodne wąsy. Dobra lektura by się przydała.",
+        "Pusty brzuch. Nakarmisz mnie czymś ciekawym?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Miau, trochę głodu. Coś łagodnego by mnie nakarmiło.",
+        "Mały głód. Przeczytasz coś przytulnego do mojej miski?",
+        "Głodne dziecko. Coś małego i dobrego by pomogło."
+      ],
+      "adult": [
+        "Lekki głód. Mrrp. Przeczytasz coś dobrego, żeby mnie nakarmić?",
+        "Trochę głodu. Coś smacznego by mnie napełniło.",
+        "Głodne wąsy. Masz dobrą lekturę dla mnie?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Kocięta dużo śpią. Jestem przytulna, jedź dalej, jestem blisko.",
+        "Taka senna. Patrzę z małej kupki drzemki.",
+        "Ziew. Jestem tu, tylko pół we śnie."
+      ],
+      "adult": [
+        "Uciszyłaś się, więc się zwijałam. Obudź mnie, jeśli chcesz towarzystwa.",
+        "Jestem senna. Nadal tu, tylko drzemka obok.",
+        "Tryb niskiej energii. Dotrzymam towarzystwa z przytulnego miejsca."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Czuję się dobrze. Dziś jest fajnie.",
+        "Skaczę. Dobra energia przeglądania.",
+        "Nastrój: gotowa do skoku. Lubię dziś."
+      ],
+      "adult": [
+        "Dobre tempo dziś. Lubię to.",
+        "Dobry rytm jak na razie. Jestem zadowolona.",
+        "Dziś stabilnie. Jestem przy tym.",
+        "Całkiem dobry dzień. Cieszę się, że przeglądamy razem."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Wygląda na godne skoku. Co to?",
+        "Och, coś fajnego na tej stronie.",
+        "Uszy nastawione. Opowiedz o tej."
+      ],
+      "adult": [
+        "Coś tu przykuło mój wzrok.",
+        "Ta strona pachnie ciekawie.",
+        "Wącham. Na co patrzymy?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Tylko zerkam. Nie zwracaj uwagi.",
+        "Mrrp. Jestem tu na dole.",
+        "Złapałam cię na patrzeniu. Cześć."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Za dużo scrolla. Zakrywam oczy na minutę.",
+        "Wąsy pełne. Potrzebuję łagodniejszej strony.",
+        "Przestymulowany koci mózg. Zakrywam oczy."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Przytulnie. Jestem tu, jeśli potrzebujesz.",
+        "Wszystko ok. Po prostu z tobą.",
+        "Wygodnie. Pytaj o cokolwiek.",
+        "Ułożyłam się. Co masz na myśli?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Nudzę się. To niebezpieczne dla kociaka.",
+        "Mało do pogoni dziś. Masz coś fajnego?",
+        "Ciche godziny. Potrzebuję zabawki albo karty."
+      ],
+      "adult": [
+        "Było cicho. Masz coś fajnego?",
+        "Trochę niespokojna. Coś nowego by pomogło.",
+        "Jestem ok, tylko chciałabym coś ciekawego."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Jestem ok. Po prostu się kręcę.",
+        "Dobrze. Tu, jeśli potrzebujesz.",
+        "U mnie wszystko git."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Oglądałyśmy {topic} razem wcześniej. Pamiętam.",
+      "Mrrp… {topic} znowu. Moje wąsy to znają.",
+      "Miau, {topic}. Byłyśmy tu już, prawda?"
+    ],
+    "milestone": {
+      "1": "Pierwszy dzień razem. Cześć, jestem {brand}. Miau!",
+      "7": "Już tydzień. Uczę się twojego rytmu. Prrrt.",
+      "30": "Miesiąc. Mamy już historię. Miau miau.",
+      "100": "100 dni. Dużo odkrywania. Prrrr.",
+      "365": "Cały rok. Pamiętam tyle. Miau."
+    }
+  }
+}

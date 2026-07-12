@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Váš prohlížeč kočka. Vše zůstává místní.",
+    "language": "Jazyk",
+    "dndTitle": "Nerušit",
+    "dndHint": "Tabbi zůstane skrytý na každé kartě, dokud časovač neskončí.",
+    "dndHowLong": "Jak dlouho by měl Tabbi zůstat v klidu?",
+    "dndCancel": "Zrušit režim Nerušit",
+    "dnd30": "30 minut",
+    "dnd60": "1 hodina",
+    "dndToday": "Do konce dneška",
+    "pageTitle": "Tabbi na vaší stránce",
+    "showAll": "Zobrazit Tabbi na všech stránkách",
+    "hideAll": "Skrýt Tabbi ze všech stránek",
+    "showPage": "Zobrazit Tabbi na této stránce",
+    "hidePage": "Skrýt Tabbi na této stránce",
+    "quietTitle": "Tiché hodiny",
+    "quietHint": "Tabbi zůstává v těchto hodinách v klidu. Pouze nevyžádaná řeč.",
+    "quietStart": "Začátek hodiny (0,23)",
+    "quietEnd": "Koncová hodina (0,23)",
+    "privacyTitle": "soukromí",
+    "privacyHint": "Tabbi klasifikuje stránky pouze z názvu a adresy URL aktivní karty, nikoli z hlavního textu stránky. Známé stránky a klíčová slova názvu rozhodují jako výživné, odvodňující nebo neutrální.",
+    "speechTitle": "Když Tabbi promluví",
+    "speechHint": "Řádky bez výzvy při procházení. Ne, když na ni klepnete. Výchozí nastavení je zaměřeno na několik jemných přihlášení za den.",
+    "maxAppearances": "Maximální počet krát za den",
+    "cooldownMinutes": "Počkejte alespoň (minuty)",
+    "saved": "Uloženo.",
+    "openWebPage": "Otevřete normální webovou stránku a zde zobrazíte nebo skryjete Tabbi.",
+    "shownOnTab": "Tabbi je na aktivní kartě.",
+    "hiddenAll": "Tabbi je skryto na každé stránce.",
+    "shownAll": "Tabbi se může znovu zobrazit na každé stránce.",
+    "hiddenPage": "Tabbi je na této stránce skryto.",
+    "shownPage": "Tabbi se může znovu zobrazit na této stránce.",
+    "dndOn": "Je zapnutý režim Nerušit.",
+    "dndOff": "Režim Nerušit je vypnutý.",
+    "introReset": "Úvodní prohlídka se znovu zobrazí na další stránce.",
+    "devOn": "Nejprve zapněte vývojářské interakce.",
+    "previewMood": "Náhled: {mood}.",
+    "unavailable": "Tabbi není k dispozici. Zkuste rozšíření načíst znovu."
+  },
+  "overlay": {
+    "closeMenu": "Zavřít nabídku",
+    "dismissSpeech": "Odmítnout projev",
+    "more": "více",
+    "less": "Méně",
+    "introSkip": "Už vím Tabbi",
+    "introNext": "Další",
+    "introDone": "Rozumím"
+  },
+  "intro": [
+    "Ahoj! Jsem Tabbi, vaše kočka v prohlížeči.",
+    "Bydlím tady, zatímco ty prohlížíš. Vše zůstane na vašem zařízení.",
+    "Zdržuji se mimo některé webové stránky, abych se vyhnul rozptylování.",
+    "Jdu si hrát. Nakrm mě nebo si se mnou někdy hraj, ano?"
+  ],
+  "care": {
+    "pet": "Domácí mazlíček",
+    "feed": "Krmivo",
+    "feedBrand": "Zdroj {brand}",
+    "play": "hrát",
+    "askDefault": "co se děje?",
+    "askOverwhelmedNewborn": "Příliš mnoho?",
+    "askOverwhelmed": "Potřebujete přestávku?",
+    "askStressedNewborn": "Proč tak vybíravý?",
+    "askStressed": "co se děje?",
+    "askHungryNewborn": "Proč hlad?",
+    "askHungry": "co potřebuješ",
+    "askSleepyNewborn": "Ospalý?",
+    "askSleepy": "Podřimoval jsi?",
+    "askBored": "nudit se?",
+    "dnd30": "Nerušit: 30 min",
+    "dnd60": "Nerušit: 1 hodina",
+    "dndToday": "Nerušit: dnes",
+    "hidePage": "Skrýt Tabbi na této stránce"
+  },
+  "dnd": {
+    "minutes30": "30 minut",
+    "hour1": "1 hodina",
+    "today": "dnes",
+    "summary": "Nerušit {duration} (zbývá {remaining} min, do {until})"
+  },
+  "speech": {
+    "starving": [
+      "Mňau… miska prázdná, já taky uvnitř.",
+      "Bříško stávkuje. Mrrr. Přines něco.",
+      "Umírám hlady. Prrr. Máš něco nebo ne?",
+      "Miaaau. Smutné vousy. Kousek, prosím.",
+      "Miska mě mlčky soudí. Pomoc.",
+      "Mrrr. Hlad není legrace.",
+      "Malý lovec na nule. Vytáhni mě."
+    ],
+    "hungry": [
+      "Mňau, bříško trochu kručí. Něco dobrého?",
+      "Trochu hlad. Mrrr. Něco zajímavého?",
+      "Hladové vousy. Naplníš misku?",
+      "Bříško trochu prázdné. Dáš mi něco?",
+      "Mňau mňau. Tiché kručení. Něco hezkého?",
+      "Neumírám, ale stěžuju si. Svačinka?",
+      "Mrrr. Ne moc, ale na stěžování stačí.",
+      "Ocásek v rytmu hladu. Tvoje řada.",
+      "Vůně jídla… nebo si to namlouvám? Prrr."
+    ],
+    "stressed": [
+      "Mňau, moc najednou. Prrr… pauza.",
+      "Hlava jako plná šňůra na prádlo. Mrrr.",
+      "Moc hluku na obrazovce. Pauza.",
+      "Prrr. Sekunda, jo? Všechno tlačí.",
+      "Miaaa. Moc najednou.",
+      "Mrrr. Přestaň mi plnit hlavu.",
+      "Dnes je feed pálivý. Jsem na hraně.",
+      "Prrrt… na chvíli nadechneme."
+    ],
+    "overwhelmed": [
+      "Miaaa uugh… už se nevejde. Pauza.",
+      "Sakra bordel. Mňau, pomaleji.",
+      "Moc, moc. Musím couvnout."
+    ],
+    "lonely": [
+      "Taková ticho. Kam půjdeme?",
+      "Chyběl jsi mi. Podíváme se na něco?",
+      "Zůstaneš se mnou chvilku?",
+      "Mňau? Je tu samota.",
+      "Mrrr… pojď čmuchat se mnou.",
+      "Čekám už chvíli. Něco pro nás?",
+      "Miaaau. Nenechávej mě s kartami.",
+      "Tichý dům. Potřebuju společnost."
+    ],
+    "happy": [
+      "Hej. Dnes jsem v pohodě.",
+      "Hezký den, že?",
+      "Všechno je měkké a teplé.",
+      "Prrrr. Dnes to hezky voní.",
+      "Mňau! Líbí se mi ta nálada.",
+      "Spokojené vousy. Jsem šťastná.",
+      "Mrrr, cítím sluníčko.",
+      "Mručení zapnuto. Jen abys věděl."
+    ],
+    "sleepy": [
+      "Zdřímnu si tady…",
+      "Zzz… ah, ahoj.",
+      "Ospalá, ale pořád tu.",
+      "Mňau… *zív* …pořád bdím.",
+      "Prrrt… ještě pět minut…",
+      "Srolovaná. Vzbudíš mě, když budeš chtít.",
+      "Mrrr. Sním o teplých věcech.",
+      "Zzz… mňau… zzz…"
+    ],
+    "curious": [
+      "Co je tohle?",
+      "Ooh, zajímavé.",
+      "Ta stránka smrdí neplechou.",
+      "Mňau? Na co koukáme?",
+      "Mrrr, uši v pohotovosti.",
+      "Čich čich. Povídej.",
+      "Skočím na to? Možná.",
+      "Mňau mňau, zvědavost svědí."
+    ],
+    "memory": [
+      "To znám.",
+      "Už jsme tu byli, že?",
+      "Pamatuju si tohle téma.",
+      "Mrrr… tohle už jsem viděla.",
+      "Moje vousy znají tohle místo.",
+      "Už jsme viděli něco podobného.",
+      "Mňau, něco mi to připomíná."
+    ],
+    "milestone": [
+      "Víš, jaký je dnes den? Náš den.",
+      "Pořád tu. Jsem ráda.",
+      "Další malé výročí s tebou.",
+      "Prrrr. Známe se už chvíli.",
+      "Mňau! Podívej, jak daleko jsme došli.",
+      "Pamatuuju první den. Ty taky?"
+    ],
+    "dev": [
+      "Testovací verze, moc mluvím.",
+      "Testovací verze, něco ťukni a koukni.",
+      "Mňau! Test spadl.",
+      "Prrrt, testovací věta od Tabbi."
+    ],
+    "ask": [
+      "Dobře. Jen tak tu jsem.",
+      "Pořád s tebou.",
+      "Mňau. Všechno v pohodě."
+    ],
+    "care_pet": [
+      "Mmm. Pomohlo to.",
+      "Prrr. Lépe.",
+      "Bylo to fajn.",
+      "Přesně tam. Perfektní.",
+      "Měkké hlazení. Potřebovala jsem.",
+      "Prrrrrr…",
+      "Mňau. Ano. Víc.",
+      "Mručení na plné obrátky."
+    ],
+    "care_pet_hungry": [
+      "Dost hlazení. Nevidíš hlad? Dej jídlo.",
+      "Ne hlazení. JÍDLO. Miska prázdná, člověče.",
+      "Mrrr. Jídlo, ne hlazení. Do p*či.",
+      "Jsi slepá? Hlad. Nakrm Tabbi.",
+      "Hlaď mě, až budu plná. Teď: jídlo.",
+      "Do prdele, hladovím. Otevři menu.",
+      "Nevidíš hlad? Jídlo, ne tohle.",
+      "Špatné tlačítko. Do p*či. Bříško prázdné.",
+      "Bříško křičí. Méně hlazení, víc jídla.",
+      "Mňau?! HLAD. Ne hlazení. Jídlo.",
+      "Prrr. Hladová kočka. Ne mazlící kočka. Jídlo.",
+      "Říkala jsem jídlo. Do p*či. Ne hlazení."
+    ],
+    "care_treat": [
+      "Lépe. Díky.",
+      "Mňam. Přesně to.",
+      "Mnohem lépe.",
+      "Mrrr! Dobré.",
+      "Mňau mňau, zachránila jsi mě.",
+      "Plnější bříško. Prrrt.",
+      "Víš, co mám ráda."
+    ],
+    "feeding_munch": [
+      "Mňam… mňam… dobré…",
+      "Mňam mňam mňam… mňau.",
+      "Mmm… *kous kous*",
+      "Mňam… jak dobré…",
+      "Mrrr… mňam mňam…",
+      "*křup* Mňau… dobré.",
+      "Mmm… dobré dobré…",
+      "Mmm mmm… *líz*",
+      "Mňam mňam… mmm, ano.",
+      "Kous kous… mrrr."
+    ],
+    "feeding_thanks": [
+      "Díky, člověče!",
+      "Jsi nejlepší.",
+      "Výborné!",
+      "Mňau mňau, zachránila jsi mi bříško.",
+      "Prrrt. Nejlepší jídlo.",
+      "Přesně to. Skvělé.",
+      "Mrrr! Mám tě ráda.",
+      "Plná. Díky!",
+      "Mňam mňam. Můj oblíbený člověk.",
+      "Mňau! Přesně to."
+    ],
+    "care_play": [
+      "Ještě! …ok, stačí.",
+      "Bylo to zábavné.",
+      "Hehe. Potřebovala jsem.",
+      "Jupí! Šťastné tlapky.",
+      "Hraješ dobře.",
+      "Mňau! Ještě jeden skok!",
+      "Prrrt, energie ven.",
+      "Mrrr. Hra se povedla."
+    ],
+    "playing_wild": [
+      "Jupí! Skok skok skok!",
+      "Běžím běžím! Mňau!",
+      "Na neviditelnou myš! Grrr!",
+      "Jsem rychlost. Jsem vítr. Jsem Tabbi.",
+      "Salto! …v hlavě. Mrrr.",
+      "Skok skok! Nejlepší den!",
+      "Ocásek nestíhá! Jupí!",
+      "Mňau mňau mňau, šílenství.",
+      "Prrr! Ten roh to nečekal.",
+      "Bokem sprint! Počkej, špatné tlačítko.",
+      "Ocásek! Hlava! Všechno se točí!",
+      "Mrrr! Parkour! …na klávesnici."
+    ],
+    "playing_thanks": [
+      "Uf! Skvělé. Zase později?",
+      "Mrrr, konec hry. Fajn.",
+      "Unavená a šťastná. Díky!",
+      "Hehe. Musela jsem se vybít.",
+      "Nejlepší parťačka. Mňau!",
+      "Ocásek unavený, srdce radostné. Prrrt.",
+      "Deset z deseti. Skočila bych znovu.",
+      "Mňau! Šťastné tlapky.",
+      "Šílené. Jsi nejlepší.",
+      "Prrrt. Díky!"
+    ],
+    "dismiss": [
+      "Dobře. Jsem tu.",
+      "Schovám se. Zavolej, až budeš chtít.",
+      "Mňau. Na shledanou.",
+      "Prrr. Šlofík pod kartami."
+    ],
+    "peeking": [
+      "Mňau? Nevidíš mě… jen oči.",
+      "Prrr. Jen kukám. Nedívej se.",
+      "Ahoj. Skoro schovaná. Mňau.",
+      "…Viděla jsi mě? Mňau mňau.",
+      "Schovaná! …ok, chytila jsi mě.",
+      "Mrrr. Jsem tady dole.",
+      "Mňau mňau, dělej, že ne."
+    ],
+    "overwhelmed_social": [
+      "Tlapky unavené od scrollování. Pauza?",
+      "Tolik feedů. Mrrr. Natáhneme se?",
+      "Scroll scroll scroll. I já potřebuju vzduch.",
+      "Časové osy všude. Něco klidnějšího?",
+      "Na feedu už chvíli. Vyvětráme vousy.",
+      "Malé příspěvky, velký svět venku."
+    ],
+    "overwhelmed_news": [
+      "Křiklavé titulky. Svět je jemnější, slibuju.",
+      "Mrrr. Zprávy křičí. Nedrž to v hlavě.",
+      "Moc propagandy. Zakrývám oči. Jemněji?",
+      "Breaking na breaking… potřebuju koutek.",
+      "Každý titulek myslí, že je konec. Většinou ne.",
+      "Vousy bolí od špatných zpráv. Hezká stránka?",
+      "Feed prodává paniku. Nemusíš kupovat."
+    ],
+    "recovery_easing": [
+      "Prrrt… lépe. Hluk utichá.",
+      "Mňau. Méně napětí. Nadechneme se?",
+      "Vousy volnější. Lépe.",
+      "Mrrr. Klidnější karty.",
+      "Lépe, lépe. Hlučný feed je za námi."
+    ],
+    "recovery_thanks": [
+      "Díky, že jsi odešla. Už je mi líp.",
+      "Mrrr, dobrý nápad opustit ten feed. Díky.",
+      "Mnohem lépe. Díky za pauzu.",
+      "Tlapky se uvolnily. Díky za zastavení scrollu.",
+      "Šťastné vousy. Díky za jemné karty."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Všechno mi připadá velké a hlasité. Nebojím se tě, je toho prostě hodně.",
+        "Dnes tolik hluku. Jsem v pořádku, jen jsem trochu ohromen.",
+        "Internet je teď obrovský. Zůstat blízko?"
+      ],
+      "playful": [
+        "Dneska moc pikantních věcí. Potřebuji něco klidnějšího na pronásledování.",
+        "Bzučí mi vousy. Pomohlo by něco jemnějšího.",
+        "Spousta hlasitých karet. Mohla bych použít měkčí stránku."
+      ],
+      "adult": [
+        "Je tam spousta naštvaných stránek. Nezlobí se na tebe, jen je hlučný.",
+        "Dnes je všeho trochu moc. Nejsem na tebe naštvaný.",
+        "Krmivo působí pikantně. Jsem v pořádku, jen potřebuji něco klidnějšího."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mňau. Malé bříško je prázdné. Přečtěte si něco jemného, ​​abyste mě nakrmili?",
+        "Dětský hlad. Něco příjemného by mě naplnilo.",
+        "Prázdné a skřípající. Máte něco malého a dobrého?"
+      ],
+      "playful": [
+        "Mrrp, hladovějící pro zábavu. Přečíst si něco dobrého, co mě nakrmí?",
+        "Prázdná mísa, prázdný skok. Nakrm mě něčím chutným.",
+        "Hladový lovec. Něco zajímavého by mě naplnilo."
+      ],
+      "adult": [
+        "Mňam… velmi hladový. Přečíst si něco dobrého, co mě nakrmí?",
+        "Hladovějící vousy. Pěkné čtení by se trefilo na místo.",
+        "Duté bříško. Nakrmit mě něčím zajímavým?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mňau, trochu dráždivý. Něco jemného by mě nakrmilo.",
+        "Drobný hlad. Přečíst něco příjemného pro moji misku?",
+        "Peckové dítě. Něco malého a dobrého by pomohlo."
+      ],
+      "adult": [
+        "Peckish. Mrrp. Přečíst si něco dobrého, co mě nakrmí?",
+        "Trochu hlad. Něco chutného by mě zasytilo.",
+        "Hladové vousy. Máte pro mě dobré čtení?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Koťátka hodně spí. Je mi příjemně, pokračuj, jsem poblíž.",
+        "Tak ospalý. Budu se dívat z malé hromádky spánku.",
+        "Zívněte. Jsem tady, jen napůl sním."
+      ],
+      "adult": [
+        "Ztichl jsi, tak jsem se schoulil. Vzbuď mě, jestli chceš společnost.",
+        "Jsem ospalý. Pořád tady, jen dřímám poblíž.",
+        "Nízkoenergetický režim. Budu ti dělat společnost na útulném místě."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "dobrý pocit. Dnes je to zábava.",
+        "Poskakuji. Dobrá energie procházení.",
+        "Nálada: připravená na vrhnutí. Dnes se mi líbí."
+      ],
+      "adult": [
+        "Dnes pěkné tempo. líbí se mi to.",
+        "Zatím dobrý rytmus. jsem spokojený.",
+        "Dnes se cítí stabilní. Jsem tu pro to.",
+        "Docela dobrý den. Jsem rád, že spolu brouzdáme."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "To vypadá, že stojí za to se vrhnout. Co je to?",
+        "Ooh, něco zábavného na této stránce.",
+        "Moje uši jsou nahoře. Řekni mi o tomhle."
+      ],
+      "adult": [
+        "Něco mě tu zaujalo.",
+        "Tato stránka voní zajímavě.",
+        "Čmuchám kolem sebe. na co se díváme?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Jen pokukovat. Nevšímej si mě.",
+        "Mrrp. Jsem tady dole.",
+        "Přistihl jsem tě při pohledu. Ahoj."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Příliš mnoho rolování. Na chvíli schovám oči.",
+        "Moje vousy jsou plné. Potřebujete měkčí stránku.",
+        "Přestimulovaný mozek kotěte. Zakrývající mi oči."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Útulný. Jsem tady, kdybys mě potřeboval.",
+        "Všechno dobré. Jen tak s tebou.",
+        "Komfortní. Zeptejte se mě na cokoliv.",
+        "Jsem usazený. Co máš na mysli?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "nudím se. To je pro kotě nebezpečné.",
+        "Dnes není moc co stíhat. Máte něco zábavného?",
+        "Tiché hodiny. Potřebuji hračku nebo kartu."
+      ],
+      "adult": [
+        "Bylo ticho. Baví tě něco?",
+        "Trochu neklidný. Něco nového by pomohlo.",
+        "Jsem v pořádku, jen si přeji, aby se objevilo něco zajímavého."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Jsem v pořádku. Jen se poflakovat.",
+        "Dobře. Tady, jestli mě potřebuješ.",
+        "Z mé strany vše dobré."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Předtím jsme se společně podívali na {topic}. vzpomínám.",
+      "Mrrp… znovu {topic}. Moje vousy to znají.",
+      "Mňau, {topic}. Byli jsme tady, že?"
+    ],
+    "milestone": {
+      "1": "První společný den. Ahoj, jsem {brand}. Pelichání!",
+      "7": "Už týden. Učím se tvůj rytmus. Prrrt.",
+      "30": "měsíc. Teď už máme historii. Mew mew.",
+      "100": "100 dní. To je hodně na zkoumání. Prrrr.",
+      "365": "Celý rok. Pamatuji si toho tolik. Pelichání."
+    }
+  }
+}

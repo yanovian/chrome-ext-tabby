@@ -1,0 +1,468 @@
+{
+  "brand": "Табби",
+  "settings": {
+    "title": "Табби",
+    "tagline": "Ваша мачка претраживача. Све остаје локално.",
+    "language": "Језик",
+    "dndTitle": "Не узнемиравај",
+    "dndHint": "__ПХ0__ остаје скривен на свакој картици док се тајмер не заврши.",
+    "dndHowLong": "How long should Табби stay quiet?",
+    "dndCancel": "Откажи не узнемиравај",
+    "dnd30": "30 минута",
+    "dnd60": "1 сат",
+    "dndToday": "До краја данашњег дана",
+    "pageTitle": "__ПХ0__ на вашој страници",
+    "showAll": "Show Табби in all pages",
+    "hideAll": "Сакриј __ПХ0__ са свих страница",
+    "showPage": "Прикажи __ПХ0__ на овој страници",
+    "hidePage": "Сакриј __ПХ0__ на овој страници",
+    "quietTitle": "Тихи сати",
+    "quietHint": "__ПХ0__ остаје тих током ових сати. Само говор без подстрека.",
+    "quietStart": "Почетни сат (0,23)",
+    "quietEnd": "Крајњи сат (0,23)",
+    "privacyTitle": "Приватност",
+    "privacyHint": "__ПХ0__ класификује странице само из наслова активне картице и УРЛ-а, никада текста из тела странице. Познати сајтови и кључне речи у наслову одлучују о хранљивим, дренирајућим или неутралним.",
+    "speechTitle": "Када __ПХ0__ проговори",
+    "speechHint": "Незатражене линије док претражујете. Не када је додирнеш. Подразумеване вредности имају за циљ неколико нежних пријава дневно.",
+    "maxAppearances": "Максимално пута дневно",
+    "cooldownMinutes": "Сачекајте најмање (минута)",
+    "saved": "Сачувано.",
+    "openWebPage": "Отворите нормалну веб страницу да бисте приказали или сакрили __ПХ0__ овде.",
+    "shownOnTab": "__ПХ0__ је на активној картици.",
+    "hiddenAll": "__ПХ0__ је сакривен на свакој страници.",
+    "shownAll": "__ПХ0__ може поново да се прикаже на свакој страници.",
+    "hiddenPage": "__ПХ0__ је сакривен на овој страници.",
+    "shownPage": "__ПХ0__ може поново да се прикаже на овој страници.",
+    "dndOn": "Не узнемиравај је укључен.",
+    "dndOff": "Не узнемиравај је искључен.",
+    "introReset": "Уводни обилазак ће се поново приказати на следећој страници.",
+    "devOn": "Прво укључите интеракције са програмерима.",
+    "previewMood": "Преглед: __ПХ0__.",
+    "unavailable": "__ПХ0__ је недоступан. Покушајте поново да учитате екстензију."
+  },
+  "overlay": {
+    "closeMenu": "Затвори мени",
+    "dismissSpeech": "Одбаци говор",
+    "more": "Више",
+    "less": "Мање",
+    "introSkip": "Већ знам __ПХ0__",
+    "introNext": "Следеће",
+    "introDone": "Схватио сам"
+  },
+  "intro": [
+    "Здраво! Ја сам __ПХ0__, мачка вашег претраживача.",
+    "Ја живим овде док ви прегледате. Све остаје на вашем уређају.",
+    "Склањам се са неких веб локација да бих избегао ометање.",
+    "Идем да се играм. Нахрани ме или се понекад играј са мном, ок?"
+  ],
+  "care": {
+    "pet": "Пет",
+    "feed": "Феед",
+    "feedBrand": "Феед __ПХ0__",
+    "play": "Играј",
+    "askDefault": "Шта има?",
+    "askOverwhelmedNewborn": "Превише?",
+    "askOverwhelmed": "Треба вам пауза?",
+    "askStressedNewborn": "Зашто тако нервозан?",
+    "askStressed": "шта није у реду?",
+    "askHungryNewborn": "Зашто гладан?",
+    "askHungry": "шта ти треба?",
+    "askSleepyNewborn": "Поспани?",
+    "askSleepy": "Да ли си дремао?",
+    "askBored": "досадно?",
+    "dnd30": "Не узнемиравај: 30 мин",
+    "dnd60": "Не узнемиравај: 1 сат",
+    "dndToday": "Не узнемиравај: данас",
+    "hidePage": "Сакриј __ПХ0__ на овој страници"
+  },
+  "dnd": {
+    "minutes30": "30 минута",
+    "hour1": "1 сат",
+    "today": "данас",
+    "summary": "Не узнемиравај __ПХ0__ (још __ПХ1__ мин, до __ПХ2__)"
+  },
+  "speech": {
+    "starving": [
+      "Мјау… чинија je prazna, i ja iznutra.",
+      "Стомак štrajka. Мрр. Donesi nešto.",
+      "Umirem od gladi. Прр. Imaš nešto ili ne?",
+      "Mjaaaau. Tužni бркови. Zalogaj, molim.",
+      "Чинија mešećivo sudi. Pomoć.",
+      "Мрр. Glad nije šala.",
+      "Mali lovac na nuli. Izvuci me."
+    ],
+    "hungry": [
+      "Мјау, стомак malo grči. Nešto fino?",
+      "Malo gladi. Мрр. Nešto zanimljivo?",
+      "Gladni бркови. Napuniš zdjelu?",
+      "Стомак malo prazan. Daš mi nešto?",
+      "Мјау мјау. Tiho grčanje. Nešto lijepo?",
+      "Ne umirem, ali se žalim. Grickalica?",
+      "Мрр. Ne puno, ali dovoljno za žalbu.",
+      "Rep u ritmu gladi. Tvoj red.",
+      "Miris hrane… ili mi se čini? Прр."
+    ],
+    "stressed": [
+      "Мјау, previše odjednom. Прр… pauza.",
+      "Glava kao puna užad. Мрр.",
+      "Previše buke na ekranu. Pauza.",
+      "Прр. Sekunda, ok? Sve pritišće.",
+      "Mjaaa. Previše odjednom.",
+      "Мрр. Prestani mi puniti glavu.",
+      "Feed je ljut danas. Na samom rubu.",
+      "Пррt… dišemo sekundu."
+    ],
+    "overwhelmed": [
+      "Mjaaa uugh… ne stane više. Pauza.",
+      "K vragu ovaj kaos. Мјау, sporije.",
+      "Previše, previše. Moram nazad."
+    ],
+    "lonely": [
+      "Kakva tišina. Kamo idemo?",
+      "Nedostajao si mi. Gledamo nešto?",
+      "Hoćeš mi malo društva?",
+      "Мјау? Ovdje je usamljeno.",
+      "Мрр… dođi mirišati sa mnom.",
+      "Čekam već. Nešto za nas?",
+      "Mjaaaau. Ne ostavljaj me s karticama.",
+      "Tiha kuća. Trebam društvo."
+    ],
+    "happy": [
+      "Hej. Danas sam super.",
+      "Lijep dan, zar ne?",
+      "Sve je mekano i toplo.",
+      "Пррr. Danas lijepo miriše.",
+      "Мјау! Sviđa mi se ovaj vibe.",
+      "Sretni бркови. Sretna sam.",
+      "Мрр, osjećam sunce.",
+      "Predenje uključeno. Da znaš."
+    ],
+    "sleepy": [
+      "Zdrijemnut ću ovdje…",
+      "Zzz… ah, bok.",
+      "Pospana, ali još tu.",
+      "Мјау… *zijev* …još bdijem.",
+      "Пррt… još pet minuta…",
+      "Smotana. Probudi ako treba.",
+      "Мрр. Sanjam tople stvari.",
+      "Zzz… мјау… zzz…"
+    ],
+    "curious": [
+      "Što je ovo?",
+      "Ooh, zanimljivo.",
+      "Ova stranica miriše na nevaljalosti.",
+      "Мјау? Što gledamo?",
+      "Мрр, uši na oprezu.",
+      "Njuh njuh. Reci.",
+      "Skočim na to? Možda.",
+      "Мјау мјау, znatiželja svrbi."
+    ],
+    "memory": [
+      "Zvuči poznato.",
+      "Već smo bili ovdje, zar ne?",
+      "Sjećam se ove teme.",
+      "Мрр… ovo sam već vidjela.",
+      "Бркови znaju ovo mjesto.",
+      "Već smo vidjeli slično.",
+      "Мјау, nešto mi zvoni."
+    ],
+    "milestone": [
+      "Znaš koji je dan? Naš dan.",
+      "Još ovdje. Drago mi je.",
+      "Još jedna mala godišnjica s tobom.",
+      "Пррr. Znamo se već dugo.",
+      "Мјау! Pogledaj kako smo daleko.",
+      "Sjećam se prvog dana. Ti također?"
+    ],
+    "dev": [
+      "Test verzija, previše pričam.",
+      "Test verzija, dodirni nešto i vidi.",
+      "Мјау! Test je okinuo.",
+      "Пррt, test rečenica od Табби."
+    ],
+    "ask": [
+      "Dobro sam. Ovdje sam.",
+      "Još s tobom.",
+      "Мјау. Sve ok."
+    ],
+    "care_pet": [
+      "Mmm. Pomoglo.",
+      "Прр. Bolje.",
+      "Bilo je lijepo.",
+      "Točno tamo. Savršeno.",
+      "Meki mažnjaci. Trebala sam.",
+      "Пррrrr…",
+      "Мјау. Da. Još.",
+      "Predenje punom parom."
+    ],
+    "care_pet_hungry": [
+      "Dosta maženja. Ne vidiš glad? Daj hranu.",
+      "Ne maženje. HRANA. Чинија prazna, čovječe.",
+      "Мрр. Hrana, ne maženje. U p*cku.",
+      "Jesi li slijepa? Gladna sam. Nahrani Табби.",
+      "Maži me kad sam sita. Sad: hrana.",
+      "U p*cku, gladujem. Otvori izbornik.",
+      "Ne vidiš glad? Hrana, ne ovo.",
+      "Kriva tipka. U p*cku. Стомак prazan.",
+      "Стомак viče. Manje maženja, više hrane.",
+      "Мјау?! GLAD. Ne maženje. Hrana.",
+      "Прр. Gladna mačka. Ne mačka za maziti. Hrana.",
+      "Rekla sam hrana. U p*cku. Ne maženje."
+    ],
+    "care_treat": [
+      "Bolje. Hvala.",
+      "Njam. Upravo to.",
+      "Puno bolje.",
+      "Мрр! Finо.",
+      "Мјау мјау, spasila si me.",
+      "Puniji стомак. Пррt.",
+      "Znaš što volim."
+    ],
+    "feeding_munch": [
+      "Njam… njam… fino…",
+      "Njam njam njam… мјау.",
+      "Mmm… *žvači žvači*",
+      "Njam… kako dobro…",
+      "Мрр… njam njam…",
+      "*hrsk* Мјау… fino.",
+      "Mmm… fino fino…",
+      "Mmm mmm… *lizi*",
+      "Njam njam… mmm, da.",
+      "Žvači žvači… mrrr."
+    ],
+    "feeding_thanks": [
+      "Hvala, čovječe!",
+      "Najbolja si.",
+      "Fino!",
+      "Мјау мјау, spasila si mi стомак.",
+      "Пррt. Najbolja hrana.",
+      "Upravo to. Super.",
+      "Мрр! Volim te.",
+      "Sita. Hvala!",
+      "Njam njam. Moj omiljeni čovjek.",
+      "Мјау! Upravo to."
+    ],
+    "care_play": [
+      "Još! …ok, dosta.",
+      "Bilo je zabavno.",
+      "Hehe. Trebalo mi je.",
+      "Jupi! Sretne шапице.",
+      "Dobro igraš.",
+      "Мјау! Još jedan skok!",
+      "Пррt, energija van.",
+      "Мрр. Igra uspjela."
+    ],
+    "playing_wild": [
+      "Jupi! Skok skok skok!",
+      "Trčim trčim! Мјау!",
+      "Na nevidljivog miša! Grrr!",
+      "Ja sam brzina. Ja sam vjetar. Ja sam Табби.",
+      "Salto! …u glavi. Мрр.",
+      "Skok skok! Najbolji dan!",
+      "Rep ne stiže! Jupi!",
+      "Мјау мјау мјау, ludilo.",
+      "Прр! Taj kut nije vidio.",
+      "Sprint u stranu! Čekaj, kriva tipka.",
+      "Rep! Glava! Sve se vrti!",
+      "Мрр! Parkour! …na tipkovnici."
+    ],
+    "playing_thanks": [
+      "Uf! Super. Kasnije opet?",
+      "Мрр, kraj igre. Fino.",
+      "Umorna i sretna. Hvala!",
+      "Hehe. Morala sam se ispucati.",
+      "Najbolja partnerica. Мјау!",
+      "Rep umoran, srce sretno. Пррt.",
+      "Deset od deset. Skočila bih opet.",
+      "Мјау! Sretne шапице.",
+      "Ludo. Najbolja si.",
+      "Пррt. Hvala!"
+    ],
+    "dismiss": [
+      "Ok. Ovdje sam.",
+      "Sakrivam se. Zovi kad hoćeš.",
+      "Мјау. Vidimo se.",
+      "Прр. Drijemež ispod kartica."
+    ],
+    "peeking": [
+      "Мјау? Ne vidiš me… samo oči.",
+      "Прр. Samo virim. Ne gledaj.",
+      "Bok. Skoro skrivena. Мјау.",
+      "…Vidjela si me? Мјау мјау.",
+      "Skrivena! …ok, uhvatila si me.",
+      "Мрр. Ovdje sam dolje.",
+      "Мјау мјау, pravi se da ne."
+    ],
+    "overwhelmed_social": [
+      "Шапице umorne od scrollanja. Pauza?",
+      "Toliko feedova. Мрр. Istegnemo se?",
+      "Scroll scroll scroll. I ja trebam zrak.",
+      "Vremenske crte posvuda. Nešto mirnije?",
+      "Na feedu već dugo. Provjetrimo brkove.",
+      "Mali postovi, veliki svijet vani."
+    ],
+    "overwhelmed_news": [
+      "Vičući naslovi. Svijet je nježniji, obećavam.",
+      "Мрр. Vijesti viču. Ne drži u glavi.",
+      "Previše propagande. Zatvaram oči. Nježnije?",
+      "Breaking na breaking… treba mi kutak.",
+      "Svaki naslov misli da je kraj. Obično nije.",
+      "Бркови bole od loših vijesti. Lijepa stranica?",
+      "Feed prodaje paniku. Ne moraš kupiti."
+    ],
+    "recovery_easing": [
+      "Пррt… bolje. Buka tiše.",
+      "Мјау. Manje napetosti. Dišemo?",
+      "Бркови opušteniji. Bolje.",
+      "Мрр. Mirnije kartice.",
+      "Bolje, bolje. Glasni feed je iza nas."
+    ],
+    "recovery_thanks": [
+      "Hvala što si otišla. Već je bolje.",
+      "Мрр, dobra ideja napustiti feed. Hvala.",
+      "Puno bolje. Hvala na pauzi.",
+      "Шапице opuštene. Hvala što si stala scroll.",
+      "Sretni бркови. Hvala na nježnim karticama."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Све је велико и гласно. Не плашим те се, само је много.",
+        "Толико буке данас. Добро сам, само сам мало преоптерећен.",
+        "Интернет је тренутно огроман. Остати близу?"
+      ],
+      "playful": [
+        "Данас је превише зачињеног. Треба ми нешто мирније да јурим.",
+        "Бркови ми зује. Нешто нежније би помогло.",
+        "Много гласних табова. Добро би ми дошла нека мекша страница."
+      ],
+      "adult": [
+        "Много љутих страница тамо. Нисам љут на тебе, само бучан.",
+        "Данас је све помало. Нисам љут на тебе.",
+        "Храна је зачињена. Добро сам, само треба нешто мирније."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Мев. Мали стомак је празан. Прочитајте нешто нежно да ме нахраните?",
+        "Глад за бебе. Нешто пријатно би ме испунило.",
+        "Празна и шкрипа. Имате нешто мало и добро?"
+      ],
+      "playful": [
+        "Мррп, гладан забаве. Прочитајте нешто добро да ме нахраните?",
+        "Празна посуда, празна налет. Нахрани ме нечим укусним.",
+        "Гладан ловац. Нешто занимљиво би ме испунило."
+      ],
+      "adult": [
+        "Мев... веома гладан. Прочитајте нешто добро да ме нахраните?",
+        "Изгладњели бркови. Лепо читање би погодило место.",
+        "Шупљи стомак. Нахраниш ме нечим занимљивим?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Мев, мало пецкаво. Нешто нежно би ме нахранило.",
+        "Мала глад. Прочитао сам нешто удобно за моју чинију?",
+        "Пецкисх баби. Нешто мало и добро би помогло."
+      ],
+      "adult": [
+        "Пецкисх. Мррп. Прочитајте нешто добро да ме нахраните?",
+        "Мало гладан. Нешто укусно би ме наситило.",
+        "Гладни бркови. Имаш ли добро читање за мене?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Бебе мачићи много дремају. Пријатно ми је, само тако, у близини сам.",
+        "Тако поспан. Гледаћу са малог дремежа.",
+        "Јавн. Овде сам, само напола сањам."
+      ],
+      "adult": [
+        "Ућутао си, па сам се склупчао. Пробуди ме ако желиш друштво.",
+        "поспана сам. Још увек овде, само дремам у близини.",
+        "Режим ниске енергије. Правићу ти друштво са пријатног места."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Осећам се добро. Данас је забавно.",
+        "поскакујем. Добра енергија претраживања.",
+        "Расположење: спремно за скок. Свиђа ми се данас."
+      ],
+      "adult": [
+        "Добар темпо данас. свиђа ми се.",
+        "Добар ритам до сада. Задовољан сам.",
+        "Данас се осећа стабилно. Ја сам ту због тога.",
+        "Прилично добар дан. Драго ми је што прегледавамо заједно."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "То изгледа достојно скока. шта је то?",
+        "Оох, нешто забавно на овој страници.",
+        "Уши су ми подигнуте. Причај ми о овоме."
+      ],
+      "adult": [
+        "Нешто ми је овде запало за око.",
+        "Ова страница мирише занимљиво.",
+        "њушкам около. у шта гледамо?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Само вири. Не обазири се на мене.",
+        "Мррп. Ја сам овде доле.",
+        "Ухватио сам те у потрази. Здраво."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Превише скроловања. Скривам очи на тренутак.",
+        "Пуни су ми бркови. Потребна је мекша страница.",
+        "Превише стимулисан мозак мачића. Покривам очи."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Цоси. Овде сам ако ти требам.",
+        "Све добро. Само се дружим са тобом.",
+        "Удобан. Питај ме било шта.",
+        "Сместио сам се. Шта ти је на уму?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "досадно ми је. То је опасно за маче.",
+        "Данас нема много за јурњавом. Имаш нешто забавно?",
+        "Тихи сати. Треба ми играчка, или језичак."
+      ],
+      "adult": [
+        "Било је тихо. Имаш нешто забавно?",
+        "Мало немирно. Нешто ново би помогло.",
+        "Добро сам, само бих волео да се појави нешто занимљиво."
+      ]
+    },
+    "default": {
+      "adult": [
+        "ја сам добро. Само се дружим.",
+        "У реду. Ево ако ти требам.",
+        "Све добро са моје стране."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Раније смо заједно погледали __ПХ0__. сећам се.",
+      "Мррп… __ПХ0__ поново. Моји бркови знају ову.",
+      "Мев, __ПХ0__. Били смо овде, зар не?"
+    ],
+    "milestone": {
+      "1": "Први дан заједно. Здраво, ја сам __ПХ0__. Мев!",
+      "7": "Већ недељу дана. Учим твој ритам. Прррт.",
+      "30": "Месец дана. Сада имамо историју. Мев Мев.",
+      "100": "100 дана. То је много истраживања. Прррр.",
+      "365": "Цела година. Толико тога се сећам. Мев."
+    }
+  }
+}

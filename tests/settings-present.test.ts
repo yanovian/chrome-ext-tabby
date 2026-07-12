@@ -21,6 +21,15 @@ describe('settingsChangeRequiresPresent', () => {
     ).toBe(true);
   });
 
+  it('requires present when locale changes', () => {
+    expect(
+      settingsChangeRequiresPresent(DEFAULT_SETTINGS, {
+        ...DEFAULT_SETTINGS,
+        locale: 'hy',
+      }),
+    ).toBe(true);
+  });
+
   it('does not require present for quiet hours alone', () => {
     expect(
       settingsChangeRequiresPresent(DEFAULT_SETTINGS, {

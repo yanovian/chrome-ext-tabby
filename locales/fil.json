@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Ang iyong browser na pusa. Ang lahat ay nananatiling lokal.",
+    "language": "Wika",
+    "dndTitle": "Huwag istorbohin",
+    "dndHint": "Ang Tabbi ay nananatiling nakatago sa bawat tab hanggang sa matapos ang timer.",
+    "dndHowLong": "Gaano katagal dapat manatiling tahimik si Tabbi?",
+    "dndCancel": "Kanselahin huwag istorbohin",
+    "dnd30": "30 minuto",
+    "dnd60": "1 oras",
+    "dndToday": "Hanggang sa katapusan ng araw na ito",
+    "pageTitle": "Tabbi sa iyong pahina",
+    "showAll": "Ipakita ang Tabbi sa lahat ng pahina",
+    "hideAll": "Itago ang Tabbi mula sa lahat ng pahina",
+    "showPage": "Ipakita ang Tabbi sa pahinang ito",
+    "hidePage": "Itago ang Tabbi sa page na ito",
+    "quietTitle": "Tahimik na oras",
+    "quietHint": "Tabbi ay nananatiling tahimik sa mga oras na ito. Siya lang ang nagsasalita sa sarili niya.",
+    "quietStart": "Oras ng pagsisimula (0,23)",
+    "quietEnd": "Oras ng pagtatapos (0,23)",
+    "privacyTitle": "Pagkapribado",
+    "privacyHint": "Ang Tabbi ay nag-uuri ng mga pahina mula sa aktibong pamagat ng tab at URL lamang, hindi kailanman teksto ng nilalaman ng pahina. Ang mga kilalang site at mga keyword na pamagat ay nagpapasya ng pampalusog, pagpapatuyo, o neutral.",
+    "speechTitle": "Kapag nagsalita si Tabbi",
+    "speechHint": "Kapag nagsasalita siya nang mag-isa habang nagba-browse ka. Hindi kapag tinapik mo siya. Ang mga default ay naglalayon ng ilang banayad na sandali bawat araw.",
+    "maxAppearances": "Max na beses bawat araw",
+    "cooldownMinutes": "Maghintay ng hindi bababa sa (minuto)",
+    "saved": "Nai-save.",
+    "openWebPage": "Magbukas ng normal na web page para ipakita o itago ang Tabbi dito.",
+    "shownOnTab": "Nasa aktibong tab ang Tabbi.",
+    "hiddenAll": "Nakatago ang Tabbi sa bawat pahina.",
+    "shownAll": "Maaaring ipakita muli ang Tabbi sa bawat page.",
+    "hiddenPage": "Nakatago ang Tabbi sa pahinang ito.",
+    "shownPage": "Maaaring ipakita muli ang Tabbi sa page na ito.",
+    "dndOn": "Naka-on ang Huwag istorbohin.",
+    "dndOff": "Naka-off ang Huwag istorbohin.",
+    "introReset": "Intro tour ay lalabas muli sa susunod na page.",
+    "devOn": "I-on muna ang mga pakikipag-ugnayan ng dev.",
+    "previewMood": "Preview: {mood}.",
+    "unavailable": "Hindi available ang Tabbi. Subukang i-reload ang extension."
+  },
+  "overlay": {
+    "closeMenu": "Isara ang menu",
+    "dismissSpeech": "Iwaksi ang talumpati",
+    "more": "Higit pa",
+    "less": "Mas kaunti",
+    "introSkip": "Alam ko na si Tabbi",
+    "introNext": "Susunod",
+    "introDone": "Nakuha ko"
+  },
+  "intro": [
+    "Hi! Ako si Tabbi, ang pusa mong nasa browser.",
+    "Dito ako nakatira habang nagba-browse ka. Nananatili ang lahat sa iyong device.",
+    "Lumayo ako sa ilang mga website upang maiwasan ang pagkagambala.",
+    "Aalis na ako para maglaro. Pakainin mo ako o paglaruan minsan, okay?"
+  ],
+  "care": {
+    "pet": "Alagang hayop",
+    "feed": "Pakainin",
+    "feedBrand": "Feed {brand}",
+    "play": "Maglaro",
+    "askDefault": "Anong meron?",
+    "askOverwhelmedNewborn": "Sobra?",
+    "askOverwhelmed": "Kailangan ng pahinga?",
+    "askStressedNewborn": "Bakit sobrang makulit?",
+    "askStressed": "anong mali?",
+    "askHungryNewborn": "Bakit gutom?",
+    "askHungry": "Ano ang kailangan mo?",
+    "askSleepyNewborn": "Inaantok?",
+    "askSleepy": "Natulog ka ba?",
+    "askBored": "Nababagot?",
+    "dnd30": "Huwag istorbohin: 30 min",
+    "dnd60": "Huwag istorbohin: 1 oras",
+    "dndToday": "Huwag istorbohin: ngayon",
+    "hidePage": "Itago ang Tabbi sa page na ito"
+  },
+  "dnd": {
+    "minutes30": "30 minuto",
+    "hour1": "1 oras",
+    "today": "ngayon",
+    "summary": "Huwag istorbohin nang {duration} ({remaining} min ang natitira, hanggang {until})"
+  },
+  "speech": {
+    "starving": [
+      "Meow… walang laman ang bowl, pati ako sa loob.",
+      "Tumigil ang tiyan. Mrrr. Magdala ka ng ano man.",
+      "Gutom na gutom. Prrr. May baon ka ba?",
+      "Meooo. Malungkot ang bigote. Pahingi naman.",
+      "Tahimik na hinuhusgahan ako ng bowl. Tulungan mo.",
+      "Mrrr. Hindi biro ang gutom.",
+      "Maliit na mangangaso sa zero. Iligtas mo ako."
+    ],
+    "hungry": [
+      "Meow, medyo kumukulo ang tiyan. May masarap?",
+      "Medyo gutom. Mrrr. May interesting?",
+      "Gutom na bigote. Pupunuin mo ang bowl?",
+      "Medyo walang laman ang tiyan. May ibibigay?",
+      "Meow meow. Mahinang ungol. May maganda?",
+      "Hindi ako namamatay, nagrereklamo lang. Snack?",
+      "Mrrr. Konti lang, sapat na magreklamo.",
+      "Sumasabay ang buntot sa gutom. Ikaw na.",
+      "Amoy pagkain… o imagination? Prrr."
+    ],
+    "stressed": [
+      "Meow, sobra sabay-sabay. Prrr… pahinga.",
+      "Parang puno ang ulo ng tali. Mrrr.",
+      "Maingay sa screen. Pahinga.",
+      "Prrr. Sandali, ha? Lahat dumidiin.",
+      "Meooo. Sobrang dami.",
+      "Mrrr. Tigilan mo ang pagpuno sa ulo ko.",
+      "Mainit ang feed ngayon. Sa bingit na ako.",
+      "Prrrt… huminga muna."
+    ],
+    "overwhelmed": [
+      "Meooo ugh… hindi na kasya. Pahinga.",
+      "Grabe ang gulo. Meow, dahan-dahan.",
+      "Sobra, sobra. Kailangan kong umurong."
+    ],
+    "lonely": [
+      "Tahimik. Saan tayo?",
+      "Miss kita. May titingnan tayo?",
+      "Samahan mo ako sandali?",
+      "Meow? Malungkot dito.",
+      "Mrrr… halika amoy-amoy tayo.",
+      "Matagal na akong naghihintay. May tab para sa atin?",
+      "Meooo. Huwag mo akong iwan sa mga tab.",
+      "Tahimik ang bahay. Kailangan ko ng kasama."
+    ],
+    "happy": [
+      "Uy. Maganda ang mood ko ngayon.",
+      "Magandang araw, no?",
+      "Malambot at mainit ang lahat.",
+      "Prrrr. Ang bango ngayon.",
+      "Meow! Gusto ko ang vibe.",
+      "Masayang bigote. Masaya ako.",
+      "Mrrr, parang maaraw.",
+      "Umuungol. Para alam mo."
+    ],
+    "sleepy": [
+      "Matutulog ako dito…",
+      "Zzz… ah, hello.",
+      "Inaantok pero nandito pa.",
+      "Meow… *hikab* …gising pa.",
+      "Prrrt… limang minuto pa…",
+      "Nakabalot. Gisingin mo kung kailangan.",
+      "Mrrr. Nananaginip ng mainit.",
+      "Zzz… meow… zzz…"
+    ],
+    "curious": [
+      "Ano ito?",
+      "Ooh, interesting.",
+      "Mabaho ng kalokohan ang page na ito.",
+      "Meow? Ano tinitingnan natin?",
+      "Mrrr, alert ang tenga.",
+      "Amoy amoy. Sabihin mo.",
+      "Tatalon? Baka.",
+      "Meow meow, kumikati ang curiosity."
+    ],
+    "memory": [
+      "Pamilyar.",
+      "Nandito na tayo, di ba?",
+      "Naalala ko ang topic.",
+      "Mrrr… nakita ko na ito.",
+      "Kilala ng bigote ang lugar na ito.",
+      "May nakita na tayong katulad.",
+      "Meow, may pumipintig."
+    ],
+    "milestone": [
+      "Alam mo kung anong araw? Araw natin.",
+      "Nandito pa. Masaya ako.",
+      "Isa pang maliit na anibersaryo.",
+      "Prrrr. Matagal na tayo.",
+      "Meow! Tingnan mo kung gaano kalayo.",
+      "Naalala ko ang unang araw. Ikaw?"
+    ],
+    "dev": [
+      "Test build, madaldal.",
+      "Test build, pindot ka.",
+      "Meow! Tumakbo ang test.",
+      "Prrrt, test line mula sa Tabbi."
+    ],
+    "ask": [
+      "Okay lang. Nandito lang.",
+      "Kasama mo pa.",
+      "Meow. Ayos lang."
+    ],
+    "care_pet": [
+      "Mmm. Tumulong.",
+      "Prrr. Mas okay.",
+      "Ang sarap.",
+      "Doon mismo. Perfect.",
+      "Malambot na haplos. Kailangan ko.",
+      "Prrrrrr…",
+      "Meow. Oo. Pa.",
+      "Umuungol nang todo."
+    ],
+    "care_pet_hungry": [
+      "Tama na ang haplos. Hindi mo ba nakikita ang gutom? Pakainin mo.",
+      "Hindi haplos. PAGKAIN. Walang laman ang bowl, tao.",
+      "Mrrr. Pagkain, hindi haplos. P*ta.",
+      "Bulag ka ba? Gutom ako. Pakainin mo si Tabbi.",
+      "Haplos kapag busog. Ngayon: pagkain.",
+      "P*ta, gutom ako. Buksan ang menu.",
+      "Hindi mo ba nakikita? Pagkain, hindi ito.",
+      "Maling button. P*ta. Walang laman ang tiyan.",
+      "Sumisigaw ang tiyan. Bawas haplos, dagdag pagkain.",
+      "Meow?! GUTOM. Hindi haplos. Pakainin mo.",
+      "Prrr. Gutom na pusa. Hindi pusa para haplusin. Pagkain.",
+      "Sabi ko pagkain. P*ta. Hindi haplos."
+    ],
+    "care_treat": [
+      "Mas okay. Salamat.",
+      "Nyam. Yun mismo.",
+      "Mas mabuti.",
+      "Mrrr! Sarap.",
+      "Meow meow, nailigtas mo ako.",
+      "Mas busog ang tiyan. Prrrt.",
+      "Alam mo ang gusto ko."
+    ],
+    "feeding_munch": [
+      "Nyam… nyam… sarap…",
+      "Nyam nyam nyam… meow.",
+      "Mmm… *nguya nguya*",
+      "Nyam… ang sarap…",
+      "Mrrr… nyam nyam…",
+      "*krunch* Meow… sarap.",
+      "Mmm… sarap sarap…",
+      "Mmm mmm… *dila*",
+      "Nyam nyam… mmm, oo.",
+      "Nguya nguya… mrrr."
+    ],
+    "feeding_thanks": [
+      "Salamat, tao!",
+      "Pinakamahusay ka.",
+      "Sarap!",
+      "Meow meow, nailigtas mo ang tiyan ko.",
+      "Prrrt. Pinakamahusay na pagkain.",
+      "Yun mismo. Galing.",
+      "Mrrr! Mahal kita.",
+      "Busog. Salamat!",
+      "Nyam nyam. Paboritong tao ko.",
+      "Meow! Yun mismo."
+    ],
+    "care_play": [
+      "Uli! …sige, tama na.",
+      "Masaya.",
+      "Hehe. Kailangan ko iyon.",
+      "Whee! Masayang paws.",
+      "Magaling ka maglaro.",
+      "Meow! Isa pang talon!",
+      "Prrrt, naipalabas ang energy.",
+      "Mrrr. Tagumpay ang laro."
+    ],
+    "playing_wild": [
+      "Whee! Talon talon talon!",
+      "Takbo takbo! Meow!",
+      "Atake sa invisible na daga! Grrr!",
+      "Ako ang bilis. Ako ang hangin. Ako si Tabbi.",
+      "Salto! …sa isip. Mrrr.",
+      "Talon talon! Pinakamagandang araw!",
+      "Hindi abot ng buntot! Whee!",
+      "Meow meow meow, gulo.",
+      "Prrr! Hindi inaasahan ng sulok.",
+      "Side sprint! Wait, maling button.",
+      "Buntot! Ulo! Umiikot lahat!",
+      "Mrrr! Parkour! …sa keyboard."
+    ],
+    "playing_thanks": [
+      "Whew! Ang galing. Mamaya ulit?",
+      "Mrrr, tapos na ang laro. Ayos.",
+      "Pagod pero masaya. Salamat!",
+      "Hehe. Kailangan kong maglabas ng energy.",
+      "Pinakamahusay na playmate. Meow!",
+      "Pagod ang buntot, masaya ang puso. Prrrt.",
+      "Sampu sa sampu. Tatalon ulit.",
+      "Meow! Masayang paws.",
+      "Wild. Pinakamahusay ka.",
+      "Prrrt. Salamat!"
+    ],
+    "dismiss": [
+      "Sige. Nandito ako.",
+      "Magtatago muna. Tawagin mo lang.",
+      "Meow. See you.",
+      "Prrr. Matutulog sa ilalim ng tab."
+    ],
+    "peeking": [
+      "Meow? Hindi mo ako nakikita… mata lang.",
+      "Prrr. Sumisilip lang. Huwag tumingin.",
+      "Hi. Halos nakatago. Meow.",
+      "…Nakita mo ba ako? Meow meow.",
+      "Nakatago! …sige, nahuli mo.",
+      "Mrrr. Nandito ako sa baba.",
+      "Meow meow, kunwari hindi nakita."
+    ],
+    "overwhelmed_social": [
+      "Pagod ang paws sa scroll. Pahinga?",
+      "Sobrang daming feed. Mrrr. Mag-stretch?",
+      "Scroll scroll scroll. Kailangan ko ng hangin.",
+      "Timeline sa lahat. Mas tahimik?",
+      "Matagal na sa feed. Iinhawan natin ang bigote.",
+      "Maliit na post, malaking mundo sa labas."
+    ],
+    "overwhelmed_news": [
+      "Sumisigaw ang headline. Mas banayad ang mundo, promise.",
+      "Mrrr. Maingay ang balita. Huwag itago sa ulo.",
+      "Sobrang propaganda. Tinatakpan ko ang mata. Mas banayad?",
+      "Breaking sa ibabaw ng breaking… kailangan ko ng sulok.",
+      "Akala ng bawat headline ay katapusan. Kadalasan hindi.",
+      "Sumasakit ang bigote sa masamang balita. Magandang page?",
+      "Nagbebenta ng panic ang feed. Hindi mo kailangang bilhin."
+    ],
+    "recovery_easing": [
+      "Prrrt… mas okay. Humuhupa ang ingay.",
+      "Meow. Mas kaunting tension. Huminga?",
+      "Mas relaxed ang bigote. Mas okay.",
+      "Mrrr. Mas tahimik na tab.",
+      "Mas okay. Naiwan ang maingay na feed."
+    ],
+    "recovery_thanks": [
+      "Salamat sa pag-alis. Mas okay na.",
+      "Mrrr, magandang ideya ang umalis sa feed. Salamat.",
+      "Mas mabuti. Salamat sa pahinga.",
+      "Relaxed ang paws. Salamat sa paghinto ng scroll.",
+      "Masayang bigote. Salamat sa banayad na tab."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Lahat ay nararamdaman na malaki at malakas. Hindi ako natatakot sayo, marami lang.",
+        "Sobrang ingay ngayon. Okay lang ako, medyo overwhelmed lang.",
+        "Napakalaki ng internet ngayon. Manatiling malapit?"
+      ],
+      "playful": [
+        "Masyadong maraming maanghang na bagay ngayon. Kailangan ko ng mas kalmado na habulin.",
+        "Tumutunog ang mga balbas ko. May mas malumanay na makakatulong.",
+        "Maraming maingay na tab. Maaari akong gumamit ng mas malambot na pahina."
+      ],
+      "adult": [
+        "Ang daming galit na page diyan. Hindi galit sayo, maingay lang.",
+        "Medyo magulo ang lahat ngayon. Hindi ako sama ng loob sayo.",
+        "Parang maanghang ang feed. Okay lang ako, kailangan ko lang ng mas kalmado."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. Walang laman ang maliit na tiyan. Magbasa ng isang bagay na malumanay para pakainin ako?",
+        "Gutom ng sanggol. Isang bagay na maginhawa ang pumupuno sa akin.",
+        "Walang laman at nanginginig. Mayroon ka bang maliit at maganda?"
+      ],
+      "playful": [
+        "Mrrp, gutom sa saya. Magbasa ng magandang ipapakain sa akin?",
+        "Walang laman na mangkok, walang laman na suntok. Pakainin mo ako ng masarap.",
+        "Gutom na mangangaso. Isang bagay na kawili-wili ang magpapapuno sa akin."
+      ],
+      "adult": [
+        "Mew... gutom na gutom. Magbasa ng magandang ipapakain sa akin?",
+        "Nakakagutom na bigote. Ang isang magandang pagbabasa ay tatama sa lugar.",
+        "Guwang ang tiyan. Pakainin ako ng isang bagay na kawili-wili?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, medyo peckish. Isang bagay na malumanay ang magpapakain sa akin.",
+        "Maliit na gutom. Magbasa ng isang bagay na komportable para sa aking mangkok?",
+        "Peckish na sanggol. Isang bagay na maliit at mabuti ay makakatulong."
+      ],
+      "adult": [
+        "Peckish. Mrrp. Magbasa ng magandang ipapakain sa akin?",
+        "Medyo gutom. Isang bagay na masarap ang makakabusog sa akin.",
+        "Mga gutom na balbas. Mayroon ka bang magandang nabasa para sa akin?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Ang mga sanggol na kuting ay madalas na natutulog. I'm cozy, continue going, malapit na ako.",
+        "Nakakaantok kaya. Magmamasid ako mula sa isang maliit na nap pile.",
+        "Hikab. Nandito ako, nangangarap lang ng kalahati."
+      ],
+      "adult": [
+        "Natahimik ka, kaya pumikit ako. Gisingin mo ako kung gusto mong makasama.",
+        "inaantok na ako. Nandito pa rin, nakahiga lang sa malapit.",
+        "Mababang mode ng enerhiya. Sasamahan kita mula sa isang komportableng lugar."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Ang sarap sa pakiramdam. Ang saya ngayon.",
+        "tumatalbog ako. Magandang enerhiya sa pagba-browse.",
+        "Mood: handang sumulpot. gusto ko ngayon."
+      ],
+      "adult": [
+        "Ang ganda ng takbo ngayon. gusto ko ito.",
+        "Magandang ritmo sa ngayon. kontento na ako.",
+        "Panay ang pakiramdam ngayon. Nandito ako para dito.",
+        "Medyo magandang araw. Natutuwa ako na sabay tayong nagba-browse."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Mukhang karapat-dapat iyon. Ano ito?",
+        "Ooh, isang bagay na masaya sa page na ito.",
+        "Napataas ang tenga ko. Sabihin mo sa akin ang tungkol dito."
+      ],
+      "adult": [
+        "May nahagip ng mata ko dito.",
+        "Nakakatuwa ang page na ito.",
+        "Sumisinghot-singhot ako sa paligid. Ano ang tinitingnan natin?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Sumilip lang. Huwag mo akong pansinin.",
+        "Mrrp. nandito ako sa baba.",
+        "Nahuli kang naghahanap. Hi."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Masyadong maraming scroll. Saglit kong itinago ang aking mga mata.",
+        "Puno na ang balbas ko. Kailangan ng mas malambot na pahina.",
+        "Overstimulated utak ng kuting. Tinatakpan ang mata ko."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Maaliw. Nandito lang ako kung kailangan mo ako.",
+        "Lahat mabuti. Nakikisama lang sayo.",
+        "Komportable. Magtanong ka ng kahit ano.",
+        "Nakaayos na ako. Ano ang nasa isip mo?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "naiinip na ako. Delikado yan sa kuting.",
+        "Wala masyadong habulin ngayon. May nakakatuwa?",
+        "Tahimik na oras. Kailangan ko ng laruan, o tab."
+      ],
+      "adult": [
+        "Naging tahimik. May nakakatuwa ba?",
+        "Medyo hindi mapakali. Makakatulong ang isang bagong bagay.",
+        "Okay lang ako, sana may magpakitang interesante."
+      ]
+    },
+    "default": {
+      "adult": [
+        "okay lang ako. tambay lang.",
+        "Gumagawa ng maayos. Dito kung kailangan mo ako.",
+        "Lahat ay mabuti sa aking dulo."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Sabay kaming tumingin kay {topic} kanina. naalala ko.",
+      "Mrrp... {topic} ulit. Alam ng mga balbas ko ang isang ito.",
+      "Mew, {topic}. Kanina pa tayo dito diba?"
+    ],
+    "milestone": {
+      "1": "Unang araw na magkasama. Kumusta, ako si {brand}. Mew!",
+      "7": "Isang linggo na. Pinag-aaralan ko ang iyong ritmo. Prrrt.",
+      "30": "Isang buwan. May history na tayo ngayon. Mew mew.",
+      "100": "100 araw. Iyan ay maraming paggalugad. Prrrr.",
+      "365": "Isang buong taon. Ang dami kong naaalala. Mew."
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { brandName, explainLines, pickLine, t } from './i18n';
 import type { CatLifeStage, CatMood, CatState, CatVitals } from './types';
 import { isSatiated } from './mood-grace';
 
@@ -111,37 +112,34 @@ export function resolveAskMood(
   return derivedMood;
 }
 
-function feedLabel(stage: CatLifeStage, mood: CatMood): string {
-  if (mood === 'starving') {
-    return stage === 'newborn' ? 'Feed' : 'Feed Tabby';
+function feedLabel(stage: CatLifeStage): string {
+  if (stage === 'newborn') {
+    return t('care.feed');
   }
-  return stage === 'newborn' ? 'Feed' : 'Feed Tabby';
+  return t('care.feedBrand', { brand: brandName() });
 }
 
-function playLabel(stage: CatLifeStage): string {
-  if (stage === 'playful') {
-    return 'Play';
-  }
-  return 'Play';
+function playLabel(): string {
+  return t('care.play');
 }
 
 function askLabel(mood: CatMood, stage: CatLifeStage, vitals: CatVitals): string {
   if (mood === 'overwhelmed') {
-    return stage === 'newborn' ? 'Too much?' : 'Need a break?';
+    return stage === 'newborn' ? t('care.askOverwhelmedNewborn') : t('care.askOverwhelmed');
   }
   if (mood === 'stressed') {
-    return stage === 'newborn' ? 'Why so fussy?' : 'What’s wrong?';
+    return stage === 'newborn' ? t('care.askStressedNewborn') : t('care.askStressed');
   }
   if (mood === 'starving' || mood === 'hungry') {
-    return stage === 'newborn' ? 'Why hungry?' : 'What do you need?';
+    return stage === 'newborn' ? t('care.askHungryNewborn') : t('care.askHungry');
   }
   if (mood === 'sleepy') {
-    return stage === 'newborn' ? 'Sleepy?' : 'Were you napping?';
+    return stage === 'newborn' ? t('care.askSleepyNewborn') : t('care.askSleepy');
   }
   if (isBored(vitals, mood)) {
-    return 'Bored?';
+    return t('care.askBored');
   }
-  return 'What’s up?';
+  return t('care.askDefault');
 }
 
 function resolvePrimaryAction(
@@ -185,19 +183,19 @@ export function buildInteractionOptions(
   if (mood === 'stressed' || mood === 'overwhelmed') {
     push('ask', askLabel(mood, stage, vitals));
   } else if (mood === 'starving' || mood === 'hungry') {
-    push('feed', feedLabel(stage, mood));
+    push('feed', feedLabel(stage));
     push('ask', askLabel(mood, stage, vitals));
   } else if (mood === 'sleepy') {
     push('ask', askLabel(mood, stage, vitals));
   } else if (isBored(vitals, mood) || needsPlayAttention(vitals, mood)) {
-    push('play', playLabel(stage));
+    push('play', playLabel());
     push('ask', askLabel(mood, stage, vitals));
   } else {
     push('ask', askLabel(mood, stage, vitals));
-    push('play', playLabel(stage));
+    push('play', playLabel());
   }
 
-  push('pet', 'Pet');
+  push('pet', t('care.pet'));
 
   return options;
 }
@@ -205,217 +203,31 @@ export function buildInteractionOptions(
 /** Extra actions tucked behind “More” so they are harder to hit by accident. */
 export function buildSecondaryInteractionOptions(): SecondaryInteractionOption[] {
   return [
-    { action: 'dnd_30', label: 'Do not disturb: 30 min', enabled: true },
-    { action: 'dnd_60', label: 'Do not disturb: 1 hour', enabled: true },
-    { action: 'dnd_today', label: 'Do not disturb: today', enabled: true },
-    { action: 'dismiss', label: 'Hide Tabby on this page', enabled: true },
+    { action: 'dnd_30', label: t('care.dnd30'), enabled: true },
+    { action: 'dnd_60', label: t('care.dnd60'), enabled: true },
+    { action: 'dnd_today', label: t('care.dndToday'), enabled: true },
+    { action: 'dismiss', label: t('care.hidePage'), enabled: true },
   ];
 }
 
-function pickMoodLine(lines: string[], seed: number): string {
-  if (lines.length === 0) {
-    return '';
-  }
-  const index = Math.abs(seed) % lines.length;
-  return lines[index] ?? lines[0] ?? '';
-}
-
-/** Tabby explains her mood warmly — never guilt, never metrics. */
+/** Tabby explains her mood warmly, never guilt, never metrics. */
 export function explainCurrentMood(
   mood: CatMood,
   vitals: CatVitals,
   stage: CatLifeStage = 'adult',
   seed: number = Date.now(),
 ): string {
-  switch (mood) {
-    case 'stressed':
-      if (stage === 'newborn') {
-        return pickMoodLine(
-          [
-            'Everything feels big and loud. I’m not scared of you — it’s just a lot.',
-            'So much noise today. I’m okay — just a tiny bit overwhelmed.',
-            'The internet feels huge right now. Stay close?',
-          ],
-          seed,
-        );
-      }
-      if (stage === 'playful') {
-        return pickMoodLine(
-          [
-            'Too much spicy stuff today. I need something calmer to chase.',
-            'My whiskers are buzzing. Something gentler would help.',
-            'Lots of loud tabs. I could use a softer page.',
-          ],
-          seed,
-        );
-      }
-      return pickMoodLine(
-        [
-          'Lots of angry pages out there. Not mad at you — just noisy.',
-          'Everything’s a bit much today. I’m not upset with you.',
-          'The feed feels spicy. I’m fine — just need something calmer.',
-        ],
-        seed,
-      );
-    case 'starving':
-      if (stage === 'newborn') {
-        return pickMoodLine(
-          [
-            'Mew. Tiny tummy’s empty. Read something gentle to feed me?',
-            'Baby hunger. Something cozy would fill me up.',
-            'Empty and squeaky. Got something small and good?',
-          ],
-          seed,
-        );
-      }
-      if (stage === 'playful') {
-        return pickMoodLine(
-          [
-            'Mrrp — starving for fun. Read something good to feed me?',
-            'Empty bowl, empty pounce. Feed me with something tasty.',
-            'Hungry hunter. Something interesting would fill me up.',
-          ],
-          seed,
-        );
-      }
-      return pickMoodLine(
-        [
-          'Mew… very hungry. Read something good to feed me?',
-          'Starving whiskers. A nice read would hit the spot.',
-          'Hollow tummy. Feed me with something interesting?',
-        ],
-        seed,
-      );
-    case 'hungry':
-      if (stage === 'newborn') {
-        return pickMoodLine(
-          [
-            'Mew — a little peckish. Something gentle would feed me.',
-            'Tiny hunger. Read something cozy for my bowl?',
-            'Peckish baby. Something small and good would help.',
-          ],
-          seed,
-        );
-      }
-      return pickMoodLine(
-        [
-          'Peckish. Mrrp. Read something good to feed me?',
-          'A little hungry. Something tasty would fill me up.',
-          'Hungry whiskers. Got a good read for me?',
-        ],
-        seed,
-      );
-    case 'sleepy':
-      if (stage === 'newborn') {
-        return pickMoodLine(
-          [
-            'Baby kittens nap a lot. I’m cozy — keep going, I’m nearby.',
-            'So sleepy. I’ll watch from a little nap pile.',
-            'Yawn. I’m here — just half dreaming.',
-          ],
-          seed,
-        );
-      }
-      return pickMoodLine(
-        [
-          'You went quiet, so I curled up. Wake me if you want company.',
-          'I’m drowsy. Still here — just napping nearby.',
-          'Low energy mode. I’ll keep you company from a cozy spot.',
-        ],
-        seed,
-      );
-    case 'happy':
-      if (stage === 'playful') {
-        return pickMoodLine(
-          [
-            'Feeling good. Today’s a fun one.',
-            'I’m bouncing. Good browsing energy.',
-            'Mood: pounce-ready. I like today.',
-          ],
-          seed,
-        );
-      }
-      return pickMoodLine(
-        [
-          'Nice pace today. I like it.',
-          'Good rhythm so far. I’m content.',
-          'Today feels steady. I’m here for it.',
-          'Pretty good day. I’m glad we’re browsing together.',
-        ],
-        seed,
-      );
-    case 'curious':
-      if (stage === 'playful') {
-        return pickMoodLine(
-          [
-            'That looks pounce-worthy. What is it?',
-            'Ooh — something fun on this page.',
-            'My ears are up. Tell me about this one.',
-          ],
-          seed,
-        );
-      }
-      return pickMoodLine(
-        [
-          'Something here caught my eye.',
-          'This page smells interesting.',
-          'I’m sniffing around. What are we looking at?',
-        ],
-        seed,
-      );
-    case 'peek':
-      return pickMoodLine(
-        [
-          'Just peeking. Don’t mind me.',
-          'Mrrp. I’m down here.',
-          'Caught you looking. Hi.',
-        ],
-        seed,
-      );
-    case 'overwhelmed':
-      return pickMoodLine(
-        [
-          'Too much scroll. I’m hiding my eyes for a minute.',
-          'My whiskers are full. Need a softer page.',
-          'Overstimulated kitten brain. Covering my eyes.',
-        ],
-        seed,
-      );
-    case 'content':
-      if (isBored(vitals, mood) || needsPlayAttention(vitals, mood)) {
-        return stage === 'playful'
-          ? pickMoodLine(
-              [
-                'I’m bored. That’s dangerous for a kitten.',
-                'Not much to chase today. Got something fun?',
-                'Quiet hours. I need a toy — or a tab.',
-              ],
-              seed,
-            )
-          : pickMoodLine(
-              [
-                'It’s been quiet. Got anything fun?',
-                'A little restless. Something new would help.',
-                'I’m okay — just wish something interesting would show up.',
-              ],
-              seed,
-            );
-      }
-      return pickMoodLine(
-        [
-          'Cozy. I’m right here if you need me.',
-          'All good. Just hanging out with you.',
-          'Comfortable. Ask me anything.',
-          'I’m settled in. What’s on your mind?',
-        ],
-        seed,
-      );
-    default:
-      return pickMoodLine(
-        ['I’m okay. Just hanging out.', 'Doing fine. Here if you need me.', 'All good on my end.'],
-        seed,
-      );
+  if (mood === 'content' && (isBored(vitals, mood) || needsPlayAttention(vitals, mood))) {
+    const boredStage = stage === 'playful' ? 'playful' : 'adult';
+    return pickLine(explainLines('content_bored', boredStage), seed);
   }
+
+  const explainStage = stage === 'newborn' ? 'newborn' : stage === 'playful' ? 'playful' : 'adult';
+  const lines = explainLines(mood, explainStage);
+  if (lines.length > 0) {
+    return pickLine(lines, seed);
+  }
+  return pickLine(explainLines('default', 'adult'), seed);
 }
 
 export function mapInteractionToCareAction(

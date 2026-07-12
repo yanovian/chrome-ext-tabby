@@ -1,4 +1,4 @@
-.PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales test test-watch \
+.PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales lint-extension-i18n test test-watch \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major \
 	website-install website-dev website-build website-preview website-clean website-lint-i18n website-lint-i18n-fix \
 	website-og-images
@@ -44,6 +44,9 @@ icons: ## Regenerate extension icons (public/icon/)
 
 locales: ## Regenerate Chrome Web Store locale files (public/_locales/)
 	$(PNPM) locales
+
+lint-extension-i18n: ## Validate in-app locale JSON (locales/*.json)
+	$(PNPM) lint:extension-i18n
 
 test: ## Run unit tests once
 	$(PNPM) test

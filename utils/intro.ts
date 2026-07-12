@@ -1,26 +1,22 @@
+import { t, tLines } from './i18n';
 import { STORAGE_KEYS } from './types';
 
-/** Short first-meeting lines — one per step. */
-export const INTRO_STEPS = [
-  "Hi! I'm Tabby — your browser cat.",
-  'I live here while you browse. Everything stays on your device.',
-  'I stay off some websites to avoid distraction.',
-  "I'm off to play. Feed me or play with me sometimes, okay?",
-] as const;
-
-export const INTRO_SKIP_LABEL = 'I already know Tabby';
-
 export function introStepText(step: number): string {
-  const index = Math.max(0, Math.min(step, INTRO_STEPS.length - 1));
-  return INTRO_STEPS[index] ?? INTRO_STEPS[0];
+  const steps = tLines('intro');
+  const index = Math.max(0, Math.min(step, steps.length - 1));
+  return steps[index] ?? steps[0] ?? '';
+}
+
+export function introSkipLabel(): string {
+  return t('overlay.introSkip');
 }
 
 export function introNextLabel(step: number): string {
-  return step >= INTRO_STEPS.length - 1 ? 'Got it' : 'Next';
+  return step >= introStepCount() - 1 ? t('overlay.introDone') : t('overlay.introNext');
 }
 
 export function introStepCount(): number {
-  return INTRO_STEPS.length;
+  return tLines('intro').length;
 }
 
 export async function isIntroCompleted(): Promise<boolean> {

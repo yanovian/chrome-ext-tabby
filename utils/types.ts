@@ -170,6 +170,8 @@ export interface ExtensionSettings {
   devSimulatedRecoveryAwayMs: number;
   /** Show the floating cat overlay on web pages. */
   showOverlay: boolean;
+  /** In-app UI language (Chrome store has separate manifest locales). */
+  locale: string;
 }
 
 export const CAT_NAME = 'Tabby' as const;
@@ -193,6 +195,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   devSimulatedDrainingMs: 0,
   devSimulatedRecoveryAwayMs: 0,
   showOverlay: true,
+  locale: 'en',
 };
 
 export const DB = {

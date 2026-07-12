@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Pisica ta din browser. Totul rămâne local.",
+    "language": "Limba",
+    "dndTitle": "Nu deranja",
+    "dndHint": "Tabbi rămâne ascuns în fiecare filă până la sfârșitul cronometrului.",
+    "dndHowLong": "Cât timp ar trebui să tacă Tabbi?",
+    "dndCancel": "Anulează, nu deranja",
+    "dnd30": "30 de minute",
+    "dnd60": "1 oră",
+    "dndToday": "Până la sfârșitul zilei de azi",
+    "pageTitle": "Tabbi pe pagina ta",
+    "showAll": "Afișați Tabbi în toate paginile",
+    "hideAll": "Ascundeți Tabbi din toate paginile",
+    "showPage": "Afișați Tabbi pe această pagină",
+    "hidePage": "Ascundeți Tabbi pe această pagină",
+    "quietTitle": "Ore liniștite",
+    "quietHint": "Tabbi rămâne tăcut în aceste ore. Ea vorbește doar singură.",
+    "quietStart": "Ora de începere (0,23)",
+    "quietEnd": "Ora de sfârșit (0,23)",
+    "privacyTitle": "Confidențialitate",
+    "privacyHint": "Tabbi clasifică paginile numai din titlul filei active și adresa URL, niciodată textul corpului paginii. Site-urile cunoscute și cuvintele cheie de titlu decid hrănirea, drenarea sau neutră.",
+    "speechTitle": "Când Tabbi vorbește",
+    "speechHint": "Când ea vorbește singură în timp ce tu răsfoiești. Nu când o apeci. Valorile implicite vizează câteva momente blânde pe zi.",
+    "maxAppearances": "Max ori pe zi",
+    "cooldownMinutes": "Așteptați cel puțin (minute)",
+    "saved": "Salvat.",
+    "openWebPage": "Deschideți o pagină web normală pentru a afișa sau ascunde Tabbi aici.",
+    "shownOnTab": "Tabbi se află în fila activă.",
+    "hiddenAll": "Tabbi este ascuns pe fiecare pagină.",
+    "shownAll": "Tabbi se poate afișa din nou pe fiecare pagină.",
+    "hiddenPage": "Tabbi este ascuns pe această pagină.",
+    "shownPage": "Tabbi se poate afișa din nou pe această pagină.",
+    "dndOn": "Nu deranja este activat.",
+    "dndOff": "Nu deranja este dezactivat.",
+    "introReset": "Turul introductiv va apărea din nou pe pagina următoare.",
+    "devOn": "Activați mai întâi interacțiunile dezvoltatorilor.",
+    "previewMood": "Previzualizare: {mood}.",
+    "unavailable": "Tabbi este indisponibil. Încercați să reîncărcați extensia."
+  },
+  "overlay": {
+    "closeMenu": "Închide meniul",
+    "dismissSpeech": "Închide discursul",
+    "more": "Mai mult",
+    "less": "Mai puțin",
+    "introSkip": "Știu deja Tabbi",
+    "introNext": "În continuare",
+    "introDone": "Am înțeles"
+  },
+  "intro": [
+    "Bună! Sunt Tabbi, pisica dvs. de browser.",
+    "Locuiesc aici în timp ce tu răsfoiești. Totul rămâne pe dispozitivul tău.",
+    "Rămân în afara unor site-uri web pentru a evita distracția atenției.",
+    "Mă duc să mă joc. Hrănește-mă sau joacă-te cu mine uneori, bine?"
+  ],
+  "care": {
+    "pet": "Animal de companie",
+    "feed": "Hrăniți",
+    "feedBrand": "Feed {brand}",
+    "play": "Joacă",
+    "askDefault": "ce-i treaba?",
+    "askOverwhelmedNewborn": "Prea mult?",
+    "askOverwhelmed": "Ai nevoie de o pauză?",
+    "askStressedNewborn": "De ce atât de agitat?",
+    "askStressed": "Ce sa întâmplat?",
+    "askHungryNewborn": "De ce e foame?",
+    "askHungry": "De ce ai nevoie?",
+    "askSleepyNewborn": "Somnoros?",
+    "askSleepy": "Ai dormit?",
+    "askBored": "plictisit?",
+    "dnd30": "Nu deranja: 30 min",
+    "dnd60": "Nu deranja: 1 oră",
+    "dndToday": "Nu deranja: azi",
+    "hidePage": "Ascundeți Tabbi pe această pagină"
+  },
+  "dnd": {
+    "minutes30": "30 de minute",
+    "hour1": "1 oră",
+    "today": "azi",
+    "summary": "Nu deranja pentru {duration} ({remaining} min. rămase, până la {until})"
+  },
+  "speech": {
+    "starving": [
+      "Miau… bolul e gol, și eu pe dinăuntru.",
+      "Burtica în grevă. Mrrr. Adu ceva.",
+      "Mor de foame. Prrr. Ai ceva sau nu?",
+      "Miaaau. Mustăți triste. O bucățică, te rog.",
+      "Bolul mă judecă în tăcere. Ajutor.",
+      "Mrrr. Foamea nu e glumă.",
+      "Vânătoarea mică la zero. Scoate-mă de aici."
+    ],
+    "hungry": [
+      "Miau, burta mormăie puțin. Ceva bun?",
+      "Puțină foame. Mrrr. Ceva interesant?",
+      "Mustăți flămânde. Umpli bolul?",
+      "Burtica cam goală. Îmi dai ceva?",
+      "Miau miau. Mormăit ușor. Ceva frumos?",
+      "Nu mor, dar mă plâng. Un gustărică?",
+      "Mrrr. Nu mult, dar destul să mă plâng.",
+      "Coada în ritm de foame. Rândul tău.",
+      "Miros de mâncare… îmi imaginez? Prrr."
+    ],
+    "stressed": [
+      "Miau, prea mult deodată. Prrr… pauză.",
+      "Capul ca o sfoară plină. Mrrr.",
+      "Prea mult zgomot pe ecran. Pauză.",
+      "Prrr. O secundă, ok? Totul apasă.",
+      "Miaaa. Prea mult deodată.",
+      "Mrrr. Nu-mi mai umple capul.",
+      "Feed-ul e iute azi. Sunt la limită.",
+      "Prrrt… respirăm o secundă."
+    ],
+    "overwhelmed": [
+      "Miaaa uugh… nu mai încape. Pauză.",
+      "Ce haos. Miau, mai încet.",
+      "Prea mult, prea mult. Trebuie să mă retrag."
+    ],
+    "lonely": [
+      "Ce liniște. Încotro mergem?",
+      "Mi-a fost dor. Ne uităm la ceva?",
+      "Îmi ții companie puțin?",
+      "Miau? E singurătate aici.",
+      "Mrrr… vino să mirosim împreună.",
+      "Aștept de mult. Ceva pentru noi?",
+      "Miaaau. Nu mă lăsa cu filele.",
+      "Casă liniștită. Am nevoie de companie."
+    ],
+    "happy": [
+      "Hei. Azi sunt bine dispusă.",
+      "Zi frumoasă, nu?",
+      "Totul e moale și cald.",
+      "Prrrr. Azi miroase bine.",
+      "Miau! Îmi place atmosfera.",
+      "Mustăți fericite. Sunt fericită.",
+      "Mrrr, mă simt însorită.",
+      "Torc tare. Ca să știi."
+    ],
+    "sleepy": [
+      "Fac un pui de somn aici…",
+      "Zzz… ah, salut.",
+      "Somnoroasă, dar încă aici.",
+      "Miau… *casc* …încă veghez.",
+      "Prrrt… încă cinci minute…",
+      "Încolăcită. Trezește-mă dacă trebuie.",
+      "Mrrr. Visez lucruri calde.",
+      "Zzz… miau… zzz…"
+    ],
+    "curious": [
+      "Ce e asta?",
+      "Ooh, interesant.",
+      "Pagina asta miroase a nebunie.",
+      "Miau? La ce ne uităm?",
+      "Mrrr, urechile în alertă.",
+      "Sniff sniff. Povestește.",
+      "Sar pe asta? Poate.",
+      "Miau miau, curiozitatea mă mănâncă."
+    ],
+    "memory": [
+      "Îmi sună cunoscut.",
+      "Am mai fost aici, nu?",
+      "Îmi amintesc subiectul.",
+      "Mrrr… am mai văzut asta.",
+      "Mustățile cunosc locul.",
+      "Am mai văzut ceva similar.",
+      "Miau, îmi sună clopoțelul."
+    ],
+    "milestone": [
+      "Știi ce zi e? Ziua noastră.",
+      "Încă aici. Mă bucur.",
+      "Încă o aniversare mică cu tine.",
+      "Prrrr. Ne știm de mult.",
+      "Miau! Uite cât de departe am ajuns.",
+      "Îmi amintesc prima zi. Și tu?"
+    ],
+    "dev": [
+      "Versiune de test, vorbesc prea mult.",
+      "Versiune de test, atinge ceva și vezi.",
+      "Miau! Testul a pornit.",
+      "Prrrt, frază de test de la Tabbi."
+    ],
+    "ask": [
+      "Sunt bine. Stau aici.",
+      "Încă cu tine.",
+      "Miau. Totul ok."
+    ],
+    "care_pet": [
+      "Mmm. A ajutat.",
+      "Prrr. Mai bine.",
+      "A fost plăcut.",
+      "Chiar acolo. Perfect.",
+      "Mângâieri moi. Aveam nevoie.",
+      "Prrrrrr…",
+      "Miau. Da. Mai mult.",
+      "Torc la maximum."
+    ],
+    "care_pet_hungry": [
+      "Gata cu mângâierile. Nu vezi foamea? Dă mâncare.",
+      "Nu mângâieri. MÂNCARE. Bolul gol, omule.",
+      "Mrrr. Mâncare, nu mângâieri. La dracu.",
+      "Ești orbă? Flămândă. Hrănește Tabbi.",
+      "Mângâie-mă când sunt plină. Acum: mâncare.",
+      "La dracu, mor de foame. Deschide meniul.",
+      "Nu vezi foamea? Mâncare, nu asta.",
+      "Buton greșit. La dracu. Burtica goală.",
+      "Burtica urlă. Mai puțin mângâiat, mai multă mâncare.",
+      "Miau?! FOAME. Nu mângâieri. Mâncare.",
+      "Prrr. Pisică flămândă. Nu pisică de mângâiat. Mâncare.",
+      "Am zis mâncare. La dracu. Nu mângâieri."
+    ],
+    "care_treat": [
+      "Mai bine. Mulțumesc.",
+      "Miam. Exact asta.",
+      "Mult mai bine.",
+      "Mrrr! Bun.",
+      "Miau miau, m-ai salvat.",
+      "Burtică mai plină. Prrrt.",
+      "Știi ce-mi place."
+    ],
+    "feeding_munch": [
+      "Miam… miam… bun…",
+      "Miam miam miam… miau.",
+      "Mmm… * mestecă mestecă *",
+      "Miam… ce bine…",
+      "Mrrr… miam miam…",
+      "*croc* Miau… bun.",
+      "Mmm… bun bun…",
+      "Mmm mmm… *linge*",
+      "Miam miam… mmm, da.",
+      "Mestecă mestecă… mrrr."
+    ],
+    "feeding_thanks": [
+      "Mulțumesc, omule!",
+      "Ești cea mai bună.",
+      "Delicios!",
+      "Miau miau, mi-ai salvat burta.",
+      "Prrrt. Cea mai bună mâncare.",
+      "Exact asta. Grozav.",
+      "Mrrr! Te plăc.",
+      "Plină. Mulțumesc!",
+      "Miam miam. Omul meu preferat.",
+      "Miau! Exact asta."
+    ],
+    "care_play": [
+      "Din nou! …ok, gata.",
+      "A fost distractiv.",
+      "Hehe. Aveam nevoie.",
+      "Ura! Lăbuțe fericite.",
+      "Joci bine.",
+      "Miau! Încă o săritură!",
+      "Prrrt, energie eliberată.",
+      "Mrrr. Joc reușit."
+    ],
+    "playing_wild": [
+      "Ura! Săritură săritură săritură!",
+      "Alerg alerg! Miau!",
+      "La șoarecele invizibil! Grrr!",
+      "Sunt viteză. Sunt vânt. Sunt Tabbi.",
+      "Salt! …în cap. Mrrr.",
+      "Săritură săritură! Cea mai bună zi!",
+      "Coada nu ține pasul! Ura!",
+      "Miau miau miau, nebunie.",
+      "Prrr! Colțul ăla n-a văzut-o venind.",
+      "Sprint lateral! Stai, buton greșit.",
+      "Coadă! Cap! Totul se învârte!",
+      "Mrrr! Parkour! …pe tastatură."
+    ],
+    "playing_thanks": [
+      "Uf! Grozav. Iar mai târziu?",
+      "Mrrr, joc gata. Frumos.",
+      "Obosită și fericită. Mulțumesc!",
+      "Hehe. Trebuia să dau drumul energiei.",
+      "Cea mai bună parteneră. Miau!",
+      "Coadă obosită, inimă fericită. Prrrt.",
+      "Zece din zece. Aș sări din nou.",
+      "Miau! Lăbuțe fericite.",
+      "Nebunesc. Ești cea mai bună.",
+      "Prrrt. Mulțumesc!"
+    ],
+    "dismiss": [
+      "Ok. Sunt aici.",
+      "Mă ascund. Strigă când vrei.",
+      "Miau. Pe curând.",
+      "Prrr. Somn sub file."
+    ],
+    "peeking": [
+      "Miau? Nu mă vezi… doar ochii.",
+      "Prrr. Doar mă uit. Nu te uita.",
+      "Salut. Aproape ascunsă. Miau.",
+      "…M-ai văzut? Miau miau.",
+      "Ascunsă! …ok, m-ai prins.",
+      "Mrrr. Sunt aici jos.",
+      "Miau miau, fă-te că nu."
+    ],
+    "overwhelmed_social": [
+      "Lăbuțe obosite de scroll. Pauză?",
+      "Atâtea feed-uri. Mrrr. Ne întindem?",
+      "Scroll scroll scroll. Și eu am nevoie de aer.",
+      "Timeline-uri peste tot. Ceva mai liniștit?",
+      "Pe feed de mult. Aerisim mustățile.",
+      "Postări mici, lume mare afară."
+    ],
+    "overwhelmed_news": [
+      "Titluri care urlă. Lumea e mai blândă, promit.",
+      "Mrrr. Știrile urlă. Nu ține în cap.",
+      "Prea multă propagandă. Îmi acopăr ochii. Mai blând?",
+      "Breaking pe breaking… am nevoie de colț.",
+      "Fiecare titlu crede că e sfârșitul. De obicei nu.",
+      "Mustățile dor de la știri rele. Pagină frumoasă?",
+      "Feed-ul vinde panică. Nu trebuie să cumperi."
+    ],
+    "recovery_easing": [
+      "Prrrt… mai bine. Zgomotul scade.",
+      "Miau. Mai puțină tensiune. Respirăm?",
+      "Mustăți mai relaxate. Mai bine.",
+      "Mrrr. File mai liniștite.",
+      "Mai bine, mai bine. Feed-ul zgomotos în urmă."
+    ],
+    "recovery_thanks": [
+      "Mulțumesc că ai plecat. Deja mai bine.",
+      "Mrrr, bună idee să lași feed-ul. Mulțumesc.",
+      "Mult mai bine. Mulțumesc de pauză.",
+      "Lăbuțe relaxate. Mulțumesc că ai oprit scrollul.",
+      "Mustăți fericite. Mulțumesc de file blânde."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Totul se simte mare și zgomotos. Nu mi-e frică de tine, sunt doar multe.",
+        "Atât de mult zgomot astăzi. Sunt bine, doar puțin copleșită.",
+        "Internetul se simte imens acum. Stai aproape?"
+      ],
+      "playful": [
+        "Prea multe chestii picante astăzi. Am nevoie de ceva mai calm de urmărit.",
+        "Îmi bâzâie mustățile. Ceva mai blând ar ajuta.",
+        "O mulțime de tab-uri zgomotoase. Aș putea folosi o pagină mai moale."
+      ],
+      "adult": [
+        "O mulțime de pagini furioase acolo. Nu supărat pe tine, doar zgomotos.",
+        "Totul e cam mult azi. Nu sunt supărat pe tine.",
+        "Furajul se simte picant. Sunt bine, am nevoie doar de ceva mai calm."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. Burta mică e goală. Citiți ceva blând să mă hrănească?",
+        "Foame de copil. Ceva confortabil m-ar umple.",
+        "Gol și scârțâit. Ai ceva mic și bun?"
+      ],
+      "playful": [
+        "Mrrp, flămând de distracție. Citiți ceva bun să mă hrănească?",
+        "Vasul gol, năpustirea goală. Hrănește-mă cu ceva gustos.",
+        "vânător flămând. Ceva interesant m-ar umple."
+      ],
+      "adult": [
+        "Mew... foarte foame. Citiți ceva bun să mă hrănească?",
+        "Mustați înfometați. O lectură plăcută ar da bine.",
+        "Burtă goală. Să mă hrănești cu ceva interesant?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, un pic de ciudăţenie. Ceva blând m-ar hrăni.",
+        "Foame mică. Citiți ceva confortabil pentru castronul meu?",
+        "Peckish copil. Ceva mic și bun ar ajuta."
+      ],
+      "adult": [
+        "Peckish. Mrrp. Citiți ceva bun să mă hrănească?",
+        "Un pic foame. Ceva gustos m-ar umple.",
+        "mustăți flămânzi. Ai o lectură bună pentru mine?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Puii pisici dorm mult. Sunt confortabil, continuă, sunt în apropiere.",
+        "Atat de somnoros. Mă voi uita de la o grămadă de somn.",
+        "Căscă. Sunt aici, doar pe jumătate visez."
+      ],
+      "adult": [
+        "Ai tăcut, așa că m-am ghemuit. Trezește-mă dacă vrei companie.",
+        "sunt somnoros. Încă aici, doar dormind în apropiere.",
+        "Mod de energie scăzută. Îți voi ține companie dintr-un loc confortabil."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Mă simt bine. Azi e una distractivă.",
+        "eu trec. Energie bună de navigare.",
+        "Starea de spirit: gata de năvală. Îmi place astăzi."
+      ],
+      "adult": [
+        "Ritm frumos azi. Imi place.",
+        "Ritm bun pana acum. sunt multumit.",
+        "Astăzi se simte stabil. Sunt aici pentru asta.",
+        "O zi destul de bună. Mă bucur că răsfoim împreună."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Asta pare demn de aruncat. Ce este?",
+        "Ooh, ceva distractiv pe această pagină.",
+        "Urechile mele sunt ridicate. Povestește-mi despre asta."
+      ],
+      "adult": [
+        "Ceva aici mi-a atras atenția.",
+        "Această pagină miroase interesant.",
+        "Adulmec prin jur. La ce ne uităm?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Doar aruncând o privire. Nu mă deranjează.",
+        "Mrrp. Sunt aici jos.",
+        "Te-am prins că te uiți. Hi."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Prea mult scroll. Îmi ascund ochii pentru un minut.",
+        "Mustatile mele sunt pline. Am nevoie de o pagină mai moale.",
+        "Creier de pisoi suprastimulat. Acoperându-mi ochii."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Confortabil. Sunt chiar aici dacă ai nevoie de mine.",
+        "Toate bune. Doar petrec cu tine.",
+        "Confortabil. Întreabă-mă orice.",
+        "M-am stabilit. Ce ai în minte?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "m-am plictisit. Este periculos pentru un pisoi.",
+        "Nu prea multe de urmărit astăzi. Ai ceva distractiv?",
+        "Ore liniștite. Am nevoie de o jucărie sau de o filă."
+      ],
+      "adult": [
+        "A fost liniște. Ai ceva distractiv?",
+        "Puțin neliniştit. Ceva nou ar ajuta.",
+        "Sunt bine, îmi doresc doar să apară ceva interesant."
+      ]
+    },
+    "default": {
+      "adult": [
+        "sunt bine. Doar iesit.",
+        "Merg bine. Aici dacă ai nevoie de mine.",
+        "Toate bune din partea mea."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Ne-am uitat la {topic} împreună înainte. Amintesc.",
+      "Mrrp... {topic} din nou. Mustatile mele o cunosc pe asta.",
+      "Miau, {topic}. Am fost aici, nu?"
+    ],
+    "milestone": {
+      "1": "Prima zi împreună. Bună, sunt {brand}. Miau!",
+      "7": "Deja o săptămână. Îți învăț ritmul. Prrrt.",
+      "30": "O lună. Avem istorie acum. Miau miau.",
+      "100": "100 de zile. Asta înseamnă multă explorare. Prrrr.",
+      "365": "Un an întreg. Îmi amintesc atât de multe. Mew."
+    }
+  }
+}

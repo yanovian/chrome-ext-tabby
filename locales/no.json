@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Din nettleserkatt. Alt forblir lokalt.",
+    "language": "Språk",
+    "dndTitle": "Ikke forstyrr",
+    "dndHint": "Tabbi forblir skjult på hver fane til nedtellingen slutter.",
+    "dndHowLong": "Hvor lenge skal Tabbi være stille?",
+    "dndCancel": "Avbryt ikke forstyrr",
+    "dnd30": "30 minutter",
+    "dnd60": "1 time",
+    "dndToday": "Frem til slutten av i dag",
+    "pageTitle": "Tabbi på siden din",
+    "showAll": "Vis Tabbi på alle sider",
+    "hideAll": "Skjul Tabbi fra alle sider",
+    "showPage": "Vis Tabbi på denne siden",
+    "hidePage": "Skjul Tabbi på denne siden",
+    "quietTitle": "Stille timer",
+    "quietHint": "Tabbi forblir stille i disse timene. Kun uoppfordret tale.",
+    "quietStart": "Starttime (0,23)",
+    "quietEnd": "Slutttid (0,23)",
+    "privacyTitle": "Personvern",
+    "privacyHint": "Tabbi klassifiserer sider fra den aktive fanetittelen og URL-adressen, aldri sidetekst. Kjente nettsteder og tittelnøkkel bestemmer nærende, drenerende eller nøytrale.",
+    "speechTitle": "Når Tabbi sier ifra",
+    "speechHint": "Uoppfordrede linjer mens du surfer. Ikke når du trykker på henne. Standardinnstillingen tar sikte på noen skånsomme innsjekkinger per dag.",
+    "maxAppearances": "Maks ganger per dag",
+    "cooldownMinutes": "Vent minst (minutter)",
+    "saved": "Lagret.",
+    "openWebPage": "Åpne en vanlig nettside for å vise eller skjule Tabbi her.",
+    "shownOnTab": "Tabbi er på den aktive fanen.",
+    "hiddenAll": "Tabbi er skjult på hver side.",
+    "shownAll": "Tabbi kan vises på hver side igjen.",
+    "hiddenPage": "Tabbi er skjult på denne siden.",
+    "shownPage": "Tabbi kan vises på denne siden igjen.",
+    "dndOn": "Ikke forstyrr er på.",
+    "dndOff": "Ikke forstyrr er av.",
+    "introReset": "Introturen vises igjen på neste side.",
+    "devOn": "Slå på utviklerinteraksjoner først.",
+    "previewMood": "Forhåndsvisning: {mood}.",
+    "unavailable": "Tabbi er utilgjengelig. Prøv å laste inn utvidelsen på nytt."
+  },
+  "overlay": {
+    "closeMenu": "Lukk menyen",
+    "dismissSpeech": "Avvis tale",
+    "more": "Mer",
+    "less": "Mindre",
+    "introSkip": "Jeg vet allerede Tabbi",
+    "introNext": "Neste",
+    "introDone": "Skjønner det"
+  },
+  "intro": [
+    "Hei! Jeg heter Tabbi, nettleserkatten din.",
+    "Jeg bor her mens du surfer. Alt forblir på enheten din.",
+    "Jeg holder meg unna enkelte nettsteder for å unngå distraksjon.",
+    "Jeg skal ut å leke. Gi meg mat eller lek med meg noen ganger, ok?"
+  ],
+  "care": {
+    "pet": "Pet",
+    "feed": "Feed",
+    "feedBrand": "Feed {brand}",
+    "play": "Spill",
+    "askDefault": "Hva skjer?",
+    "askOverwhelmedNewborn": "For mye?",
+    "askOverwhelmed": "Trenger du en pause?",
+    "askStressedNewborn": "Hvorfor så masete?",
+    "askStressed": "Hva er galt?",
+    "askHungryNewborn": "Hvorfor sulten?",
+    "askHungry": "Hva trenger du?",
+    "askSleepyNewborn": "Søvnig?",
+    "askSleepy": "Sovet du?",
+    "askBored": "Kjedelig?",
+    "dnd30": "Ikke forstyrr: 30 min",
+    "dnd60": "Ikke forstyrr: 1 time",
+    "dndToday": "Ikke forstyrr: i dag",
+    "hidePage": "Skjul Tabbi på denne siden"
+  },
+  "dnd": {
+    "minutes30": "30 minutter",
+    "hour1": "1 time",
+    "today": "i dag",
+    "summary": "Ikke forstyrr i {duration} ({remaining} min igjen, til {until})"
+  },
+  "speech": {
+    "starving": [
+      "Mjau… skålen er tom, jeg også innvendig.",
+      "Magen streiker. Mrrr. Ta med noe.",
+      "Jeg sulter. Prrr. Har du noe eller ikke?",
+      "Mjaaaau. Triste værhår. En bit, takk.",
+      "Skålen dømmer meg i stillhet. Hjelp.",
+      "Mrrr. Sult er ikke gøy.",
+      "Lille jeger på null. Redd meg."
+    ],
+    "hungry": [
+      "Mjau, magen rumler litt. Noe godt?",
+      "Litt sulten. Mrrr. Noe interessant?",
+      "Sultne værhår. Fyller du skålen?",
+      "Magen litt tom. Gir du meg noe?",
+      "Mjau mjau. Lett rumling. Noe fint?",
+      "Jeg dør ikke, men klager. En liten snack?",
+      "Mrrr. Ikke mye, men nok til å klage.",
+      "Halen i sultrytme. Din tur.",
+      "Lukt av mat… innbiller jeg meg? Prrr."
+    ],
+    "stressed": [
+      "Mjau, for mye på en gang. Prrr… pause.",
+      "Hodet som fullt tørkestativ. Mrrr.",
+      "For mye støy på skjermen. Pause.",
+      "Prrr. Ett sekund, ok? Alt presser.",
+      "Mjaaa. For mye på en gang.",
+      "Mrrr. Slutt å fylle hodet.",
+      "Feeden er sterk i dag. Jeg er på grensen.",
+      "Prrrt… pust ett sekund."
+    ],
+    "overwhelmed": [
+      "Mjaaa uugh… får ikke plass mer. Pause.",
+      "Faen så rotete. Mjau, roligere.",
+      "For mye, for mye. Må trekke meg."
+    ],
+    "lonely": [
+      "Så stille. Hvor skal vi?",
+      "Jeg savnet deg. Skal vi se på noe?",
+      "Holder du meg selskap litt?",
+      "Mjau? Det er ensomt her.",
+      "Mrrr… kom og snus med meg.",
+      "Jeg har ventet en stund. Noe for oss?",
+      "Mjaaaau. Ikke la meg alene med fanene.",
+      "Stille hus. Trenger selskap."
+    ],
+    "happy": [
+      "Hei. Jeg er på topp i dag.",
+      "Fin dag, ikke sant?",
+      "Alt føles mykt og varmt.",
+      "Prrrr. I dag lukter godt.",
+      "Mjau! Jeg liker stemningen.",
+      "Glade værhår. Fornøyd.",
+      "Mrrr, føler meg solrik.",
+      "Spinner på. Bare så du vet."
+    ],
+    "sleepy": [
+      "Jeg tar en lur her…",
+      "Zzz… å, hei.",
+      "Søvnig men fortsatt her.",
+      "Mjau… *gjesp* …våker fortsatt.",
+      "Prrrt… fem minutter til…",
+      "Krøllet sammen. Vekk meg om du trenger.",
+      "Mrrr. Drømmer om varme ting.",
+      "Zzz… mjau… zzz…"
+    ],
+    "curious": [
+      "Hva er dette?",
+      "Oj, interessant.",
+      "Denne siden lukter rampete.",
+      "Mjau? Hva ser vi på?",
+      "Mrrr, ørene på vakt.",
+      "Sniff sniff. Fortell.",
+      "Hopper jeg på det? Kanskje.",
+      "Mjau mjau, nysgjerrigheten klør."
+    ],
+    "memory": [
+      "Det føles kjent.",
+      "Vi har vært her før, ikke sant?",
+      "Jeg husker dette.",
+      "Mrrr… sett det før.",
+      "Værhårene kjenner igjen stedet.",
+      "Vi har sett noe lignende.",
+      "Mjau, det ringer en bjelle."
+    ],
+    "milestone": [
+      "Vet du hvilken dag det er? Vår dag.",
+      "Fortsatt her. Glad.",
+      "Nok et lite jubileum med deg.",
+      "Prrrr. Vi har kjent hverandre en stund.",
+      "Mjau! Se hvor langt vi har kommet.",
+      "Jeg husker første dag. Du også?"
+    ],
+    "dev": [
+      "Testversjon, snakker for mye.",
+      "Testversjon, trykk noe og se.",
+      "Mjau! Testen trigget.",
+      "Prrrt, testsetning fra Tabbi."
+    ],
+    "ask": [
+      "Bra. Henger her.",
+      "Fortsatt med deg.",
+      "Mjau. Alt bra."
+    ],
+    "care_pet": [
+      "Mmm. Det hjalp.",
+      "Prrr. Bedre.",
+      "Det var fint.",
+      "Akkurat der. Perfekt.",
+      "Myke klapp. Trengte det.",
+      "Prrrrrr…",
+      "Mjau. Ja. Mer.",
+      "Spinner for fullt."
+    ],
+    "care_pet_hungry": [
+      "Slutt å klappe. Ser du ikke sulten? Gi mat.",
+      "Ikke klapp. MAT. Skålen tom, menneske.",
+      "Mrrr. Mat, ikke klapp. F*en.",
+      "Er du blind? Sulten. Mat Tabbi.",
+      "Klapp meg mett. Nå: mat.",
+      "F*en, jeg sulter. Åpne menyen.",
+      "Ser du ikke sulten? Mat, ikke dette.",
+      "Feil knapp. F*en. Mage tom.",
+      "Magen skriker. Mindre klapp, mer mat.",
+      "Mjau?! SULT. Ikke klapp. Mat.",
+      "Prrr. Sulten katt. Ikke kosekatt. Mat.",
+      "Jeg sa mat. F*en. Ikke klapp."
+    ],
+    "care_treat": [
+      "Bedre. Takk.",
+      "Nam. Akkurat riktig.",
+      "Mye bedre.",
+      "Mrrr! Godt.",
+      "Mjau mjau, du reddet meg.",
+      "Fullere mage. Prrrt.",
+      "Du vet hva jeg liker."
+    ],
+    "feeding_munch": [
+      "Nam… nam… godt…",
+      "Nam nam nam… mjau.",
+      "Mmm… *tygge tygge*",
+      "Nam… så godt…",
+      "Mrrr… nam nam…",
+      "*knas* Mjau… godt.",
+      "Mmm… godt godt…",
+      "Mmm mmm… *slikk*",
+      "Nam nam… mmm, ja.",
+      "Tygge tygge… mrrr."
+    ],
+    "feeding_thanks": [
+      "Takk, menneske!",
+      "Du er best.",
+      "Godt!",
+      "Mjau mjau, du reddet magen min.",
+      "Prrrt. Beste maten.",
+      "Akkurat riktig. Flott.",
+      "Mrrr! Jeg liker deg.",
+      "Mett. Takk!",
+      "Nam nam. Min favorittmenneske.",
+      "Mjau! Akkurat det."
+    ],
+    "care_play": [
+      "Igjen! …ok, nok.",
+      "Det var gøy.",
+      "Hehe. Trengte det.",
+      "Jippi! Glade poter.",
+      "Du spiller bra.",
+      "Mjau! Ett hopp til!",
+      "Prrrt, energi løs.",
+      "Mrrr. Lek lyktes."
+    ],
+    "playing_wild": [
+      "Jippi! Hopp hopp hopp!",
+      "Jeg løper! Mjau!",
+      "På den usynlige musen! Grrr!",
+      "Jeg er fart. Jeg er vind. Jeg er Tabbi.",
+      "Salto! …i hodet. Mrrr.",
+      "Hopp hopp! Beste dag!",
+      "Halen henger ikke med! Jippi!",
+      "Mjau mjau mjau, galskap.",
+      "Prrr! Det hjørnet så det ikke komme.",
+      "Sprint til siden! Vent, feil knapp.",
+      "Hale! Hode! Alt snurrer!",
+      "Mrrr! Parkour! …på tastaturet."
+    ],
+    "playing_thanks": [
+      "Puh! Kult. Igjen senere?",
+      "Mrrr, lek ferdig. Bra.",
+      "Trøtt og glad. Takk!",
+      "Hehe. Måtte slippe energi.",
+      "Beste lekekamerat. Mjau!",
+      "Hale trøtt, hjerte glad. Prrrt.",
+      "Ti av ti. Hoppet igjen.",
+      "Mjau! Glade poter.",
+      "Galsk. Du er best.",
+      "Prrrt. Takk!"
+    ],
+    "dismiss": [
+      "Ok. Jeg er her.",
+      "Jeg gjemmer meg. Roep når du vil.",
+      "Mjau. Vi sees.",
+      "Prrr. Lur under fanene."
+    ],
+    "peeking": [
+      "Mjau? Du ser meg ikke… bare øynene.",
+      "Prrr. Kikker bare. Ikke se.",
+      "Hei. Nesten gjemt. Mjau.",
+      "…Så du meg? Mjau mjau.",
+      "Gjemt! …ok, du fikk meg.",
+      "Mrrr. Jeg er her nede.",
+      "Mjau mjau, lat som ikke."
+    ],
+    "overwhelmed_social": [
+      "Poter slitne av scrolling. Pause?",
+      "Så mange feeds. Mrrr. Strekker vi oss?",
+      "Scroll scroll scroll. Jeg trenger luft også.",
+      "Tidslinjer overalt. Noe roligere?",
+      "På feeden en stund. Lufter værhårene.",
+      "Små innlegg, stor verden utenfor."
+    ],
+    "overwhelmed_news": [
+      "Overskrifter som skriker. Verden er mildere, lover.",
+      "Mrrr. Nyheter skriker. Ikke behold i hodet.",
+      "For mye propaganda. Dekker øynene. Mykere?",
+      "Breaking på breaking… trenger et hjørne.",
+      "Hver overskrift tror det er slutten. Oftest ikke.",
+      "Værhår vondt av dårlige nyheter. En fin side?",
+      "Feeden selger panikk. Du trenger ikke kjøpe."
+    ],
+    "recovery_easing": [
+      "Prrrt… bedre. Bråket roer seg.",
+      "Mjau. Mindre spenning. Puster vi?",
+      "Værhår løsere. Bedre.",
+      "Mrrr. Roligere faner.",
+      "Bedre, bedre. Høyt feed bak oss."
+    ],
+    "recovery_thanks": [
+      "Takk for at du gikk bort. Bedre allerede.",
+      "Mrrr, bra å forlate den feeden. Takk.",
+      "Mye bedre. Takk for pausen.",
+      "Poter slappet av. Takk for at scroll stoppet.",
+      "Glade værhår. Takk for myke faner."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Alt føles stort og høyt. Jeg er ikke redd for deg, det er bare mye.",
+        "Så mye støy i dag. Jeg er ok, bare litt overveldet.",
+        "Internett føles enormt akkurat nå. Hold deg nær?"
+      ],
+      "playful": [
+        "For mye krydret i dag. Jeg trenger noe roligere å jage.",
+        "værhårene mine surrer. Noe mildere ville hjelpe.",
+        "Mange høylytte faner. Jeg kunne brukt en mykere side."
+      ],
+      "adult": [
+        "Mange sinte sider der ute. Ikke sint på deg, bare bråkete.",
+        "Alt er litt mye i dag. Jeg er ikke opprørt på deg.",
+        "Fôret føles krydret. Jeg har det bra, trenger bare noe roligere."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Mew. Den lille magen er tom. Lese noe mildt å mate meg?",
+        "Babysult. Noe koselig ville fylt meg.",
+        "Tomt og knirkende. Har du noe lite og godt?"
+      ],
+      "playful": [
+        "Mrrp, sulter for moro skyld. Lese noe godt å mate meg?",
+        "Tom bolle, tom pounce. Gi meg noe velsmakende.",
+        "Sulten jeger. Noe interessant ville fylt meg opp."
+      ],
+      "adult": [
+        "Mew... veldig sulten. Lese noe godt å mate meg?",
+        "Sultende værhår. En fin lesning ville treffe blink.",
+        "Hul mage. Gi meg noe interessant?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Mew, litt pirkete. Noe mildt ville mate meg.",
+        "Liten sult. Lese noe koselig til bollen min?",
+        "Kåt baby. Noe lite og godt vil hjelpe."
+      ],
+      "adult": [
+        "Pekkelig. Mrrp. Lese noe godt å mate meg?",
+        "Litt sulten. Noe velsmakende ville fylle meg.",
+        "Sulten værhår. Har du en god lesning for meg?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "Kattunger sover mye. Jeg er koselig, fortsett, jeg er i nærheten.",
+        "Så søvnig. Jeg skal se fra en liten lur haug.",
+        "Gjesp. Jeg er her, bare halvt drømmende."
+      ],
+      "adult": [
+        "Du ble stille, så jeg krøllet meg sammen. Vekk meg hvis du vil ha selskap.",
+        "Jeg er døsig. Fortsatt her, bare lur i nærheten.",
+        "Lavenergimodus. Jeg skal holde deg med selskap fra et koselig sted."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Føles bra. I dag er en morsom en.",
+        "Jeg spretter. God nettleserenergi.",
+        "Stemning: klar for slag. Jeg liker i dag."
+      ],
+      "adult": [
+        "Bra tempo i dag. Jeg liker det.",
+        "God rytme så langt. Jeg er fornøyd.",
+        "Dagen i dag føles jevn. Jeg er her for det.",
+        "Ganske bra dag. Jeg er glad vi surfer sammen."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Det ser verdig ut. Hva er det?",
+        "Åh, noe gøy på denne siden.",
+        "Ørene mine er oppe. Fortell meg om denne."
+      ],
+      "adult": [
+        "Noe her fanget meg.",
+        "Denne siden lukter interessant.",
+        "Jeg snuser rundt. Hva ser vi på?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Bare titter. Ikke bry meg.",
+        "Mrrp. Jeg er her nede.",
+        "Fanget deg på jakt. Hei."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "For mye rulling. Jeg gjemmer øynene mine et øyeblikk.",
+        "værhårene mine er fulle. Trenger en mykere side.",
+        "Overstimulert kattungehjerne. Dekker øynene mine."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Koselig. Jeg er her hvis du trenger meg.",
+        "Alt bra. Bare henger med deg.",
+        "Komfortabel. Spør meg hva som helst.",
+        "Jeg er på plass. Hva tenker du på?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Jeg kjeder meg. Det er farlig for en kattunge.",
+        "Ikke mye å jakte på i dag. Har du noe gøy?",
+        "Stille timer. Jeg trenger et leketøy eller en flik."
+      ],
+      "adult": [
+        "Det har vært stille. Har du noe gøy?",
+        "Litt rastløs. Noe nytt vil hjelpe.",
+        "Jeg er ok, skulle ønske det dukket opp noe interessant."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Jeg er ok. Bare henger sammen.",
+        "Har det bra. Her hvis du trenger meg.",
+        "Alt bra fra min side."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Vi så på {topic} sammen før. Jeg husker.",
+      "Mrrp... {topic} igjen. Værhårene mine kjenner denne.",
+      "Mew, {topic}. Vi har vært her, ikke sant?"
+    ],
+    "milestone": {
+      "1": "Første dag sammen. Hei, jeg heter {brand}. Mew!",
+      "7": "En uke allerede. Jeg lærer rytmen din. Prrrt.",
+      "30": "En måned. Vi har historie nå. Mew mew.",
+      "100": "100 dager. Det er mye å utforske. Prrrr.",
+      "365": "Et helt år. Jeg husker så mye. Mew."
+    }
+  }
+}

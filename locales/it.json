@@ -1,0 +1,468 @@
+{
+  "brand": "Tabbi",
+  "settings": {
+    "title": "Tabbi",
+    "tagline": "Il tuo gatto del browser. Tutto rimane locale.",
+    "language": "Lingua",
+    "dndTitle": "Non disturbare",
+    "dndHint": "Tabbi resta nascosta su ogni scheda finché non scade il timer.",
+    "dndHowLong": "Per quanto tempo Tabbi deve stare zitta?",
+    "dndCancel": "Annulla non disturbare",
+    "dnd30": "30 minuti",
+    "dnd60": "1 ora",
+    "dndToday": "Fino a fine giornata",
+    "pageTitle": "Tabbi sulla tua pagina",
+    "showAll": "Mostra Tabbi su tutte le pagine",
+    "hideAll": "Nascondi Tabbi da tutte le pagine",
+    "showPage": "Mostra Tabbi su questa pagina",
+    "hidePage": "Nascondi Tabbi su questa pagina",
+    "quietTitle": "Ore tranquille",
+    "quietHint": "Tabbi rimane in silenzio durante queste ore. Parla solo da sola.",
+    "quietStart": "Ora inizio (0-23)",
+    "quietEnd": "Ora fine (0-23)",
+    "privacyTitle": "Privacy",
+    "privacyHint": "Tabbi classifica le pagine solo dal titolo e URL della scheda attiva, mai dal testo della pagina. Siti noti e parole nel titolo decidono nutriente, stressante o neutro.",
+    "speechTitle": "Quando Tabbi parla da sola",
+    "speechHint": "Quando parla da sola mentre navighi. Non quando la tocchi. Le impostazioni predefinite mirano ad alcuni momenti delicati al giorno.",
+    "maxAppearances": "Max volte al giorno",
+    "cooldownMinutes": "Attendi almeno (minuti)",
+    "saved": "Salvato.",
+    "hiddenAll": "Tabbi è nascosta su ogni pagina.",
+    "shownAll": "Tabbi può tornare su ogni pagina.",
+    "hiddenPage": "Tabbi è nascosta su questa pagina.",
+    "shownPage": "Tabbi può tornare su questa pagina.",
+    "dndOn": "Non disturbare è attivo.",
+    "dndOff": "Non disturbare è disattivo.",
+    "introReset": "Il tour introduttivo riapparirà sulla prossima pagina.",
+    "devOn": "Attiva prima le interazioni dev.",
+    "previewMood": "Anteprima: {mood}.",
+    "unavailable": "Tabbi non è disponibile. Prova a ricaricare l'estensione.",
+    "openWebPage": "Apri una normale pagina web per mostrare o nascondere Tabbi qui.",
+    "shownOnTab": "Tabbi è nella scheda attiva."
+  },
+  "overlay": {
+    "closeMenu": "Chiudi menu",
+    "dismissSpeech": "Chiudi messaggio",
+    "more": "Altro",
+    "less": "Meno",
+    "introSkip": "Conosco già Tabbi",
+    "introNext": "Avanti",
+    "introDone": "Capito"
+  },
+  "intro": [
+    "Ciao! Sono Tabbi, il tuo gatto del browser.",
+    "Vivo qui mentre navighi. Tutto resta sul tuo dispositivo.",
+    "Mi tengo lontana da alcuni siti per non distrarti.",
+    "Vado a giocare. Nutrimi o gioca con me ogni tanto, ok?"
+  ],
+  "care": {
+    "pet": "Accarezza",
+    "feed": "Nutri",
+    "feedBrand": "Nutri {brand}",
+    "play": "Gioca",
+    "askDefault": "Che succede?",
+    "askOverwhelmedNewborn": "Troppo?",
+    "askOverwhelmed": "Serve una pausa?",
+    "askStressedNewborn": "Perché così agitata?",
+    "askStressed": "Cosa non va?",
+    "askHungryNewborn": "Perché fame?",
+    "askHungry": "Di cosa hai bisogno?",
+    "askSleepyNewborn": "Assonnata?",
+    "askSleepy": "Facevi un pisolino?",
+    "askBored": "Annoiata?",
+    "dnd30": "Non disturbare: 30 min",
+    "dnd60": "Non disturbare: 1 ora",
+    "dndToday": "Non disturbare: oggi",
+    "hidePage": "Nascondi Tabbi su questa pagina"
+  },
+  "dnd": {
+    "minutes30": "30 minuti",
+    "hour1": "1 ora",
+    "today": "oggi",
+    "summary": "Non disturbare per {duration} ({remaining} min rimasti, fino a {until})"
+  },
+  "speech": {
+    "starving": [
+      "Miao… la ciotola è vuota, io pure dentro.",
+      "Pancia in sciopero. Mrrr. Porta qualcosa.",
+      "Sto morendo di fame. Prrr. Hai qualcosa o no?",
+      "Miaaaao. Baffi tristi. Un bocconcino, dai.",
+      "Il piatto mi guarda male. Aiuto.",
+      "Mrrr. Avere fame non è divertente.",
+      "Piccola cacciatrice a secco. Tirami fuori."
+    ],
+    "hungry": [
+      "Miao, la pancia brontola un po'. Qualcosa di buono?",
+      "Ho un certo languorino. Mrrr. Qualcosa di interessante?",
+      "Baffi affamati. Riempi la ciotola?",
+      "Pancia un po' vuota. Mi dai qualcosa?",
+      "Miao miao. Brontolio leggero. Qualcosa di carino?",
+      "Non muoio, ma protesto. Uno spuntino?",
+      "Mrrr. Non tanto, ma basta per lamentarmi.",
+      "Coda a ritmo di fame. Tocca a te.",
+      "Odore di cibo… o me lo immagino? Prrr."
+    ],
+    "stressed": [
+      "Miao, troppa roba insieme. Prrr… una pausa.",
+      "Testa come stenditoio pieno. Mrrr.",
+      "Troppo rumore sullo schermo. Pausa.",
+      "Prrr. Un secondo, ok? Mi stringe tutto.",
+      "Miaaaa. Troppo tutto insieme.",
+      "Mrrr. Basta riempirmi la testa.",
+      "Il feed oggi picca forte. Sono al limite.",
+      "Prrrt… respiriamo un attimo."
+    ],
+    "overwhelmed": [
+      "Miaaaa uugh… non entra più niente. Pausa.",
+      "Che casino. Miao, più piano.",
+      "Troppo, troppo. Devo tornare indietro."
+    ],
+    "lonely": [
+      "Che silenzio. Dove andiamo?",
+      "Mi sei mancata. Guardiamo qualcosa?",
+      "Mi fai compagnia un attimo?",
+      "Miao? Qui è troppo sola.",
+      "Mrrr… vieni a curiosare con me.",
+      "Aspetto da un po'. Qualcosa per noi?",
+      "Miaaaao. Non lasciarmi sola con le schede.",
+      "Casa silenziosa. Mi serve compagnia."
+    ],
+    "happy": [
+      "Ehi. Oggi sono in forma.",
+      "Bella giornata, eh?",
+      "Tutto morbido e caldo.",
+      "Prrrr. Oggi profuma bene.",
+      "Miao! Mi piace quest'atmosfera.",
+      "Baffi contenti. Sono felice.",
+      "Mrrr, mi sento al sole.",
+      "Fusa attiva. Giusto per dirtelo."
+    ],
+    "sleepy": [
+      "Faccio un pisolino qui vicino…",
+      "Zzz… oh, ciao.",
+      "Assonnata, ma ancora qui.",
+      "Miao… *sbadiglio* …vegilo ancora.",
+      "Prrrt… ancora cinque minuti…",
+      "Arrotolata. Svegliami se serve.",
+      "Mrrr. Sogno cose calde.",
+      "Zzz… miao… zzz…"
+    ],
+    "curious": [
+      "Cos'è questo?",
+      "Ooh, interessante.",
+      "Questa pagina sa di guai.",
+      "Miao? Cosa guardiamo?",
+      "Mrrr, orecchie in allerta.",
+      "Sniff sniff. Racconta.",
+      "Ci salto sopra? Forse.",
+      "Miao miao, la curiosità mi prude."
+    ],
+    "memory": [
+      "Mi suona familiare.",
+      "Siamo già passate di qui, no?",
+      "Ricordo questo argomento.",
+      "Mrrr… già visto.",
+      "I miei baffi conoscono questo posto.",
+      "Abbiamo già visto roba simile.",
+      "Miao, mi torna in mente."
+    ],
+    "milestone": [
+      "Sai che giorno è? Il nostro giorno.",
+      "Ancora qui. Contenta.",
+      "Un altro piccolo anniversario con te.",
+      "Prrrr. Siamo insieme da un po'.",
+      "Miao! Guarda quanto siamo arrivate.",
+      "Ricordo il primo giorno. Anche tu?"
+    ],
+    "dev": [
+      "Versione di prova, parlo troppo.",
+      "Versione di prova, tocca qualcosa e guarda.",
+      "Miao! È partito il test.",
+      "Prrrt, frase di prova di Tabbi."
+    ],
+    "ask": [
+      "Tutto ok. Sto qui.",
+      "Ancora con te.",
+      "Miao. Va bene così."
+    ],
+    "care_pet": [
+      "Mmm. Ha aiutato.",
+      "Prrr. Meglio.",
+      "È stato bello.",
+      "Proprio lì. Perfetto.",
+      "Carezze dolci. Ne avevo bisogno.",
+      "Prrrrrr…",
+      "Miao. Sì. Ancora.",
+      "Fusa a tutto gas."
+    ],
+    "care_pet_hungry": [
+      "Basta carezze. Non vedi che ho fame? Dammi da mangiare.",
+      "Niente grattini. CIBO. Ciotola vuota, umana.",
+      "Mrrr. Cibo, non carezze. Merda.",
+      "Sei cieca? Ho fame. Nutri Tabbi.",
+      "Accarezzami quando sono piena. Adesso: cibo.",
+      "Merda, sto morendo di fame. Apri il menu.",
+      "Non vedi la fame? Cibo, non questo.",
+      "Pulsante sbagliato. Merda. Pancia vuota.",
+      "La pancia urla. Meno carezze, più cibo.",
+      "Miao?! FAME. Non carezze. Cibo.",
+      "Prrr. Gatta affamata. Non gatta coccolosa. Cibo.",
+      "Ho detto cibo. Merda. Non carezze."
+    ],
+    "care_treat": [
+      "Meglio. Grazie.",
+      "Gnam. Proprio quello che serviva.",
+      "Molto meglio.",
+      "Mrrr! Buono.",
+      "Miao miao, mi hai salvata.",
+      "Pancia più piena. Prrrt.",
+      "Sai cosa mi piace."
+    ],
+    "feeding_munch": [
+      "Gnam… gnam… buono…",
+      "Gnam gnam gnam… miao.",
+      "Mmm… *mastica mastica*",
+      "Gnam… che buono…",
+      "Mrrr… gnam gnam…",
+      "*croccante* Miao… buono.",
+      "Mmm… buono buono…",
+      "Mmm mmm… *lecca*",
+      "Gnam gnam… mmm, sì.",
+      "Mastica mastica… mrrr."
+    ],
+    "feeding_thanks": [
+      "Grazie, umana!",
+      "Sei la migliore.",
+      "Delizioso!",
+      "Miao miao, hai salvato la mia pancia.",
+      "Prrrt. Il miglior pasto di sempre.",
+      "Proprio quello che serviva. Grande.",
+      "Mrrr! Ti voglio bene.",
+      "Piena. Grazie!",
+      "Gnam gnam. La mia umana preferita.",
+      "Miao! Era proprio quello."
+    ],
+    "care_play": [
+      "Ancora! …ok, basta.",
+      "È stato divertente.",
+      "Eh eh. Ne avevo bisogno.",
+      "Evviva! Zampe felici.",
+      "Giochi bene.",
+      "Miao! Un altro balzo!",
+      "Prrrt, energia scatenata.",
+      "Mrrr. Gioco riuscito."
+    ],
+    "playing_wild": [
+      "Evviva! Balzo balzo balzo!",
+      "Corro corro! Miao!",
+      "Al topo invisibile! Grrr!",
+      "Sono velocità. Sono vento. Sono Tabbi.",
+      "Capriola! …nella testa. Mrrr.",
+      "Rimbalzo rimbalzo! Miglior giorno!",
+      "La coda non regge! Evviva!",
+      "Miao miao miao, modalità pazza.",
+      "Prrr! Quell'angolo non se l'aspettava.",
+      "Sprint laterale! Aspetta, pulsante sbagliato.",
+      "Coda! Testa! Tutto gira!",
+      "Mrrr! Parkour! …sulla tastiera."
+    ],
+    "playing_thanks": [
+      "Fiu! Fantastico. Ancora dopo?",
+      "Mrrr, gioco finito. Bello.",
+      "Stanca e felice. Grazie!",
+      "Eh eh. Dovevo sfogarmi.",
+      "La migliore compagna. Miao!",
+      "Coda stanca, cuore felice. Prrrt.",
+      "Dieci su dieci. Rifarei un balzo.",
+      "Miao! Zampe felici.",
+      "Pazzesco. Sei la migliore.",
+      "Prrrt. Grazie!"
+    ],
+    "dismiss": [
+      "Ok. Sono qui.",
+      "Mi nascondo. Richiamami quando vuoi.",
+      "Miao. A presto.",
+      "Prrr. Pisolino sotto le schede."
+    ],
+    "peeking": [
+      "Miao? Non mi vedi… solo gli occhi.",
+      "Prrr. Sbircio solo. Non guardare.",
+      "Ciao. Quasi nascosta. Miao.",
+      "…Mi hai vista? Miao miao.",
+      "Nascosta! …ok, beccata.",
+      "Mrrr. Sono qui sotto.",
+      "Miao miao, fai finta di no."
+    ],
+    "overwhelmed_social": [
+      "Zampe stanche dallo scroll. Una pausa?",
+      "Tanti feed. Mrrr. Ci stiracchiamo?",
+      "Scroll scroll scroll. Anche io ho bisogno d'aria.",
+      "Timeline ovunque. Qualcosa di più calmo?",
+      "Sul feed da un po'. Arieggiamo i baffi.",
+      "Post piccoli, mondo grande fuori."
+    ],
+    "overwhelmed_news": [
+      "Titoli urlanti. Il mondo è più dolce, promesso.",
+      "Mrrr. Le notizie urlano. Non tenerle in testa.",
+      "Troppa propaganda. Mi copro gli occhi. Più soft?",
+      "Ultim'ora su ultim'ora… serve un angolo.",
+      "Ogni titolo pensa sia la fine. Quasi mai.",
+      "Baffi doloranti dal scroll di notizie. Una bella pagina?",
+      "Il feed vende panico. Non devi comprarlo."
+    ],
+    "recovery_easing": [
+      "Prrrt… meglio. Il rumore cala.",
+      "Miao. Meno tensione. Respiriamo?",
+      "Baffi più sciolti. Meglio.",
+      "Mrrr. Schede più tranquille.",
+      "Meglio, meglio. Il feed rumoroso è alle spalle."
+    ],
+    "recovery_thanks": [
+      "Grazie per esserti allontanata. Sto meglio.",
+      "Mrrr, bella idea lasciare quel feed. Grazie.",
+      "Molto meglio. Grazie per la pausa.",
+      "Zampe rilassate. Grazie per aver fermato lo scroll.",
+      "Baffi contenti. Grazie per schede dolci."
+    ]
+  },
+  "explain": {
+    "stressed": {
+      "newborn": [
+        "Tutto sembra grande e rumoroso. Non ho paura di te, è solo tanto.",
+        "Tanto rumore oggi. Sto bene, solo un po' sopraffatta.",
+        "Internet sembra enorme adesso. Resti vicina?"
+      ],
+      "playful": [
+        "Troppo piccante oggi. Ho bisogno di qualcosa di più calmo da inseguire.",
+        "I baffi vibrano. Qualcosa di più dolce aiuterebbe.",
+        "Tante schede rumorose. Potrei usare una pagina più soft."
+      ],
+      "adult": [
+        "Tante pagine arrabbiate là fuori. Non sono arrabbiata con te, solo rumore.",
+        "Oggi è un po' troppo. Non sono turbata per colpa tua.",
+        "Il feed è piccante. Sto bene, serve solo calma."
+      ]
+    },
+    "starving": {
+      "newborn": [
+        "Miao. Pancina piccola vuota. Leggi qualcosa di dolce per nutrirmi?",
+        "Fame da bebè. Qualcosa di accogliente mi riempirebbe.",
+        "Vuota e stridula. Hai qualcosa di piccolo e buono?"
+      ],
+      "playful": [
+        "Mrrp, affamata di divertimento. Leggi qualcosa di buono per nutrirmi?",
+        "Ciotola vuota, balzo vuoto. Nutrimi con qualcosa di gustoso.",
+        "Cacciatrice affamata. Qualcosa di interessante mi riempirebbe."
+      ],
+      "adult": [
+        "Miao… molta fame. Leggi qualcosa di buono per nutrirmi?",
+        "Baffi affamati. Una bella lettura farebbe al caso mio.",
+        "Pancia vuota. Mi nutri con qualcosa di interessante?"
+      ]
+    },
+    "hungry": {
+      "newborn": [
+        "Miao, un po' di fame. Qualcosa di dolce mi nutrirebbe.",
+        "Piccola fame. Leggi qualcosa di accogliente per la mia ciotola?",
+        "Bebè affamata. Qualcosa di piccolo e buono aiuterebbe."
+      ],
+      "adult": [
+        "Un po' di languorino. Mrrp. Leggi qualcosa di buono per nutrirmi?",
+        "Un po' di fame. Qualcosa di gustoso mi riempirebbe.",
+        "Baffi affamati. Hai una buona lettura per me?"
+      ]
+    },
+    "sleepy": {
+      "newborn": [
+        "I gattini bebè dormono tanto. Sono accogliente, continua, sono qui vicino.",
+        "Così assonnata. Guarderò da un piccolo mucchio di sonno.",
+        "Sbadiglio. Sono qui, solo a metà sogno."
+      ],
+      "adult": [
+        "Sei stata zitta, così mi sono arrotolata. Svegliami se vuoi compagnia.",
+        "Ho sonno. Ancora qui, solo pisolino vicino.",
+        "Modalità bassa energia. Ti faccio compagnia da un posto accogliente."
+      ]
+    },
+    "happy": {
+      "playful": [
+        "Mi sento bene. Oggi è divertente.",
+        "Rimbalzo. Buona energia di navigazione.",
+        "Umore: pronta al balzo. Mi piace oggi."
+      ],
+      "adult": [
+        "Bel ritmo oggi. Mi piace.",
+        "Buon ritmo finora. Sono contenta.",
+        "Oggi sembra stabile. Ci sono.",
+        "Giornata piuttosto buona. Felice di navigare insieme."
+      ]
+    },
+    "curious": {
+      "playful": [
+        "Sembra degno di un balzo. Cos'è?",
+        "Ooh, qualcosa di divertente su questa pagina.",
+        "Orecchie dritte. Raccontami di questa."
+      ],
+      "adult": [
+        "Qualcosa qui ha attirato il mio occhio.",
+        "Questa pagina sa di interessante.",
+        "Sto annusando. Cosa stiamo guardando?"
+      ]
+    },
+    "peek": {
+      "adult": [
+        "Solo sbircio. Non badare a me.",
+        "Mrrp. Sono qui sotto.",
+        "Ti ho beccata a guardare. Ciao."
+      ]
+    },
+    "overwhelmed": {
+      "adult": [
+        "Troppo scroll. Mi copro gli occhi un minuto.",
+        "I baffi sono pieni. Serve una pagina più soft.",
+        "Cervello da gattina sovrastimolato. Mi copro gli occhi."
+      ]
+    },
+    "content": {
+      "adult": [
+        "Accogliente. Sono qui se mi serve.",
+        "Tutto ok. Sto solo con te.",
+        "Comoda. Chiedimi qualsiasi cosa.",
+        "Mi sono sistemata. Cosa hai in mente?"
+      ]
+    },
+    "content_bored": {
+      "playful": [
+        "Mi annoio. È pericoloso per una gattina.",
+        "Poco da inseguire oggi. Hai qualcosa di divertente?",
+        "Ore tranquille. Mi serve un giocattolo o una scheda."
+      ],
+      "adult": [
+        "È stato silenzioso. Hai qualcosa di divertente?",
+        "Un po' irrequieta. Qualcosa di nuovo aiuterebbe.",
+        "Sto bene, solo vorrei che arrivasse qualcosa di interessante."
+      ]
+    },
+    "default": {
+      "adult": [
+        "Sto bene. Sto solo qui.",
+        "Tutto ok. Qui se mi serve.",
+        "Tutto bene da parte mia."
+      ]
+    }
+  },
+  "speechTemplates": {
+    "memory": [
+      "Abbiamo già guardato {topic} insieme. Ricordo.",
+      "Mrrp… {topic} di nuovo. I miei baffi conoscono questo.",
+      "Miao, {topic}. Siamo già state qui, vero?"
+    ],
+    "milestone": {
+      "1": "Primo giorno insieme. Ciao, sono {brand}. Miao!",
+      "7": "Già una settimana. Imparo il tuo ritmo. Prrrt.",
+      "30": "Un mese. Abbiamo storia ora. Miao miao.",
+      "100": "100 giorni. Tanta esplorazione. Prrrr.",
+      "365": "Un anno intero. Ricordo tantissimo. Miao."
+    }
+  }
+}

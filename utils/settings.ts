@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from './types';
 import { MOOD_TIMER_DEV_DEFAULTS, MOOD_TIMER_SLIDER_BOUNDS } from './mood-timers';
+import { normalizeLocaleTag } from './locale-registry';
 import type {
   CatMood,
   DevLifeStageOverride,
@@ -149,6 +150,10 @@ export function mergeSettings(
       typeof raw.showOverlay === 'boolean'
         ? raw.showOverlay
         : DEFAULT_SETTINGS.showOverlay,
+    locale:
+      typeof raw.locale === 'string'
+        ? normalizeLocaleTag(raw.locale)
+        : DEFAULT_SETTINGS.locale,
   };
 }
 
@@ -183,7 +188,8 @@ export function settingsChangeRequiresPresent(
   return (
     before.devForceLifeStage !== after.devForceLifeStage ||
     before.devForceMood !== after.devForceMood ||
-    before.devModeEnabled !== after.devModeEnabled
+    before.devModeEnabled !== after.devModeEnabled ||
+    before.locale !== after.locale
   );
 }
 

@@ -138,6 +138,15 @@
   background: #fff;
 }
 
+.settings__locale-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d7ccc8;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+}
+
 .settings__temper-panel {
   margin-top: 8px;
   padding-top: 8px;

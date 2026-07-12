@@ -1,3 +1,4 @@
+import { t } from './i18n';
 import type { DoNotDisturbDuration, DoNotDisturbStatus } from './types';
 import { STORAGE_KEYS } from './types';
 
@@ -26,11 +27,11 @@ export function resolveDoNotDisturbUntil(
 export function describeDoNotDisturbDuration(duration: DoNotDisturbDuration): string {
   switch (duration) {
     case '30m':
-      return '30 minutes';
+      return t('dnd.minutes30');
     case '60m':
-      return '1 hour';
+      return t('dnd.hour1');
     case 'today':
-      return 'today';
+      return t('dnd.today');
   }
 }
 
@@ -48,7 +49,11 @@ export function formatDoNotDisturbSummary(input: {
     ? describeDoNotDisturbDuration(input.duration)
     : `${remainingMin} minutes`;
 
-  return `Do not disturb for ${durationLabel} (${remainingMin} min left, until ${untilTime})`;
+  return t('dnd.summary', {
+    duration: durationLabel,
+    remaining: remainingMin,
+    until: untilTime,
+  });
 }
 
 export function isDoNotDisturbActive(state: DoNotDisturbState, now: number): boolean {
