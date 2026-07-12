@@ -27,7 +27,7 @@ Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuil
 
 ## GitHub Pages
 
-1. Repo **Settings → Pages → Source:** **GitHub Actions**
-2. Push to `master` (or run **Deploy website** workflow)
+1. Repo **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions**.
+2. Push to `master` or run the **Deploy website** workflow manually.
 
-Deploy workflow: `.github/workflows/pages.yml`.
+Deploy workflow: `.github/workflows/pages.yml` (Node 24, `deploy-pages@v5`).

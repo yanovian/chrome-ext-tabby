@@ -51,7 +51,8 @@ After changing extension GIFs, icons, or Lottie source clips, rebuild or restart
 - `website/` has its own `package.json` and `pnpm-lock.yaml`
 - Root `pnpm check` does **not** build the website; extension typecheck excludes `website/` (see `scripts/patch-wxt-tsconfig.mjs`)
 - ESLint ignores `website/**`
-- Deploy: `.github/workflows/pages.yml` (not `ci.yml`)
+- Deploy: `.github/workflows/pages.yml` (Node 24, `configure-pages@v5`, `upload-pages-artifact@v5`, `deploy-pages@v5`). Not `ci.yml`.
+- **Pages must be enabled** in repo Settings with source **GitHub Actions**, or deploy returns HTTP 404.
 
 ## When changing the site
 
