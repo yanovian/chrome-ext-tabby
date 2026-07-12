@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: kissa, joka asuu selaimessasi",
+  "description": "Ilmainen Chrome-laajennus. Silitä häntä, ruoki häntä ja katso, miten hän kasvaa kissanpennusta aikuiseksi. Yksityinen, paikallinen ja ilmainen.",
+  "ogImageAlt": "Tabby, oranssi kissa, joka asuu selaimessasi",
+  "privacy": {
+    "title": "Tabbyn tietosuojakäytäntö",
+    "description": "Miten Tabby käsittelee tietojasi. Vain paikallisesti, ei tilejä, ei pilveä. Vain aktiivisen välilehden otsikko ja osoite."
+  },
+  "terms": {
+    "title": "Tabbyn käyttöehdot",
+    "description": "Tabby Chrome -laajennuksen käyttöehdot. Ilmainen ohjelmisto Yanovian LLC:ltä."
+  }
+}

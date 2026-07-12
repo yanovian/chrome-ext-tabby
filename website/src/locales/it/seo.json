@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: una gatta che vive nel tuo browser",
+  "description": "Un'estensione gratuita per Chrome. Accarezzala, nutrirla e guardala crescere da gattina ad adulta. Privata, locale e gratuita.",
+  "ogImageAlt": "Tabby, una gatta arancione che vive nel tuo browser",
+  "privacy": {
+    "title": "Informativa sulla privacy di Tabby",
+    "description": "Come Tabby gestisce i tuoi dati. Solo in locale, senza account né cloud. Solo titolo e URL della scheda attiva."
+  },
+  "terms": {
+    "title": "Termini di servizio di Tabby",
+    "description": "Termini per l'uso dell'estensione Tabby per Chrome. Software gratuito di Yanovian LLC."
+  }
+}

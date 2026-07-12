@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: kucing yang tinggal di peramban Anda",
+  "description": "Ekstensi peramban gratis. Belai, beri makan, dan saksikan dia tumbuh dari anak kucing menjadi kucing dewasa. Privat, lokal, dan gratis.",
+  "ogImageAlt": "Tabby, kucing oranye yang tinggal di peramban Anda",
+  "privacy": {
+    "title": "Kebijakan Privasi Tabby",
+    "description": "Bagaimana Tabby menangani data Anda. Hanya lokal, tanpa akun, tanpa awan. Hanya judul tab aktif dan alamat web."
+  },
+  "terms": {
+    "title": "Ketentuan Layanan Tabby",
+    "description": "Ketentuan penggunaan ekstensi peramban Tabby. Perangkat lunak gratis dari Yanovian LLC."
+  }
+}

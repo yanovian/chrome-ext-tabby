@@ -1,6 +1,6 @@
 .PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales test test-watch \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major \
-	website-install website-dev website-build website-preview website-clean
+	website-install website-dev website-build website-preview website-clean website-lint-i18n website-lint-i18n-fix
 
 PNPM ?= pnpm
 WEBSITE ?= website
@@ -80,6 +80,12 @@ website-preview: website-build ## Preview production build at http://localhost:4
 
 website-clean: ## Remove marketing site dist and copied public assets
 	rm -rf $(WEBSITE)/dist $(WEBSITE)/public
+
+website-lint-i18n: ## Check website locale JSON keys match en (no missing, no extra)
+	cd $(WEBSITE) && $(PNPM) lint-i18n
+
+website-lint-i18n-fix: ## Add missing locale keys as "" (warns per locale/key)
+	cd $(WEBSITE) && $(PNPM) lint-i18n-fix
 
 release-patch: check ## Bump patch version, tag vX.Y.Z, push (triggers GitHub release)
 	$(PNPM) version patch -m "Release v%s"

@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: en kat, der bor i din browser",
+  "description": "En gratis Chrome-udvidelse. Klap hende, fodr hende og se hende vokse fra killing til voksen kat. Privat, lokal og gratis.",
+  "ogImageAlt": "Tabby, en orange kat, der bor i din browser",
+  "privacy": {
+    "title": "Privatlivspolitik for Tabby",
+    "description": "Sådan håndterer Tabby dine data. Kun lokalt, ingen konti, ingen sky. Kun titel og URL for den aktive fane."
+  },
+  "terms": {
+    "title": "Servicevilkår for Tabby",
+    "description": "Vilkår for brug af Tabby Chrome-udvidelsen. Gratis software fra Yanovian LLC."
+  }
+}

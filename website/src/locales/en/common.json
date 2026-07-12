@@ -1,3 +1,7 @@
 {
-  "footerCredit": "Created by <yanovian>Yanovian LLC</yanovian> and <pooyan>Pooyan Razian</pooyan>."
+  "footerTagline": "A cat that lives in your browser.",
+  "footerCredit": "Created by <yanovian>Yanovian LLC</yanovian> and <pooyan>Pooyan Razian</pooyan>.",
+  "sourceOnGitHub": "Source on GitHub",
+  "privacyLink": "Privacy policy",
+  "termsLink": "Terms of service"
 }

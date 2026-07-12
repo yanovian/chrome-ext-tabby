@@ -1,25 +1,28 @@
+import { useTranslation } from 'react-i18next';
 import { Button, Section } from '@/components/ui';
-import { CHROME_STORE_URL, privacyPoints } from '@/content';
+import { CHROME_STORE_URL, privacyPointKeys } from '@/content';
 
 export function PrivacyStrip() {
+  const { t } = useTranslation('marketing');
+
   return (
     <Section id="privacy" tinted>
       <div className="privacy-strip">
         <div>
-          <p className="eyebrow">Private by design</p>
-          <h2>Your browsing stays yours</h2>
+          <p className="eyebrow">{t('privacyEyebrow')}</p>
+          <h2>{t('privacyTitle')}</h2>
           <ul className="privacy-list">
-            {privacyPoints.map((point) => (
-              <li key={point}>{point}</li>
+            {privacyPointKeys.map((key) => (
+              <li key={key}>{t(key)}</li>
             ))}
           </ul>
           <Button to="/privacy" variant="ghost">
-            Read the privacy policy
+            {t('privacyRead')}
           </Button>
         </div>
         <div className="privacy-strip__cta">
-          <p>Ready for a co-pilot with whiskers?</p>
-          <Button href={CHROME_STORE_URL}>Get Tabby free</Button>
+          <p>{t('privacyCtaLead')}</p>
+          <Button href={CHROME_STORE_URL}>{t('privacyCtaButton')}</Button>
         </div>
       </div>
     </Section>

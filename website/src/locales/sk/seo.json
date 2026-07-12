@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: mačka, ktorá žije vo vašom prehliadači",
+  "description": "Bezplatné rozšírenie pre Chrome. Hladkajte ju, kŕmte ju a sledujte, ako rastie z mačiatka na dospelú mačku. Súkromné, lokálne a zadarmo.",
+  "ogImageAlt": "Tabby, oranžová mačka, ktorá žije vo vašom prehliadači",
+  "privacy": {
+    "title": "Zásady ochrany súkromia Tabby",
+    "description": "Ako Tabby narába s vašimi údajmi. Iba lokálne, bez účtov a cloudu. Len názov a URL aktívnej karty."
+  },
+  "terms": {
+    "title": "Podmienky služby Tabby",
+    "description": "Podmienky používania rozšírenia Tabby pre Chrome. Bezplatný softvér od Yanovian LLC."
+  }
+}

@@ -17,7 +17,7 @@ export function Footer() {
           <img src="icon-48.png" width={32} height={32} alt="" />
           <span>Tabby</span>
         </div>
-        <p className="footer__tagline">A cat that lives in your browser.</p>
+        <p className="footer__tagline">{t('footerTagline')}</p>
         <p className="footer__credit">
           <Trans
             i18nKey="footerCredit"
@@ -38,10 +38,10 @@ export function Footer() {
         </p>
         <nav className="footer__links" aria-label="Footer">
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-            Source on GitHub
+            {t('sourceOnGitHub')}
           </a>
-          <Link to="/privacy">Privacy policy</Link>
-          <Link to="/terms">Terms of service</Link>
+          <Link to="/privacy">{t('privacyLink')}</Link>
+          <Link to="/terms">{t('termsLink')}</Link>
         </nav>
         <p className="footer__copy">© {year} Tabby</p>
       </div>

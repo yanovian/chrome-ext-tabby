@@ -14,14 +14,14 @@ import {
 import { useHead } from '@unhead/react';
 import { defineSoftwareApp, defineWebSite, useSchemaOrg } from '@unhead/schema-org/react';
 import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES } from '@/i18n';
+import { SUPPORTED_LANGUAGES, type WebsiteLocale } from '@/i18n';
+import { hreflangTag, ogLocaleTag } from '@/i18n/locales';
 
 function ogLocale(language: string): string {
-  if (language === 'en') {
-    return 'en_US';
+  if (SUPPORTED_LANGUAGES.includes(language as WebsiteLocale)) {
+    return ogLocaleTag(language as WebsiteLocale);
   }
-  const [lang, region] = language.split('-');
-  return region ? `${lang}_${region.toUpperCase()}` : `${lang}_${lang.toUpperCase()}`;
+  return 'en_US';
 }
 
 export function Seo() {
@@ -60,7 +60,7 @@ export function Seo() {
       { rel: 'apple-touch-icon', href: absoluteAssetUrl('icon.png') },
       ...SUPPORTED_LANGUAGES.map((language) => ({
         rel: 'alternate',
-        hreflang: language,
+        hreflang: hreflangTag(language),
         href: SITE_URL,
       })),
       { rel: 'alternate', hreflang: 'x-default', href: SITE_URL },

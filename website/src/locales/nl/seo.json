@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: een kat die in je browser leeft",
+  "description": "Een gratis Chrome-extensie. Aai haar, voer haar en kijk hoe ze van kitten tot volwassen kat groeit. Privé, lokaal en gratis.",
+  "ogImageAlt": "Tabby, een oranje kat die in je browser leeft",
+  "privacy": {
+    "title": "Privacybeleid voor Tabby",
+    "description": "Hoe Tabby met je gegevens omgaat. Alleen lokaal, geen accounts, geen cloud. Alleen titel en URL van het actieve tabblad."
+  },
+  "terms": {
+    "title": "Gebruiksvoorwaarden voor Tabby",
+    "description": "Voorwaarden voor het gebruik van de Tabby Chrome-extensie. Gratis software van Yanovian LLC."
+  }
+}

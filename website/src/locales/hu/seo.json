@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: egy macska, amely a böngésződben él",
+  "description": "Ingyenes Chrome-bővítmény. Simogasd meg, etesd meg, és nézd, ahogy kiscicából felnőtt macskává nő. Privát, helyi és ingyenes.",
+  "ogImageAlt": "Tabby, egy narancssárga macska, amely a böngésződben él",
+  "privacy": {
+    "title": "Tabby adatvédelmi irányelvei",
+    "description": "Hogyan kezeli Tabby az adataidat. Csak helyben, fiókok és felhő nélkül. Csak az aktív lap címe és címe."
+  },
+  "terms": {
+    "title": "Tabby szolgáltatási feltételei",
+    "description": "A Tabby Chrome-bővítmény használatának feltételei. Ingyenes szoftver a Yanovian LLC-től."
+  }
+}

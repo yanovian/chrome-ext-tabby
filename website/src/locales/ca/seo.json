@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: una gata que viu al teu navegador",
+  "description": "Una extensió gratuïta per a Chrome. Acaricia-la, alimenta-la i mira com creix de gateta a adulta. Privada, local i gratuïta.",
+  "ogImageAlt": "Tabby, una gata taronja que viu al teu navegador",
+  "privacy": {
+    "title": "Política de privacitat de Tabby",
+    "description": "Com la Tabby tracta les teves dades. Només en local, sense comptes ni núvol. Només el títol i l'URL de la pestanya activa."
+  },
+  "terms": {
+    "title": "Termes del servei de Tabby",
+    "description": "Termes d'ús de l'extensió Tabby per a Chrome. Programari gratuït de Yanovian LLC."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: kočka, která žije ve vašem prohlížeči",
+  "description": "Bezplatné rozšíření pro Chrome. Hlaďte ji, krmte ji a sledujte, jak roste z koťátka v dospělou kočku. Soukromé, lokální a zdarma.",
+  "ogImageAlt": "Tabby, oranžová kočka, která žije ve vašem prohlížeči",
+  "privacy": {
+    "title": "Zásady ochrany soukromí Tabby",
+    "description": "Jak Tabby nakládá s vašimi daty. Pouze lokálně, bez účtů a cloudu. Jen název a URL aktivní karty."
+  },
+  "terms": {
+    "title": "Podmínky služby Tabby",
+    "description": "Podmínky používání rozšíření Tabby pro Chrome. Bezplatný software od Yanovian LLC."
+  }
+}

@@ -1,20 +1,42 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TabbyLottie } from '@/components/TabbyLottie';
-import { HERO_SCENE_MS, HERO_TRANSITION_MS, heroScenes } from '@/content';
+import { HERO_SCENE_MS, HERO_TRANSITION_MS, heroSceneDefs } from '@/content';
 
-function sceneAt(offset: number, from: number) {
-  const len = heroScenes.length;
-  return heroScenes[(from + offset + len) % len]!;
+type HeroScene = {
+  id: string;
+  tab: string;
+  lottie: string;
+  speech: string;
+  alt: string;
+};
+
+function sceneAt(scenes: HeroScene[], offset: number, from: number) {
+  const len = scenes.length;
+  return scenes[(from + offset + len) % len]!;
 }
 
 export function HeroTabShowcase() {
+  const { t, i18n } = useTranslation('marketing');
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<'show' | 'leave'>('show');
   const [motionOk, setMotionOk] = useState(true);
 
+  const heroScenes = useMemo(
+    () =>
+      heroSceneDefs.map((def) => ({
+        id: def.id,
+        lottie: def.lottie,
+        tab: t(`scene${def.key}Tab`),
+        speech: t(`scene${def.key}Speech`),
+        alt: t(`scene${def.key}Alt`),
+      })),
+    [t, i18n.language],
+  );
+
   const scene = heroScenes[index]!;
-  const backTab = sceneAt(1, index);
-  const farTab = sceneAt(2, index);
+  const backTab = sceneAt(heroScenes, 1, index);
+  const farTab = sceneAt(heroScenes, 2, index);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -44,7 +66,7 @@ export function HeroTabShowcase() {
         clearTimeout(swapTimer);
       }
     };
-  }, [motionOk]);
+  }, [motionOk, heroScenes.length]);
 
   return (
     <div className="tab-showcase" aria-hidden="true">

@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: isang pusa na nakatira sa iyong browser",
+  "description": "Libreng extension ng browser. Alagaan, pakainin, at panoorin siyang lumaki mula kuting hanggang matandang pusa. Pribado, lokal, at libre.",
+  "ogImageAlt": "Tabby, isang kahel na pusa na nakatira sa iyong browser",
+  "privacy": {
+    "title": "Patakaran sa Pagkapribado ng Tabby",
+    "description": "Paano pinapangasiwaan ng Tabby ang iyong data. Lokal lang, walang account, walang cloud. Title at web address lang ng aktibong tab."
+  },
+  "terms": {
+    "title": "Mga Tuntunin ng Serbisyo ng Tabby",
+    "description": "Mga tuntunin sa paggamit ng extension ng browser na Tabby. Libreng software mula sa Yanovian LLC."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: kot, który mieszka w Twojej przeglądarce",
+  "description": "Darmowe rozszerzenie do Chrome. Głaszcz ją, karm i obserwuj, jak dorasta z kociaka do dorosłego kota. Prywatne, lokalne i darmowe.",
+  "ogImageAlt": "Tabby, pomarańczowy kot, który mieszka w Twojej przeglądarce",
+  "privacy": {
+    "title": "Polityka prywatności Tabby",
+    "description": "Jak Tabby traktuje Twoje dane. Tylko lokalnie, bez kont i chmury. Wyłącznie tytuł i adres URL aktywnej karty."
+  },
+  "terms": {
+    "title": "Regulamin Tabby",
+    "description": "Warunki korzystania z rozszerzenia Tabby do Chrome. Darmowe oprogramowanie od Yanovian LLC."
+  }
+}

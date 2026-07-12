@@ -41,7 +41,7 @@ export function LegalPage({ pageKey, path, repoUrl, markdown }: LegalPageProps) 
                 components={{
                   repo: (
                     <a href={repoUrl} target="_blank" rel="noopener noreferrer">
-                      official file on GitHub
+                      {t('repoLinkText')}
                     </a>
                   ),
                 }}

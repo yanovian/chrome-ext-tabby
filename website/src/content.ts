@@ -28,73 +28,33 @@ export const HERO_SCENE_MS = 8_000;
 /** Crossfade / slide between hero scenes (ms). */
 export const HERO_TRANSITION_MS = 700;
 
-export const heroScenes = [
-  {
-    id: 'happy',
-    tab: 'Morning inbox',
-    lottie: 'lottie/happy.json',
-    speech: 'Pet me?',
-    alt: 'Tabby feeling happy',
-  },
-  {
-    id: 'play',
-    tab: 'Break time',
-    lottie: 'lottie/playing.json',
-    speech: 'Play with me!',
-    alt: 'Tabby playing',
-  },
-  {
-    id: 'feed',
-    tab: 'Snack o’clock',
-    lottie: 'lottie/feeding.json',
-    speech: 'Got a treat?',
-    alt: 'Tabby eating a treat',
-  },
-  {
-    id: 'curious',
-    tab: 'Late-night scroll',
-    lottie: 'lottie/curious.json',
-    speech: 'Still here with you',
-    alt: 'Tabby looking curious',
-  },
+export const heroSceneDefs = [
+  { id: 'happy', key: 'Happy', lottie: 'lottie/happy.json' },
+  { id: 'play', key: 'Play', lottie: 'lottie/playing.json' },
+  { id: 'feed', key: 'Feed', lottie: 'lottie/feeding.json' },
+  { id: 'curious', key: 'Curious', lottie: 'lottie/curious.json' },
 ] as const;
 
-export const features = [
-  {
-    title: 'Floating companion',
-    body: 'Tabby appears on the pages you visit. Drag her anywhere you like.',
-    lottie: 'lottie/idle.json',
-  },
-  {
-    title: 'Care menu',
-    body: 'Tap to pet, feed, play, or ask what is up. She answers in a speech bubble.',
-    lottie: 'lottie/happy.json',
-  },
-  {
-    title: 'Feeding moments',
-    body: 'Short treat scenes when her belly is empty and you share a snack.',
-    lottie: 'lottie/feeding.json',
-  },
-  {
-    title: 'Play until wild',
-    body: 'Wind her up with play time. She has moods that match the moment.',
-    lottie: 'lottie/playing.json',
-  },
-  {
-    title: 'Peeks and murmurs',
-    body: 'She may wander in from the edge or whisper a silly line while you browse.',
-    lottie: 'lottie/peek.json',
-  },
-  {
-    title: 'Grows with you',
-    body: 'Newborn kitten, playful teen, then adult cat over real calendar weeks.',
-    lottie: 'lottie/newborn.json',
-  },
+export const featureDefs = [
+  { id: 'floating', key: 'Floating', lottie: 'lottie/idle.json' },
+  { id: 'care', key: 'Care', lottie: 'lottie/happy.json' },
+  { id: 'feeding', key: 'Feeding', lottie: 'lottie/feeding.json' },
+  { id: 'play', key: 'Play', lottie: 'lottie/playing.json' },
+  { id: 'peek', key: 'Peek', lottie: 'lottie/peek.json' },
+  { id: 'grow', key: 'Grow', lottie: 'lottie/newborn.json' },
 ] as const;
 
-export const privacyPoints = [
-  'Reads only the active tab title and web address',
-  'Never reads page body text or browsing history',
-  'No accounts, analytics, or cloud',
-  'Everything stays on your device',
+export const privacyPointKeys = [
+  'privacyPoint1',
+  'privacyPoint2',
+  'privacyPoint3',
+  'privacyPoint4',
+] as const;
+
+export const moodDefs = [
+  { key: 'Hungry', tone: 'warm' },
+  { key: 'Happy', tone: 'gold' },
+  { key: 'Stressed', tone: 'rose' },
+  { key: 'Sleepy', tone: 'violet' },
+  { key: 'Curious', tone: 'mint' },
 ] as const;

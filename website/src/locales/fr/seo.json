@@ -1,0 +1,13 @@
+{
+  "title": "Tabby : une chatte qui vit dans votre navigateur",
+  "description": "Une extension Chrome gratuite. Câlinez-la, nourrissez-la et regardez-la grandir de chaton à adulte. Privée, locale et gratuite.",
+  "ogImageAlt": "Tabby, une chatte rousse qui vit dans votre navigateur",
+  "privacy": {
+    "title": "Politique de confidentialité de Tabby",
+    "description": "Comment Tabby traite vos données. Uniquement en local, sans comptes ni cloud. Seulement le titre et l'URL de l'onglet actif."
+  },
+  "terms": {
+    "title": "Conditions d'utilisation de Tabby",
+    "description": "Conditions d'utilisation de l'extension Tabby pour Chrome. Logiciel gratuit de Yanovian LLC."
+  }
+}

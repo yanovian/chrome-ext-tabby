@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: mačka koja živi u vašem pregledniku",
+  "description": "Besplatno proširenje za Chrome. Mazite je, hranite je i gledajte kako raste od mačića do odrasle mačke. Privatno, lokalno i besplatno.",
+  "ogImageAlt": "Tabby, narančasta mačka koja živi u vašem pregledniku",
+  "privacy": {
+    "title": "Pravila privatnosti za Tabby",
+    "description": "Kako Tabby postupa s vašim podacima. Samo lokalno, bez računa i oblaka. Samo naslov i URL aktivne kartice."
+  },
+  "terms": {
+    "title": "Uvjeti korištenja za Tabby",
+    "description": "Uvjeti korištenja proširenja Tabby za Chrome. Besplatni softver tvrtke Yanovian LLC."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: tarayıcınızda yaşayan bir kedi",
+  "description": "Ücretsiz bir Chrome uzantısı. Okşayın, besleyin ve yavru kediden yetişkine büyümesini izleyin. Gizli, yerel ve ücretsiz.",
+  "ogImageAlt": "Tabby, tarayıcınızda yaşayan turuncu bir kedi",
+  "privacy": {
+    "title": "Tabby gizlilik politikası",
+    "description": "Tabby verilerinizi nasıl işler. Yalnızca yerel, hesap yok, bulut yok. Sadece etkin sekme başlığı ve adresi."
+  },
+  "terms": {
+    "title": "Tabby hizmet şartları",
+    "description": "Tabby Chrome uzantısının kullanım şartları. Yanovian LLC'den ücretsiz yazılım."
+  }
+}

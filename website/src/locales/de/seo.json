@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: eine Katze, die in deinem Browser lebt",
+  "description": "Eine kostenlose Chrome-Erweiterung. Streichle sie, füttere sie und sieh zu, wie sie vom Kätzchen zur erwachsenen Katze heranwächst. Privat, lokal und kostenlos.",
+  "ogImageAlt": "Tabby, eine orangefarbene Katze, die in deinem Browser lebt",
+  "privacy": {
+    "title": "Datenschutzerklärung für Tabby",
+    "description": "Wie Tabby mit deinen Daten umgeht. Nur lokal, keine Konten, keine Cloud. Nur Titel und URL des aktiven Tabs."
+  },
+  "terms": {
+    "title": "Nutzungsbedingungen für Tabby",
+    "description": "Bedingungen für die Nutzung der Tabby-Chrome-Erweiterung. Kostenlose Software von Yanovian LLC."
+  }
+}

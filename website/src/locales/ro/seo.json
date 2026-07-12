@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: o pisică care trăiește în browserul tău",
+  "description": "O extensie gratuită pentru Chrome. Mângâie-o, hrănește-o și privește cum crește de la pisicuță la adultă. Privată, locală și gratuită.",
+  "ogImageAlt": "Tabby, o pisică portocalie care trăiește în browserul tău",
+  "privacy": {
+    "title": "Politica de confidențialitate Tabby",
+    "description": "Cum gestionează Tabby datele tale. Doar local, fără conturi sau cloud. Doar titlul și adresa URL a filei active."
+  },
+  "terms": {
+    "title": "Termeni de utilizare Tabby",
+    "description": "Termeni pentru utilizarea extensiei Tabby pentru Chrome. Software gratuit de la Yanovian LLC."
+  }
+}

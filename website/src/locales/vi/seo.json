@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: một chú mèo sống trong trình duyệt của bạn",
+  "description": "Tiện ích mở rộng miễn phí. Vuốt ve, cho ăn và xem cô ấy lớn lên từ mèo con thành mèo trưởng thành. Riêng tư, cục bộ và miễn phí.",
+  "ogImageAlt": "Tabby, một chú mèo cam sống trong trình duyệt của bạn",
+  "privacy": {
+    "title": "Chính sách quyền riêng tư của Tabby",
+    "description": "Tabby xử lý dữ liệu của bạn thế nào. Chỉ cục bộ, không tài khoản, không đám mây. Chỉ tiêu đề thẻ đang mở và địa chỉ web."
+  },
+  "terms": {
+    "title": "Điều khoản dịch vụ của Tabby",
+    "description": "Điều khoản sử dụng tiện ích mở rộng Tabby. Phần mềm miễn phí từ Yanovian LLC."
+  }
+}

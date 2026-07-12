@@ -19,13 +19,17 @@ Landing page for [Tabby](https://github.com/yanovian/chrome-ext-tabby). Vite + R
 ```bash
 pnpm install
 pnpm dev          # localhost:5173, base /
-pnpm build        # uses .env.production → /chrome-ext-tabby/
+pnpm lint-i18n      # locale keys must match en/ (no missing, no extra)
+pnpm lint-i18n-fix  # add missing keys as "" in other locales
+pnpm build        # lint-i18n, then uses .env.production → /chrome-ext-tabby/
 pnpm preview      # after build; pass --base /chrome-ext-tabby/ for Pages paths
 ```
 
 Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuild`. `build-og-image.mjs` writes `og-image.png` (1200×630).
 
 **SEO:** `@unhead/react` + `@unhead/schema-org` in `src/components/Seo.tsx`, copy in `src/locales/*/seo.json`, i18n via `react-i18next`. `vite-plugin-html` mirrors English meta in `index.html` for crawlers.
+
+**Languages:** 39 locales in `src/locales/<code>/` (`marketing.json`, `common.json`, `legal.json`, `seo.json`). Same set as the Chrome Web Store (`src/i18n/locales.ts`). RTL for `ar`, `fa`, `he`. Edit English in `src/locales/en/`, run `pnpm lint-i18n-fix` to sync keys, translate, then `pnpm lint-i18n`. Bundled into the production build via `import.meta.glob`.
 
 ## GitHub Pages
 

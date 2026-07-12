@@ -1,0 +1,13 @@
+{
+  "title": "Tabby: en katt som bor i din webbläsare",
+  "description": "Ett gratis Chrome-tillägg. Klappa henne, mata henne och se henne växa från kattunge till vuxen katt. Privat, lokalt och gratis.",
+  "ogImageAlt": "Tabby, en orange katt som bor i din webbläsare",
+  "privacy": {
+    "title": "Integritetspolicy för Tabby",
+    "description": "Hur Tabby hanterar dina data. Endast lokalt, inga konton, inget moln. Bara titel och URL för den aktiva fliken."
+  },
+  "terms": {
+    "title": "Användarvillkor för Tabby",
+    "description": "Villkor för att använda Tabby Chrome-tillägget. Gratis programvara från Yanovian LLC."
+  }
+}
