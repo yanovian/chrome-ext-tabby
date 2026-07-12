@@ -1,12 +1,15 @@
 import {
   absoluteAssetUrl,
   CHROME_STORE_URL,
-  GITHUB_URL,
   OG_IMAGE_HEIGHT,
   OG_IMAGE_PATH,
   OG_IMAGE_WIDTH,
+  POUYAN_RAZIAN_NAME,
+  POUYAN_RAZIAN_URL,
   SITE_NAME,
   SITE_URL,
+  YANOVIAN_LLC_NAME,
+  YANOVIAN_LLC_URL,
 } from '../../site-meta';
 import { useHead } from '@unhead/react';
 import { defineSoftwareApp, defineWebSite, useSchemaOrg } from '@unhead/schema-org/react';
@@ -34,7 +37,7 @@ export function Seo() {
     title,
     meta: [
       { name: 'description', content: description },
-      { name: 'author', content: SITE_NAME },
+      { name: 'author', content: YANOVIAN_LLC_NAME },
       { name: 'robots', content: 'index, follow' },
       { property: 'og:type', content: 'website' },
       { property: 'og:site_name', content: SITE_NAME },
@@ -83,8 +86,19 @@ export function Seo() {
         priceCurrency: 'USD',
       },
       author: {
-        name: SITE_NAME,
-        url: GITHUB_URL,
+        '@type': 'Organization',
+        name: YANOVIAN_LLC_NAME,
+        url: YANOVIAN_LLC_URL,
+      },
+      creator: {
+        '@type': 'Person',
+        name: POUYAN_RAZIAN_NAME,
+        url: POUYAN_RAZIAN_URL,
+      },
+      maintainer: {
+        '@type': 'Organization',
+        name: YANOVIAN_LLC_NAME,
+        url: YANOVIAN_LLC_URL,
       },
     }),
   ]);

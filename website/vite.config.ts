@@ -8,6 +8,7 @@ import {
   OG_IMAGE_WIDTH,
   SITE_NAME,
   SITE_URL,
+  YANOVIAN_LLC_NAME,
 } from './site-meta';
 import enSeo from './src/locales/en/seo.json';
 
@@ -30,6 +31,7 @@ export default defineConfig({
           ogImageWidth: OG_IMAGE_WIDTH,
           ogImageHeight: OG_IMAGE_HEIGHT,
           siteName: SITE_NAME,
+          authorName: YANOVIAN_LLC_NAME,
           locale: 'en_US',
         },
       },

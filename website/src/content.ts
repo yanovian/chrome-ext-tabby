@@ -1,9 +1,15 @@
-import { GITHUB_URL, SITE_NAME, SITE_URL } from '../site-meta';
+import { GITHUB_URL } from '../site-meta';
 
-export const CHROME_STORE_URL =
-  'https://chromewebstore.google.com/detail/tabby/bgjfofaekhihaeafccchijbakkhlcngb';
-
-export { GITHUB_URL, SITE_NAME, SITE_URL };
+export {
+  CHROME_STORE_URL,
+  GITHUB_URL,
+  POUYAN_RAZIAN_NAME,
+  POUYAN_RAZIAN_URL,
+  SITE_NAME,
+  SITE_URL,
+  YANOVIAN_LLC_NAME,
+  YANOVIAN_LLC_URL,
+} from '../site-meta';
 
 export const PRIVACY_URL = `${GITHUB_URL}/blob/master/PRIVACY.md`;
 

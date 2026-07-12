@@ -13,6 +13,14 @@ export const CHROME_STORE_URL =
 
 export const GITHUB_URL = 'https://github.com/yanovian/chrome-ext-tabby';
 
+export const YANOVIAN_LLC_NAME = 'Yanovian LLC';
+
+export const YANOVIAN_LLC_URL = 'https://yanovian.com';
+
+export const POUYAN_RAZIAN_NAME = 'Pooyan Razian';
+
+export const POUYAN_RAZIAN_URL = 'https://pooyan.info';
+
 export const OG_IMAGE_PATH = 'og-image.png';
 
 export const OG_IMAGE_WIDTH = 1200;

@@ -568,6 +568,21 @@ ul {
   color: var(--text-muted);
 }
 
+.footer__credit {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.footer__credit a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.footer__credit a:hover {
+  text-decoration: underline;
+}
+
 .footer__links {
   display: flex;
   justify-content: center;

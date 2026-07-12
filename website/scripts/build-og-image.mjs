@@ -51,6 +51,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   <text x="470" y="330" fill="#f7c4e4" font-family="Segoe UI, system-ui, sans-serif" font-size="42" font-weight="700">${SITE_TAGLINE}</text>
   <text x="470" y="410" fill="#c9b8e8" font-family="Segoe UI, system-ui, sans-serif" font-size="28" font-weight="500">${escapeXml(SITE_DESCRIPTION)}</text>
   <text x="470" y="500" fill="#7cf0ff" font-family="Segoe UI, system-ui, sans-serif" font-size="24" font-weight="700">${escapeXml(SITE_URL)}</text>
+  <text x="470" y="560" fill="#c9b8e8" font-family="Segoe UI, system-ui, sans-serif" font-size="22" font-weight="600">Yanovian LLC · yanovian.com · Pooyan Razian · pooyan.info</text>
 </svg>`;
 
 await sharp(Buffer.from(svg)).png().toFile(outPath);
