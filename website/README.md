@@ -23,7 +23,9 @@ pnpm build        # uses .env.production → /chrome-ext-tabby/
 pnpm preview      # after build; pass --base /chrome-ext-tabby/ for Pages paths
 ```
 
-Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuild` (`scripts/copy-assets.mjs`). Clips play as **Lottie** via `@lottiefiles/dotlottie-web` (same renderer as the GIF pipeline), not `lottie-web`.
+Assets copy from extension `public/` and `lottie-json/` on `predev` and `prebuild`. `build-og-image.mjs` writes `og-image.png` (1200×630).
+
+**SEO:** `@unhead/react` + `@unhead/schema-org` in `src/components/Seo.tsx`, copy in `src/locales/*/seo.json`, i18n via `react-i18next`. `vite-plugin-html` mirrors English meta in `index.html` for crawlers.
 
 ## GitHub Pages
 

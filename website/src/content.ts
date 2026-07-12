@@ -1,7 +1,9 @@
+import { GITHUB_URL, SITE_NAME, SITE_URL } from '../site-meta';
+
 export const CHROME_STORE_URL =
   'https://chromewebstore.google.com/detail/tabby/bgjfofaekhihaeafccchijbakkhlcngb';
 
-export const GITHUB_URL = 'https://github.com/yanovian/chrome-ext-tabby';
+export { GITHUB_URL, SITE_NAME, SITE_URL };
 
 export const PRIVACY_URL = `${GITHUB_URL}/blob/master/PRIVACY.md`;
 

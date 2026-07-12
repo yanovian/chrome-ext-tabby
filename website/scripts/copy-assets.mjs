@@ -31,6 +31,12 @@ const lottieAssets = [
   ['adult/curious.json', 'lottie/curious.json'],
 ];
 
+const staticRoot = join(websiteRoot, 'static');
+const staticAssets = [
+  ['robots.txt', 'robots.txt'],
+  ['sitemap.xml', 'sitemap.xml'],
+];
+
 mkdirSync(join(outPublic, 'gif'), { recursive: true });
 mkdirSync(join(outPublic, 'lottie'), { recursive: true });
 
@@ -40,6 +46,10 @@ for (const [from, to] of gifAssets) {
 
 for (const [from, to] of lottieAssets) {
   cpSync(join(lottieRoot, from), join(outPublic, to));
+}
+
+for (const [from, to] of staticAssets) {
+  cpSync(join(staticRoot, from), join(outPublic, to));
 }
 
 console.log(
