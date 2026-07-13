@@ -221,11 +221,6 @@ export function pickPeekPlacement(seed: number): PeekPlacement {
   return { edge, inset, corner };
 }
 
-/** @deprecated Use pickPeekPlacement */
-export function pickPeekEdge(seed: number): PeekEdge {
-  return pickPeekPlacement(seed).edge;
-}
-
 export interface AmbientRestInput {
   cat: CatState;
   settings: ExtensionSettings;

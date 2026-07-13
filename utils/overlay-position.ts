@@ -164,11 +164,6 @@ export function peekCatSurfaceLayout(
   };
 }
 
-/** Whether the peek sprite is rotated to face into the page. */
-export function peekSurfaceUsesRotation(edge: PeekEdge): boolean {
-  return edge === 'left' || edge === 'right';
-}
-
 type Point = readonly [number, number];
 
 type Affine = {
@@ -296,14 +291,6 @@ function parseTransformOrigin(
     return Number(token);
   };
   return [parseAxis(xToken ?? '0', width), parseAxis(yToken ?? '0', height)];
-}
-
-/** Rough coverage of the peek clip window after sprite transform (for tests). */
-export function estimatePeekSurfaceClipCoverage(
-  edge: PeekEdge,
-  catSize: number,
-): number {
-  return measurePeekSurfaceOverlap(edge, peekCatSurfaceLayout(edge, catSize)).coverage;
 }
 
 /** Whether the rotated sprite fills the peek clip window enough to read as a peek. */
@@ -472,22 +459,6 @@ export function peekLayoutFitsViewport(
     position.y >= 0 &&
     position.x + dimensions.width <= viewportWidth &&
     position.y + dimensions.height <= viewportHeight
-  );
-}
-
-/** @deprecated Use resolvePeekPlacementPosition */
-export function resolvePeekEdgePosition(
-  edge: PeekEdge,
-  viewportWidth: number,
-  viewportHeight: number,
-  catSize: number,
-  margin = VIEWPORT_MARGIN,
-): OverlayPosition {
-  return resolvePeekPlacementPosition(
-    { edge, inset: margin, corner: 'left' },
-    viewportWidth,
-    viewportHeight,
-    catSize,
   );
 }
 
