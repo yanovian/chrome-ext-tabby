@@ -5,6 +5,7 @@ Updates for people who use Tabby. Newest first.
 ## 2.3.1 (unreleased)
 
 - The website links to our other projects.
+- Fix the sub page icon on wesite.
 
 ## 2.3.0
 

@@ -21,7 +21,7 @@ export function LegalPage({ repoUrl, markdown }: LegalPageProps) {
       <header className="legal-header">
         <Container className="legal-header__inner">
           <Link className="legal-header__brand" to={path()}>
-            <img src="icon-48.png" width={28} height={28} alt="" />
+            <img src={`${import.meta.env.BASE_URL}icon-48.png`} width={28} height={28} alt="" />
             <span>Tabby</span>
           </Link>
           <nav className="legal-header__nav" aria-label="Legal">
