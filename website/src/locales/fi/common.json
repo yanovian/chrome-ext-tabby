@@ -3,5 +3,11 @@
   "footerCredit": "Luonut <yanovian>Yanovian LLC</yanovian> ja <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Lähdekoodi GitHubissa",
   "privacyLink": "Tietosuojakäytäntö",
-  "termsLink": "Käyttöehdot"
+  "termsLink": "Käyttöehdot",
+  "relatedEyebrow": "Lisää meiltä",
+  "relatedTitle": "Muut Chrome-laajennuksemme",
+  "relatedAllProjects": "Katso kaikki mitä olemme rakentaneet →",
+  "relatedTabbyDesc": "Kissa, joka asuu selaimessasi.",
+  "relatedWhyAmIHereDesc": "Pysy tarkoituksellisena selaamisen aikana.",
+  "relatedBreadcrumbDesc": "Älä koskaan menetä verkossa oppimaasi."
 }

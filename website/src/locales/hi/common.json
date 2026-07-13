@@ -3,5 +3,11 @@
   "footerCredit": "<yanovian>Yanovian LLC</yanovian> और <pooyan>Pooyan Razian</pooyan> द्वारा निर्मित।",
   "sourceOnGitHub": "गिटहब पर स्रोत कोड",
   "privacyLink": "गोपनीयता नीति",
-  "termsLink": "सेवा की शर्तें"
+  "termsLink": "सेवा की शर्तें",
+  "relatedEyebrow": "हमारी और चीज़ें",
+  "relatedTitle": "हमारे अन्य Chrome एक्सटेंशन",
+  "relatedAllProjects": "हमने जो कुछ बनाया है वह देखें →",
+  "relatedTabbyDesc": "आपके ब्राउज़र में रहने वाली बिल्ली।",
+  "relatedWhyAmIHereDesc": "ब्राउज़ करते समय जानबूझकर रहें।",
+  "relatedBreadcrumbDesc": "ऑनलाइन सीखी बातें कभी न खोएं।"
 }

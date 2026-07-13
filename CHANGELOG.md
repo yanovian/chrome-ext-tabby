@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.3.1 (unreleased)
+
+- The website links to our other projects.
+
 ## 2.3.0
 
 - Fix bugs

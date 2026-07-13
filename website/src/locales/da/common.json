@@ -3,5 +3,11 @@
   "footerCredit": "Skabt af <yanovian>Yanovian LLC</yanovian> og <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Kildekode på GitHub",
   "privacyLink": "Privatlivspolitik",
-  "termsLink": "Servicevilkår"
+  "termsLink": "Servicevilkår",
+  "relatedEyebrow": "Mere fra os",
+  "relatedTitle": "Vores andre Chrome-udvidelser",
+  "relatedAllProjects": "Se alt, hvad vi har bygget →",
+  "relatedTabbyDesc": "En kat, der bor i din browser.",
+  "relatedWhyAmIHereDesc": "Forbliv målrettet, mens du browser.",
+  "relatedBreadcrumbDesc": "Gå aldrig glip af det, du lærer online."
 }

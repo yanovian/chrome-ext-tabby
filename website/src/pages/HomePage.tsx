@@ -2,6 +2,7 @@ import { Features } from '@/components/Features';
 import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
 import { PrivacyStrip } from '@/components/PrivacyStrip';
+import { RelatedProducts } from '@/components/RelatedProducts';
 import { Showcase } from '@/components/Showcase';
 
 export function HomePage() {
@@ -12,6 +13,7 @@ export function HomePage() {
         <Features />
         <Showcase />
         <PrivacyStrip />
+        <RelatedProducts />
       </main>
       <Footer />
     </>

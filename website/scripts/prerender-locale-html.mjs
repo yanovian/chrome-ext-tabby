@@ -11,9 +11,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 const LOCALES_ROOT = join(ROOT, 'src', 'locales');
 
-const SITE_ORIGIN = 'https://yanovian.github.io';
+const GITHUB_PAGES_ORIGIN = 'https://yanovian.github.io';
 const SITE_REPO_PATH = 'chrome-ext-tabby';
-const SITE_URL = `${SITE_ORIGIN}/${SITE_REPO_PATH}/`;
+const SITE_URL = `${GITHUB_PAGES_ORIGIN}/${SITE_REPO_PATH}/`;
 const SITE_NAME = 'Tabby';
 function siteOgImageUrl(locale) {
   const path = locale && locale !== 'en' ? `og/${locale}.png` : 'og-image.png';

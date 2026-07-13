@@ -3,5 +3,11 @@
   "footerCredit": "<yanovian>Yanovian LLC</yanovian> と <pooyan>Pooyan Razian</pooyan> が制作。",
   "sourceOnGitHub": "ギットハブでソースを見る",
   "privacyLink": "プライバシーポリシー",
-  "termsLink": "利用規約"
+  "termsLink": "利用規約",
+  "relatedEyebrow": "ほかの作品",
+  "relatedTitle": "ほかの Chrome 拡張機能",
+  "relatedAllProjects": "私たちの作品をすべて見る →",
+  "relatedTabbyDesc": "ブラウザに住む猫。",
+  "relatedWhyAmIHereDesc": "ブラウジング中も意図を保ちましょう。",
+  "relatedBreadcrumbDesc": "オンラインで学んだことを失わない。"
 }

@@ -3,5 +3,11 @@
   "footerCredit": "Gemaakt door <yanovian>Yanovian LLC</yanovian> en <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Broncode op GitHub",
   "privacyLink": "Privacybeleid",
-  "termsLink": "Gebruiksvoorwaarden"
+  "termsLink": "Gebruiksvoorwaarden",
+  "relatedEyebrow": "Meer van ons",
+  "relatedTitle": "Onze andere Chrome-extensies",
+  "relatedAllProjects": "Bekijk alles wat we hebben gebouwd →",
+  "relatedTabbyDesc": "Een kat die in je browser woont.",
+  "relatedWhyAmIHereDesc": "Blijf bewust terwijl je surft.",
+  "relatedBreadcrumbDesc": "Verlies nooit wat je online leert."
 }

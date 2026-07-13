@@ -3,5 +3,11 @@
   "footerCredit": "Создано <yanovian>Yanovian LLC</yanovian> и <pooyan>Pooyan Razian</pooyan>.",
   "sourceOnGitHub": "Исходный код на GitHub",
   "privacyLink": "Политика конфиденциальности",
-  "termsLink": "Условия использования"
+  "termsLink": "Условия использования",
+  "relatedEyebrow": "Ещё от нас",
+  "relatedTitle": "Наши другие расширения Chrome",
+  "relatedAllProjects": "Смотреть всё, что мы создали →",
+  "relatedTabbyDesc": "Кошка, которая живёт в вашем браузере.",
+  "relatedWhyAmIHereDesc": "Сохраняйте намерение во время просмотра.",
+  "relatedBreadcrumbDesc": "Никогда не теряйте то, что узнаёте в сети."
 }
