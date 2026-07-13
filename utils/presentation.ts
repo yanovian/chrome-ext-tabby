@@ -1,4 +1,8 @@
-import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat-interactions';
+import {
+  buildInteractionOptions,
+  buildSecondaryInteractionOptions,
+  type InteractionAction,
+} from './cat-interactions';
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
 import {
   EMPTY_DRAINING_SESSION,
@@ -12,7 +16,14 @@ import { resolveCompanionAnimation } from './companion-animation';
 import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
 import { lifeStageLabel } from './sprites';
-import type { AmbientActivity } from './ambient-presence';
+import {
+  pickPeekPlacement,
+  type AmbientActivity,
+  type PeekCorner,
+  type PeekEdge,
+  type PeekPlacement,
+} from './ambient-presence';
+import { isDevMoodForced } from './settings';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
 
 export function moodForAmbient(activity: AmbientActivity): CatMood {
@@ -33,6 +44,10 @@ export function resolveDisplayMood(input: {
   ambientActivity?: AmbientActivity | null;
   moodOverride?: CatMood;
 }): CatMood {
+  if (isDevMoodForced(input.settings)) {
+    return input.settings.devForceMood;
+  }
+
   if (input.moodOverride) {
     return input.moodOverride;
   }
@@ -40,6 +55,10 @@ export function resolveDisplayMood(input: {
   const urgentMoods: CatMood[] = ['starving', 'hungry'];
   if (urgentMoods.includes(input.derivedMood)) {
     return input.derivedMood;
+  }
+
+  if (input.ambientActivity === 'peeking') {
+    return 'peek';
   }
 
   const session = input.drainingSession ?? EMPTY_DRAINING_SESSION;
@@ -63,16 +82,20 @@ export function resolveDisplayMood(input: {
     return moodForAmbient(input.ambientActivity);
   }
 
-  if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
-    return input.settings.devForceMood;
-  }
-
   const stickyMoods: CatMood[] = ['sleepy', 'happy', 'stressed'];
   if (stickyMoods.includes(input.derivedMood)) {
     return input.derivedMood;
   }
 
   return input.derivedMood;
+}
+
+/** Tabby is in a watch-only edge peek (ambient or dev preview). */
+export function isPeekPresentation(input: {
+  mood: CatMood;
+  companionVisible: boolean;
+}): boolean {
+  return input.companionVisible && input.mood === 'peek';
 }
 
 /** Keep peek mood for one hide so the duck-out clip can play. */
@@ -86,6 +109,46 @@ export function moodOverrideWhileHiding(
   return 'peek';
 }
 
+/** Keep an existing peek edge/inset/corner, or roll a new one if unset. */
+function keepOrPickPeekPlacement(
+  peekEdge: PeekEdge | null | undefined,
+  peekInset: number | null | undefined,
+  peekCorner: PeekCorner | null | undefined,
+  seed: number,
+): PeekPlacement {
+  if (peekEdge) {
+    return { edge: peekEdge, inset: peekInset ?? 16, corner: peekCorner ?? 'left' };
+  }
+  return pickPeekPlacement(seed);
+}
+
+/** Shared peek placement for dev preview and production ambient peeks. */
+export function resolvePeekPlacementForBuild(input: {
+  isPeeking: boolean;
+  peekEdge?: PeekEdge | null;
+  peekInset?: number | null;
+  peekCorner?: PeekCorner | null;
+  seed: number;
+}): PeekPlacement | null {
+  if (!input.isPeeking) {
+    return null;
+  }
+  return keepOrPickPeekPlacement(input.peekEdge, input.peekInset, input.peekCorner, input.seed);
+}
+
+/** Peek placement for layout when mood is peek but edge fields were cleared. */
+export function resolveEffectivePeekPlacement(
+  presentation: CatPresentation,
+  now = Date.now(),
+): PeekPlacement {
+  return keepOrPickPeekPlacement(
+    presentation.peekEdge,
+    presentation.peekInset,
+    presentation.peekCorner,
+    now,
+  );
+}
+
 export function buildPresentation(input: {
   cat: CatState;
   vitals: CatVitals;
@@ -96,10 +159,16 @@ export function buildPresentation(input: {
   triggerKind: CatPresentation['triggerKind'];
   overlayHidden: boolean;
   moodOverride?: CatMood;
-  lastCareAction?: import('./cat-interactions').InteractionAction | null;
+  lastCareAction?: InteractionAction | null;
   companionVisible: boolean;
   ambientActivity?: AmbientActivity | null;
   ambientPeekUntil?: number | null;
+  peekEdge?: PeekEdge | null;
+  peekInset?: number | null;
+  peekCorner?: PeekCorner | null;
+  peekRestoreAmbientActivity?: AmbientActivity | null;
+  peekRestoreAmbientUntil?: number | null;
+  stayVisibleUntil?: number | null;
   eatingUntil?: number | null;
   playingUntil?: number | null;
   drainingSession?: DrainingSessionState;
@@ -111,6 +180,7 @@ export function buildPresentation(input: {
     settings: input.settings,
     isUserIdle: input.isUserIdle,
   });
+  const devMoodForced = isDevMoodForced(input.settings);
   const mood = resolveDisplayMood({
     settings: input.settings,
     derivedMood,
@@ -128,6 +198,15 @@ export function buildPresentation(input: {
   const playingUntil = input.playingUntil ?? null;
   const feedingActive = isFeedingActive(eatingUntil, input.now);
   const playingActive = isPlayingActive(playingUntil, input.now);
+  const isPeeking = isPeekPresentation({ mood, companionVisible: input.companionVisible });
+  const peekPlacement = resolvePeekPlacementForBuild({
+    isPeeking,
+    peekEdge: input.peekEdge,
+    peekInset: input.peekInset,
+    peekCorner: input.peekCorner,
+    seed: input.now + input.cat.adoptedAt,
+  });
+  const ambientActivity = isPeeking ? ('peeking' as const) : (input.ambientActivity ?? null);
 
   return {
     mood,
@@ -136,7 +215,7 @@ export function buildPresentation(input: {
     sprite: resolveCompanionAnimation({
       stage,
       mood,
-      ambientActivity: input.ambientActivity,
+      ambientActivity,
       lastCareAction: input.lastCareAction,
       eatingUntil,
       playingUntil,
@@ -145,16 +224,92 @@ export function buildPresentation(input: {
     speech: input.speech,
     triggerKind: input.triggerKind,
     overlayHidden: input.overlayHidden,
-    canPet: true,
-    canTreat: !feedingActive && (mood === 'hungry' || mood === 'starving'),
-    canPlay: !playingActive && mood !== 'sleepy' && input.vitals.happiness < 70,
+    canPet: !isPeeking,
+    canTreat: !isPeeking && !feedingActive && (mood === 'hungry' || mood === 'starving'),
+    canPlay: !isPeeking && !playingActive && mood !== 'sleepy' && input.vitals.happiness < 70,
     interactions: buildInteractionOptions(mood, input.vitals, stage),
     secondaryInteractions: buildSecondaryInteractionOptions(),
     lastCareAction: input.lastCareAction ?? null,
     companionVisible: input.companionVisible,
-    ambientActivity: input.ambientActivity ?? null,
+    ambientActivity,
     ambientPeekUntil: input.ambientPeekUntil ?? null,
+    peekEdge: peekPlacement?.edge ?? null,
+    peekInset: peekPlacement?.inset ?? null,
+    peekCorner: peekPlacement?.corner ?? null,
+    peekRestoreAmbientActivity: isPeeking
+      ? (input.peekRestoreAmbientActivity ?? null)
+      : null,
+    peekRestoreAmbientUntil: isPeeking ? (input.peekRestoreAmbientUntil ?? null) : null,
+    stayVisibleUntil:
+      devMoodForced
+        ? null
+        : isPeeking
+          ? null
+          : (input.stayVisibleUntil ?? null),
     eatingUntil,
     playingUntil,
+  };
+}
+
+/**
+ * Overlay-side dev mood patch (no cat vitals needed).
+ *
+ * `storedPresentation`, when given, is the freshest value already in
+ * storage. It — not `presentation` — decides whether to keep the existing
+ * peek edge. `presentation` can be stale: a slow, concurrently-running
+ * computation that started before dev mode was forced can still finish and
+ * reach this function afterwards, carrying a freshly (and wrongly) rolled
+ * peek edge of its own. Preferring the value already on disk means that
+ * stale write can no longer clobber a placement a newer call already
+ * settled on.
+ */
+export function patchPresentationForDevForce(
+  presentation: CatPresentation,
+  settings: ExtensionSettings,
+  now = Date.now(),
+  storedPresentation?: CatPresentation | null,
+): CatPresentation {
+  if (!isDevMoodForced(settings)) {
+    return presentation;
+  }
+
+  const reference = storedPresentation ?? presentation;
+  const mood = settings.devForceMood;
+  const peeking = mood === 'peek';
+  const keepPeekPlacement = peeking && reference.mood === 'peek';
+  const peekPlacement = peeking
+    ? resolvePeekPlacementForBuild({
+        isPeeking: true,
+        peekEdge: keepPeekPlacement ? reference.peekEdge : null,
+        peekInset: keepPeekPlacement ? reference.peekInset : null,
+        peekCorner: keepPeekPlacement ? reference.peekCorner : null,
+        seed: now,
+      })
+    : null;
+
+  return {
+    ...presentation,
+    mood,
+    companionVisible: true,
+    stayVisibleUntil: null,
+    ambientActivity: peeking ? 'peeking' : null,
+    ambientPeekUntil: null,
+    peekEdge: peekPlacement?.edge ?? null,
+    peekInset: peekPlacement?.inset ?? null,
+    peekCorner: peekPlacement?.corner ?? null,
+    peekRestoreAmbientActivity: null,
+    peekRestoreAmbientUntil: null,
+    sprite: resolveCompanionAnimation({
+      stage: presentation.stage,
+      mood,
+      ambientActivity: peeking ? 'peeking' : null,
+      lastCareAction: presentation.lastCareAction,
+      eatingUntil: presentation.eatingUntil,
+      playingUntil: presentation.playingUntil,
+      now,
+    }),
+    canPet: !peeking,
+    canTreat: !peeking && presentation.canTreat,
+    canPlay: !peeking && presentation.canPlay,
   };
 }

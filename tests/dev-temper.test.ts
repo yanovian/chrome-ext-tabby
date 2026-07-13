@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applyDevMoodToTemper, applyTemperSimulation } from '../utils/dev-temper';
+import {
+  applyDevMoodToTemper,
+  applyTemperSimulation,
+  shouldSyncDevForceMoodUi,
+} from '../utils/dev-temper';
 import { MOOD_TIMER_DEV_DEFAULTS } from '../utils/mood-timers';
 import { DEFAULT_SETTINGS } from '../utils/types';
 
@@ -125,5 +129,31 @@ describe('applyDevMoodToTemper', () => {
     expect(snapshot.settings.devForceMood).toBe('curious');
     expect(snapshot.drainingSession.kind).toBeNull();
     expect(snapshot.drainingSession.accumulatedMs).toBe(0);
+  });
+});
+
+describe('shouldSyncDevForceMoodUi', () => {
+  // Regression: tapping a peek on the page resets devForceMood to "auto"
+  // behind the popup's back. The dropdown must notice and refresh, or
+  // re-picking the same still-displayed option fires no `change` event and
+  // the dev menu looks stuck.
+  it('refreshes when storage settled on a different mood than the dropdown shows', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'auto' as const };
+    expect(shouldSyncDevForceMoodUi('peek', settings, false)).toBe(true);
+  });
+
+  it('does nothing when the dropdown already matches storage', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'peek' as const };
+    expect(shouldSyncDevForceMoodUi('peek', settings, false)).toBe(false);
+  });
+
+  it('does not fight its own in-flight request', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' as const };
+    expect(shouldSyncDevForceMoodUi('peek', settings, true)).toBe(false);
+  });
+
+  it('does nothing while dev mode is off', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: false, devForceMood: 'auto' as const };
+    expect(shouldSyncDevForceMoodUi('peek', settings, false)).toBe(false);
   });
 });

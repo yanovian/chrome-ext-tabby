@@ -1,18 +1,31 @@
 import {
   isAmbientPeekActive,
+  isAmbientPeekDuckGapActive,
+  isAmbientPeekDuckGapExpired,
+  isDaytime,
+  isStayVisibleAfterReveal,
+  isStayVisibleAfterRevealExpired,
   pickAmbientPeekDurationMs,
+  pickAmbientPeekVisitDurationMs,
   pickAmbientRestActivity,
+  pickPeekPlacement,
   shouldStartAmbientRest,
   type AmbientActivity,
+  type PeekCorner,
+  type PeekEdge,
 } from './ambient-presence';
 import { isDoNotDisturbActive, type DoNotDisturbState } from './do-not-disturb';
 import type { EmotionalTriggerResult } from './emotional-triggers';
+import { isDevMoodForced } from './settings';
 import type { CatPresentation, CatState, ExtensionSettings } from './types';
 
 export interface ResolvedPresence {
   companionVisible: boolean;
   ambientActivity: AmbientActivity | null;
   ambientPeekUntil: number | null;
+  peekEdge: PeekEdge | null;
+  peekInset: number | null;
+  peekCorner: PeekCorner | null;
   recordSpeech: boolean;
   recordAmbient: boolean;
 }
@@ -25,78 +38,175 @@ function isSpeechTriggerActive(speechTrigger: EmotionalTriggerResult): boolean {
   );
 }
 
+function isUrgentSpeechTrigger(speechTrigger: EmotionalTriggerResult): boolean {
+  return (
+    speechTrigger.triggerKind === 'hungry' || speechTrigger.triggerKind === 'starving'
+  );
+}
+
+function isPeekCyclePresentation(presentation: CatPresentation | null): boolean {
+  return presentation?.ambientActivity === 'peeking';
+}
+
+const HIDDEN_PRESENCE: ResolvedPresence = {
+  companionVisible: false,
+  ambientActivity: null,
+  ambientPeekUntil: null,
+  peekEdge: null,
+  peekInset: null,
+  peekCorner: null,
+  recordSpeech: false,
+  recordAmbient: false,
+};
+
+/** Build a resolved presence, defaulting unset fields to fully hidden/not-peeking. */
+function presence(overrides: Partial<ResolvedPresence>): ResolvedPresence {
+  return { ...HIDDEN_PRESENCE, ...overrides };
+}
+
+function startPeekVisit(input: {
+  cat: CatState;
+  settings: ExtensionSettings;
+  now: number;
+  recordAmbient: boolean;
+}): ResolvedPresence {
+  const placement = pickPeekPlacement(input.now + input.cat.adoptedAt);
+  return presence({
+    companionVisible: true,
+    ambientActivity: 'peeking',
+    ambientPeekUntil:
+      input.now +
+      pickAmbientPeekVisitDurationMs(input.settings, input.now, input.cat.adoptedAt),
+    peekEdge: placement.edge,
+    peekInset: placement.inset,
+    peekCorner: placement.corner,
+    recordAmbient: input.recordAmbient,
+  });
+}
+
 export function resolveCompanionPresence(input: {
   cat: CatState;
   settings: ExtensionSettings;
   now: number;
+  isUserIdle: boolean;
   speechTrigger: EmotionalTriggerResult;
   doNotDisturb: DoNotDisturbState;
   introCompleted: boolean;
   lastPresentation: CatPresentation | null;
   forceVisible?: boolean;
 }): ResolvedPresence {
-  const hidden: ResolvedPresence = {
-    companionVisible: false,
-    ambientActivity: null,
-    ambientPeekUntil: null,
-    recordSpeech: false,
-    recordAmbient: false,
-  };
-
   if (isDoNotDisturbActive(input.doNotDisturb, input.now)) {
-    return hidden;
+    return presence({});
   }
 
   if (!input.introCompleted) {
-    return {
-      ...hidden,
+    return presence({
       companionVisible: true,
-      ambientActivity: null,
-      ambientPeekUntil: null,
       recordSpeech:
         input.forceVisible === true && isSpeechTriggerActive(input.speechTrigger),
-      recordAmbient: false,
-    };
+    });
   }
 
   if (input.forceVisible) {
-    const recordSpeech = isSpeechTriggerActive(input.speechTrigger);
-    return {
-      ...hidden,
+    return presence({
       companionVisible: true,
-      ambientActivity: null,
-      ambientPeekUntil: null,
-      recordSpeech,
-      recordAmbient: false,
-    };
+      recordSpeech: isSpeechTriggerActive(input.speechTrigger),
+    });
+  }
+
+  if (isDevMoodForced(input.settings)) {
+    return presence({ companionVisible: true });
   }
 
   const speechActive = isSpeechTriggerActive(input.speechTrigger);
+  const peekCycleActive = isPeekCyclePresentation(input.lastPresentation);
 
-  if (speechActive) {
-    return {
-      companionVisible: true,
-      ambientActivity: null,
-      ambientPeekUntil: null,
-      recordSpeech: true,
-      recordAmbient: false,
-    };
+  if (speechActive && !(peekCycleActive && !isUrgentSpeechTrigger(input.speechTrigger))) {
+    return presence({ companionVisible: true, recordSpeech: true });
   }
 
-  const previousRestUntil = input.lastPresentation?.ambientPeekUntil ?? null;
+  const previousUntil = input.lastPresentation?.ambientPeekUntil ?? null;
   const previousActivity = input.lastPresentation?.ambientActivity ?? null;
+  const last = input.lastPresentation;
+
+  if (!isDevMoodForced(input.settings) && last && isStayVisibleAfterReveal(last, input.now)) {
+    return presence({
+      companionVisible: true,
+      ambientActivity: previousActivity === 'peeking' ? null : previousActivity,
+      ambientPeekUntil: previousActivity === 'peeking' ? null : previousUntil,
+    });
+  }
+
   if (
-    input.lastPresentation?.companionVisible === false &&
-    previousActivity &&
-    isAmbientPeekActive(previousRestUntil, input.now)
+    last?.companionVisible === true &&
+    previousActivity === 'peeking' &&
+    isAmbientPeekActive(previousUntil, input.now)
   ) {
-    return {
-      companionVisible: false,
-      ambientActivity: previousActivity,
-      ambientPeekUntil: previousRestUntil,
-      recordSpeech: false,
+    return presence({
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: previousUntil,
+      peekEdge: last.peekEdge ?? null,
+      peekInset: last.peekInset ?? null,
+      peekCorner: last.peekCorner ?? null,
+    });
+  }
+
+  if (last && isAmbientPeekDuckGapActive(last, input.now)) {
+    return presence({ ambientActivity: 'peeking', ambientPeekUntil: previousUntil });
+  }
+
+  if (last && isAmbientPeekDuckGapExpired(last, input.now)) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
       recordAmbient: false,
-    };
+    });
+  }
+
+  if (last && isStayVisibleAfterRevealExpired(last, input.now)) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: false,
+    });
+  }
+
+  if (
+    last?.companionVisible === true &&
+    previousActivity === 'grooming' &&
+    isAmbientPeekActive(previousUntil, input.now)
+  ) {
+    return presence({
+      companionVisible: true,
+      ambientActivity: 'grooming',
+      ambientPeekUntil: previousUntil,
+    });
+  }
+
+  if (
+    last?.companionVisible === true &&
+    previousActivity === 'grooming' &&
+    previousUntil !== null &&
+    !isAmbientPeekActive(previousUntil, input.now)
+  ) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: false,
+    });
+  }
+
+  if (
+    last?.companionVisible === false &&
+    previousActivity &&
+    previousActivity !== 'peeking' &&
+    isAmbientPeekActive(previousUntil, input.now)
+  ) {
+    return presence({ ambientActivity: previousActivity, ambientPeekUntil: previousUntil });
   }
 
   if (
@@ -105,25 +215,27 @@ export function resolveCompanionPresence(input: {
       settings: input.settings,
       now: input.now,
       speechWouldAppear: false,
-      restUntil: previousRestUntil,
+      restUntil: previousUntil,
     })
   ) {
-    return {
-      companionVisible: false,
+    return presence({
       ambientActivity: pickAmbientRestActivity(input.now),
       ambientPeekUntil:
         input.now +
         pickAmbientPeekDurationMs(input.settings, input.now, input.cat.adoptedAt),
-      recordSpeech: false,
       recordAmbient: true,
-    };
+    });
   }
 
-  return {
-    companionVisible: true,
-    ambientActivity: 'grooming',
-    ambientPeekUntil: null,
-    recordSpeech: false,
-    recordAmbient: false,
-  };
+  const hour = new Date(input.now).getHours();
+  if (isDaytime(hour, input.settings)) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: true,
+    });
+  }
+
+  return presence({});
 }

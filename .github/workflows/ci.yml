@@ -42,6 +42,13 @@ jobs:
       - name: Build extension
         run: pnpm build
 
+      - name: Run E2E tests
+        env:
+          PLAYWRIGHT_INSTALL_DEPS: '1'
+        # MV3 extension tests need a real (headed) browser window, which
+        # needs a display — xvfb-run supplies a virtual one on the runner.
+        run: xvfb-run --auto-servernum pnpm test:e2e
+
       - name: Verify zip artifact
         run: pnpm zip
 

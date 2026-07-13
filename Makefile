@@ -1,4 +1,4 @@
-.PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales lint-extension-i18n test test-watch \
+.PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales lint-extension-i18n test test-watch test-e2e \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major \
 	website-install website-dev website-build website-preview website-clean website-lint-i18n website-lint-i18n-fix \
 	website-og-images
@@ -53,6 +53,9 @@ test: ## Run unit tests once
 
 test-watch: ## Run unit tests in watch mode
 	$(PNPM) test:watch
+
+test-e2e: ## Run Playwright browser E2E tests (build + Chromium install run automatically)
+	$(PNPM) test:e2e
 
 typecheck: ## TypeScript check
 	$(PNPM) typecheck

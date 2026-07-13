@@ -116,7 +116,7 @@ async function convertFile(jsonPath, outputPath) {
     gifskiQuality,
     ...framePaths,
   ];
-  if (jsonName === 'peek_duck.json') {
+  if (jsonName === 'peek_duck.json' || jsonName === 'peek.json') {
     gifskiArgs.push('--repeat', '-1');
   }
 

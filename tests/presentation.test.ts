@@ -6,7 +6,7 @@ import {
   acknowledgeRecoveryEasing,
   applyDrainingSessionPageChange,
 } from '../utils/draining-session';
-import { resolveDisplayMood, moodOverrideWhileHiding } from '../utils/presentation';
+import { resolveDisplayMood, moodOverrideWhileHiding, buildPresentation, resolvePeekPlacementForBuild, patchPresentationForDevForce } from '../utils/presentation';
 import { evaluateEmotionalTrigger } from '../utils/emotional-triggers';
 import { createInitialCat, deriveMoodFromVitals, STRESSED_VITAL_THRESHOLD } from '../utils/cat-sim';
 import { DEFAULT_SETTINGS } from '../utils/types';
@@ -30,24 +30,44 @@ describe('resolveDisplayMood', () => {
     ).toBe('stressed');
   });
 
-  it('uses sleepy mood during a sleeping peek', () => {
+  it('lets dev mode beat an explicit mood override', () => {
+    expect(
+      resolveDisplayMood({
+        settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'peek' },
+        derivedMood: 'happy',
+        moodOverride: 'happy',
+      }),
+    ).toBe('peek');
+  });
+
+  it('lets dev mode override ambient sleeping for preview', () => {
     expect(
       resolveDisplayMood({
         settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' },
         derivedMood: 'content',
         ambientActivity: 'sleeping',
       }),
-    ).toBe('sleepy');
+    ).toBe('happy');
   });
 
-  it('prefers ambient activity mood over dev override', () => {
+  it('lets dev mode override ambient peeking for preview', () => {
     expect(
       resolveDisplayMood({
         settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' },
         derivedMood: 'content',
         ambientActivity: 'peeking',
       }),
-    ).toBe('peek');
+    ).toBe('happy');
+  });
+
+  it('lets dev mode override grooming ambient during stay-visible stickiness', () => {
+    expect(
+      resolveDisplayMood({
+        settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'stressed' },
+        derivedMood: 'content',
+        ambientActivity: 'grooming',
+      }),
+    ).toBe('stressed');
   });
 
   it('keeps peek mood for one hide so duck-out can play', () => {
@@ -76,14 +96,39 @@ describe('resolveDisplayMood', () => {
     ).toBe('happy');
   });
 
-  it('honors explicit mood overrides from care actions', () => {
+  it('lets dev mode beat care-action mood overrides during preview', () => {
     expect(
       resolveDisplayMood({
         settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'happy' },
         derivedMood: 'content',
         moodOverride: 'stressed',
       }),
-    ).toBe('stressed');
+    ).toBe('happy');
+  });
+
+  it('shows peek mood during ambient peeking even when vitals are stressed', () => {
+    expect(
+      resolveDisplayMood({
+        settings: DEFAULT_SETTINGS,
+        derivedMood: 'stressed',
+        ambientActivity: 'peeking',
+      }),
+    ).toBe('peek');
+  });
+
+  it('shows peek mood during ambient peeking on a draining session', () => {
+    expect(
+      resolveDisplayMood({
+        settings: DEFAULT_SETTINGS,
+        derivedMood: 'content',
+        ambientActivity: 'peeking',
+        drainingSession: {
+          ...EMPTY_DRAINING_SESSION,
+          kind: 'social',
+          accumulatedMs: 2 * 60_000,
+        },
+      }),
+    ).toBe('peek');
   });
 
   it('shows stressed from short simulated feed time when vitals are content', () => {
@@ -211,5 +256,127 @@ describe('resolveDisplayMood', () => {
         drainingSession: thanksReady,
       }),
     ).toBe('happy');
+  });
+});
+
+describe('buildPresentation peeking', () => {
+  it('disables care actions during an ambient peek', () => {
+    const now = Date.parse('2026-07-05T14:00:00.000Z');
+    const cat = createInitialCat(now);
+    const presentation = buildPresentation({
+      cat,
+      vitals: cat.vitals,
+      settings: DEFAULT_SETTINGS,
+      now,
+      isUserIdle: false,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      peekEdge: 'left',
+      peekInset: 12,
+      peekCorner: 'left',
+    });
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.canPet).toBe(false);
+    expect(presentation.canTreat).toBe(false);
+    expect(presentation.canPlay).toBe(false);
+  });
+
+  it('assigns a peek edge when dev forces peek mood', () => {
+    const now = Date.parse('2026-07-05T14:00:00.000Z');
+    const cat = createInitialCat(now);
+    const presentation = buildPresentation({
+      cat,
+      vitals: cat.vitals,
+      settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'peek' },
+      now,
+      isUserIdle: false,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      companionVisible: true,
+    });
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.ambientActivity).toBe('peeking');
+    expect(presentation.peekEdge).toBeTruthy();
+    expect(presentation.peekInset).toBeGreaterThanOrEqual(8);
+    expect(presentation.canPet).toBe(false);
+  });
+
+  it('clears stay-visible stickiness when dev forces a mood', () => {
+    const now = Date.parse('2026-07-05T14:00:00.000Z');
+    const cat = createInitialCat(now);
+    const presentation = buildPresentation({
+      cat,
+      vitals: cat.vitals,
+      settings: { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceMood: 'peek' },
+      now,
+      isUserIdle: false,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      companionVisible: true,
+      stayVisibleUntil: now + 120_000,
+    });
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.stayVisibleUntil).toBeNull();
+  });
+});
+
+describe('patchPresentationForDevForce', () => {
+  it('forces peek after stay-visible stickiness', () => {
+    const now = Date.parse('2026-07-05T14:00:00.000Z');
+    const cat = createInitialCat(now);
+    const base = buildPresentation({
+      cat,
+      vitals: cat.vitals,
+      settings: DEFAULT_SETTINGS,
+      now,
+      isUserIdle: false,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      companionVisible: true,
+      moodOverride: 'happy',
+      stayVisibleUntil: now + 120_000,
+    });
+    const patched = patchPresentationForDevForce(base, {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'peek',
+    }, now);
+
+    expect(patched.mood).toBe('peek');
+    expect(patched.stayVisibleUntil).toBeNull();
+    expect(patched.companionVisible).toBe(true);
+    expect(patched.peekEdge).toBeTruthy();
+  });
+});
+
+describe('resolvePeekPlacementForBuild', () => {
+  it('reuses placement when edge is already set', () => {
+    const placement = resolvePeekPlacementForBuild({
+      isPeeking: true,
+      peekEdge: 'right',
+      peekInset: 20,
+      peekCorner: 'right',
+      seed: 0,
+    });
+    expect(placement).toEqual({ edge: 'right', inset: 20, corner: 'right' });
+  });
+
+  it('rolls a new placement when peeking without an edge', () => {
+    const placement = resolvePeekPlacementForBuild({
+      isPeeking: true,
+      peekEdge: null,
+      seed: 42,
+    });
+    expect(placement).toBeTruthy();
+    expect(['bottom', 'left', 'right']).toContain(placement!.edge);
   });
 });

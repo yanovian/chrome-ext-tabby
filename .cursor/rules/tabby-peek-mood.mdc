@@ -7,27 +7,29 @@ alwaysApply: true
 
 ## Mood `peek` (presentation)
 
-- **`mood: 'peek'`** is a **display mood**: Tabby shows only the top of her body above the panel edge (`PEEK_VISIBLE_HEIGHT_RATIO`).
+- **`mood: 'peek'`** is a **display mood**: Tabby shows only part of her body above or beside the panel edge (`PEEK_VISIBLE_HEIGHT_RATIO`).
+- **`peek.gif`** plays **once** on peek-in, then holds the last frame.
 - **`peek_duck.json`** plays on **overlay exit** when the current presentation mood is `peek` (`tabby-overlay.ts` `exitOverlay`). One-shot duck-out clip, not a generic hide animation.
 - **`moodOverrideWhileHiding`** keeps `peek` for **one** hide cycle so that duck-out can finish. Only when the last mood was already `peek`.
+- **`peekEdge`**: `'bottom'`, `'left'`, or `'right'`. **`peekInset`**: random 8–32px (at least 16px) along the edge: horizontal on bottom, vertical on left/right. Side peeks are **rotated** in the overlay.
 
 ## Ambient activity `'peeking'`
 
-- **`ambientActivity: 'peeking'`** means Tabby is **visible** and in peek mood (`moodForAmbient` → `peek`). Optional curious speech on ambient **appear**.
-- It is **not** a rest break, not `companionVisible: false`, and not a substitute for overlay dismiss or ambient rest.
+- **`ambientActivity: 'peeking'`** means Tabby is **visible** and in peek mood (`moodForAmbient` → `peek`). **No speech**, no care menu, no drag.
+- **Tap** sends care action **`reveal`**: Tabby jumps to her saved position with her **real mood** for 1–3 minutes (survives refresh).
+- Daytime default is **edge peeking**, not fully off screen. She watches from a corner, ducks away, then peeks from another corner after about **5–10 seconds**.
+- Visit timer ends → duck-out → short gap → new corner peek. **Tap** ends the cycle and brings her back on screen.
 
-## Ambient rest (mostly visible daytime)
+## Ambient rest (rare daytime)
 
-- After intro, Tabby is **mostly visible** (`companionVisible: true`, often `grooming`).
-- Occasional **rest breaks** set `companionVisible: false` with `sleeping` or `grooming` activity via `pickAmbientRestActivity`. **Never `'peeking'`** for rest.
-- When the rest timer ends, she returns visible (`grooming`). No `peek` mood and no `peek_duck` on resume.
+- Occasional **rest breaks** set `companionVisible: false` with `sleeping` or `grooming` via `pickAmbientRestActivity`. **Never `'peeking'`** for rest.
 
 ## Do not conflate
 
 | Concept | Use for |
 |--------|---------|
 | `mood: 'peek'`, `peek_duck.json` | Visible partial peek, duck-out on hide from peek mood |
-| `ambientActivity: 'peeking'` | Visible ambient peek-in (speech optional) |
+| `ambientActivity: 'peeking'` | Peek cycle: visible edge peek, duck gap, repeat until tap |
 | `companionVisible: false` + rest timer | Short rest break away from the page |
 | Normal overlay exit CSS | Hiding when mood is **not** `peek` |
 

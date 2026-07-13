@@ -27,7 +27,7 @@ Docker runs **dotlottie-web** (transparent PNG frames) then **gifski** (temporal
 | Background | **transparent** |
 | Resolution | **150 × 150** (every life stage) |
 | Frame rate | **native Lottie** (~30 fps) |
-| Loop | **on** (`peek_duck.gif` plays once) |
+| Loop | **on** (`peek.gif` and `peek_duck.gif` play once) |
 
 The extension **scales by age in CSS** (`COMPANION_DISPLAY_SIZE` in `utils/companion-animation.ts`).
 

@@ -120,6 +120,17 @@ export interface CatPresentation {
   ambientActivity: import('./ambient-presence').AmbientActivity | null;
   /** When an ambient rest should end and Tabby come back. */
   ambientPeekUntil: number | null;
+  /** Screen edge for peek mood (bottom, left, or right). */
+  peekEdge: import('./ambient-presence').PeekEdge | null;
+  /** Random inset from the viewport edge during peek (px). */
+  peekInset: number | null;
+  /** Bottom peek: which horizontal corner to hug. */
+  peekCorner: import('./ambient-presence').PeekCorner | null;
+  /** Ambient state saved when a peek cycle starts; restored on reveal. */
+  peekRestoreAmbientActivity: import('./ambient-presence').AmbientActivity | null;
+  peekRestoreAmbientUntil: number | null;
+  /** After reveal tap, keep Tabby on screen with her real mood until this time. */
+  stayVisibleUntil: number | null;
   /** While set and in the future, Tabby is munching after a treat. */
   eatingUntil: number | null;
   /** While set and in the future, Tabby is in a wild play moment. */
@@ -215,6 +226,8 @@ export const STORAGE_KEYS = {
   settings: 'settings',
   presentation: 'presentation',
   overlayPosition: 'overlayPosition',
+  /** Cat position saved when ambient peek starts; restored on reveal. */
+  peekRestorePosition: 'peekRestorePosition',
   introCompleted: 'introCompleted',
   /** Page keys (hostname + path) where the user chose Hide Tabby. */
   hiddenPageKeys: 'hiddenPageKeys',
@@ -239,6 +252,7 @@ export type CareAction =
   | 'treat'
   | 'play'
   | 'ask'
+  | 'reveal'
   | 'dismiss'
   | 'dnd_30'
   | 'dnd_60'

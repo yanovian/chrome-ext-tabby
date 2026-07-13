@@ -116,7 +116,44 @@ describe('handleCareAction dismiss', () => {
 });
 
 describe('handleCareAction during peek', () => {
-  it('pet ends peek and shows a happy mood from vitals', async () => {
+  it('reveal ends peek and keeps the real mood on screen', async () => {
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW + 60_000,
+      peekEdge: 'bottom',
+      peekInset: 16,
+      peekCorner: 'left',
+      peekRestoreAmbientActivity: 'grooming',
+      peekRestoreAmbientUntil: NOW + 120_000,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
+
+    expect(presentation.mood).not.toBe('peek');
+    expect(presentation.ambientActivity).toBe('grooming');
+    expect(presentation.peekEdge).toBeNull();
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.stayVisibleUntil).toBeGreaterThan(NOW);
+  });
+
+  it('reveal from dev peek preview restores auto mood', async () => {
     store[STORAGE_KEYS.settings] = {
       ...DEFAULT_SETTINGS,
       devModeEnabled: true,
@@ -130,25 +167,35 @@ describe('handleCareAction during peek', () => {
       speech: null,
       triggerKind: null,
       overlayHidden: false,
-      canPet: true,
+      canPet: false,
       canTreat: false,
-      canPlay: true,
+      canPlay: false,
       interactions: [],
       secondaryInteractions: [],
       lastCareAction: null,
       companionVisible: true,
-      ambientActivity: 'peeking',
-      ambientPeekUntil: NOW + 60_000,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: 'right',
+      peekInset: 20,
+      peekCorner: 'left',
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
 
-    const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
+    const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
-    expect(presentation.mood).toBe('happy');
-    expect(presentation.ambientActivity).toBeNull();
-    expect(presentation.sprite).toContain('happy.gif');
-    expect(presentation.speech).toBeTruthy();
+    expect(presentation.mood).not.toBe('peek');
+    const settingsAfter = store[STORAGE_KEYS.settings] as typeof DEFAULT_SETTINGS;
+    expect(settingsAfter.devForceMood).toBe('auto');
+    // Regression: reveal's saveSettings() call was missing the isDevBuild
+    // flag, so mergeSettings() silently forced devModeEnabled back to
+    // false. That locked the whole dev menu out right after revealing a
+    // dev-forced peek, with no error and no visible cause.
+    expect(settingsAfter.devModeEnabled).toBe(true);
   });
 });
 
@@ -188,6 +235,12 @@ describe('handleCareAction treat while hungry', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -225,6 +278,12 @@ describe('handleCareAction treat while hungry', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil,
       playingUntil: null,
     });
@@ -260,6 +319,12 @@ describe('handleCareAction treat while hungry', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -309,6 +374,12 @@ describe('handleCareAction ask while hungry', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -340,6 +411,12 @@ describe('handleCareAction ask while content', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -383,6 +460,12 @@ describe('handleCareAction pet while hungry', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -433,6 +516,12 @@ describe('handleCareAction play', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -470,6 +559,12 @@ describe('handleCareAction play', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil,
     });

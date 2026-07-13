@@ -28,6 +28,7 @@ import {
   formatTemperDuration,
   type TemperSimulation,
 } from '../../utils/mood-timers';
+import { shouldSyncDevForceMoodUi } from '../../utils/dev-temper';
 import { settingsChangeRequiresPresent } from '../../utils/settings';
 import type { CatLifeStage, DoNotDisturbDuration, ExtensionSettings, RuntimeResponse } from '../../utils/types';
 import { APP_LOCALES, LOCALE_FLAGS, LOCALE_LABELS } from '../../utils/locale-registry';
@@ -696,6 +697,25 @@ async function initialize(): Promise<void> {
       await requestResetIntro();
       showStatus(t('settings.introReset'));
     })();
+  });
+
+  // Other flows (e.g. tapping a peek on the page) can change devForceMood
+  // behind this popup's back (it resets to "auto" on reveal). Without this,
+  // the dropdown keeps showing the old value, so re-picking that same option
+  // fires no `change` event and looks like the dev menu stopped working.
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') {
+      return;
+    }
+    const next = changes.settings?.newValue as ExtensionSettings | undefined;
+    if (!next || !cachedSettings) {
+      return;
+    }
+    cachedSettings = next;
+    const displayed = fields.devForceMood.value as ExtensionSettings['devForceMood'];
+    if (shouldSyncDevForceMoodUi(displayed, next, syncingTemper)) {
+      void refreshDevTemperUi();
+    }
   });
 }
 
