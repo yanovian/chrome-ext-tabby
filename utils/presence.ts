@@ -1,9 +1,18 @@
 import {
   isAmbientPeekActive,
+  isAmbientPeekDuckGapActive,
+  isAmbientPeekDuckGapExpired,
+  isDaytime,
+  isStayVisibleAfterReveal,
+  isStayVisibleAfterRevealExpired,
   pickAmbientPeekDurationMs,
+  pickAmbientPeekVisitDurationMs,
   pickAmbientRestActivity,
+  pickPeekPlacement,
   shouldStartAmbientRest,
   type AmbientActivity,
+  type PeekCorner,
+  type PeekEdge,
 } from './ambient-presence';
 import { isDoNotDisturbActive, type DoNotDisturbState } from './do-not-disturb';
 import type { EmotionalTriggerResult } from './emotional-triggers';
@@ -13,6 +22,9 @@ export interface ResolvedPresence {
   companionVisible: boolean;
   ambientActivity: AmbientActivity | null;
   ambientPeekUntil: number | null;
+  peekEdge: PeekEdge | null;
+  peekInset: number | null;
+  peekCorner: PeekCorner | null;
   recordSpeech: boolean;
   recordAmbient: boolean;
 }
@@ -25,10 +37,42 @@ function isSpeechTriggerActive(speechTrigger: EmotionalTriggerResult): boolean {
   );
 }
 
+function isUrgentSpeechTrigger(speechTrigger: EmotionalTriggerResult): boolean {
+  return (
+    speechTrigger.triggerKind === 'hungry' || speechTrigger.triggerKind === 'starving'
+  );
+}
+
+function isPeekCyclePresentation(presentation: CatPresentation | null): boolean {
+  return presentation?.ambientActivity === 'peeking';
+}
+
+function startPeekVisit(input: {
+  cat: CatState;
+  settings: ExtensionSettings;
+  now: number;
+  recordAmbient: boolean;
+}): ResolvedPresence {
+  const placement = pickPeekPlacement(input.now + input.cat.adoptedAt);
+  return {
+    companionVisible: true,
+    ambientActivity: 'peeking',
+    ambientPeekUntil:
+      input.now +
+      pickAmbientPeekVisitDurationMs(input.settings, input.now, input.cat.adoptedAt),
+    peekEdge: placement.edge,
+    peekInset: placement.inset,
+    peekCorner: placement.corner,
+    recordSpeech: false,
+    recordAmbient: input.recordAmbient,
+  };
+}
+
 export function resolveCompanionPresence(input: {
   cat: CatState;
   settings: ExtensionSettings;
   now: number;
+  isUserIdle: boolean;
   speechTrigger: EmotionalTriggerResult;
   doNotDisturb: DoNotDisturbState;
   introCompleted: boolean;
@@ -39,6 +83,9 @@ export function resolveCompanionPresence(input: {
     companionVisible: false,
     ambientActivity: null,
     ambientPeekUntil: null,
+    peekEdge: null,
+    peekInset: null,
+    peekCorner: null,
     recordSpeech: false,
     recordAmbient: false,
   };
@@ -51,11 +98,8 @@ export function resolveCompanionPresence(input: {
     return {
       ...hidden,
       companionVisible: true,
-      ambientActivity: null,
-      ambientPeekUntil: null,
       recordSpeech:
         input.forceVisible === true && isSpeechTriggerActive(input.speechTrigger),
-      recordAmbient: false,
     };
   }
 
@@ -64,36 +108,152 @@ export function resolveCompanionPresence(input: {
     return {
       ...hidden,
       companionVisible: true,
+      recordSpeech,
+    };
+  }
+
+  if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
+    return {
+      companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
-      recordSpeech,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      recordSpeech: false,
       recordAmbient: false,
     };
   }
 
   const speechActive = isSpeechTriggerActive(input.speechTrigger);
+  const peekCycleActive = isPeekCyclePresentation(input.lastPresentation);
 
-  if (speechActive) {
+  if (speechActive && !(peekCycleActive && !isUrgentSpeechTrigger(input.speechTrigger))) {
     return {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
       recordSpeech: true,
       recordAmbient: false,
     };
   }
 
-  const previousRestUntil = input.lastPresentation?.ambientPeekUntil ?? null;
+  const previousUntil = input.lastPresentation?.ambientPeekUntil ?? null;
   const previousActivity = input.lastPresentation?.ambientActivity ?? null;
+  const last = input.lastPresentation;
+  const devForcesMood =
+    input.settings.devModeEnabled && input.settings.devForceMood !== 'auto';
+
+  if (!devForcesMood && last && isStayVisibleAfterReveal(last, input.now)) {
+    return {
+      companionVisible: true,
+      ambientActivity:
+        previousActivity === 'peeking' ? null : previousActivity,
+      ambientPeekUntil:
+        previousActivity === 'peeking' ? null : previousUntil,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      recordSpeech: false,
+      recordAmbient: false,
+    };
+  }
+
   if (
-    input.lastPresentation?.companionVisible === false &&
+    last?.companionVisible === true &&
+    previousActivity === 'peeking' &&
+    isAmbientPeekActive(previousUntil, input.now)
+  ) {
+    return {
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: previousUntil,
+      peekEdge: last.peekEdge ?? null,
+      peekInset: last.peekInset ?? null,
+      peekCorner: last.peekCorner ?? null,
+      recordSpeech: false,
+      recordAmbient: false,
+    };
+  }
+
+  if (last && isAmbientPeekDuckGapActive(last, input.now)) {
+    return {
+      companionVisible: false,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: previousUntil,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      recordSpeech: false,
+      recordAmbient: false,
+    };
+  }
+
+  if (last && isAmbientPeekDuckGapExpired(last, input.now)) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: false,
+    });
+  }
+
+  if (last && isStayVisibleAfterRevealExpired(last, input.now)) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: false,
+    });
+  }
+
+  if (
+    last?.companionVisible === true &&
+    previousActivity === 'grooming' &&
+    isAmbientPeekActive(previousUntil, input.now)
+  ) {
+    return {
+      companionVisible: true,
+      ambientActivity: 'grooming',
+      ambientPeekUntil: previousUntil,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      recordSpeech: false,
+      recordAmbient: false,
+    };
+  }
+
+  if (
+    last?.companionVisible === true &&
+    previousActivity === 'grooming' &&
+    previousUntil !== null &&
+    !isAmbientPeekActive(previousUntil, input.now)
+  ) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: false,
+    });
+  }
+
+  if (
+    last?.companionVisible === false &&
     previousActivity &&
-    isAmbientPeekActive(previousRestUntil, input.now)
+    previousActivity !== 'peeking' &&
+    isAmbientPeekActive(previousUntil, input.now)
   ) {
     return {
       companionVisible: false,
       ambientActivity: previousActivity,
-      ambientPeekUntil: previousRestUntil,
+      ambientPeekUntil: previousUntil,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
       recordSpeech: false,
       recordAmbient: false,
     };
@@ -105,7 +265,7 @@ export function resolveCompanionPresence(input: {
       settings: input.settings,
       now: input.now,
       speechWouldAppear: false,
-      restUntil: previousRestUntil,
+      restUntil: previousUntil,
     })
   ) {
     return {
@@ -114,16 +274,23 @@ export function resolveCompanionPresence(input: {
       ambientPeekUntil:
         input.now +
         pickAmbientPeekDurationMs(input.settings, input.now, input.cat.adoptedAt),
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
       recordSpeech: false,
       recordAmbient: true,
     };
   }
 
-  return {
-    companionVisible: true,
-    ambientActivity: 'grooming',
-    ambientPeekUntil: null,
-    recordSpeech: false,
-    recordAmbient: false,
-  };
+  const hour = new Date(input.now).getHours();
+  if (isDaytime(hour, input.settings)) {
+    return startPeekVisit({
+      cat: input.cat,
+      settings: input.settings,
+      now: input.now,
+      recordAmbient: true,
+    });
+  }
+
+  return hidden;
 }

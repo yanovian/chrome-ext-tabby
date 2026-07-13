@@ -42,6 +42,11 @@ jobs:
       - name: Build extension
         run: pnpm build
 
+      - name: Run E2E tests
+        env:
+          PLAYWRIGHT_INSTALL_DEPS: '1'
+        run: pnpm test:e2e
+
       - name: Verify zip artifact
         run: pnpm zip
 

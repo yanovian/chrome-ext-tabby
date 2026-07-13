@@ -111,6 +111,26 @@ export function applyDevMoodToTemper(
   };
 }
 
+/**
+ * Popup: whether the dev mood dropdown should refresh from storage.
+ *
+ * Other flows (tapping a peek on the page resets devForceMood to "auto")
+ * can change devForceMood without the popup's involvement. Without this
+ * check the dropdown keeps showing the stale value, so re-picking that same
+ * visible option fires no `change` event and the dev menu looks stuck.
+ */
+export function shouldSyncDevForceMoodUi(
+  displayedDevForceMood: DevMoodOverride,
+  nextSettings: Pick<ExtensionSettings, 'devModeEnabled' | 'devForceMood'>,
+  isSyncInFlight: boolean,
+): boolean {
+  return (
+    !isSyncInFlight &&
+    nextSettings.devModeEnabled &&
+    displayedDevForceMood !== nextSettings.devForceMood
+  );
+}
+
 /** Load simulation values from settings + live draining session (if any). */
 export function temperSimulationFromSession(
   settings: ExtensionSettings,

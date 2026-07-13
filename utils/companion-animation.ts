@@ -66,8 +66,8 @@ export function lifeStageFromCompanionAssetPath(assetPath: string): CatLifeStage
   return match ? (match[1] as CatLifeStage) : null;
 }
 
-/** Share of the cat box that peek mood shows above the bottom edge. */
-export const PEEK_VISIBLE_HEIGHT_RATIO = 0.38;
+/** Share of the cat box visible during peek (must match peek CSS clip windows). */
+export const PEEK_VISIBLE_HEIGHT_RATIO = 0.5;
 
 /** Pixel size of a companion asset file (GIF source or Lottie composition). */
 export function companionCanvasSizeFromPath(assetPath: string): number {

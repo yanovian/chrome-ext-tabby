@@ -10,6 +10,7 @@ import {
   persistPresentation,
   presentOnActiveTab,
   recordPageVisit,
+  syncDevTemperControls,
   runMinuteTick,
   restartIntroSession,
   settleAfterIntro,
@@ -83,6 +84,12 @@ describe('recordPageVisit', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -143,6 +150,12 @@ describe('runMinuteTick', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -176,6 +189,12 @@ describe('runMinuteTick', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -207,6 +226,12 @@ describe('getCurrentPresentation', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -237,6 +262,12 @@ describe('getCurrentPresentation', () => {
       companionVisible: true,
       ambientActivity: 'sleeping',
       ambientPeekUntil: NOW + 60_000,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -251,7 +282,7 @@ describe('getCurrentPresentation', () => {
     vi.useRealTimers();
   });
 
-  it('shows Tabby when an ambient rest timer has elapsed', async () => {
+  it('clears an expired hidden rest without showing Tabby', async () => {
     await persistPresentation({
       mood: 'sleepy',
       stage: 'adult',
@@ -269,6 +300,88 @@ describe('getCurrentPresentation', () => {
       companionVisible: false,
       ambientActivity: 'sleeping',
       ambientPeekUntil: NOW - 1,
+      peekEdge: 'left',
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+    store[STORAGE_KEYS.introCompleted] = true;
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.ambientActivity).toBeNull();
+    expect(presentation.ambientPeekUntil).toBeNull();
+  });
+
+  it('ducks away when a visible peek visit expires', async () => {
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW - 1,
+      peekEdge: 'right',
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+    store[STORAGE_KEYS.introCompleted] = true;
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.ambientActivity).toBe('peeking');
+    expect(presentation.ambientPeekUntil).toBeGreaterThan(NOW);
+  });
+
+  it('peeks again from a new corner after the duck gap', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW - 1,
+      peekEdge: 'left',
+      peekInset: 16,
+      peekCorner: 'left',
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -277,8 +390,155 @@ describe('getCurrentPresentation', () => {
     const presentation = await getCurrentPresentation();
 
     expect(presentation.companionVisible).toBe(true);
-    expect(presentation.ambientActivity).toBe('grooming');
-    expect(presentation.ambientPeekUntil).toBeNull();
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.ambientActivity).toBe('peeking');
+    expect(presentation.ambientPeekUntil).toBeGreaterThan(NOW);
+
+    vi.useRealTimers();
+  });
+
+  it('dev peek overrides stay-visible stickiness in cached presentation', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'peek',
+    };
+    store[STORAGE_KEYS.introCompleted] = true;
+    await persistPresentation({
+      mood: 'happy',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/happy.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: NOW + 120_000,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.stayVisibleUntil).toBeNull();
+    expect(presentation.peekEdge).toBeTruthy();
+  });
+
+  it('minute tick keeps dev peek while stay-visible would still be active', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'peek',
+    };
+    store[STORAGE_KEYS.introCompleted] = true;
+    await persistPresentation({
+      mood: 'happy',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/happy.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: NOW + 120_000,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const state = await runMinuteTick(NOW);
+
+    expect(state.lastPresentation?.mood).toBe('peek');
+    expect(state.lastPresentation?.stayVisibleUntil).toBeNull();
+  });
+});
+
+describe('syncDevTemperControls', () => {
+  it('forces peek over stay-visible stickiness from dev controls', async () => {
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'auto',
+    };
+    store[STORAGE_KEYS.introCompleted] = true;
+    await persistPresentation({
+      mood: 'happy',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/happy.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: NOW + 120_000,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const result = await syncDevTemperControls({ devForceMood: 'peek' });
+
+    expect(result.presentation.mood).toBe('peek');
+    expect(result.presentation.stayVisibleUntil).toBeNull();
+    expect(result.settings.devForceMood).toBe('peek');
+  });
+
+  it('persists the new forced mood instead of the previous one', async () => {
+    // Regression: syncDevTemperControls used to persist the presentation
+    // BEFORE saving settings. persistPresentation() re-reads settings from
+    // storage to re-apply any forced dev mood, so it read the OLD
+    // devForceMood ("happy") and stomped the freshly built "peek"
+    // presentation back to "happy" in storage, even though the returned
+    // value and the settings both correctly said "peek".
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      devForceMood: 'happy',
+    };
+    store[STORAGE_KEYS.introCompleted] = true;
+
+    await syncDevTemperControls({ devForceMood: 'peek' });
+
+    const stored = store[STORAGE_KEYS.presentation] as { mood: string } | undefined;
+    expect(stored?.mood).toBe('peek');
   });
 });
 
@@ -301,6 +561,12 @@ describe('presentOnActiveTab', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -338,6 +604,12 @@ describe('showOverlayOnPage', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -394,6 +666,12 @@ describe('cancelDoNotDisturb', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -439,7 +717,8 @@ describe('devForceCompanionShow', () => {
 
     expect(presentation.mood).toBe('peek');
     expect(presentation.sprite).toContain('peek.gif');
-    expect(presentation.ambientActivity).toBeNull();
+    expect(presentation.ambientActivity).toBe('peeking');
+    expect(presentation.peekEdge).toBeTruthy();
   });
 });
 
@@ -462,6 +741,12 @@ describe('clearCompanionSpeech', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -493,6 +778,12 @@ describe('restartIntroSession', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -523,6 +814,12 @@ describe('settleAfterIntro', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -553,6 +850,12 @@ describe('settleAfterIntro', () => {
       companionVisible: false,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -587,6 +890,12 @@ describe('devForceCompanionHide', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });
@@ -616,6 +925,12 @@ describe('devForceCompanionHide', () => {
       companionVisible: true,
       ambientActivity: null,
       ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+  peekRestoreAmbientActivity: null,
+  peekRestoreAmbientUntil: null,
+  stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
     });

@@ -6,6 +6,9 @@ Updates for people who use Tabby. Newest first.
 
 - The website links to our other projects.
 - Fix the sub page icon on website.
+- Side **edge peeks** rotate into the page.
+- **Dev mood override** in the popup reliably applies.
+- **Browser E2E tests** run in CI.
 
 ## 2.3.0
 

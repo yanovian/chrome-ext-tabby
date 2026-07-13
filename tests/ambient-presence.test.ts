@@ -2,12 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   isAmbientPeekActive,
+  isAmbientPeekDuckGapActive,
+  isAmbientPeekDuckGapExpired,
+  isAmbientPeekVisitExpired,
   isAmbientRestExpired,
   isDaytime,
   pickAmbientActivity,
+  pickAmbientPeekDuckGapMs,
   pickAmbientPeekDurationMs,
+  pickAmbientPeekVisitDurationMs,
   pickAmbientRestActivity,
+  pickPeekPlacement,
   shouldStartAmbientRest,
+  AMBIENT_PEEK_DUCK_GAP_MIN_MS,
+  AMBIENT_PEEK_DUCK_GAP_MAX_MS,
+  PEEK_INSET_MIN,
+  PEEK_INSET_MAX,
+  AMBIENT_PEEK_VISIT_MIN_MS,
+  AMBIENT_PEEK_VISIT_MAX_MS,
 } from '../utils/ambient-presence';
 import { DEFAULT_SETTINGS } from '../utils/types';
 
@@ -37,13 +49,15 @@ describe('shouldStartAmbientRest', () => {
     ).toBe(false);
   });
 
-  it('can rest during daytime when cooldown has passed', () => {
+  it('can rest during daytime when peek does not start', () => {
+    const eligibleNow = Date.parse('2026-07-06T14:00:00.000Z');
     const cat = {
-      ...createInitialCat(0),
+      ...createInitialCat(eligibleNow),
+      adoptedAt: 5,
+      lastCareAt: 0,
       lastAmbientAt: 0,
       ambientsToday: 0,
     };
-    const eligibleNow = Date.parse('2026-07-06T14:04:00.000Z');
     expect(
       shouldStartAmbientRest({
         cat,
@@ -77,6 +91,86 @@ describe('pickAmbientActivity', () => {
     expect(pickAmbientActivity(0)).toBe('sleeping');
     expect(pickAmbientActivity(1)).toBe('grooming');
     expect(pickAmbientActivity(2)).toBe('peeking');
+  });
+});
+
+describe('isAmbientPeekDuckGapActive', () => {
+  it('detects an active pause between peek visits', () => {
+    expect(
+      isAmbientPeekDuckGapActive(
+        {
+          companionVisible: false,
+          ambientActivity: 'peeking',
+          ambientPeekUntil: NOW + 5_000,
+        },
+        NOW,
+      ),
+    ).toBe(true);
+    expect(
+      isAmbientPeekDuckGapExpired(
+        {
+          companionVisible: false,
+          ambientActivity: 'peeking',
+          ambientPeekUntil: NOW - 1,
+        },
+        NOW,
+      ),
+    ).toBe(true);
+  });
+});
+
+describe('pickPeekPlacement', () => {
+  it('picks bottom, left, or right with a random inset', () => {
+    const placement = pickPeekPlacement(0);
+    expect(['bottom', 'left', 'right']).toContain(placement.edge);
+    expect(placement.inset).toBeGreaterThanOrEqual(PEEK_INSET_MIN);
+    expect(placement.inset).toBeLessThanOrEqual(PEEK_INSET_MAX);
+    expect(['left', 'right']).toContain(placement.corner);
+  });
+});
+
+describe('pickAmbientPeekVisitDurationMs', () => {
+  it('stays within the peek visit band', () => {
+    const cat = createInitialCat(NOW);
+    const duration = pickAmbientPeekVisitDurationMs(DEFAULT_SETTINGS, NOW, cat.adoptedAt);
+
+    expect(duration).toBeGreaterThanOrEqual(AMBIENT_PEEK_VISIT_MIN_MS);
+    expect(duration).toBeLessThanOrEqual(AMBIENT_PEEK_VISIT_MAX_MS);
+  });
+});
+
+describe('pickAmbientPeekDuckGapMs', () => {
+  it('stays within the duck gap band', () => {
+    const cat = createInitialCat(NOW);
+    const duration = pickAmbientPeekDuckGapMs(DEFAULT_SETTINGS, NOW, cat.adoptedAt);
+
+    expect(duration).toBeGreaterThanOrEqual(AMBIENT_PEEK_DUCK_GAP_MIN_MS);
+    expect(duration).toBeLessThanOrEqual(AMBIENT_PEEK_DUCK_GAP_MAX_MS);
+  });
+});
+
+describe('isAmbientPeekVisitExpired', () => {
+  it('detects when a visible peek should duck away', () => {
+    expect(
+      isAmbientPeekVisitExpired(
+        {
+          companionVisible: true,
+          ambientActivity: 'peeking',
+          ambientPeekUntil: NOW - 1,
+        },
+        NOW,
+      ),
+    ).toBe(true);
+    expect(
+      isAmbientPeekVisitExpired(
+        {
+          companionVisible: true,
+          ambientActivity: 'peeking',
+          ambientPeekUntil: NOW + 10_000,
+        },
+        NOW,
+      ),
+    ).toBe(false);
   });
 });
 

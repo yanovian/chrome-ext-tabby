@@ -20,6 +20,7 @@ import {
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { CompanionGifPlayer } from '../../utils/gif-companion';
 import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
+import { isPeekPresentation, patchPresentationForDevForce, resolveEffectivePeekPlacement } from '../../utils/presentation';
 import { isFeedingActive } from '../../utils/feeding-moment';
 import { isPlayingActive } from '../../utils/play-moment';
 import {
@@ -46,12 +47,16 @@ import {
 import { isPageOverlayHidden } from '../../utils/page-overlay';
 import {
   CAT_DISPLAY_SIZE,
-  defaultOverlayPosition,
   clampOverlayPosition,
+  defaultOverlayPosition,
   isDefaultOverlayPosition,
-  resolveAnchoredPosition,
+  peekCatSurfaceLayout,
+  peekVisibleSize,
+  resolveCompanionLayoutPosition,
+  resolvePeekLayout,
   resolveMenuLayout,
 } from '../../utils/overlay-position';
+import { readViewportBox } from '../../utils/viewport-box';
 import {
   pingBackground,
   publicAnimationAssetUrl,
@@ -61,6 +66,7 @@ import {
   requestSettleAfterIntro,
   requestSettings,
 } from '../../utils/runtime-client';
+import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
 import type { CatPresentation, ExtensionSettings, OverlayPosition } from '../../utils/types';
 import { STORAGE_KEYS } from '../../utils/types';
 import './style.css';
@@ -86,11 +92,18 @@ export class TabbyOverlay {
   private outsideClickListener: ((event: Event) => void) | null = null;
   private storageListenerBound = false;
   private showOverlayEnabled = true;
+  private cachedSettings: ExtensionSettings | null = null;
   private exiting = false;
   private moodTransitionToken = 0;
   private catPlayer: CompanionGifPlayer | null = null;
   private initPromise: Promise<void> | null = null;
   private mountGeneration = 0;
+  private wasPeeking = false;
+  private pendingReveal = false;
+  private peekRestorePosition: OverlayPosition | null = null;
+  private readonly onViewportChange = (): void => {
+    this.applyPosition();
+  };
 
   private isActiveInstance(): boolean {
     const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
@@ -113,6 +126,7 @@ export class TabbyOverlay {
       return;
     }
     const settings = await requestSettings();
+    this.cachedSettings = settings;
     if (!this.isActiveInstance()) {
       return;
     }
@@ -188,54 +202,72 @@ export class TabbyOverlay {
           return;
         }
           const next = changes.presentation?.newValue as CatPresentation | undefined;
-        if (next && !this.pendingAction) {
+        if (next && (!this.pendingAction || this.cachedSettings?.devModeEnabled)) {
+          const previousMood = this.presentation?.mood ?? null;
           const previousSpeech = this.presentation?.speech ?? null;
           const previousSprite = this.presentation?.sprite ?? null;
           const previousEatingUntil = this.presentation?.eatingUntil ?? null;
           const previousPlayingUntil = this.presentation?.playingUntil ?? null;
-          const settled = this.introJustFinished
-            ? { ...next, speech: null, triggerKind: null }
-            : next;
-          this.presentation = settled;
-          if (!this.introJustFinished) {
-            this.applyCareMomentChromeState(settled, {
-              eatingUntil: previousEatingUntil,
-              playingUntil: previousPlayingUntil,
+          const applyUpdate = () => {
+            const settled = this.introJustFinished
+              ? { ...this.settlePresentation(next), speech: null, triggerKind: null }
+              : this.settlePresentation(next);
+            this.presentation = settled;
+            this.syncPeekChromeState(settled);
+            if (previousMood !== 'peek' && settled.mood === 'peek') {
+              this.wasPeeking = false;
+            }
+            if (previousMood === 'peek' && settled.mood !== 'peek') {
+              this.wasPeeking = true;
+            }
+            if (!this.introJustFinished) {
+              this.applyCareMomentChromeState(settled, {
+                eatingUntil: previousEatingUntil,
+                playingUntil: previousPlayingUntil,
+              });
+            }
+            const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
+              introJustFinished: this.introJustFinished,
+              isIntro: this.isIntroActive(),
+              previousSpeech,
+              nextSpeech: settled.speech,
+              triggerKind: settled.triggerKind,
+              speechBubbleOpen: this.speechBubbleOpen,
             });
+            if (openSpeechBubble) {
+              this.speechBubbleOpen = true;
+              this.menuOpen = false;
+              this.moreOpen = false;
+              this.syncOutsideClickListener();
+            } else if (!settled.speech) {
+              this.speechBubbleOpen = false;
+            }
+            const shouldReact = shouldReactToSpeechTrigger({
+              previousSpeech,
+              nextSpeech: settled.speech,
+              triggerKind: settled.triggerKind,
+            });
+            this.render({
+              animateMenu: openSpeechBubble || this.menuOpen,
+              reactToTrigger: shouldReact,
+              animateMood: shouldAnimateMoodTransition({
+                previousSprite,
+                nextSprite: settled.sprite,
+                hasVisibleOverlay: Boolean(this.root?.isConnected),
+              }),
+            });
+            if (!this.introCompleted && !this.introJustFinished && this.isOverlayVisible() && this.introStep === null) {
+              this.beginIntroIfNeeded();
+            }
+          };
+          if (!this.cachedSettings) {
+            void requestSettings().then((settings) => {
+              this.cachedSettings = settings;
+              applyUpdate();
+            });
+            return;
           }
-          const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
-            introJustFinished: this.introJustFinished,
-            isIntro: this.isIntroActive(),
-            previousSpeech,
-            nextSpeech: settled.speech,
-            triggerKind: settled.triggerKind,
-            speechBubbleOpen: this.speechBubbleOpen,
-          });
-          if (openSpeechBubble) {
-            this.speechBubbleOpen = true;
-            this.menuOpen = false;
-            this.moreOpen = false;
-            this.syncOutsideClickListener();
-          } else if (!settled.speech) {
-            this.speechBubbleOpen = false;
-          }
-          const shouldReact = shouldReactToSpeechTrigger({
-            previousSpeech,
-            nextSpeech: settled.speech,
-            triggerKind: settled.triggerKind,
-          });
-          this.render({
-            animateMenu: openSpeechBubble || this.menuOpen,
-            reactToTrigger: shouldReact,
-            animateMood: shouldAnimateMoodTransition({
-              previousSprite,
-              nextSprite: settled.sprite,
-              hasVisibleOverlay: Boolean(this.root?.isConnected),
-            }),
-          });
-          if (!this.introCompleted && !this.introJustFinished && this.isOverlayVisible() && this.introStep === null) {
-            this.beginIntroIfNeeded();
-          }
+          applyUpdate();
         }
       }
       if (STORAGE_KEYS.hiddenPageKeys in changes) {
@@ -250,6 +282,7 @@ export class TabbyOverlay {
         if (!next) {
           return;
         }
+        this.cachedSettings = next;
         if (prev?.locale !== next.locale) {
           void loadAppLocale(next.locale).then(() => {
             if (this.root) {
@@ -257,6 +290,24 @@ export class TabbyOverlay {
             }
             this.render();
           });
+        }
+        const devForced = next.devModeEnabled && next.devForceMood !== 'auto';
+        const devMoodChanged =
+          devForced && prev?.devForceMood !== next.devForceMood;
+        const devModeEnabledWithForce =
+          devForced && prev?.devModeEnabled !== true;
+        if (devMoodChanged || devModeEnabledWithForce) {
+          if (this.presentation) {
+            const settled = this.assignPresentation(this.presentation);
+            if (settled.mood === 'peek') {
+              this.wasPeeking = false;
+            }
+            this.syncPeekChromeState(settled);
+            this.render({ animateMood: true });
+          } else {
+            void this.refreshPresentation();
+          }
+          return;
         }
         this.showOverlayEnabled = next.showOverlay;
         if (!next.showOverlay) {
@@ -287,9 +338,9 @@ export class TabbyOverlay {
       }
     });
 
-    window.addEventListener('resize', () => {
-      this.applyPosition();
-    });
+    window.addEventListener('resize', this.onViewportChange);
+    window.visualViewport?.addEventListener('resize', this.onViewportChange);
+    window.visualViewport?.addEventListener('scroll', this.onViewportChange);
 
     window.addEventListener('pagehide', () => {
       this.removeOutsideClickListener();
@@ -311,6 +362,9 @@ export class TabbyOverlay {
 
   /** Tear down UI and timers when the script is replaced during dev reload. */
   destroy(): void {
+    window.removeEventListener('resize', this.onViewportChange);
+    window.visualViewport?.removeEventListener('resize', this.onViewportChange);
+    window.visualViewport?.removeEventListener('scroll', this.onViewportChange);
     this.teardownOverlay();
     this.presentation = null;
     this.pendingAction = null;
@@ -348,9 +402,14 @@ export class TabbyOverlay {
   }
 
   private async loadPosition(): Promise<void> {
-    const stored = await browser.storage.local.get([STORAGE_KEYS.overlayPosition]);
+    const stored = await browser.storage.local.get([
+      STORAGE_KEYS.overlayPosition,
+      STORAGE_KEYS.peekRestorePosition,
+    ]);
     const saved = stored[STORAGE_KEYS.overlayPosition] as OverlayPosition | undefined;
     this.position = saved ?? defaultOverlayPosition();
+    this.peekRestorePosition =
+      (stored[STORAGE_KEYS.peekRestorePosition] as OverlayPosition | undefined) ?? null;
   }
 
   private async savePosition(): Promise<void> {
@@ -359,8 +418,25 @@ export class TabbyOverlay {
     });
   }
 
+  private settlePresentation(presentation: CatPresentation): CatPresentation {
+    if (!this.cachedSettings) {
+      return presentation;
+    }
+    return patchPresentationForDevForce(presentation, this.cachedSettings);
+  }
+
+  private assignPresentation(presentation: CatPresentation): CatPresentation {
+    const settled = this.settlePresentation(presentation);
+    this.presentation = settled;
+    return settled;
+  }
+
   private async refreshPresentation(): Promise<void> {
-    this.presentation = await requestPresentation();
+    if (!this.cachedSettings) {
+      this.cachedSettings = await requestSettings();
+    }
+    const fetched = await requestPresentation();
+    this.presentation = fetched ? this.settlePresentation(fetched) : null;
     if (this.presentation) {
       await preloadCompanionSprite(publicAnimationAssetUrl, this.presentation.sprite);
     }
@@ -400,6 +476,27 @@ export class TabbyOverlay {
     );
   }
 
+  private isPeeking(presentation = this.presentation): boolean {
+    return presentation ? isPeekPresentation(presentation) : false;
+  }
+
+  private peekPlacement(presentation = this.presentation) {
+    if (!presentation || !this.isPeeking(presentation)) {
+      return { edge: 'bottom' as const, inset: 16, corner: 'left' as const };
+    }
+    return resolveEffectivePeekPlacement(presentation);
+  }
+
+  private syncPeekChromeState(presentation: CatPresentation): void {
+    if (!isPeekPresentation(presentation)) {
+      return;
+    }
+    this.menuOpen = false;
+    this.moreOpen = false;
+    this.speechBubbleOpen = false;
+    this.syncOutsideClickListener();
+  }
+
   private applyCareMomentChromeState(
     presentation: CatPresentation,
     previous?: { eatingUntil?: number | null; playingUntil?: number | null },
@@ -434,6 +531,9 @@ export class TabbyOverlay {
   }
 
   private hasOverlayChrome(): boolean {
+    if (this.isPeeking()) {
+      return false;
+    }
     return hasOverlayChrome({
       isIntro: this.isIntroActive(),
       careMenuOpen: this.menuOpen,
@@ -584,6 +684,10 @@ export class TabbyOverlay {
       return;
     }
 
+    if (this.presentation) {
+      this.presentation = this.settlePresentation(this.presentation);
+    }
+
     if (this.root?.isConnected) {
       for (const node of document.querySelectorAll(`#${ROOT_ID}`)) {
         if (node !== this.root) {
@@ -707,14 +811,106 @@ export class TabbyOverlay {
       presentation.ambientActivity === 'grooming' && !presentation.speech,
     );
     root.classList.toggle('tabby-root--mood-peek', presentation.mood === 'peek');
+    const placement = this.peekPlacement(presentation);
+    const peekEdge = placement.edge;
+    for (const edge of ['bottom', 'left', 'right'] as const) {
+      root.classList.toggle(
+        `tabby-root--peek-edge-${edge}`,
+        presentation.mood === 'peek' && peekEdge === edge,
+      );
+    }
+    for (const corner of ['left', 'right'] as const) {
+      root.classList.toggle(
+        `tabby-root--peek-corner-${corner}`,
+        presentation.mood === 'peek' &&
+          peekEdge === 'bottom' &&
+          placement.corner === corner,
+      );
+    }
     if (presentation.mood === 'peek') {
+      const catSize = CAT_DISPLAY_SIZE[presentation.stage];
+      const visibleSize = peekVisibleSize(catSize);
+      const edge = peekEdge;
+      const surfaceLayout = peekCatSurfaceLayout(edge, catSize);
+      root.style.setProperty('--tabby-cat-size', `${catSize}px`);
+      root.style.setProperty('--tabby-peek-visible-size', `${visibleSize}px`);
       root.style.setProperty(
         '--tabby-peek-visible-ratio',
         String(PEEK_VISIBLE_HEIGHT_RATIO),
       );
+      this.applyPeekSurfaceLayout(surfaceLayout, root);
     } else {
+      root.style.removeProperty('--tabby-cat-size');
+      root.style.removeProperty('--tabby-peek-visible-size');
       root.style.removeProperty('--tabby-peek-visible-ratio');
+      this.applyPeekSurfaceLayout(null, root);
     }
+  }
+
+  private applyPeekSurfaceLayout(
+    surface: ReturnType<typeof peekCatSurfaceLayout> | null,
+    root: HTMLElement | null = this.root,
+  ): void {
+    const catSurface = root?.querySelector('.tabby-cat-surface');
+    if (!(catSurface instanceof HTMLElement)) {
+      return;
+    }
+
+    if (!surface) {
+      catSurface.style.removeProperty('width');
+      catSurface.style.removeProperty('height');
+      catSurface.style.removeProperty('left');
+      catSurface.style.removeProperty('right');
+      catSurface.style.removeProperty('top');
+      catSurface.style.removeProperty('bottom');
+      catSurface.style.removeProperty('transform');
+      catSurface.style.removeProperty('transform-origin');
+      return;
+    }
+    catSurface.style.width = `${surface.width}px`;
+    catSurface.style.height = `${surface.height}px`;
+    catSurface.style.setProperty('left', surface.left, 'important');
+    catSurface.style.setProperty('right', surface.right, 'important');
+    catSurface.style.setProperty('top', surface.top, 'important');
+    catSurface.style.setProperty('bottom', surface.bottom, 'important');
+    catSurface.style.setProperty('transform', surface.transform, 'important');
+    catSurface.style.setProperty('transform-origin', surface.transformOrigin, 'important');
+  }
+
+  private async revealFromPeek(): Promise<void> {
+    if (!this.isPeeking() || this.pendingReveal) {
+      return;
+    }
+
+    this.pendingReveal = true;
+    try {
+      const next = this.assignPresentation(await requestCareAction('reveal', location.href));
+      this.syncPeekChromeState(next);
+      this.wasPeeking = true;
+      await this.restorePeekSavedPosition();
+      this.render({ animateMood: true });
+    } catch (error) {
+      ignoreIfExtensionUnavailable('reveal from peek', error);
+    } finally {
+      this.pendingReveal = false;
+    }
+  }
+
+  private async restorePeekSavedPosition(): Promise<void> {
+    const stored = await browser.storage.local.get(STORAGE_KEYS.peekRestorePosition);
+    const restore =
+      (stored[STORAGE_KEYS.peekRestorePosition] as OverlayPosition | undefined) ??
+      this.peekRestorePosition;
+    if (!restore) {
+      return;
+    }
+
+    this.position = restore;
+    this.peekRestorePosition = restore;
+    await browser.storage.local.set({
+      [STORAGE_KEYS.overlayPosition]: restore,
+    });
+    await browser.storage.local.remove(STORAGE_KEYS.peekRestorePosition);
   }
 
   private updateCatAnimation(
@@ -835,7 +1031,6 @@ export class TabbyOverlay {
     const root = document.createElement('div');
     root.id = ROOT_ID;
     applyNodeLocale(root);
-    this.applyRootPresentationClasses(root, presentation);
 
     const panel = document.createElement('div');
     panel.className = 'tabby-panel';
@@ -848,6 +1043,7 @@ export class TabbyOverlay {
     await this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
 
     panel.appendChild(catSurface);
+    this.applyRootPresentationClasses(root, presentation);
 
     if (this.hasOverlayChrome()) {
       panel.appendChild(
@@ -859,6 +1055,10 @@ export class TabbyOverlay {
 
     this.attachDragAndTapHandlers(root, catSurface, () => {
       if (this.isIntroActive()) {
+        return;
+      }
+      if (this.isPeeking()) {
+        void this.revealFromPeek();
         return;
       }
       if (this.isCareMoment(presentation)) {
@@ -1108,14 +1308,15 @@ export class TabbyOverlay {
       const catSize = this.presentation
         ? CAT_DISPLAY_SIZE[this.presentation.stage]
         : CAT_DISPLAY_SIZE.playful;
+      const viewport = readViewportBox();
 
       const next = clampOverlayPosition(
         {
-          x: event.clientX - offsetX,
-          y: event.clientY - offsetY,
+          x: event.clientX - offsetX - viewport.offsetX,
+          y: event.clientY - offsetY - viewport.offsetY,
         },
-        window.innerWidth,
-        window.innerHeight,
+        viewport.width,
+        viewport.height,
         catSize,
         catSize,
       );
@@ -1151,6 +1352,23 @@ export class TabbyOverlay {
         return;
       }
 
+      if (this.isPeeking()) {
+        event.preventDefault();
+        event.stopPropagation();
+        const peekPointerId = event.pointerId;
+        const onPeekUp = (upEvent: PointerEvent): void => {
+          if (upEvent.pointerId !== peekPointerId) {
+            return;
+          }
+          window.removeEventListener('pointerup', onPeekUp);
+          window.removeEventListener('pointercancel', onPeekUp);
+          onTap();
+        };
+        window.addEventListener('pointerup', onPeekUp);
+        window.addEventListener('pointercancel', onPeekUp);
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
 
@@ -1177,35 +1395,88 @@ export class TabbyOverlay {
       return;
     }
 
+    const viewport = readViewportBox();
     const catSize = CAT_DISPLAY_SIZE[this.presentation.stage];
+    const peeking = this.isPeeking();
 
-    const resolved = isDefaultOverlayPosition(this.position)
-      ? resolveAnchoredPosition(
-          this.position,
-          window.innerWidth,
-          window.innerHeight,
-          catSize,
-          catSize,
-        )
-      : clampOverlayPosition(
-          this.position,
-          window.innerWidth,
-          window.innerHeight,
-          catSize,
-          catSize,
-        );
-
-    this.root.style.left = `${resolved.x}px`;
-    this.root.style.top = `${resolved.y}px`;
-
-    if (!isDefaultOverlayPosition(this.position)) {
-      this.position = resolved;
+    if (peeking && !this.wasPeeking) {
+      this.peekRestorePosition = resolveCompanionLayoutPosition(
+        this.position,
+        viewport.width,
+        viewport.height,
+        catSize,
+      );
+      void browser.storage.local.set({
+        [STORAGE_KEYS.peekRestorePosition]: this.peekRestorePosition,
+      });
     }
 
-    this.applyMenuPlacement(resolved, catSize);
+    if (!peeking && this.wasPeeking && this.peekRestorePosition) {
+      this.position = this.peekRestorePosition;
+      void browser.storage.local.set({
+        [STORAGE_KEYS.overlayPosition]: this.peekRestorePosition,
+      });
+      void browser.storage.local.remove(STORAGE_KEYS.peekRestorePosition);
+      this.peekRestorePosition = null;
+    }
+
+    const resolved = peeking
+      ? resolvePeekLayout(
+          this.peekPlacement(),
+          viewport.width,
+          viewport.height,
+          catSize,
+        )
+      : {
+          position: resolveCompanionLayoutPosition(
+            this.position,
+            viewport.width,
+            viewport.height,
+            catSize,
+          ),
+          dimensions: { width: catSize, height: catSize },
+          surface: null,
+          clipPath: null,
+        };
+
+    this.root.style.left = `${Math.round(resolved.position.x + viewport.offsetX)}px`;
+    this.root.style.top = `${Math.round(resolved.position.y + viewport.offsetY)}px`;
+
+    if (peeking) {
+      this.root.style.width = `${resolved.dimensions.width}px`;
+      this.root.style.height = `${resolved.dimensions.height}px`;
+      this.root.style.maxWidth = `${resolved.dimensions.width}px`;
+      this.root.style.maxHeight = `${resolved.dimensions.height}px`;
+      if (resolved.clipPath) {
+        this.root.style.clipPath = resolved.clipPath;
+      } else {
+        this.root.style.removeProperty('clip-path');
+      }
+      if (resolved.surface) {
+        this.applyPeekSurfaceLayout(resolved.surface);
+      }
+    } else {
+      this.root.style.removeProperty('width');
+      this.root.style.removeProperty('height');
+      this.root.style.removeProperty('max-width');
+      this.root.style.removeProperty('max-height');
+      this.root.style.removeProperty('clip-path');
+      this.applyPeekSurfaceLayout(null);
+    }
+
+    if (!peeking && !isDefaultOverlayPosition(this.position)) {
+      this.position = resolved.position;
+    }
+
+    this.wasPeeking = peeking;
+    this.applyMenuPlacement(resolved.position, catSize, viewport);
   }
 
-  private applyMenuPlacement(catPosition: OverlayPosition, catSize: number): void {
+  private applyMenuPlacement(
+    catPosition: OverlayPosition,
+    catSize: number,
+    viewport = readViewportBox(),
+  ): void {
     if (!this.root || !this.hasOverlayChrome()) {
       return;
     }
@@ -1218,20 +1489,27 @@ export class TabbyOverlay {
     const menuWidth = menuArea.offsetWidth || 220;
     const menuHeight = menuArea.offsetHeight || 180;
     const isPeek = this.presentation?.mood === 'peek';
-    const layoutCatHeight = isPeek
-      ? Math.round(catSize * PEEK_VISIBLE_HEIGHT_RATIO)
-      : catSize;
-    const layoutCatY = isPeek ? catPosition.y + catSize - layoutCatHeight : catPosition.y;
+    const peekLayout = isPeek
+      ? resolvePeekLayout(
+          this.peekPlacement(),
+          viewport.width,
+          viewport.height,
+          catSize,
+        )
+      : null;
+    const layoutCatWidth = peekLayout?.dimensions.width ?? catSize;
+    const layoutCatHeight = peekLayout?.dimensions.height ?? catSize;
+    const layoutCatY = catPosition.y;
 
     const layout = resolveMenuLayout({
       catX: catPosition.x,
       catY: layoutCatY,
-      catWidth: catSize,
+      catWidth: layoutCatWidth,
       catHeight: layoutCatHeight,
       menuWidth,
       menuHeight,
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
+      viewportWidth: viewport.width,
+      viewportHeight: viewport.height,
     });
 
     menuArea.className = `tabby-menu-area tabby-menu-area--${layout.placement}`;
@@ -1251,8 +1529,7 @@ export class TabbyOverlay {
 
     try {
       const careAction = mapInteractionToCareAction(action);
-      const next = await requestCareAction(careAction, location.href);
-      this.presentation = next;
+      const next = this.assignPresentation(await requestCareAction(careAction, location.href));
       this.applyCareMomentChromeState(next);
 
       if (action === 'dismiss') {

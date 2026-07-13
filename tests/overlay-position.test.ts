@@ -1,14 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import {
   clampOverlayPosition,
+  clampPeekRootPosition,
   defaultOverlayPosition,
   isDefaultOverlayPosition,
   MENU_WIDTH_MAX,
+  peekCatSurfaceLayout,
+  peekLayoutFitsViewport,
+  peekRootClipPath,
+  peekRootDimensions,
+  peekSurfaceFillsClipWindow,
   resolveAnchoredPosition,
+  resolvePeekLayout,
+  resolvePeekPlacementPosition,
+  peekVisibleSize,
   resolveMenuLayout,
   resolveMenuPlacement,
   resolveVerticalMenuGeometry,
 } from '../utils/overlay-position';
+import { pickPeekPlacement } from '../utils/ambient-presence';
 
 describe('overlay-position', () => {
   it('anchors the cat to the bottom-left corner by default', () => {
@@ -40,6 +50,190 @@ describe('overlay-position', () => {
   it('detects when the user has not moved Tabby yet', () => {
     expect(isDefaultOverlayPosition(defaultOverlayPosition())).toBe(true);
     expect(isDefaultOverlayPosition({ x: 120, y: 300 })).toBe(false);
+  });
+
+  it('anchors peek mood at screen edges with insets', () => {
+    const catSize = 192;
+    const visible = peekVisibleSize(catSize);
+    const bottomLeft = resolvePeekPlacementPosition(
+      { edge: 'bottom', inset: 12, corner: 'left' },
+      1200,
+      800,
+      catSize,
+    );
+    const bottomRight = resolvePeekPlacementPosition(
+      { edge: 'bottom', inset: 32, corner: 'right' },
+      1200,
+      800,
+      catSize,
+    );
+    const leftLow = resolvePeekPlacementPosition(
+      { edge: 'left', inset: 32, corner: 'left' },
+      1200,
+      800,
+      catSize,
+    );
+    const leftHigh = resolvePeekPlacementPosition(
+      { edge: 'left', inset: 8, corner: 'right' },
+      1200,
+      800,
+      catSize,
+    );
+    const rightLow = resolvePeekPlacementPosition(
+      { edge: 'right', inset: 32, corner: 'left' },
+      1200,
+      800,
+      catSize,
+    );
+    const rightHigh = resolvePeekPlacementPosition(
+      { edge: 'right', inset: 8, corner: 'right' },
+      1200,
+      800,
+      catSize,
+    );
+
+    expect(bottomLeft.x).toBe(16);
+    expect(bottomLeft.y).toBe(800 - visible);
+    expect(bottomRight.x).toBe(1200 - catSize - 32);
+    expect(bottomRight.y).toBe(800 - visible);
+    expect(leftLow.x).toBe(0);
+    expect(leftLow.y).toBe(800 - catSize - 32);
+    expect(leftHigh.x).toBe(0);
+    expect(leftHigh.y).toBe(16);
+    expect(rightLow.x).toBe(1200 - visible);
+    expect(rightLow.y).toBe(800 - catSize - 32);
+    expect(rightHigh.x).toBe(1200 - visible);
+    expect(rightHigh.y).toBe(16);
+  });
+
+  it('keeps every peek placement fully inside the viewport after clamping', () => {
+    const placements = [
+      { edge: 'bottom' as const, inset: 8, corner: 'left' as const },
+      { edge: 'bottom' as const, inset: 32, corner: 'right' as const },
+      { edge: 'left' as const, inset: 8, corner: 'right' as const },
+      { edge: 'left' as const, inset: 32, corner: 'left' as const },
+      { edge: 'right' as const, inset: 8, corner: 'right' as const },
+      { edge: 'right' as const, inset: 32, corner: 'left' as const },
+    ];
+
+    for (const catSize of [132, 162, 192]) {
+      for (const viewport of [
+        { width: 1200, height: 800 },
+        { width: 360, height: 640 },
+        { width: 2560, height: 1440 },
+      ]) {
+        for (const placement of placements) {
+          expect(
+            peekLayoutFitsViewport(
+              placement,
+              viewport.width,
+              viewport.height,
+              catSize,
+            ),
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('clamps peek roots inside the viewport', () => {
+    const catSize = 192;
+    const clamped = clampPeekRootPosition(
+      { x: 5000, y: -40 },
+      peekRootDimensions('bottom', catSize),
+      220,
+      300,
+    );
+
+    expect(clamped.x).toBe(28);
+    expect(clamped.y).toBe(0);
+  });
+
+  it('rotates left and right peeks about their own center, bottom translates', () => {
+    const catSize = 192;
+    const visible = peekVisibleSize(catSize);
+    const shift = visible - catSize;
+    expect(peekCatSurfaceLayout('bottom', catSize)).toMatchObject({
+      transformOrigin: 'left top',
+      transform: `translateY(${shift}px)`,
+    });
+    // A corner pivot (the old approach) only rotated a quarter of the
+    // sprite into the clip window instead of a full half; pivoting on the
+    // surface's own center (no translate needed) fills the whole window.
+    expect(peekCatSurfaceLayout('left', catSize)).toMatchObject({
+      left: '0',
+      right: 'auto',
+      bottom: '0',
+      transformOrigin: 'center center',
+      transform: 'rotate(90deg)',
+    });
+    expect(peekCatSurfaceLayout('right', catSize)).toMatchObject({
+      left: 'auto',
+      right: '0',
+      bottom: '0',
+      transformOrigin: 'center center',
+      transform: 'rotate(-90deg)',
+    });
+  });
+
+  it('keeps rotated side peeks filling the clip window', () => {
+    const catSize = 192;
+    for (const edge of ['left', 'right', 'bottom'] as const) {
+      expect(peekSurfaceFillsClipWindow(edge, catSize)).toBe(true);
+      if (edge === 'bottom') {
+        expect(peekCatSurfaceLayout(edge, catSize).transform).toMatch(/translate/);
+      } else {
+        expect(peekCatSurfaceLayout(edge, catSize).transform).toMatch(/rotate/);
+        expect(peekCatSurfaceLayout(edge, catSize).transform).not.toMatch(/translate/);
+      }
+    }
+  });
+
+  it('keeps peek roots on screen for repeated placements', () => {
+    const catSize = 192;
+    const viewportWidth = 1280;
+    const viewportHeight = 800;
+    for (let seed = 0; seed < 12; seed += 1) {
+      const placement = pickPeekPlacement(seed);
+      expect(
+        peekLayoutFitsViewport(
+          placement,
+          viewportWidth,
+          viewportHeight,
+          catSize,
+        ),
+      ).toBe(true);
+      const layout = resolvePeekLayout(
+        placement,
+        viewportWidth,
+        viewportHeight,
+        catSize,
+      );
+      expect(layout.position.x).toBeGreaterThanOrEqual(0);
+      expect(layout.position.y).toBeGreaterThanOrEqual(0);
+      expect(layout.position.x + layout.dimensions.width).toBeLessThanOrEqual(
+        viewportWidth,
+      );
+      expect(layout.position.y + layout.dimensions.height).toBeLessThanOrEqual(
+        viewportHeight,
+      );
+    }
+  });
+
+  it('uses a narrow on-screen strip for side peeks', () => {
+    const catSize = 192;
+    const visible = peekVisibleSize(catSize);
+    expect(peekRootDimensions('left', catSize)).toEqual({
+      width: visible,
+      height: catSize,
+    });
+    expect(peekRootDimensions('right', catSize)).toEqual({
+      width: visible,
+      height: catSize,
+    });
+    expect(peekRootClipPath('left', catSize)).toBeNull();
+    expect(peekRootClipPath('right', catSize)).toBeNull();
+    expect(peekRootClipPath('bottom', catSize)).toBeNull();
   });
 });
 

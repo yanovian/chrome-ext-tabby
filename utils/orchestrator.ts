@@ -9,7 +9,15 @@ import {
   resetDailyNudgeCounter,
   resolveLifeStage,
 } from './cat-sim';
-import { isAmbientRestExpired, recordAmbientAppearance } from './ambient-presence';
+import {
+  isAmbientPeekDuckGapExpired,
+  isAmbientPeekVisitExpired,
+  isAmbientRestExpired,
+  isStayVisibleAfterRevealExpired,
+  pickAmbientPeekDuckGapMs,
+  pickStayVisibleAfterRevealMs,
+  recordAmbientAppearance,
+} from './ambient-presence';
 import {
   careActionToDoNotDisturb,
   clearDoNotDisturb,
@@ -71,7 +79,8 @@ import {
   schedulePlayingCompleteAlarm,
 } from './play-moment';
 import { hidePageOverlay, isPageOverlayHidden, pageOverlayKey, showPageOverlay } from './page-overlay';
-import { buildPresentation, moodOverrideWhileHiding } from './presentation';
+import { buildPresentation, isPeekPresentation, moodOverrideWhileHiding, patchPresentationForDevForce } from './presentation';
+import { isEnteringPeekCycle, resolvePeekRestoreAmbient } from './peek-restore';
 import { resolveCompanionPresence } from './presence';
 import type { SpeechContext } from './speech-types';
 import { effectiveAppearanceLimits, getSettings, saveSettings } from './settings';
@@ -120,9 +129,12 @@ export async function loadOrchestratorState(): Promise<OrchestratorState> {
 
 export async function persistPresentation(
   presentation: CatPresentation,
+  now = Date.now(),
 ): Promise<void> {
+  const settings = await getSettings(IS_DEV_BUILD);
+  const finalized = patchPresentationForDevForce(presentation, settings, now);
   await browser.storage.local.set({
-    [STORAGE_KEYS.presentation]: presentation,
+    [STORAGE_KEYS.presentation]: finalized,
   });
 }
 
@@ -448,6 +460,59 @@ export async function handleCareAction(
 
   const state = await loadOrchestratorState();
   const drainingSession = await readDrainingSessionState();
+
+  if (action === 'reveal') {
+    const last = state.lastPresentation;
+    if (!last || !isPeekPresentation(last)) {
+      if (last) {
+        return last;
+      }
+      const next = await evaluateAndPresent(state, now);
+      return next.lastPresentation!;
+    }
+    let settings = state.settings;
+    if (settings.devForceMood === 'peek') {
+      settings = { ...settings, devForceMood: 'auto' };
+      // saveSettings() without isDevBuild forces devModeEnabled back to
+      // false (mergeSettings' default), silently locking the whole dev menu
+      // out after revealing a dev-forced peek. Must pass IS_DEV_BUILD here.
+      await saveSettings(settings, IS_DEV_BUILD);
+    }
+    const restoredActivity = last.peekRestoreAmbientActivity;
+    const restoredUntil = last.peekRestoreAmbientUntil;
+    const restoreAmbient =
+      restoredActivity !== null &&
+      restoredActivity !== 'peeking' &&
+      restoredUntil !== null &&
+      restoredUntil > now;
+    const presentation = buildPresentation({
+      cat: state.cat,
+      vitals: state.cat.vitals,
+      settings,
+      now,
+      isUserIdle: state.isUserIdle,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: last.overlayHidden,
+      lastCareAction: last.lastCareAction,
+      companionVisible: true,
+      ambientActivity: restoreAmbient ? restoredActivity : null,
+      ambientPeekUntil: restoreAmbient ? restoredUntil : null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil:
+        now + pickStayVisibleAfterRevealMs(settings, now, state.cat.adoptedAt),
+      eatingUntil: last.eatingUntil,
+      playingUntil: last.playingUntil,
+      drainingSession,
+    });
+    await persistPresentation(presentation);
+    return presentation;
+  }
+
   let cat = state.cat;
   let triggerKind = state.lastPresentation?.triggerKind ?? null;
   let moodOverride: CatMood | undefined;
@@ -612,40 +677,45 @@ export async function evaluateAndPresent(
   now: number,
   options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
 ): Promise<OrchestratorState> {
-  const eatingUntil = state.lastPresentation?.eatingUntil;
+  const settings = await getSettings(IS_DEV_BUILD);
+  const cachedPresentation = await readCachedPresentation();
+  const lastPresentation = cachedPresentation ?? state.lastPresentation;
+  const activeState: OrchestratorState = { ...state, settings, lastPresentation };
+
+  const eatingUntil = activeState.lastPresentation?.eatingUntil;
   if (feedingMomentDue(eatingUntil, now)) {
-    return completeFeedingPresentation(state, now);
+    return completeFeedingPresentation(activeState, now);
   }
   if (isFeedingActive(eatingUntil, now)) {
     const companionVisible =
-      state.lastPresentation?.companionVisible === true ||
+      activeState.lastPresentation?.companionVisible === true ||
       options.forceTick === true ||
       options.forceDevSpeech === true;
     const presentation = buildFeedingContinuationPresentation(
-      state,
+      activeState,
       now,
       companionVisible,
     );
     await persistPresentation(presentation);
-    return { ...state, lastPresentation: presentation };
+    return { ...activeState, lastPresentation: presentation };
   }
 
-  const playingUntil = state.lastPresentation?.playingUntil;
+  const playingUntil = activeState.lastPresentation?.playingUntil;
   if (playingMomentDue(playingUntil, now)) {
-    return completePlayingPresentation(state, now);
+    return completePlayingPresentation(activeState, now);
   }
   if (isPlayingActive(playingUntil, now)) {
     const companionVisible =
-      state.lastPresentation?.companionVisible === true ||
+      activeState.lastPresentation?.companionVisible === true ||
       options.forceTick === true ||
       options.forceDevSpeech === true;
     const presentation = buildPlayingContinuationPresentation(
-      state,
+      activeState,
       now,
       companionVisible,
     );
     await persistPresentation(presentation);
-    return { ...state, lastPresentation: presentation };
+    return { ...activeState, lastPresentation: presentation };
   }
 
   const [memories, doNotDisturb, introCompleted] = await Promise.all([
@@ -653,14 +723,24 @@ export async function evaluateAndPresent(
     clearExpiredDoNotDisturb(now),
     isIntroCompleted(),
   ]);
-  const recentMemory = await pickRecallCandidate(memories, now, state.settings);
+  const recentMemory = await pickRecallCandidate(memories, now, activeState.settings);
   const drainingSession = await readDrainingSessionState();
+  if (isDevMoodForced(activeState.settings)) {
+    const presentation = buildDevPreviewPresentation(
+      activeState,
+      activeState.settings,
+      drainingSession,
+      now,
+    );
+    await persistPresentation(presentation);
+    return { ...activeState, lastPresentation: presentation };
+  }
   const trigger = evaluateEmotionalTrigger({
-    cat: state.cat,
-    vitals: state.cat.vitals,
-    settings: state.settings,
+    cat: activeState.cat,
+    vitals: activeState.cat.vitals,
+    settings: activeState.settings,
     now,
-    isUserIdle: state.isUserIdle,
+    isUserIdle: activeState.isUserIdle,
     recentMemory,
     forceDevSpeech: options.forceDevSpeech,
     forceTick: options.forceTick,
@@ -670,17 +750,18 @@ export async function evaluateAndPresent(
   });
 
   const presence = resolveCompanionPresence({
-    cat: state.cat,
-    settings: state.settings,
+    cat: activeState.cat,
+    settings: activeState.settings,
     now,
+    isUserIdle: activeState.isUserIdle,
     speechTrigger: trigger,
     doNotDisturb,
     introCompleted,
-    lastPresentation: state.lastPresentation,
+    lastPresentation: activeState.lastPresentation,
     forceVisible: options.forceTick === true || options.forceDevSpeech === true,
   });
 
-  let cat = state.cat;
+  let cat = activeState.cat;
 
   if (presence.recordSpeech && trigger.triggerKind) {
     cat = recordAppearance(cat, now);
@@ -694,7 +775,7 @@ export async function evaluateAndPresent(
   }
 
   let speech: string | null = null;
-  let triggerKind: CatPresentation['triggerKind'] = presence.recordSpeech
+  const triggerKind: CatPresentation['triggerKind'] = presence.recordSpeech
     ? trigger.triggerKind
     : null;
 
@@ -709,40 +790,38 @@ export async function evaluateAndPresent(
     if (trigger.triggerKind === 'recovery_thanks') {
       await writeDrainingSessionState(completeDrainingRecovery(drainingSession));
     }
-  } else if (
-    presence.recordAmbient &&
-    presence.companionVisible &&
-    presence.ambientActivity === 'peeking'
-  ) {
-    const mood = deriveMoodFromVitals({
-      vitals: cat.vitals,
-      cat,
-      now,
-      settings: state.settings,
-      isUserIdle: state.isUserIdle,
-    });
-    const stage = resolveLifeStage(cat.adoptedAt, now, state.settings.devForceLifeStage);
-    speech = fallbackSpeech({ kind: 'peeking', mood, stage, seed: now });
-    triggerKind = 'curious';
   }
+
+  const enteringPeek = isEnteringPeekCycle(
+    activeState.lastPresentation,
+    presence.ambientActivity,
+    presence.companionVisible,
+  );
+  const peekRestore = resolvePeekRestoreAmbient(activeState.lastPresentation, enteringPeek);
 
   const presentation = buildPresentation({
     cat,
     vitals: cat.vitals,
-    settings: state.settings,
+    settings: activeState.settings,
     now,
-    isUserIdle: state.isUserIdle,
+    isUserIdle: activeState.isUserIdle,
     speech,
     triggerKind,
     overlayHidden: false,
-    lastCareAction: state.lastPresentation?.lastCareAction ?? null,
+    lastCareAction: activeState.lastPresentation?.lastCareAction ?? null,
     companionVisible: presence.companionVisible,
     ambientActivity: presence.ambientActivity,
     ambientPeekUntil: presence.ambientPeekUntil,
+    peekEdge: presence.peekEdge,
+    peekInset: presence.peekInset,
+    peekCorner: presence.peekCorner,
+    peekRestoreAmbientActivity: peekRestore.peekRestoreAmbientActivity,
+    peekRestoreAmbientUntil: peekRestore.peekRestoreAmbientUntil,
+    stayVisibleUntil: activeState.lastPresentation?.stayVisibleUntil ?? null,
     eatingUntil: null,
     playingUntil: null,
     moodOverride: moodOverrideWhileHiding(
-      state.lastPresentation?.mood,
+      activeState.lastPresentation?.mood,
       presence.companionVisible,
     ),
     drainingSession,
@@ -751,7 +830,7 @@ export async function evaluateAndPresent(
   await persistPresentation(presentation);
 
   return {
-    ...state,
+    ...activeState,
     cat,
     lastPresentation: presentation,
   };
@@ -869,6 +948,14 @@ function presentationDuringDoNotDisturb(
   };
 }
 
+function finalizePresentation(
+  presentation: CatPresentation,
+  settings: ExtensionSettings,
+  now = Date.now(),
+): CatPresentation {
+  return patchPresentationForDevForce(presentation, settings, now);
+}
+
 export async function getCurrentPresentation(): Promise<CatPresentation> {
   const cached = await readCachedPresentation();
   const now = Date.now();
@@ -879,24 +966,77 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
     if (isDoNotDisturbActive(doNotDisturb, now)) {
       return presentationDuringDoNotDisturb(cached);
     }
+    const state = await loadOrchestratorState();
+    if (isDevMoodForced(state.settings)) {
+      const drainingSession = await readDrainingSessionState();
+      const presentation = buildDevPreviewPresentation(
+        state,
+        state.settings,
+        drainingSession,
+        now,
+      );
+      await persistPresentation(presentation);
+      return presentation;
+    }
     if (feedingMomentDue(cached.eatingUntil, now)) {
       const completed = await completeFeedingIfDue(now);
       if (completed) {
-        return completed;
+        return finalizePresentation(completed, state.settings, now);
       }
     }
     if (playingMomentDue(cached.playingUntil, now)) {
       const completed = await completePlayingIfDue(now);
       if (completed) {
-        return completed;
+        return finalizePresentation(completed, state.settings, now);
       }
+    }
+    if (isAmbientPeekVisitExpired(cached, now)) {
+      const state = await loadOrchestratorState();
+      const hiding = buildPresentation({
+        cat: state.cat,
+        vitals: state.cat.vitals,
+        settings: state.settings,
+        now,
+        isUserIdle: state.isUserIdle,
+        speech: null,
+        triggerKind: null,
+        overlayHidden: cached.overlayHidden,
+        lastCareAction: cached.lastCareAction,
+        companionVisible: false,
+        ambientActivity: 'peeking',
+        ambientPeekUntil:
+          now +
+          pickAmbientPeekDuckGapMs(state.settings, now, state.cat.adoptedAt),
+        peekEdge: cached.peekEdge,
+        peekInset: cached.peekInset,
+        peekCorner: cached.peekCorner,
+        eatingUntil: cached.eatingUntil,
+        playingUntil: cached.playingUntil,
+        moodOverride: 'peek',
+        drainingSession: await readDrainingSessionState(),
+      });
+      await persistPresentation(hiding);
+      return hiding;
+    }
+    if (isAmbientPeekDuckGapExpired(cached, now)) {
+      const state = await loadOrchestratorState();
+      const result = await evaluateAndPresent(state, now);
+      return result.lastPresentation!;
+    }
+    if (isStayVisibleAfterRevealExpired(cached, now)) {
+      const state = await loadOrchestratorState();
+      const result = await evaluateAndPresent(state, now);
+      return result.lastPresentation!;
     }
     if (isAmbientRestExpired(cached, now)) {
       const resumed = {
         ...cached,
-        companionVisible: true,
-        ambientActivity: 'grooming' as const,
+        companionVisible: false,
+        ambientActivity: null,
         ambientPeekUntil: null,
+        peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
         speech: null,
         triggerKind: null,
       };
@@ -908,12 +1048,12 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
       const result = await evaluateAndPresent(state, now);
       return result.lastPresentation!;
     }
-    return cached;
+    return finalizePresentation(cached, state.settings, now);
   }
 
   const state = await loadOrchestratorState();
   const result = await evaluateAndPresent(state, now);
-  return result.lastPresentation!;
+  return finalizePresentation(result.lastPresentation!, state.settings, now);
 }
 
 /** Dev/testing: clear intro progress and show the tour again. */
@@ -947,6 +1087,10 @@ function assertDevCompanionAccess(settings: ExtensionSettings): void {
   if (!IS_DEV_BUILD || !settings.devModeEnabled) {
     throw new Error('Dev companion controls require dev mode in a dev build.');
   }
+}
+
+function isDevMoodForced(settings: ExtensionSettings): boolean {
+  return settings.devModeEnabled && settings.devForceMood !== 'auto';
 }
 
 export interface DevTemperPayload {
@@ -984,6 +1128,9 @@ function buildDevPreviewPresentation(
     settings.devModeEnabled && settings.devForceMood !== 'auto'
       ? settings.devForceMood
       : undefined;
+  const last = state.lastPresentation;
+  const forcingPeek = moodOverride === 'peek';
+  const keepPeekPlacement = forcingPeek && last?.mood === 'peek';
   return buildPresentation({
     cat: state.cat,
     vitals: state.cat.vitals,
@@ -992,26 +1139,23 @@ function buildDevPreviewPresentation(
     isUserIdle: state.isUserIdle,
     speech: devPreviewSpeech(drainingSession),
     triggerKind: null,
-    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    overlayHidden: last?.overlayHidden ?? false,
     lastCareAction: null,
-    companionVisible: state.lastPresentation?.companionVisible ?? true,
-    ambientActivity: null,
+    companionVisible:
+      settings.devModeEnabled && settings.devForceMood !== 'auto'
+        ? true
+        : (last?.companionVisible ?? true),
+    ambientActivity: forcingPeek ? ('peeking' as const) : null,
     ambientPeekUntil: null,
+    peekEdge: keepPeekPlacement ? last.peekEdge : null,
+    peekInset: keepPeekPlacement ? last.peekInset : null,
+    peekCorner: keepPeekPlacement ? last.peekCorner : null,
     eatingUntil: null,
     playingUntil: null,
+    stayVisibleUntil: moodOverride ? null : (last?.stayVisibleUntil ?? null),
     drainingSession,
     moodOverride,
   });
-}
-
-async function persistDevPreviewPresentation(
-  settings: ExtensionSettings,
-  drainingSession: import('./draining-session').DrainingSessionState,
-): Promise<CatPresentation> {
-  const state = await loadOrchestratorState();
-  const presentation = buildDevPreviewPresentation(state, settings, drainingSession);
-  await persistPresentation(presentation);
-  return presentation;
 }
 
 function buildDevTemperPayload(
@@ -1087,12 +1231,19 @@ export async function syncDevTemperControls(input: {
     throw new Error('syncDevTemper requires simulation or devForceMood.');
   }
 
-  await saveSettings(snapshot.settings, IS_DEV_BUILD);
   await writeDrainingSessionState(snapshot.drainingSession);
-  const presentation = await persistDevPreviewPresentation(
+  const presentation = buildDevPreviewPresentation(
+    state,
     snapshot.settings,
     snapshot.drainingSession,
   );
+  // Save settings first: persistPresentation() re-reads settings from
+  // storage to re-apply any forced dev mood. Persisting before saving would
+  // read the OLD devForceMood and immediately stomp the override we just
+  // computed (e.g. switching to "Peek" would silently revert to whatever
+  // mood was forced before).
+  await saveSettings(snapshot.settings, IS_DEV_BUILD);
+  await persistPresentation(presentation);
   return {
     ...buildDevTemperPayload(
       snapshot.settings,
@@ -1110,25 +1261,7 @@ export async function devForceCompanionShow(now: number): Promise<CatPresentatio
   const state = await loadOrchestratorState();
   assertDevCompanionAccess(state.settings);
   const drainingSession = await readDrainingSessionState();
-
-  const presentation = buildPresentation({
-    cat: state.cat,
-    vitals: state.cat.vitals,
-    settings: state.settings,
-    now,
-    isUserIdle: state.isUserIdle,
-    speech: null,
-    triggerKind: null,
-    overlayHidden: false,
-    lastCareAction: null,
-    companionVisible: true,
-    ambientActivity: null,
-    ambientPeekUntil: null,
-    eatingUntil: null,
-    playingUntil: null,
-    drainingSession,
-  });
-
+  const presentation = buildDevPreviewPresentation(state, state.settings, drainingSession, now);
   await persistPresentation(presentation);
   return presentation;
 }
