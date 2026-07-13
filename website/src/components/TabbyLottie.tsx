@@ -1,5 +1,6 @@
 import { DotLottie } from '@lottiefiles/dotlottie-web';
 import { useEffect, useRef, useState } from 'react';
+import { assetUrl } from '@/lib/assets';
 
 const SIZES = {
   feature: 200,
@@ -25,12 +26,6 @@ type TabbyLottieProps = {
   size?: TabbyLottieSize;
   alt?: string;
 };
-
-function assetUrl(path: string): string {
-  const base = import.meta.env.BASE_URL;
-  const normalizedBase = base.endsWith('/') ? base : `${base}/`;
-  return `${normalizedBase}${path}`;
-}
 
 function setupCanvas(canvas: HTMLCanvasElement, dimension: number): number {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
