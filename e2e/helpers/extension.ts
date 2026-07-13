@@ -63,11 +63,24 @@ export async function seedExtensionStorage(
       const adoptedAt = now - 30 * 24 * 60 * 60 * 1000;
 
       await new Promise<void>((resolve, reject) => {
+        // Must match utils/types.ts DB (same name/version): opening at the
+        // same version means the real extension code never gets its own
+        // onupgradeneeded call, so any store missing here stays missing —
+        // getMemories()/appendObservation() then throw NotFoundError.
         const request = indexedDB.open('tabby', 1);
         request.onupgradeneeded = () => {
           const database = request.result;
           if (!database.objectStoreNames.contains('cat')) {
             database.createObjectStore('cat', { keyPath: 'name' });
+          }
+          if (!database.objectStoreNames.contains('memories')) {
+            database.createObjectStore('memories', { keyPath: 'id' });
+          }
+          if (!database.objectStoreNames.contains('observations')) {
+            const observations = database.createObjectStore('observations', {
+              keyPath: 'id',
+            });
+            observations.createIndex('observedAt', 'observedAt', { unique: false });
           }
         };
         request.onsuccess = () => {
@@ -143,16 +156,28 @@ export async function seedExtensionStorage(
         eatingUntil: null,
         playingUntil: null,
       };
-      await chrome.storage.local.set({
-        [storageKeys.settings]: { ...baseSettings, ...settings },
-        [storageKeys.introCompleted]: true,
-        [storageKeys.presentation]: { ...basePresentation, ...presentation },
-      });
+      const seed = async () => {
+        await chrome.storage.local.set({
+          [storageKeys.settings]: { ...baseSettings, ...settings },
+          [storageKeys.introCompleted]: true,
+          [storageKeys.presentation]: { ...basePresentation, ...presentation },
+        });
+      };
+      await seed();
 
       const stored = await chrome.storage.local.get([storageKeys.introCompleted]);
       if (stored[storageKeys.introCompleted] !== true) {
         throw new Error('introCompleted seed failed');
       }
+
+      // A fresh --load-extension launch fires the real onInstalled bootstrap
+      // (entrypoints/background.ts bootstrap()/bootstrapInstall()), which
+      // independently computes and persists its own initial presentation —
+      // unserialized against this seed. If it finishes after this point it
+      // silently clobbers the state the test depends on, so re-seed once
+      // more after giving it a moment to land.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await seed();
 
       await new Promise<void>((resolve) => {
         chrome.runtime.sendMessage({ type: 'getPresentation' }, () => resolve());

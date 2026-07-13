@@ -251,25 +251,38 @@ export function buildPresentation(input: {
   };
 }
 
-/** Overlay-side dev mood patch (no cat vitals needed). */
+/**
+ * Overlay-side dev mood patch (no cat vitals needed).
+ *
+ * `storedPresentation`, when given, is the freshest value already in
+ * storage. It — not `presentation` — decides whether to keep the existing
+ * peek edge. `presentation` can be stale: a slow, concurrently-running
+ * computation that started before dev mode was forced can still finish and
+ * reach this function afterwards, carrying a freshly (and wrongly) rolled
+ * peek edge of its own. Preferring the value already on disk means that
+ * stale write can no longer clobber a placement a newer call already
+ * settled on.
+ */
 export function patchPresentationForDevForce(
   presentation: CatPresentation,
   settings: ExtensionSettings,
   now = Date.now(),
+  storedPresentation?: CatPresentation | null,
 ): CatPresentation {
   if (!isDevMoodForced(settings)) {
     return presentation;
   }
 
+  const reference = storedPresentation ?? presentation;
   const mood = settings.devForceMood;
   const peeking = mood === 'peek';
-  const keepPeekPlacement = peeking && presentation.mood === 'peek';
+  const keepPeekPlacement = peeking && reference.mood === 'peek';
   const peekPlacement = peeking
     ? resolvePeekPlacementForBuild({
         isPeeking: true,
-        peekEdge: keepPeekPlacement ? presentation.peekEdge : null,
-        peekInset: keepPeekPlacement ? presentation.peekInset : null,
-        peekCorner: keepPeekPlacement ? presentation.peekCorner : null,
+        peekEdge: keepPeekPlacement ? reference.peekEdge : null,
+        peekInset: keepPeekPlacement ? reference.peekInset : null,
+        peekCorner: keepPeekPlacement ? reference.peekCorner : null,
         seed: now,
       })
     : null;

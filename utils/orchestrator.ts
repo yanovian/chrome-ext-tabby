@@ -131,8 +131,11 @@ export async function persistPresentation(
   presentation: CatPresentation,
   now = Date.now(),
 ): Promise<void> {
-  const settings = await getSettings(IS_DEV_BUILD);
-  const finalized = patchPresentationForDevForce(presentation, settings, now);
+  const [settings, stored] = await Promise.all([
+    getSettings(IS_DEV_BUILD),
+    readCachedPresentation(),
+  ]);
+  const finalized = patchPresentationForDevForce(presentation, settings, now, stored);
   await browser.storage.local.set({
     [STORAGE_KEYS.presentation]: finalized,
   });
@@ -672,7 +675,29 @@ export async function handleCareAction(
   return presentation;
 }
 
-export async function evaluateAndPresent(
+/**
+ * Serializes overlapping calls (e.g. a background tab-tracking event racing
+ * a popup-triggered dev preview): each call reads the cached presentation,
+ * computes a new one, then persists it, and without serialization a slow
+ * call's read-then-write can straddle a faster call's write and clobber it
+ * with stale data on completion. Queuing calls one after another means every
+ * read always sees the previous call's finished write.
+ */
+let evaluateAndPresentQueue: Promise<unknown> = Promise.resolve();
+
+export function evaluateAndPresent(
+  state: OrchestratorState,
+  now: number,
+  options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
+): Promise<OrchestratorState> {
+  const run = evaluateAndPresentQueue.then(() =>
+    runEvaluateAndPresent(state, now, options),
+  );
+  evaluateAndPresentQueue = run.catch(() => {});
+  return run;
+}
+
+async function runEvaluateAndPresent(
   state: OrchestratorState,
   now: number,
   options: { forceDevSpeech?: boolean; forceTick?: boolean; page?: PageContext } = {},
