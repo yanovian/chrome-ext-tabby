@@ -1,4 +1,8 @@
-import { buildInteractionOptions, buildSecondaryInteractionOptions } from './cat-interactions';
+import {
+  buildInteractionOptions,
+  buildSecondaryInteractionOptions,
+  type InteractionAction,
+} from './cat-interactions';
 import { deriveMoodFromVitals, resolveLifeStage } from './cat-sim';
 import {
   EMPTY_DRAINING_SESSION,
@@ -12,7 +16,14 @@ import { resolveCompanionAnimation } from './companion-animation';
 import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
 import { lifeStageLabel } from './sprites';
-import { pickPeekPlacement, type AmbientActivity, type PeekPlacement } from './ambient-presence';
+import {
+  pickPeekPlacement,
+  type AmbientActivity,
+  type PeekCorner,
+  type PeekEdge,
+  type PeekPlacement,
+} from './ambient-presence';
+import { isDevMoodForced } from './settings';
 import type { CatPresentation, CatState, CatVitals, ExtensionSettings, CatMood } from './types';
 
 export function moodForAmbient(activity: AmbientActivity): CatMood {
@@ -33,7 +44,7 @@ export function resolveDisplayMood(input: {
   ambientActivity?: AmbientActivity | null;
   moodOverride?: CatMood;
 }): CatMood {
-  if (input.settings.devModeEnabled && input.settings.devForceMood !== 'auto') {
+  if (isDevMoodForced(input.settings)) {
     return input.settings.devForceMood;
   }
 
@@ -98,40 +109,44 @@ export function moodOverrideWhileHiding(
   return 'peek';
 }
 
+/** Keep an existing peek edge/inset/corner, or roll a new one if unset. */
+function keepOrPickPeekPlacement(
+  peekEdge: PeekEdge | null | undefined,
+  peekInset: number | null | undefined,
+  peekCorner: PeekCorner | null | undefined,
+  seed: number,
+): PeekPlacement {
+  if (peekEdge) {
+    return { edge: peekEdge, inset: peekInset ?? 16, corner: peekCorner ?? 'left' };
+  }
+  return pickPeekPlacement(seed);
+}
+
 /** Shared peek placement for dev preview and production ambient peeks. */
 export function resolvePeekPlacementForBuild(input: {
   isPeeking: boolean;
-  peekEdge?: import('./ambient-presence').PeekEdge | null;
+  peekEdge?: PeekEdge | null;
   peekInset?: number | null;
-  peekCorner?: import('./ambient-presence').PeekCorner | null;
+  peekCorner?: PeekCorner | null;
   seed: number;
 }): PeekPlacement | null {
   if (!input.isPeeking) {
     return null;
   }
-  if (input.peekEdge) {
-    return {
-      edge: input.peekEdge,
-      inset: input.peekInset ?? 16,
-      corner: input.peekCorner ?? 'left',
-    };
-  }
-  return pickPeekPlacement(input.seed);
+  return keepOrPickPeekPlacement(input.peekEdge, input.peekInset, input.peekCorner, input.seed);
 }
 
 /** Peek placement for layout when mood is peek but edge fields were cleared. */
 export function resolveEffectivePeekPlacement(
   presentation: CatPresentation,
   now = Date.now(),
-): import('./ambient-presence').PeekPlacement {
-  if (presentation.peekEdge) {
-    return {
-      edge: presentation.peekEdge,
-      inset: presentation.peekInset ?? 16,
-      corner: presentation.peekCorner ?? 'left',
-    };
-  }
-  return pickPeekPlacement(now);
+): PeekPlacement {
+  return keepOrPickPeekPlacement(
+    presentation.peekEdge,
+    presentation.peekInset,
+    presentation.peekCorner,
+    now,
+  );
 }
 
 export function buildPresentation(input: {
@@ -144,13 +159,13 @@ export function buildPresentation(input: {
   triggerKind: CatPresentation['triggerKind'];
   overlayHidden: boolean;
   moodOverride?: CatMood;
-  lastCareAction?: import('./cat-interactions').InteractionAction | null;
+  lastCareAction?: InteractionAction | null;
   companionVisible: boolean;
   ambientActivity?: AmbientActivity | null;
   ambientPeekUntil?: number | null;
-  peekEdge?: import('./ambient-presence').PeekEdge | null;
+  peekEdge?: PeekEdge | null;
   peekInset?: number | null;
-  peekCorner?: import('./ambient-presence').PeekCorner | null;
+  peekCorner?: PeekCorner | null;
   peekRestoreAmbientActivity?: AmbientActivity | null;
   peekRestoreAmbientUntil?: number | null;
   stayVisibleUntil?: number | null;
@@ -165,8 +180,7 @@ export function buildPresentation(input: {
     settings: input.settings,
     isUserIdle: input.isUserIdle,
   });
-  const devMoodForced =
-    input.settings.devModeEnabled && input.settings.devForceMood !== 'auto';
+  const devMoodForced = isDevMoodForced(input.settings);
   const mood = resolveDisplayMood({
     settings: input.settings,
     derivedMood,
@@ -243,7 +257,7 @@ export function patchPresentationForDevForce(
   settings: ExtensionSettings,
   now = Date.now(),
 ): CatPresentation {
-  if (!settings.devModeEnabled || settings.devForceMood === 'auto') {
+  if (!isDevMoodForced(settings)) {
     return presentation;
   }
 

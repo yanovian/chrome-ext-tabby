@@ -204,6 +204,13 @@ export function isQuietHour(hour: number, settings: ExtensionSettings): boolean 
   return hour >= quietHoursStart || hour < quietHoursEnd;
 }
 
+/** Dev mode is overriding the displayed mood (e.g. forcing a peek preview). */
+export function isDevMoodForced(
+  settings: ExtensionSettings,
+): settings is ExtensionSettings & { devForceMood: CatMood } {
+  return settings.devModeEnabled && settings.devForceMood !== 'auto';
+}
+
 async function readLocal<T>(key: string): Promise<T | undefined> {
   const result = await browser.storage.local.get([key]);
   return result[key] as T | undefined;

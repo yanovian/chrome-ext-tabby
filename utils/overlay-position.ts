@@ -99,11 +99,6 @@ export function peekRootDimensions(
   return { width: visible, height: catSize };
 }
 
-/** Clip path only used for bottom (side edges use a narrow root). */
-export function peekRootClipPath(_edge: PeekEdge, _catSize: number): string | null {
-  return null;
-}
-
 /** Sprite layout inside the peek clip window. */
 export function peekCatSurfaceLayout(
   edge: PeekEdge,
@@ -360,7 +355,6 @@ export interface PeekLayout {
   position: OverlayPosition;
   dimensions: { width: number; height: number };
   surface: ReturnType<typeof peekCatSurfaceLayout>;
-  clipPath: string | null;
 }
 
 /** Resolve peek root position, size, and sprite layout together. */
@@ -382,7 +376,6 @@ export function resolvePeekLayout(
     position,
     dimensions,
     surface: peekCatSurfaceLayout(edge, catSize),
-    clipPath: peekRootClipPath(edge, catSize),
   };
 }
 

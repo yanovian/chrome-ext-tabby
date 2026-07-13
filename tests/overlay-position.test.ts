@@ -7,7 +7,6 @@ import {
   MENU_WIDTH_MAX,
   peekCatSurfaceLayout,
   peekLayoutFitsViewport,
-  peekRootClipPath,
   peekRootDimensions,
   peekSurfaceFillsClipWindow,
   resolveAnchoredPosition,
@@ -231,9 +230,6 @@ describe('overlay-position', () => {
       width: visible,
       height: catSize,
     });
-    expect(peekRootClipPath('left', catSize)).toBeNull();
-    expect(peekRootClipPath('right', catSize)).toBeNull();
-    expect(peekRootClipPath('bottom', catSize)).toBeNull();
   });
 });
 

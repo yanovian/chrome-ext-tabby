@@ -83,7 +83,7 @@ import { buildPresentation, isPeekPresentation, moodOverrideWhileHiding, patchPr
 import { isEnteringPeekCycle, resolvePeekRestoreAmbient } from './peek-restore';
 import { resolveCompanionPresence } from './presence';
 import type { SpeechContext } from './speech-types';
-import { effectiveAppearanceLimits, getSettings, saveSettings } from './settings';
+import { effectiveAppearanceLimits, getSettings, isDevMoodForced, saveSettings } from './settings';
 import { registerVisit } from './visit-dedup';
 import type {
   CareAction,
@@ -1035,8 +1035,8 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
         ambientActivity: null,
         ambientPeekUntil: null,
         peekEdge: null,
-      peekInset: null,
-      peekCorner: null,
+        peekInset: null,
+        peekCorner: null,
         speech: null,
         triggerKind: null,
       };
@@ -1089,10 +1089,6 @@ function assertDevCompanionAccess(settings: ExtensionSettings): void {
   }
 }
 
-function isDevMoodForced(settings: ExtensionSettings): boolean {
-  return settings.devModeEnabled && settings.devForceMood !== 'auto';
-}
-
 export interface DevTemperPayload {
   settings: ExtensionSettings;
   simulation: TemperSimulation;
@@ -1124,10 +1120,7 @@ function buildDevPreviewPresentation(
   drainingSession: import('./draining-session').DrainingSessionState,
   now = Date.now(),
 ): CatPresentation {
-  const moodOverride =
-    settings.devModeEnabled && settings.devForceMood !== 'auto'
-      ? settings.devForceMood
-      : undefined;
+  const moodOverride = isDevMoodForced(settings) ? settings.devForceMood : undefined;
   const last = state.lastPresentation;
   const forcingPeek = moodOverride === 'peek';
   const keepPeekPlacement = forcingPeek && last?.mood === 'peek';
@@ -1141,10 +1134,7 @@ function buildDevPreviewPresentation(
     triggerKind: null,
     overlayHidden: last?.overlayHidden ?? false,
     lastCareAction: null,
-    companionVisible:
-      settings.devModeEnabled && settings.devForceMood !== 'auto'
-        ? true
-        : (last?.companionVisible ?? true),
+    companionVisible: moodOverride ? true : (last?.companionVisible ?? true),
     ambientActivity: forcingPeek ? ('peeking' as const) : null,
     ambientPeekUntil: null,
     peekEdge: keepPeekPlacement ? last.peekEdge : null,

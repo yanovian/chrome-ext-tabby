@@ -182,12 +182,14 @@ export function pickStayVisibleAfterRevealMs(
   );
 }
 
+interface StayVisiblePresentation {
+  companionVisible: boolean;
+  stayVisibleUntil: number | null;
+}
+
 /** True while Tabby should stay on screen with her real mood after a reveal tap. */
 export function isStayVisibleAfterReveal(
-  presentation: {
-    companionVisible: boolean;
-    stayVisibleUntil: number | null;
-  },
+  presentation: StayVisiblePresentation,
   now: number,
 ): boolean {
   return (
@@ -199,10 +201,7 @@ export function isStayVisibleAfterReveal(
 
 /** True when the post-reveal stay-visible window has ended. */
 export function isStayVisibleAfterRevealExpired(
-  presentation: {
-    companionVisible: boolean;
-    stayVisibleUntil: number | null;
-  },
+  presentation: StayVisiblePresentation,
   now: number,
 ): boolean {
   return (
@@ -267,13 +266,15 @@ export function isAmbientPeekActive(peekUntil: number | null, now: number): bool
   return peekUntil !== null && now < peekUntil;
 }
 
+interface AmbientPeekPresentation {
+  companionVisible: boolean;
+  ambientActivity: AmbientActivity | null;
+  ambientPeekUntil: number | null;
+}
+
 /** True when a visible edge peek timer has elapsed and Tabby should duck away. */
 export function isAmbientPeekVisitExpired(
-  presentation: {
-    companionVisible: boolean;
-    ambientActivity: AmbientActivity | null;
-    ambientPeekUntil: number | null;
-  },
+  presentation: AmbientPeekPresentation,
   now: number,
 ): boolean {
   return (
@@ -284,47 +285,34 @@ export function isAmbientPeekVisitExpired(
   );
 }
 
-/** True while Tabby is hidden between peek visits (duck gap). */
-export function isAmbientPeekDuckGapActive(
-  presentation: {
-    companionVisible: boolean;
-    ambientActivity: AmbientActivity | null;
-    ambientPeekUntil: number | null;
-  },
-  now: number,
-): boolean {
+/** Hidden and mid-cycle: the peek timer is set, waiting to become active or expire. */
+function isDuckGapState(presentation: AmbientPeekPresentation): boolean {
   return (
     !presentation.companionVisible &&
     presentation.ambientActivity === 'peeking' &&
-    presentation.ambientPeekUntil !== null &&
-    isAmbientPeekActive(presentation.ambientPeekUntil, now)
+    presentation.ambientPeekUntil !== null
   );
+}
+
+/** True while Tabby is hidden between peek visits (duck gap). */
+export function isAmbientPeekDuckGapActive(
+  presentation: AmbientPeekPresentation,
+  now: number,
+): boolean {
+  return isDuckGapState(presentation) && isAmbientPeekActive(presentation.ambientPeekUntil, now);
 }
 
 /** True when the duck gap ended and Tabby should peek from a new corner. */
 export function isAmbientPeekDuckGapExpired(
-  presentation: {
-    companionVisible: boolean;
-    ambientActivity: AmbientActivity | null;
-    ambientPeekUntil: number | null;
-  },
+  presentation: AmbientPeekPresentation,
   now: number,
 ): boolean {
-  return (
-    !presentation.companionVisible &&
-    presentation.ambientActivity === 'peeking' &&
-    presentation.ambientPeekUntil !== null &&
-    !isAmbientPeekActive(presentation.ambientPeekUntil, now)
-  );
+  return isDuckGapState(presentation) && !isAmbientPeekActive(presentation.ambientPeekUntil, now);
 }
 
 /** True when an ambient rest timer has elapsed and Tabby should come back. */
 export function isAmbientRestExpired(
-  presentation: {
-    companionVisible: boolean;
-    ambientActivity: AmbientActivity | null;
-    ambientPeekUntil: number | null;
-  },
+  presentation: AmbientPeekPresentation,
   now: number,
 ): boolean {
   return (

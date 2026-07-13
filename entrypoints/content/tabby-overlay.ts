@@ -21,6 +21,7 @@ import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
 import { CompanionGifPlayer } from '../../utils/gif-companion';
 import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
 import { isPeekPresentation, patchPresentationForDevForce, resolveEffectivePeekPlacement } from '../../utils/presentation';
+import { isDevMoodForced } from '../../utils/settings';
 import { isFeedingActive } from '../../utils/feeding-moment';
 import { isPlayingActive } from '../../utils/play-moment';
 import {
@@ -291,7 +292,7 @@ export class TabbyOverlay {
             this.render();
           });
         }
-        const devForced = next.devModeEnabled && next.devForceMood !== 'auto';
+        const devForced = isDevMoodForced(next);
         const devMoodChanged =
           devForced && prev?.devForceMood !== next.devForceMood;
         const devModeEnabledWithForce =
@@ -817,14 +818,6 @@ export class TabbyOverlay {
       root.classList.toggle(
         `tabby-root--peek-edge-${edge}`,
         presentation.mood === 'peek' && peekEdge === edge,
-      );
-    }
-    for (const corner of ['left', 'right'] as const) {
-      root.classList.toggle(
-        `tabby-root--peek-corner-${corner}`,
-        presentation.mood === 'peek' &&
-          peekEdge === 'bottom' &&
-          placement.corner === corner,
       );
     }
     if (presentation.mood === 'peek') {
@@ -1436,7 +1429,6 @@ export class TabbyOverlay {
           ),
           dimensions: { width: catSize, height: catSize },
           surface: null,
-          clipPath: null,
         };
 
     this.root.style.left = `${Math.round(resolved.position.x + viewport.offsetX)}px`;
@@ -1447,11 +1439,6 @@ export class TabbyOverlay {
       this.root.style.height = `${resolved.dimensions.height}px`;
       this.root.style.maxWidth = `${resolved.dimensions.width}px`;
       this.root.style.maxHeight = `${resolved.dimensions.height}px`;
-      if (resolved.clipPath) {
-        this.root.style.clipPath = resolved.clipPath;
-      } else {
-        this.root.style.removeProperty('clip-path');
-      }
       if (resolved.surface) {
         this.applyPeekSurfaceLayout(resolved.surface);
       }
@@ -1460,7 +1447,6 @@ export class TabbyOverlay {
       this.root.style.removeProperty('height');
       this.root.style.removeProperty('max-width');
       this.root.style.removeProperty('max-height');
-      this.root.style.removeProperty('clip-path');
       this.applyPeekSurfaceLayout(null);
     }
 

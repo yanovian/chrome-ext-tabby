@@ -120,34 +120,15 @@
   min-height: 0;
 }
 
+/*
+ * Peek's per-edge surface position/rotation (left/right/top/bottom/transform)
+ * is set inline (with !important) by applyPeekSurfaceLayout() in
+ * tabby-overlay.ts, which runs before the root is ever attached to the DOM.
+ * Only the properties JS doesn't set live here.
+ */
 #tabby-companion-root.tabby-root--mood-peek .tabby-cat-surface {
   position: absolute;
   overflow: visible;
-}
-
-#tabby-companion-root.tabby-root--peek-edge-bottom .tabby-cat-surface {
-  top: 0;
-  left: 0;
-}
-
-#tabby-companion-root.tabby-root--peek-edge-left .tabby-cat-surface {
-  top: auto !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: auto !important;
-  /* Pivot on the surface's own center: a corner pivot only rotates a
-     quarter of the sprite into the clip window instead of a full half. */
-  transform-origin: center !important;
-  transform: rotate(90deg) !important;
-}
-
-#tabby-companion-root.tabby-root--peek-edge-right .tabby-cat-surface {
-  top: auto !important;
-  bottom: 0 !important;
-  left: auto !important;
-  right: 0 !important;
-  transform-origin: center !important;
-  transform: rotate(-90deg) !important;
 }
 
 #tabby-companion-root.tabby-root--mood-peek .tabby-cat {
@@ -155,13 +136,6 @@
   height: var(--tabby-cat-size, 192px);
   display: block;
   filter: none;
-}
-
-#tabby-companion-root.tabby-root--mood-peek.tabby-root--newborn .tabby-cat,
-#tabby-companion-root.tabby-root--mood-peek.tabby-root--playful .tabby-cat,
-#tabby-companion-root.tabby-root--mood-peek.tabby-root--adult .tabby-cat {
-  width: var(--tabby-cat-size, 192px);
-  height: var(--tabby-cat-size, 192px);
 }
 
 #tabby-companion-root.tabby-root--mood-peek .tabby-cat-surface:hover .tabby-cat:not(.tabby-cat--react) {
