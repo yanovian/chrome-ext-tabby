@@ -205,7 +205,13 @@ export class TabbyOverlay {
           return;
         }
           const next = changes.presentation?.newValue as CatPresentation | undefined;
-        if (next && (!this.pendingAction || this.cachedSettings?.devModeEnabled)) {
+        // Ambient peeking runs on its own timer in the background and would
+        // otherwise duck Tabby out from under an open care menu. Suppress
+        // just that transition; closing the menu re-syncs to whatever the
+        // real state is by then (dismissCompanionSpeech() re-fetches it).
+        const entersPeekWhileMenuOpen =
+          this.menuOpen && next?.mood === 'peek' && this.presentation?.mood !== 'peek';
+        if (next && !entersPeekWhileMenuOpen && (!this.pendingAction || this.cachedSettings?.devModeEnabled)) {
           const previousMood = this.presentation?.mood ?? null;
           const previousSpeech = this.presentation?.speech ?? null;
           const previousSprite = this.presentation?.sprite ?? null;

@@ -256,6 +256,68 @@ test('closing the menu clears the active button highlight', async () => {
   }
 });
 
+test('an ambient peek transition waits until the care menu is closed', async () => {
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: false,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+        interactions: [
+          { action: 'ask', label: "What's up?", enabled: true },
+          { action: 'play', label: 'Play', enabled: true },
+          { action: 'pet', label: 'Pet', enabled: true },
+        ],
+      },
+    });
+
+    const page = await openOverlayPage(context);
+    const root = page.locator('#tabby-companion-root');
+    await expect(root).toBeVisible({ timeout: 20_000 });
+    await page.locator('.tabby-cat-surface').click();
+    await expect(page.locator('[data-action="pet"]')).toBeVisible({ timeout: 20_000 });
+
+    const worker = context.serviceWorkers()[0]!;
+    await worker.evaluate(async () => {
+      const now = Date.now();
+      const result = await chrome.storage.local.get(['presentation']);
+      const current = result.presentation;
+      await chrome.storage.local.set({
+        presentation: {
+          ...current,
+          mood: 'peek',
+          sprite: 'gif/adult/peek.gif',
+          ambientActivity: 'peeking',
+          ambientPeekUntil: now + 60_000,
+          peekEdge: 'bottom',
+          peekInset: 16,
+          peekCorner: 'left',
+        },
+      });
+    });
+
+    await page.waitForTimeout(500);
+    await expect(root).not.toHaveClass(/tabby-root--mood-peek/);
+    await expect(page.locator('[data-action="pet"]')).toBeVisible();
+
+    await page.locator('.tabby-card-close').click();
+    await expect(root).toHaveClass(/tabby-root--mood-peek/, { timeout: 20_000 });
+  } finally {
+    await context.close();
+  }
+});
+
 test('extension overlay renders dev-forced peek on screen', async () => {
   const { context } = await launchExtensionContext();
   try {
