@@ -153,6 +153,46 @@ describe('handleCareAction during peek', () => {
     expect(presentation.stayVisibleUntil).toBeGreaterThan(NOW);
   });
 
+  it('reveal during the hidden duck gap still restores the real mood', async () => {
+    // Regression: between visible peek visits she's hidden in a "duck gap"
+    // (companionVisible false, mood still 'peek'). Reveal used to check
+    // isPeekPresentation (requires companionVisible true), see "not
+    // peeking", and just return the hidden presentation unchanged — Tabby
+    // stayed invisible after tapping where she used to be.
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: false,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW + 8_000,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: 'grooming',
+      peekRestoreAmbientUntil: NOW + 120_000,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
+
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.mood).not.toBe('peek');
+    expect(presentation.ambientActivity).toBe('grooming');
+  });
+
   it('reveal from dev peek preview restores auto mood', async () => {
     store[STORAGE_KEYS.settings] = {
       ...DEFAULT_SETTINGS,

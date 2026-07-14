@@ -285,6 +285,36 @@ describe('buildPresentation peeking', () => {
     expect(presentation.canPlay).toBe(false);
   });
 
+  it('keeps the restore-to ambient activity through the hidden duck gap', () => {
+    // Regression: the duck gap (companionVisible false, mood still 'peek'
+    // via moodOverride) isn't isPeekPresentation (that needs companionVisible
+    // true), so gating peekRestoreAmbientActivity on isPeeking wiped it to
+    // null every time she ducked out between visits — reveal would then
+    // restore to nothing instead of her real prior activity.
+    const now = Date.parse('2026-07-05T14:00:00.000Z');
+    const cat = createInitialCat(now);
+    const presentation = buildPresentation({
+      cat,
+      vitals: cat.vitals,
+      settings: DEFAULT_SETTINGS,
+      now,
+      isUserIdle: false,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      companionVisible: false,
+      ambientActivity: 'peeking',
+      moodOverride: 'peek',
+      peekRestoreAmbientActivity: 'grooming',
+      peekRestoreAmbientUntil: now + 120_000,
+    });
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.peekRestoreAmbientActivity).toBe('grooming');
+    expect(presentation.peekRestoreAmbientUntil).toBe(now + 120_000);
+  });
+
   it('assigns a peek edge when dev forces peek mood', () => {
     const now = Date.parse('2026-07-05T14:00:00.000Z');
     const cat = createInitialCat(now);

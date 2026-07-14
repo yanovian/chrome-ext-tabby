@@ -6,6 +6,7 @@ Updates for people who use Tabby. Newest first.
 
 - New **"Go play by yourself"** button sends Tabby off to peek
 - The care menu is **steadier**: it stays open while you use it, no surprise peeks mid-click, and button highlights clear when you close it.
+- Fixed Tabby sometimes **vanishing** instead of coming back when you tapped her mid-peek.
 
 ## 2.3.1
 

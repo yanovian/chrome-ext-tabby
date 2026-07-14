@@ -355,6 +355,46 @@ describe('getCurrentPresentation', () => {
     expect(presentation.ambientPeekUntil).toBeGreaterThan(NOW);
   });
 
+  it('carries the restore-to ambient activity into the duck gap', async () => {
+    // Regression: the duck gap presentation is built without passing
+    // peekRestoreAmbientActivity/Until through, so it silently reset to
+    // null every time a visit expired — reveal during the gap then had
+    // nothing to restore to.
+    await persistPresentation({
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW - 1,
+      peekEdge: 'right',
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: 'grooming',
+      peekRestoreAmbientUntil: NOW + 120_000,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+    store[STORAGE_KEYS.introCompleted] = true;
+
+    const presentation = await getCurrentPresentation();
+
+    expect(presentation.companionVisible).toBe(false);
+    expect(presentation.peekRestoreAmbientActivity).toBe('grooming');
+    expect(presentation.peekRestoreAmbientUntil).toBe(NOW + 120_000);
+  });
+
   it('peeks again from a new corner after the duck gap', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);

@@ -467,7 +467,12 @@ export async function handleCareAction(
 
   if (action === 'reveal') {
     const last = state.lastPresentation;
-    if (!last || !isPeekPresentation(last)) {
+    // Check the whole peek cycle (ambientActivity), not just the visible
+    // moment (isPeekPresentation): between visits she's hidden in a "duck
+    // gap" with companionVisible false, but mood still reads 'peek'. That
+    // gap isn't a real resting mood — tapping her mid-gap must still
+    // restore the real one, not fall through and leave her hidden.
+    if (!last || last.ambientActivity !== 'peeking') {
       if (last) {
         return last;
       }
@@ -1064,6 +1069,8 @@ export async function getCurrentPresentation(): Promise<CatPresentation> {
         peekEdge: cached.peekEdge,
         peekInset: cached.peekInset,
         peekCorner: cached.peekCorner,
+        peekRestoreAmbientActivity: cached.peekRestoreAmbientActivity,
+        peekRestoreAmbientUntil: cached.peekRestoreAmbientUntil,
         eatingUntil: cached.eatingUntil,
         playingUntil: cached.playingUntil,
         moodOverride: 'peek',

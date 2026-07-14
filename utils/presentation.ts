@@ -236,10 +236,14 @@ export function buildPresentation(input: {
     peekEdge: peekPlacement?.edge ?? null,
     peekInset: peekPlacement?.inset ?? null,
     peekCorner: peekPlacement?.corner ?? null,
-    peekRestoreAmbientActivity: isPeeking
+    // Gated on ambientActivity (spans the whole peek cycle, visible visit
+    // and hidden duck gap alike), not isPeeking (visible moment only) — the
+    // duck gap would otherwise wipe what reveal should restore to.
+    peekRestoreAmbientActivity: ambientActivity === 'peeking'
       ? (input.peekRestoreAmbientActivity ?? null)
       : null,
-    peekRestoreAmbientUntil: isPeeking ? (input.peekRestoreAmbientUntil ?? null) : null,
+    peekRestoreAmbientUntil:
+      ambientActivity === 'peeking' ? (input.peekRestoreAmbientUntil ?? null) : null,
     stayVisibleUntil:
       devMoodForced
         ? null
