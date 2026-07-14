@@ -98,9 +98,11 @@ After **`pnpm animations`** (or `make animations`), run **`pnpm gif:convert`** (
 
 A `Makefile` wraps the same tasks (`make check`, `make gif-convert`, `make animations-ship`, `make package`, `make release-patch`, …).
 
-## Marketing site (GitHub Pages)
+## Website
 
-Source in [`website/`](./website/). Published at **https://yanovian.github.io/chrome-ext-tabby/** (shortest path for this repo: org pages + repo name only).
+[https://yanovian.github.io/chrome-ext-tabby/](https://yanovian.github.io/chrome-ext-tabby/)
+
+Source in [`website/`](./website/).
 
 | Command | Description |
 |---------|-------------|
