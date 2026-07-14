@@ -1,6 +1,6 @@
 name: Sub-issue
 description: A smaller task that belongs to a larger tracking issue
-title: ""
+title: "Sub-issue: "
 labels: ["sub-issue"]
 body:
   - type: input
@@ -9,5 +9,18 @@ body:
       label: Parent issue
       description: Link or number of the issue this belongs to
       placeholder: "#12"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+        - Critical
+      default: 1
     validations:
       required: true
