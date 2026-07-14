@@ -66,7 +66,7 @@ lint: ## ESLint
 lint-fix: ## ESLint with auto-fix
 	$(PNPM) lint:fix
 
-check: typecheck lint test build ## CI-style check: typecheck, lint, test, build
+check: typecheck lint lint-extension-i18n test build ## CI-style check: typecheck, lint, i18n lint, test, build
 
 package: zip ## Build and zip for Chrome Web Store
 
