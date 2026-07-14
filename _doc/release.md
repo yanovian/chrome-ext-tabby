@@ -63,10 +63,12 @@ Steps:
 2. `pnpm locales`
 3. `pnpm typecheck`
 4. `pnpm lint`
-5. `pnpm test`
-6. `pnpm build`
-7. `pnpm zip`
-8. Upload `tabby-*-chrome.zip` as a GitHub Actions artifact
+5. `pnpm lint:extension-i18n`
+6. `pnpm test`
+7. `pnpm build`
+8. `pnpm test:e2e`
+9. `pnpm zip`
+10. Upload `tabby-*-chrome.zip` as a GitHub Actions artifact
 
 Use the artifact from a green PR build for manual store submission before tagging.
 
