@@ -157,7 +157,7 @@ runtime: she works fully offline, and nothing about your browsing is uploaded an
 - Animated **GIF** cat clips (`public/gif/`), built with `pnpm gif:convert` (dotlottie-web + gifski in Docker)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
-- GitHub Actions — CI on PR/push, releases on version tags, marketing site deploy
+- GitHub Actions — CI on PR/push, releases on version tags, website deploy
 - [`website/`](./website/) — Vite + React landing page on GitHub Pages
 
 ## License
