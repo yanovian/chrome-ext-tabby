@@ -1,0 +1,13 @@
+name: Sub-issue
+description: A smaller task that belongs to a larger tracking issue
+title: ""
+labels: ["sub-issue"]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent issue
+      description: Link or number of the issue this belongs to
+      placeholder: "#12"
+    validations:
+      required: true
