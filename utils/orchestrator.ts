@@ -15,6 +15,7 @@ import {
   isAmbientRestExpired,
   isStayVisibleAfterRevealExpired,
   pickAmbientPeekDuckGapMs,
+  pickAmbientPeekVisitDurationMs,
   pickStayVisibleAfterRevealMs,
   recordAmbientAppearance,
 } from './ambient-presence';
@@ -510,6 +511,34 @@ export async function handleCareAction(
         now + pickStayVisibleAfterRevealMs(settings, now, state.cat.adoptedAt),
       eatingUntil: last.eatingUntil,
       playingUntil: last.playingUntil,
+      drainingSession,
+    });
+    await persistPresentation(presentation);
+    return presentation;
+  }
+
+  if (action === 'shoo') {
+    const last = state.lastPresentation;
+    if (last && isPeekPresentation(last)) {
+      return last;
+    }
+    const restore = resolvePeekRestoreAmbient(last, true);
+    const presentation = buildPresentation({
+      cat: state.cat,
+      vitals: state.cat.vitals,
+      settings: state.settings,
+      now,
+      isUserIdle: state.isUserIdle,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: last?.overlayHidden ?? false,
+      lastCareAction: 'shoo',
+      companionVisible: true,
+      ambientPeekUntil:
+        now + pickAmbientPeekVisitDurationMs(state.settings, now, state.cat.adoptedAt),
+      peekRestoreAmbientActivity: restore.peekRestoreAmbientActivity,
+      peekRestoreAmbientUntil: restore.peekRestoreAmbientUntil,
+      moodOverride: 'peek',
       drainingSession,
     });
     await persistPresentation(presentation);

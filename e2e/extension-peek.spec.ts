@@ -158,6 +158,59 @@ test('clicking a peeking Tabby reveals her previous real mood', async () => {
   }
 });
 
+test('"Go play by yourself" sends Tabby into an edge peek', async () => {
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: false,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+        interactions: [
+          { action: 'ask', label: "What's up?", enabled: true },
+          { action: 'play', label: 'Play', enabled: true },
+          { action: 'pet', label: 'Pet', enabled: true },
+          { action: 'shoo', label: 'Go play by yourself', enabled: true },
+        ],
+      },
+    });
+
+    const page = await openOverlayPage(context);
+    const root = page.locator('#tabby-companion-root');
+    await expect(root).toBeVisible({ timeout: 20_000 });
+
+    await page.locator('.tabby-cat-surface').click();
+    const shooButton = page.locator('[data-action="shoo"]');
+    await expect(shooButton).toBeVisible({ timeout: 20_000 });
+    await shooButton.click();
+
+    await expect(root).toHaveClass(/tabby-root--mood-peek/, { timeout: 20_000 });
+    await expect(root).toHaveClass(/tabby-root--peek-edge-(bottom|left|right)/);
+
+    const worker = context.serviceWorkers()[0]!;
+    const stored = await worker.evaluate(async () => {
+      const result = await chrome.storage.local.get(['presentation']);
+      return result.presentation;
+    });
+    expect(stored?.mood).toBe('peek');
+    expect(stored?.ambientActivity).toBe('peeking');
+    expect(stored?.companionVisible).toBe(true);
+    expect(stored?.lastCareAction).toBe('shoo');
+  } finally {
+    await context.close();
+  }
+});
+
 test('extension overlay renders dev-forced peek on screen', async () => {
   const { context } = await launchExtensionContext();
   try {

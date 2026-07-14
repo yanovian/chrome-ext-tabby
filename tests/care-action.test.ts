@@ -199,6 +199,83 @@ describe('handleCareAction during peek', () => {
   });
 });
 
+describe('handleCareAction shoo', () => {
+  it('sends Tabby into an edge peek and remembers the prior ambient state', async () => {
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: '/gif/adult/idle.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'grooming',
+      ambientPeekUntil: NOW + 120_000,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    const presentation = await handleCareAction('shoo', NOW, { url: PAGE_URL });
+
+    expect(presentation.mood).toBe('peek');
+    expect(presentation.companionVisible).toBe(true);
+    expect(presentation.ambientActivity).toBe('peeking');
+    expect(['bottom', 'left', 'right']).toContain(presentation.peekEdge);
+    expect(presentation.lastCareAction).toBe('shoo');
+    expect(presentation.canPet).toBe(false);
+    expect(presentation.peekRestoreAmbientActivity).toBe('grooming');
+    expect(presentation.peekRestoreAmbientUntil).toBe(NOW + 120_000);
+  });
+
+  it('is a no-op when Tabby is already peeking', async () => {
+    const alreadyPeeking = {
+      mood: 'peek' as const,
+      stage: 'adult' as const,
+      stageLabel: 'Adult',
+      sprite: '/gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking' as const,
+      ambientPeekUntil: NOW + 30_000,
+      peekEdge: 'left' as const,
+      peekInset: 12,
+      peekCorner: 'right' as const,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    };
+    await persistPresentation(alreadyPeeking);
+
+    const presentation = await handleCareAction('shoo', NOW, { url: PAGE_URL });
+
+    expect(presentation.peekEdge).toBe('left');
+    expect(presentation.peekInset).toBe(12);
+  });
+});
+
 describe('handleCareAction treat while hungry', () => {
   beforeEach(() => {
     catForTests = {

@@ -7,6 +7,7 @@ export type InteractionAction =
   | 'feed'
   | 'play'
   | 'ask'
+  | 'shoo'
   | 'dismiss'
   | 'dnd_30'
   | 'dnd_60'
@@ -196,6 +197,7 @@ export function buildInteractionOptions(
   }
 
   push('pet', t('care.pet'));
+  push('shoo', t('care.shoo'));
 
   return options;
 }
@@ -232,7 +234,7 @@ export function explainCurrentMood(
 
 export function mapInteractionToCareAction(
   action: InteractionAction,
-): 'pet' | 'treat' | 'play' | 'ask' | 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today' {
+): 'pet' | 'treat' | 'play' | 'ask' | 'shoo' | 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today' {
   if (action === 'feed') {
     return 'treat';
   }
@@ -240,7 +242,7 @@ export function mapInteractionToCareAction(
 }
 
 export function mapCareActionToInteraction(
-  action: 'pet' | 'treat' | 'play' | 'ask' | 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today',
+  action: 'pet' | 'treat' | 'play' | 'ask' | 'shoo' | 'dismiss' | 'dnd_30' | 'dnd_60' | 'dnd_today',
 ): InteractionAction {
   if (action === 'treat') {
     return 'feed';

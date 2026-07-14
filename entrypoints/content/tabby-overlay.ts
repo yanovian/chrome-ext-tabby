@@ -1524,7 +1524,7 @@ export class TabbyOverlay {
         this.speechBubbleOpen = false;
         this.moreOpen = false;
         this.removeOutsideClickListener();
-      } else if (action === 'dnd_30' || action === 'dnd_60' || action === 'dnd_today') {
+      } else if (action === 'dnd_30' || action === 'dnd_60' || action === 'dnd_today' || action === 'shoo') {
         this.menuOpen = false;
         this.moreOpen = false;
         this.syncOutsideClickListener();

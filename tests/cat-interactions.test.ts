@@ -67,6 +67,27 @@ describe('buildInteractionOptions', () => {
     expect(options[0]?.label).toMatch(/fussy/i);
   });
 
+  it('always offers a way to shoo Tabby into peek mode, never as the suggested action', () => {
+    const content = buildInteractionOptions('content', {
+      hunger: 35,
+      happiness: 70,
+      stress: 20,
+      energy: 55,
+    }, 'adult');
+    const stressed = buildInteractionOptions('stressed', {
+      hunger: 30,
+      happiness: 40,
+      stress: 85,
+      energy: 40,
+    }, 'adult');
+
+    for (const options of [content, stressed]) {
+      const shoo = options.find((option) => option.action === 'shoo');
+      expect(shoo).toBeDefined();
+      expect(shoo?.primary).toBe(false);
+    }
+  });
+
   it('keeps hide behind secondary actions so it is harder to tap by mistake', () => {
     const primary = buildInteractionOptions('content', {
       hunger: 35,

@@ -253,6 +253,7 @@ export type CareAction =
   | 'play'
   | 'ask'
   | 'reveal'
+  | 'shoo'
   | 'dismiss'
   | 'dnd_30'
   | 'dnd_60'
