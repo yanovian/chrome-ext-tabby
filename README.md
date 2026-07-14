@@ -131,6 +131,9 @@ Thank you to everyone who takes the time to check a localization and fix wrong o
 awkward wording. The people who helped with each language are listed in
 [`_doc/translators.md`](./_doc/translators.md).
 
+Seeing weird text in a translation? Feel free to contribute:
+[issue #2](https://github.com/yanovian/chrome-ext-tabby/issues/2).
+
 ## How it works
 
 1. **Appear** — a content script renders Tabby on the active tab when she is not hidden. She does not run on some sensitive sites (see `utils/overlay-excluded-hosts/`).
