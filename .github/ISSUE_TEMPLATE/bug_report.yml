@@ -1,0 +1,91 @@
+name: Bug report
+description: Something not working the way it should?
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. A few details below help us fix it faster.
+
+  - type: checkboxes
+    id: existing
+    attributes:
+      label: Checked for duplicates
+      options:
+        - label: I searched open and closed issues and didn't find this already reported
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear, short description of the bug.
+      placeholder: Tabby disappeared after I clicked her to come back from peek mode.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open any page
+        2. Wait for Tabby to peek from the edge of the screen
+        3. Click her
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: She should come back and show her normal mood.
+    validations:
+      required: false
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension version
+      description: Find it at chrome://extensions (turn on Developer mode) or in the popup footer.
+      placeholder: "2.3.2"
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser and version
+      placeholder: "Chrome 126"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - ChromeOS
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or screen recording
+      description: Optional, but a picture or clip helps a lot. Drag and drop files here.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else?
+      description: Console errors, extension settings, or anything else that might help.
+    validations:
+      required: false
