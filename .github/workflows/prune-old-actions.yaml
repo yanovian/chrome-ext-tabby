@@ -1,0 +1,16 @@
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - master
+
+jobs:
+  prune-old-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: yanovian/delete-old-actions@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          days-ago: 30
