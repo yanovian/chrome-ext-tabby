@@ -127,6 +127,10 @@ All translations live in a single source file, [`scripts/generate-locales.mjs`](
 every `dev`/`build`/`zip` (via `pnpm assets`), so a package can never ship without
 its locale files. To add or edit a language, update the script and run `pnpm locales`.
 
+Thank you to everyone who takes the time to check a localization and fix wrong or
+awkward wording. The people who helped with each language are listed in
+[`_doc/translators.md`](./_doc/translators.md).
+
 ## How it works
 
 1. **Appear** — a content script renders Tabby on the active tab when she is not hidden. She does not run on some sensitive sites (see `utils/overlay-excluded-hosts/`).
