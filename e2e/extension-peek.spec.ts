@@ -206,6 +206,12 @@ test('"Go play by yourself" sends Tabby into an edge peek', async () => {
     expect(stored?.ambientActivity).toBe('peeking');
     expect(stored?.companionVisible).toBe(true);
     expect(stored?.lastCareAction).toBe('shoo');
+
+    await page.locator('.tabby-cat-surface').click();
+    await expect(root).not.toHaveClass(/tabby-root--mood-peek/, { timeout: 20_000 });
+    await page.locator('.tabby-cat-surface').click();
+    await expect(page.locator('[data-action="shoo"]')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('[data-action="shoo"]')).not.toHaveClass(/tabby-btn--active/);
   } finally {
     await context.close();
   }

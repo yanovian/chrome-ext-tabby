@@ -5,7 +5,7 @@ Updates for people who use Tabby. Newest first.
 ## 2.3.2 (unreleased)
 
 - New **"Go play by yourself"** button sends Tabby off to peek
-- Clear active button highlight on close.
+- The care menu is **steadier**: it stays open while you use it, no surprise peeks mid-click, and button highlights clear when you close it.
 
 ## 2.3.1
 

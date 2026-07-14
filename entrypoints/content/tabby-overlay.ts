@@ -1533,10 +1533,12 @@ export class TabbyOverlay {
         this.menuOpen = false;
         this.speechBubbleOpen = false;
         this.moreOpen = false;
+        this.highlightedAction = null;
         this.removeOutsideClickListener();
       } else if (action === 'dnd_30' || action === 'dnd_60' || action === 'dnd_today' || action === 'shoo') {
         this.menuOpen = false;
         this.moreOpen = false;
+        this.highlightedAction = null;
         this.syncOutsideClickListener();
       }
     } finally {
