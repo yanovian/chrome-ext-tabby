@@ -269,8 +269,9 @@
   right: calc(100% + 8px);
   top: 50%;
   flex-direction: row;
+  align-items: flex-start;
   width: auto;
-  max-width: min(240px, calc(100vw - 32px));
+  max-width: min(420px, calc(100vw - 32px));
   transform: translateY(-50%);
 }
 
@@ -278,13 +279,24 @@
   left: calc(100% + 8px);
   top: 50%;
   flex-direction: row-reverse;
+  align-items: flex-start;
   width: auto;
-  max-width: min(240px, calc(100vw - 32px));
+  max-width: min(420px, calc(100vw - 32px));
   transform: translateY(-50%);
 }
 
+/* Fixed width + no shrink: the speech bubble's own width:100% (meant for
+   stacking above/below in the top/bottom layout) would otherwise compete
+   with the card for space in this side-by-side row and squeeze its
+   buttons, wrapping longer labels onto 3 lines. */
 #tabby-companion-root .tabby-menu-area--left .tabby-card,
 #tabby-companion-root .tabby-menu-area--right .tabby-card {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+#tabby-companion-root .tabby-menu-area--left .tabby-speech-bubble,
+#tabby-companion-root .tabby-menu-area--right .tabby-speech-bubble {
   width: 200px;
 }
 
