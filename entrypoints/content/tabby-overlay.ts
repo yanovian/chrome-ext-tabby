@@ -84,6 +84,8 @@ export class TabbyOverlay {
   private speechBubbleOpen = false;
   private moreOpen = false;
   private pendingAction: InteractionAction | null = null;
+  /** Which button shows the "active" highlight; cleared when the menu closes. */
+  private highlightedAction: InteractionAction | null = null;
   private introCompleted = true;
   private introStep: number | null = null;
   private introJustFinished = false;
@@ -369,6 +371,7 @@ export class TabbyOverlay {
     this.teardownOverlay();
     this.presentation = null;
     this.pendingAction = null;
+    this.highlightedAction = null;
     this.menuOpen = false;
     this.moreOpen = false;
     this.speechBubbleOpen = false;
@@ -613,6 +616,7 @@ export class TabbyOverlay {
     this.menuOpen = false;
     this.moreOpen = false;
     this.pendingAction = null;
+    this.highlightedAction = null;
     void this.dismissCompanionSpeech();
   }
 
@@ -1242,8 +1246,7 @@ export class TabbyOverlay {
     button.dataset.action = option.action;
 
     const isPending = this.pendingAction === option.action;
-    const isActive =
-      !isPending && this.presentation?.lastCareAction === option.action;
+    const isActive = !isPending && this.highlightedAction === option.action;
 
     if (option.primary && !isActive && !isPending) {
       button.classList.add('tabby-btn--suggested');
@@ -1517,6 +1520,7 @@ export class TabbyOverlay {
       const careAction = mapInteractionToCareAction(action);
       const next = this.assignPresentation(await requestCareAction(careAction, location.href));
       this.applyCareMomentChromeState(next);
+      this.highlightedAction = action;
 
       if (action === 'dismiss') {
         await this.syncPageOverlayHidden();

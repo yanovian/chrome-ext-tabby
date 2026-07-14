@@ -211,6 +211,51 @@ test('"Go play by yourself" sends Tabby into an edge peek', async () => {
   }
 });
 
+test('closing the menu clears the active button highlight', async () => {
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: false,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+        interactions: [
+          { action: 'ask', label: "What's up?", enabled: true },
+          { action: 'play', label: 'Play', enabled: true },
+          { action: 'pet', label: 'Pet', enabled: true },
+        ],
+      },
+    });
+
+    const page = await openOverlayPage(context);
+    const root = page.locator('#tabby-companion-root');
+    await expect(root).toBeVisible({ timeout: 20_000 });
+
+    await page.locator('.tabby-cat-surface').click();
+    const petButton = page.locator('[data-action="pet"]');
+    await expect(petButton).toBeVisible({ timeout: 20_000 });
+    await petButton.click();
+    await expect(petButton).toHaveClass(/tabby-btn--active/, { timeout: 20_000 });
+
+    await page.locator('.tabby-card-close').click();
+    await page.locator('.tabby-cat-surface').click();
+    await expect(page.locator('[data-action="pet"]')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('[data-action="pet"]')).not.toHaveClass(/tabby-btn--active/);
+  } finally {
+    await context.close();
+  }
+});
+
 test('extension overlay renders dev-forced peek on screen', async () => {
   const { context } = await launchExtensionContext();
   try {

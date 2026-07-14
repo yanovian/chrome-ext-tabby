@@ -3,7 +3,9 @@
 Updates for people who use Tabby. Newest first.
 
 ## 2.3.2 (unreleased)
+
 - New **"Go play by yourself"** button sends Tabby off to peek
+- Clear active button highlight on close.
 
 ## 2.3.1
 
