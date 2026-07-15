@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: yanovian/open-license-auditor@v0.1.1
+      - uses: yanovian/open-license-auditor@v1
         with:
           config-path: .github/license-audit.yml
           severity-filter: both
