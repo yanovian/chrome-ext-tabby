@@ -29,9 +29,4 @@ jobs:
           update-strategy: non-breaking
           create-pull-request: true
           branch-name: update-dependencies/non-breaking
-          # Not secrets.GITHUB_TOKEN: GitHub blocks that token from triggering
-          # other workflows, so a PR opened with it would never run ci.yml.
-          # GH_PAT is a fine-grained PAT scoped to this repo only, with
-          # Contents (write) and Pull requests (write). The resulting PR
-          # triggers ci.yml normally, which is what actually checks it.
           github-token: ${{ secrets.PAT_TOKEN }}
