@@ -1,0 +1,37 @@
+name: Update Dependencies (breaking)
+
+on:
+  schedule:
+    - cron: '0 3 1 * *' # the 1st of every month at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: yanovian/update-dependencies-action@v1
+        with:
+          update-strategy: breaking
+          create-pull-request: true
+          branch-name: update-dependencies/breaking
+          # Not secrets.GITHUB_TOKEN: GitHub blocks that token from triggering
+          # other workflows, so a PR opened with it would never run ci.yml.
+          # GITHUB_PAT is a fine-grained PAT scoped to this repo only, with
+          # Contents (write) and Pull requests (write). The resulting PR
+          # triggers ci.yml normally, which is what actually checks it.
+          github-token: ${{ secrets.GITHUB_PAT }}
