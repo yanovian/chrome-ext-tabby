@@ -28,5 +28,4 @@ jobs:
         with:
           update-strategy: non-breaking
           create-pull-request: true
-          branch-name: update-dependencies/non-breaking
           github-token: ${{ secrets.PAT_TOKEN }}
