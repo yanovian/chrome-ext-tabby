@@ -3,6 +3,7 @@
 Updates for people who use Tabby. Newest first.
 
 ## 2.3.3
+
 - Update packages (non-breaking)
 
 ## 2.3.2
