@@ -1,0 +1,39 @@
+{
+  "mode": "non-breaking",
+  "changes": [
+    {
+      "ecosystem": "pnpm",
+      "path": ".",
+      "name": "@eslint/js",
+      "fromVersion": "9.39.4",
+      "toVersion": "9.39.5",
+      "breaking": false
+    },
+    {
+      "ecosystem": "pnpm",
+      "path": ".",
+      "name": "eslint",
+      "fromVersion": "9.39.4",
+      "toVersion": "9.39.5",
+      "breaking": false
+    },
+    {
+      "ecosystem": "pnpm",
+      "path": ".",
+      "name": "typescript-eslint",
+      "fromVersion": "8.62.1",
+      "toVersion": "8.64.0",
+      "breaking": false
+    },
+    {
+      "ecosystem": "pnpm",
+      "path": ".",
+      "name": "vitest",
+      "fromVersion": "3.2.6",
+      "toVersion": "3.2.7",
+      "breaking": false
+    }
+  ],
+  "manualActionNeeded": [],
+  "commands": []
+}
