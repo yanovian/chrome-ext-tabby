@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 /** Pin by tag; override with TABBY_LOTTIE_GIF_IMAGE for a custom build. */
 export const LOTTIE_GIF_DOCKER_IMAGE =
-  process.env.TABBY_LOTTIE_GIF_IMAGE ?? 'tabby-lottie-gif:8';
+  process.env.TABBY_LOTTIE_GIF_IMAGE ?? 'tabby-lottie-gif:9';
 
 export const LOTTIE_GIF_DOCKERFILE_DIR = 'docker/lottie-gif';
 

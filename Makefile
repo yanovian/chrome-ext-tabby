@@ -5,6 +5,7 @@
 
 PNPM ?= pnpm
 WEBSITE ?= website
+LOTTIE_GIF ?= docker/lottie-gif
 # Shortest GitHub Pages path for yanovian/chrome-ext-tabby (repo name, no extra folder).
 GITHUB_PAGES_BASE ?= /chrome-ext-tabby/
 
@@ -12,8 +13,10 @@ help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*##; printf "Usage: make <target>\n\nTargets:\n"} \
 		/^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-install: ## Install dependencies (pnpm)
+install: ## Install dependencies and sync lockfiles (root + website + docker/lottie-gif)
 	$(PNPM) install
+	cd $(WEBSITE) && $(PNPM) install
+	cd $(LOTTIE_GIF) && npm install
 
 animations: ## Regenerate companion Lottie JSON (lottie-json/)
 	$(PNPM) animations

@@ -19,12 +19,12 @@ Or both in one step: `pnpm animations:ship` / `make animations-ship`.
 
 ## Image
 
-Default: `tabby-lottie-gif:8`, built automatically on first `pnpm gif:convert`.
+Default: `tabby-lottie-gif:9`, built automatically on first `pnpm gif:convert`.
 
 Rebuild:
 
 ```bash
-docker build -t tabby-lottie-gif:8 -f docker/lottie-gif/Dockerfile .
+docker build -t tabby-lottie-gif:9 -f docker/lottie-gif/Dockerfile .
 ```
 
 ## Pipeline (inside the container)

@@ -5,7 +5,7 @@
  * Pipeline: dotlottie-web (transparent PNG frames) → gifski (temporal palette).
  * See public/gif/README.md and docker/lottie-gif/README.md.
  *
- * Image: tabby-lottie-gif:8 (built from docker/lottie-gif/)
+ * Image: tabby-lottie-gif:9 (built from docker/lottie-gif/)
  *
  * Requires Docker. Does not run during `pnpm assets` (optional, slower).
  *

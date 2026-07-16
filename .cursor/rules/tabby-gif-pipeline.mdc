@@ -18,7 +18,7 @@ Do **not** skip step 2 after step 1. The extension loads GIFs, not Lottie JSON.
 
 ## Docker
 
-- Image: `tabby-lottie-gif:8` (`docker/lottie-gif/Dockerfile`)
+- Image: `tabby-lottie-gif:9` (`docker/lottie-gif/Dockerfile`)
 - Pipeline: dotlottie-web (PNG frames) → gifski
 - Docs: `docker/lottie-gif/README.md`, `public/gif/README.md`, `lottie-json/README.md`
 

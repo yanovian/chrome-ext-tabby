@@ -22,7 +22,7 @@ pnpm gif:convert
 # or: make gif-convert
 ```
 
-Uses Docker image `tabby-lottie-gif:8` (dotlottie-web + gifski). See [`public/gif/README.md`](../public/gif/README.md) and `docker/lottie-gif/README.md`.
+Uses Docker image `tabby-lottie-gif:9` (dotlottie-web + gifski). See [`public/gif/README.md`](../public/gif/README.md) and `docker/lottie-gif/README.md`.
 
 **Warning:** this **overwrites** `public/gif/`.
 
