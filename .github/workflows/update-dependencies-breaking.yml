@@ -43,6 +43,7 @@ jobs:
           if ! git diff --quiet -- lottie-json public/gif; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git config --global push.autoSetupRemote true
             git add lottie-json public/gif
             git commit -m "Regenerate companion animations and GIFs for dependency update"
             git push
