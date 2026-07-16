@@ -2,6 +2,9 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.3.3
+- Update packages (non-breaking)
+
 ## 2.3.2
 
 - New **"Go play by yourself"** button sends Tabby off to peek
