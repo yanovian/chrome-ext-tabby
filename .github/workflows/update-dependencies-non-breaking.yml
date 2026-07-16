@@ -24,8 +24,26 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - uses: yanovian/update-dependencies-action@v1
+      - name: Update dependencies
+        id: update
+        uses: yanovian/update-dependencies-action@v1
         with:
           update-strategy: non-breaking
           create-pull-request: true
           github-token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Regenerate companion animations and GIFs
+        if: steps.update.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          gh pr checkout ${{ steps.update.outputs.pull-request-number }}
+          pnpm animations
+          pnpm gif:convert
+          if ! git diff --quiet -- lottie-json public/gif; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add lottie-json public/gif
+            git commit -m "Regenerate companion animations and GIFs for dependency update"
+            git push
+          fi
