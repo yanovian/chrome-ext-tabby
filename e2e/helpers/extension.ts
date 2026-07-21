@@ -117,8 +117,12 @@ export async function seedExtensionStorage(
       const baseSettings = {
         locale: 'en',
         showOverlay: true,
-        quietHoursStart: 22,
-        quietHoursEnd: 7,
+        // Always daytime by default (quietHoursStart === quietHoursEnd disables quiet hours
+        // entirely) — these tests run against real wall-clock time, not fake timers, so a
+        // real overnight window here would make ambient behavior depend on when the test
+        // happens to run. Tests that specifically want quiet-hours behavior override this.
+        quietHoursStart: 0,
+        quietHoursEnd: 0,
         maxAppearancesPerDay: 8,
         appearanceCooldownMinutes: 45,
         devModeEnabled: false,
