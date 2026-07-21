@@ -1,62 +1,19 @@
-import {
-  mapInteractionToCareAction,
-  type InteractionAction,
-} from '../../utils/cat-interactions';
-import {
-  introNextLabel,
-  introSkipLabel,
-  introStepCount,
-  introStepText,
-  isIntroCompleted,
-  markIntroCompleted,
-} from '../../utils/intro';
-import { loadAppLocale, t, applyNodeLocale } from '../../utils/i18n';
-import {
-  hasOverlayChrome,
-  shouldOpenSpeechBubbleForUpdate,
-  shouldShowSpeechBubble as shouldShowSpeechBubbleState,
-} from '../../utils/overlay-chrome';
+import { mapInteractionToCareAction, type InteractionAction } from '../../utils/cat-interactions';
+import { markIntroCompleted } from '../../utils/intro';
+import { loadAppLocale } from '../../utils/i18n';
 import { isCompanionOverlayVisible } from '../../utils/overlay-visibility';
-import { CompanionGifPlayer } from '../../utils/gif-companion';
-import { peekDuckAnimationPath, PEEK_VISIBLE_HEIGHT_RATIO } from '../../utils/companion-animation';
-import { isPeekPresentation, patchPresentationForDevForce, resolveEffectivePeekPlacement } from '../../utils/presentation';
-import { isDevMoodForced } from '../../utils/settings';
+import { patchPresentationForDevForce } from '../../utils/presentation';
 import { isFeedingActive } from '../../utils/feeding-moment';
 import { isPlayingActive } from '../../utils/play-moment';
 import {
-  CAT_MOOD_IN_CLASS,
-  CAT_MOOD_OUT_CLASS,
-  CAT_REACT_CLASS,
-  COMPANION_ENTER_ANIMATION,
-  COMPANION_ENTER_MS,
   COMPANION_EXIT_ANIMATION,
   COMPANION_EXIT_MS,
-  COMPANION_MOOD_IN_ANIMATION,
-  COMPANION_MOOD_IN_MS,
-  COMPANION_MOOD_OUT_ANIMATION,
-  COMPANION_MOOD_OUT_MS,
-  COMPANION_REACT_MS,
-  MENU_ENTER_CLASS,
-  OVERLAY_ENTER_CLASS,
   OVERLAY_EXIT_CLASS,
   preloadCompanionSprite,
   shouldAnimateMoodTransition,
-  shouldReactToSpeechTrigger,
   waitForOverlayAnimation,
 } from '../../utils/overlay-entrance';
 import { isPageOverlayHidden } from '../../utils/page-overlay';
-import {
-  CAT_DISPLAY_SIZE,
-  clampOverlayPosition,
-  defaultOverlayPosition,
-  isDefaultOverlayPosition,
-  peekCatSurfaceLayout,
-  peekVisibleSize,
-  resolveCompanionLayoutPosition,
-  resolvePeekLayout,
-  resolveMenuLayout,
-} from '../../utils/overlay-position';
-import { readViewportBox } from '../../utils/viewport-box';
 import {
   pingBackground,
   publicAnimationAssetUrl,
@@ -68,47 +25,88 @@ import {
   requestSettings,
 } from '../../utils/runtime-client';
 import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
-import type { CatPresentation, ExtensionSettings, OverlayPosition } from '../../utils/types';
-import { STORAGE_KEYS } from '../../utils/types';
+import type { CatPresentation, ExtensionSettings } from '../../utils/types';
+import { isPeeking } from './overlay/peek-state';
+import { OverlayPositioner } from './overlay/positioner';
+import { OverlayTransitions } from './overlay/transitions';
+import { IntroMenuController, type MenuBuildHandlers } from './overlay/intro-menu';
+import { OverlaySync, createOverlaySyncHost } from './overlay/sync';
+import { applyPresentationUpdate } from './overlay/presentation-update';
+import { OutsideClickWatcher } from './overlay/outside-click';
+import { ROOT_ID, buildRoot, patchRoot, playEntrance, type PatchOptions, type RenderContext } from './overlay/renderer';
 import './style.css';
 
-const ROOT_ID = 'tabby-companion-root';
 export const OVERLAY_GLOBAL_KEY = '__tabbyOverlayInstance';
-const PEEK_DUCK_EXIT_MS = 540;
-const DRAG_THRESHOLD_PX = 4;
 
 export class TabbyOverlay {
   private presentation: CatPresentation | null = null;
   private pageOverlayHidden = false;
-  private menuOpen = false;
-  private speechBubbleOpen = false;
-  private moreOpen = false;
-  private pendingAction: InteractionAction | null = null;
-  /** Which button shows the "active" highlight; cleared when the menu closes. */
-  private highlightedAction: InteractionAction | null = null;
-  private introCompleted = true;
-  private introStep: number | null = null;
-  private introJustFinished = false;
-  private introFinishTimer: number | null = null;
-  private position: OverlayPosition = defaultOverlayPosition();
   private root: HTMLElement | null = null;
-  private outsideClickListener: ((event: Event) => void) | null = null;
-  private storageListenerBound = false;
   /** True only for the one tab (in the focused window) the background has designated as overlay host. */
   private isCurrentOverlayTab = false;
   private showOverlayEnabled = true;
   private cachedSettings: ExtensionSettings | null = null;
   private exiting = false;
-  private moodTransitionToken = 0;
-  private catPlayer: CompanionGifPlayer | null = null;
   private initPromise: Promise<void> | null = null;
   private mountGeneration = 0;
-  private wasPeeking = false;
   private pendingReveal = false;
-  private peekRestorePosition: OverlayPosition | null = null;
+
+  private readonly positioner = new OverlayPositioner();
+  private readonly transitions = new OverlayTransitions();
+  private readonly introMenu = new IntroMenuController();
+  private readonly outsideClick = new OutsideClickWatcher();
+  private readonly sync: OverlaySync;
+
   private readonly onViewportChange = (): void => {
     this.applyPosition();
   };
+
+  private readonly menuHandlers: MenuBuildHandlers = {
+    onAdvanceIntro: () => this.advanceIntro(),
+    onSkipIntro: () => void this.completeIntro(),
+    onCloseMenu: () => this.closeMenu(),
+    onToggleMore: () => {
+      this.introMenu.toggleMoreOpen();
+      this.render();
+      if (this.introMenu.isMenuOpen()) {
+        this.syncOutsideClickListener();
+      }
+    },
+    onDismissSpeech: () => this.dismissSpeechBubble(),
+    onAction: (action) => void this.handleInteraction(action),
+  };
+
+  constructor() {
+    this.sync = new OverlaySync(
+      createOverlaySyncHost({
+        isCurrentOverlayTab: () => this.isCurrentOverlayTab,
+        isShowOverlayEnabled: () => this.showOverlayEnabled,
+        setShowOverlayEnabled: (enabled) => {
+          this.showOverlayEnabled = enabled;
+        },
+        getPresentation: () => this.presentation,
+        assignPresentation: (presentation) => this.assignPresentation(presentation),
+        isMenuOpen: () => this.introMenu.isMenuOpen(),
+        hasPendingAction: () => this.introMenu.getPendingAction() !== null,
+        getCachedSettings: () => this.cachedSettings,
+        setCachedSettings: (settings) => {
+          this.cachedSettings = settings;
+        },
+        applyPresentationUpdate: (next) => this.applyPresentationUpdate(next),
+        getRoot: () => this.root,
+        render: (options) => this.render(options),
+        syncPageOverlayHidden: () => this.syncPageOverlayHidden(),
+        refreshPresentation: () => this.refreshPresentation(),
+        teardownOverlay: () => this.teardownOverlay(),
+        beginIntroIfNeeded: () => this.beginIntroIfNeeded(),
+        isActiveInstance: () => this.isActiveInstance(),
+        setIntroCompleted: (completed) => this.introMenu.setIntroCompleted(completed),
+        syncOutsideClickListener: () => this.syncOutsideClickListener(),
+        positioner: this.positioner,
+        introMenu: this.introMenu,
+      }),
+    );
+  }
 
   private isActiveInstance(): boolean {
     const globalWindow = window as unknown as Record<string, TabbyOverlay | undefined>;
@@ -127,7 +125,7 @@ export class TabbyOverlay {
 
   /** Re-fetch every piece of state from the background/storage. Used on first init and whenever
    * this tab regains overlay-host status, since state may have drifted while it was inactive
-   * (the storage listener is suspended for inactive tabs — see bindStorageListenerIfNeeded). */
+   * (the storage listener is suspended for inactive tabs — see initialize()). */
   private async resyncState(): Promise<void> {
     const settings = await requestSettings();
     this.cachedSettings = settings;
@@ -142,11 +140,11 @@ export class TabbyOverlay {
       return;
     }
 
-    await this.loadPosition();
+    await this.positioner.load();
     if (!this.isActiveInstance()) {
       return;
     }
-    await this.loadIntroState();
+    await this.introMenu.load();
     if (!this.isActiveInstance()) {
       return;
     }
@@ -167,11 +165,7 @@ export class TabbyOverlay {
       return;
     }
     await this.resyncState();
-
-    if (this.storageListenerBound) {
-      return;
-    }
-    this.bindStorageListenerIfNeeded();
+    this.sync.bind(this.onViewportChange, () => this.removeOutsideClickListener());
   }
 
   /** Wake or refresh the overlay without tearing down UI state. */
@@ -183,7 +177,7 @@ export class TabbyOverlay {
     const regainedHost = !this.isCurrentOverlayTab;
     this.isCurrentOverlayTab = true;
 
-    if (!this.storageListenerBound) {
+    if (!this.sync.isBound()) {
       this.initPromise ??= this.initialize().finally(() => {
         this.initPromise = null;
       });
@@ -191,10 +185,10 @@ export class TabbyOverlay {
       return;
     }
 
-    // While inactive, storage updates were ignored (see bindStorageListenerIfNeeded), so
-    // presentation may be stale — and the exit animation's teardown can still be pending,
-    // since browsers throttle timers/animations in hidden tabs. Always resync on regaining
-    // host status rather than trusting root.isConnected as a freshness signal.
+    // While inactive, storage updates were ignored, so presentation may be stale — and the
+    // exit animation's teardown can still be pending, since browsers throttle timers/animations
+    // in hidden tabs. Always resync on regaining host status rather than trusting
+    // root.isConnected as a freshness signal.
     if (regainedHost || !this.root?.isConnected) {
       await this.resyncState();
       return;
@@ -205,131 +199,6 @@ export class TabbyOverlay {
     }
   }
 
-  /** Dev-mode content-script reloads re-execute this module over the same page without a
-   * full navigation, so an inline addListener callback here would leak: destroy() couldn't
-   * remove a listener it never kept a reference to, and every past injection's stale
-   * listener would keep reacting to storage changes forever. Storing it as a field lets
-   * destroy() remove exactly this one. */
-  private readonly onStorageChanged: Parameters<
-    typeof browser.storage.onChanged.addListener
-  >[0] = (changes, area) => {
-      if (area !== 'local') {
-        return;
-      }
-      // Presentation/settings/etc. are shared across every tab and window via storage.local.
-      // Only the tab currently designated as overlay host should react — otherwise every
-      // window that ever hosted the cat would re-render (and re-show its speech bubble) in
-      // lockstep, even while unfocused. Reactivation triggers a full resyncState() instead.
-      if (!this.isCurrentOverlayTab) {
-        return;
-      }
-      if ('presentation' in changes) {
-        if (!this.showOverlayEnabled) {
-          return;
-        }
-          const next = changes.presentation?.newValue as CatPresentation | undefined;
-        // Ambient peeking runs on its own timer in the background and would
-        // otherwise duck Tabby out from under an open care menu. Suppress
-        // just that transition; closing the menu re-syncs to whatever the
-        // real state is by then (dismissCompanionSpeech() re-fetches it).
-        const entersPeekWhileMenuOpen =
-          this.menuOpen && next?.mood === 'peek' && this.presentation?.mood !== 'peek';
-        if (next && !entersPeekWhileMenuOpen && (!this.pendingAction || this.cachedSettings?.devModeEnabled)) {
-          if (!this.cachedSettings) {
-            void requestSettings().then((settings) => {
-              this.cachedSettings = settings;
-              this.applyPresentationUpdate(next);
-            });
-            return;
-          }
-          this.applyPresentationUpdate(next);
-        }
-      }
-      if (STORAGE_KEYS.hiddenPageKeys in changes) {
-        if (!this.showOverlayEnabled) {
-          return;
-        }
-        void this.syncPageOverlayHidden().then(() => this.render());
-      }
-      if (STORAGE_KEYS.settings in changes) {
-        const next = changes[STORAGE_KEYS.settings]?.newValue as ExtensionSettings | undefined;
-        const prev = changes[STORAGE_KEYS.settings]?.oldValue as ExtensionSettings | undefined;
-        if (!next) {
-          return;
-        }
-        this.cachedSettings = next;
-        if (prev?.locale !== next.locale) {
-          void loadAppLocale(next.locale).then(() => {
-            if (this.root) {
-              applyNodeLocale(this.root);
-            }
-            this.render();
-          });
-        }
-        const devForced = isDevMoodForced(next);
-        const devMoodChanged =
-          devForced && prev?.devForceMood !== next.devForceMood;
-        const devModeEnabledWithForce =
-          devForced && prev?.devModeEnabled !== true;
-        if (devMoodChanged || devModeEnabledWithForce) {
-          if (this.presentation) {
-            const settled = this.assignPresentation(this.presentation);
-            if (settled.mood === 'peek') {
-              this.wasPeeking = false;
-            }
-            this.syncPeekChromeState(settled);
-            this.render({ animateMood: true });
-          } else {
-            void this.refreshPresentation();
-          }
-          return;
-        }
-        this.showOverlayEnabled = next.showOverlay;
-        if (!next.showOverlay) {
-          this.teardownOverlay();
-        } else {
-          void (async () => {
-            await this.syncPageOverlayHidden();
-            if (!this.presentation) {
-              await this.refreshPresentation();
-            }
-            this.render();
-          })();
-        }
-      }
-      if (STORAGE_KEYS.introCompleted in changes) {
-        if (!this.showOverlayEnabled) {
-          return;
-        }
-        const nextCompleted = changes[STORAGE_KEYS.introCompleted]?.newValue === true;
-        this.introCompleted = nextCompleted;
-        if (!nextCompleted) {
-          void this.refreshPresentation().then(() => {
-            if (this.isActiveInstance()) {
-              this.beginIntroIfNeeded();
-            }
-          });
-        }
-      }
-    };
-
-  private bindStorageListenerIfNeeded(): void {
-    if (this.storageListenerBound) {
-      return;
-    }
-    this.storageListenerBound = true;
-
-    browser.storage.onChanged.addListener(this.onStorageChanged);
-
-    window.addEventListener('resize', this.onViewportChange);
-    window.visualViewport?.addEventListener('resize', this.onViewportChange);
-    window.visualViewport?.addEventListener('scroll', this.onViewportChange);
-
-    window.addEventListener('pagehide', () => {
-      this.removeOutsideClickListener();
-    });
-  }
-
   private async syncPageOverlayHidden(): Promise<void> {
     this.pageOverlayHidden = await isPageOverlayHidden(location.href);
   }
@@ -337,26 +206,17 @@ export class TabbyOverlay {
   private teardownOverlay(): void {
     this.exiting = false;
     this.removeOutsideClickListener();
-    this.catPlayer?.destroyPlayer();
-    this.catPlayer = null;
+    this.transitions.destroyPlayer();
     this.removeAllOverlayRoots();
     this.root = null;
   }
 
   /** Tear down UI and timers when the script is replaced during dev reload. */
   destroy(): void {
-    browser.storage.onChanged.removeListener(this.onStorageChanged);
-    this.storageListenerBound = false;
-    window.removeEventListener('resize', this.onViewportChange);
-    window.visualViewport?.removeEventListener('resize', this.onViewportChange);
-    window.visualViewport?.removeEventListener('scroll', this.onViewportChange);
+    this.sync.unbind(this.onViewportChange);
     this.teardownOverlay();
     this.presentation = null;
-    this.pendingAction = null;
-    this.highlightedAction = null;
-    this.menuOpen = false;
-    this.moreOpen = false;
-    this.speechBubbleOpen = false;
+    this.introMenu.resetMenuAndSpeechState();
     this.isCurrentOverlayTab = false;
   }
 
@@ -367,14 +227,10 @@ export class TabbyOverlay {
     }
     this.isCurrentOverlayTab = false;
     if (this.root?.isConnected && !this.exiting) {
-      this.menuOpen = false;
-      this.moreOpen = false;
-      this.speechBubbleOpen = false;
       // Same reset closeMenu() does: without it, whichever button was highlighted before
       // this tab lost focus reappears as "active" the next time the menu reopens here,
       // even though the user never touched it this time around.
-      this.pendingAction = null;
-      this.highlightedAction = null;
+      this.introMenu.resetMenuAndSpeechState();
       this.removeOutsideClickListener();
       await this.exitOverlay(true);
       return;
@@ -382,32 +238,11 @@ export class TabbyOverlay {
     this.destroy();
   }
 
-  private getCatElement(): HTMLImageElement | null {
-    return this.catPlayer?.image ?? null;
-  }
-
   private isOverlayVisible(): boolean {
     return isCompanionOverlayVisible({
       showOverlayEnabled: this.showOverlayEnabled,
       presentation: this.presentation,
       pageOverlayHidden: this.pageOverlayHidden,
-    });
-  }
-
-  private async loadPosition(): Promise<void> {
-    const stored = await browser.storage.local.get([
-      STORAGE_KEYS.overlayPosition,
-      STORAGE_KEYS.peekRestorePosition,
-    ]);
-    const saved = stored[STORAGE_KEYS.overlayPosition] as OverlayPosition | undefined;
-    this.position = saved ?? defaultOverlayPosition();
-    this.peekRestorePosition =
-      (stored[STORAGE_KEYS.peekRestorePosition] as OverlayPosition | undefined) ?? null;
-  }
-
-  private async savePosition(): Promise<void> {
-    await browser.storage.local.set({
-      [STORAGE_KEYS.overlayPosition]: this.position,
     });
   }
 
@@ -424,72 +259,24 @@ export class TabbyOverlay {
     return settled;
   }
 
-  /**
-   * The single place that applies a freshly fetched or pushed CatPresentation to local UI
-   * state (peek chrome, speech bubble, menu) and renders it. The live storage listener and
-   * refreshPresentation (used whenever this tab (re)gains overlay-host status) both call
-   * this instead of each keeping their own partial copy of "settle it, then figure out
-   * peek/menu/speech-bubble state" — that divergence is exactly how a tab regaining host
-   * status mid-peek used to end up rendering inconsistently with one that received the same
-   * update live: refreshPresentation never called syncPeekChromeState or tracked wasPeeking.
-   */
+  /** See overlay/presentation-update.ts for what this actually does — kept there since it's
+   * one cohesive "settle it, then figure out peek/menu/speech-bubble state" sequence rather
+   * than coordinator wiring. */
   private applyPresentationUpdate(next: CatPresentation): void {
-    const previousMood = this.presentation?.mood ?? null;
-    const previousSpeech = this.presentation?.speech ?? null;
-    const previousSprite = this.presentation?.sprite ?? null;
-    const previousEatingUntil = this.presentation?.eatingUntil ?? null;
-    const previousPlayingUntil = this.presentation?.playingUntil ?? null;
-
-    const settled = this.introJustFinished
-      ? { ...this.settlePresentation(next), speech: null, triggerKind: null }
-      : this.settlePresentation(next);
-    this.presentation = settled;
-    this.syncPeekChromeState(settled);
-    if (previousMood !== 'peek' && settled.mood === 'peek') {
-      this.wasPeeking = false;
-    }
-    if (previousMood === 'peek' && settled.mood !== 'peek') {
-      this.wasPeeking = true;
-    }
-    if (!this.introJustFinished) {
-      this.applyCareMomentChromeState(settled, {
-        eatingUntil: previousEatingUntil,
-        playingUntil: previousPlayingUntil,
-      });
-    }
-    const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
-      introJustFinished: this.introJustFinished,
-      isIntro: this.isIntroActive(),
-      previousSpeech,
-      nextSpeech: settled.speech,
-      triggerKind: settled.triggerKind,
-      speechBubbleOpen: this.speechBubbleOpen,
+    applyPresentationUpdate(next, {
+      getPresentation: () => this.presentation,
+      setPresentation: (presentation) => {
+        this.presentation = presentation;
+      },
+      settlePresentation: (presentation) => this.settlePresentation(presentation),
+      positioner: this.positioner,
+      introMenu: this.introMenu,
+      syncOutsideClickListener: () => this.syncOutsideClickListener(),
+      render: (options) => this.render(options),
+      isOverlayVisible: () => this.isOverlayVisible(),
+      beginIntroIfNeeded: () => this.beginIntroIfNeeded(),
+      getRoot: () => this.root,
     });
-    if (openSpeechBubble) {
-      this.speechBubbleOpen = true;
-      this.menuOpen = false;
-      this.moreOpen = false;
-      this.syncOutsideClickListener();
-    } else if (!settled.speech) {
-      this.speechBubbleOpen = false;
-    }
-    const shouldReact = shouldReactToSpeechTrigger({
-      previousSpeech,
-      nextSpeech: settled.speech,
-      triggerKind: settled.triggerKind,
-    });
-    this.render({
-      animateMenu: openSpeechBubble || this.menuOpen,
-      reactToTrigger: shouldReact,
-      animateMood: shouldAnimateMoodTransition({
-        previousSprite,
-        nextSprite: settled.sprite,
-        hasVisibleOverlay: Boolean(this.root?.isConnected),
-      }),
-    });
-    if (!this.introCompleted && !this.introJustFinished && this.isOverlayVisible() && this.introStep === null) {
-      this.beginIntroIfNeeded();
-    }
   }
 
   private async refreshPresentation(): Promise<void> {
@@ -521,69 +308,8 @@ export class TabbyOverlay {
     );
   }
 
-  private isPeeking(presentation = this.presentation): boolean {
-    return presentation ? isPeekPresentation(presentation) : false;
-  }
-
-  private peekPlacement(presentation = this.presentation) {
-    if (!presentation || !this.isPeeking(presentation)) {
-      return { edge: 'bottom' as const, inset: 16, corner: 'left' as const };
-    }
-    return resolveEffectivePeekPlacement(presentation);
-  }
-
-  private syncPeekChromeState(presentation: CatPresentation): void {
-    if (!isPeekPresentation(presentation)) {
-      return;
-    }
-    this.menuOpen = false;
-    this.moreOpen = false;
-    this.speechBubbleOpen = false;
-    this.syncOutsideClickListener();
-  }
-
-  private applyCareMomentChromeState(
-    presentation: CatPresentation,
-    previous?: { eatingUntil?: number | null; playingUntil?: number | null },
-  ): void {
-    const now = Date.now();
-    const active =
-      isFeedingActive(presentation.eatingUntil, now) ||
-      isPlayingActive(presentation.playingUntil, now);
-    const justFinished =
-      (previous?.eatingUntil != null && presentation.eatingUntil == null) ||
-      (previous?.playingUntil != null && presentation.playingUntil == null);
-    if (!active && !(justFinished && presentation.speech && presentation.triggerKind)) {
-      return;
-    }
-    this.menuOpen = false;
-    this.moreOpen = false;
-    if (presentation.speech && presentation.triggerKind) {
-      this.speechBubbleOpen = true;
-    }
-    this.syncOutsideClickListener();
-  }
-
-  private shouldShowSpeechBubble(): boolean {
-    const presentation = this.presentation;
-    return shouldShowSpeechBubbleState({
-      speech: presentation?.speech ?? null,
-      triggerKind: presentation?.triggerKind ?? null,
-      isIntro: this.isIntroActive(),
-      careMenuOpen: this.menuOpen,
-      speechBubbleOpen: this.speechBubbleOpen,
-    });
-  }
-
   private hasOverlayChrome(): boolean {
-    if (this.isPeeking()) {
-      return false;
-    }
-    return hasOverlayChrome({
-      isIntro: this.isIntroActive(),
-      careMenuOpen: this.menuOpen,
-      showSpeechBubble: this.shouldShowSpeechBubble(),
-    });
+    return !isPeeking(this.presentation) && this.introMenu.hasChrome(this.presentation);
   }
 
   private syncOutsideClickListener(): void {
@@ -594,39 +320,17 @@ export class TabbyOverlay {
     }
   }
 
-  private async loadIntroState(): Promise<void> {
-    this.introCompleted = await isIntroCompleted();
-  }
-
-  private isIntroActive(): boolean {
-    return !this.introCompleted && this.introStep !== null;
-  }
-
   private beginIntroIfNeeded(): void {
-    if (this.introCompleted || !this.isOverlayVisible()) {
+    if (this.introMenu.isIntroCompleted() || !this.isOverlayVisible()) {
       return;
     }
-    this.introStep = 0;
-    this.menuOpen = true;
+    this.introMenu.startIntro();
     this.render({ animateMenu: true });
     this.bindOutsideClickListener();
   }
 
   private async completeIntro(): Promise<void> {
-    this.introJustFinished = true;
-    if (this.introFinishTimer !== null) {
-      window.clearTimeout(this.introFinishTimer);
-    }
-    this.introFinishTimer = window.setTimeout(() => {
-      this.introJustFinished = false;
-      this.introFinishTimer = null;
-    }, 3000);
-
-    this.introCompleted = true;
-    this.introStep = null;
-    this.menuOpen = false;
-    this.moreOpen = false;
-    this.speechBubbleOpen = false;
+    this.introMenu.beginCompleting();
     this.removeOutsideClickListener();
 
     await markIntroCompleted();
@@ -636,40 +340,28 @@ export class TabbyOverlay {
   }
 
   private advanceIntro(): void {
-    if (this.introStep === null) {
-      return;
-    }
-    if (this.introStep >= introStepCount() - 1) {
+    const result = this.introMenu.advanceIntroStep();
+    if (result === 'complete') {
       void this.completeIntro();
       return;
     }
-    this.introStep += 1;
-    this.render();
+    if (result === 'advanced') {
+      this.render();
+    }
   }
 
   private closeMenu(): void {
-    if (this.isIntroActive()) {
+    if (!this.introMenu.closeMenuState()) {
       return;
     }
-    if (!this.menuOpen) {
-      return;
-    }
-    this.menuOpen = false;
-    this.moreOpen = false;
-    this.pendingAction = null;
-    this.highlightedAction = null;
     this.pingInteraction();
     void this.dismissCompanionSpeech();
   }
 
   private openMenu(): void {
-    if (this.isCareMoment()) {
+    if (!this.introMenu.openMenuState(this.isCareMoment())) {
       return;
     }
-    if (this.menuOpen) {
-      return;
-    }
-    this.menuOpen = true;
     this.pingInteraction();
     this.render();
     this.syncOutsideClickListener();
@@ -689,44 +381,68 @@ export class TabbyOverlay {
   }
 
   private async dismissCompanionSpeech(): Promise<void> {
-    this.speechBubbleOpen = false;
+    this.introMenu.setSpeechBubbleOpen(false);
     this.presentation = await requestClearCompanionSpeech();
     this.syncOutsideClickListener();
     this.render();
   }
 
   private bindOutsideClickListener(): void {
-    this.removeOutsideClickListener();
-    this.outsideClickListener = (event: Event) => {
-      if (!this.root || !(event.target instanceof Node)) {
-        return;
-      }
-      if (!this.root.contains(event.target)) {
-        if (this.menuOpen) {
+    this.outsideClick.bind(
+      () => this.root,
+      () => {
+        if (this.introMenu.isMenuOpen()) {
           this.closeMenu();
-        } else if (this.speechBubbleOpen) {
+        } else if (this.introMenu.isSpeechBubbleOpen()) {
           this.dismissSpeechBubble();
         }
-      }
-    };
-    // Defer so the opening tap does not immediately close the menu.
-    window.setTimeout(() => {
-      if (this.outsideClickListener) {
-        document.addEventListener('pointerdown', this.outsideClickListener, true);
-      }
-    }, 0);
+      },
+    );
   }
 
   private removeOutsideClickListener(): void {
-    if (this.outsideClickListener) {
-      document.removeEventListener('pointerdown', this.outsideClickListener, true);
-      this.outsideClickListener = null;
-    }
+    this.outsideClick.unbind();
   }
 
-  private render(
-    options: { animateMenu?: boolean; reactToTrigger?: boolean; animateMood?: boolean } = {},
-  ): void {
+  /** Builds the shared render/build inputs for renderer.ts. onTap is captured against
+   * whatever presentation this render pass is for — buildRoot only runs on a fresh mount, so
+   * the tap handler it attaches keeps referencing that mount's presentation for its
+   * isCareMoment check until the next full remount, same as before this file was split. */
+  private renderContext(presentationForTap: CatPresentation): RenderContext {
+    return {
+      positioner: this.positioner,
+      transitions: this.transitions,
+      introMenu: this.introMenu,
+      hasOverlayChrome: this.hasOverlayChrome(),
+      isIntroActive: this.introMenu.isIntroActive(),
+      isCareMoment: this.isCareMoment(),
+      menuHandlers: this.menuHandlers,
+      getPresentation: () => this.presentation,
+      onTap: this.makeTapHandler(presentationForTap),
+    };
+  }
+
+  private makeTapHandler(mountedPresentation: CatPresentation): () => void {
+    return () => {
+      if (this.introMenu.isIntroActive()) {
+        return;
+      }
+      if (isPeeking(this.presentation)) {
+        void this.revealFromPeek();
+        return;
+      }
+      if (this.isCareMoment(mountedPresentation)) {
+        return;
+      }
+      if (this.introMenu.isMenuOpen()) {
+        this.closeMenu();
+      } else {
+        this.openMenu();
+      }
+    };
+  }
+
+  private render(options: PatchOptions = {}): void {
     if (!this.isActiveInstance()) {
       return;
     }
@@ -762,7 +478,7 @@ export class TabbyOverlay {
           node.remove();
         }
       }
-      this.patchRoot(this.presentation!, options);
+      patchRoot(this.root, this.presentation!, options, this.renderContext(this.presentation!));
       this.applyPosition();
       if (this.hasOverlayChrome()) {
         requestAnimationFrame(() => this.applyPosition());
@@ -775,23 +491,18 @@ export class TabbyOverlay {
     void this.mountOverlay(options, generation);
   }
 
-  private async mountOverlay(
-    options: { animateMenu?: boolean; reactToTrigger?: boolean; animateMood?: boolean } = {},
-    generation: number,
-  ): Promise<void> {
+  private async mountOverlay(options: PatchOptions = {}, generation: number): Promise<void> {
     const presentation = this.presentation;
     if (!presentation || !this.isActiveInstance()) {
       return;
     }
 
-    const root = await this.buildRoot(presentation, {
-      animateMenu: options.animateMenu ?? this.hasOverlayChrome(),
-    });
-    if (
-      generation !== this.mountGeneration ||
-      !this.isActiveInstance() ||
-      !this.isOverlayVisible()
-    ) {
+    const root = await buildRoot(
+      presentation,
+      { animateMenu: options.animateMenu ?? this.hasOverlayChrome() },
+      this.renderContext(presentation),
+    );
+    if (generation !== this.mountGeneration || !this.isActiveInstance() || !this.isOverlayVisible()) {
       return;
     }
 
@@ -799,26 +510,14 @@ export class TabbyOverlay {
     this.root = root;
     document.documentElement.appendChild(this.root);
     this.applyPosition();
-    if (this.menuOpen) {
+    if (this.introMenu.isMenuOpen()) {
       requestAnimationFrame(() => this.applyPosition());
     }
-    this.playEntrance(this.root);
+    playEntrance(this.root);
 
     if (options.reactToTrigger) {
-      this.animateCatReaction();
+      this.transitions.animateCatReaction();
     }
-  }
-
-  private playEntrance(root: HTMLElement): void {
-    if (root.classList.contains('tabby-root--mood-peek')) {
-      return;
-    }
-    root.classList.add(OVERLAY_ENTER_CLASS);
-    void waitForOverlayAnimation(root, COMPANION_ENTER_ANIMATION, COMPANION_ENTER_MS).then(
-      () => {
-        root.classList.remove(OVERLAY_ENTER_CLASS);
-      },
-    );
   }
 
   private async exitOverlay(force = false): Promise<void> {
@@ -828,14 +527,8 @@ export class TabbyOverlay {
 
     this.exiting = true;
     this.root.classList.add(OVERLAY_EXIT_CLASS);
-    const peekMood = this.presentation?.mood === 'peek';
-    if (peekMood && this.catPlayer && this.presentation) {
-      const duckPath = peekDuckAnimationPath(this.presentation.stage);
-      await this.catPlayer.load(publicAnimationAssetUrl, duckPath);
-      await new Promise<void>((resolve) => {
-        globalThis.setTimeout(resolve, PEEK_DUCK_EXIT_MS);
-      });
-    } else {
+    const playedPeekDuck = await this.transitions.playPeekDuckExit(this.presentation);
+    if (!playedPeekDuck) {
       await waitForOverlayAnimation(this.root, COMPANION_EXIT_ANIMATION, COMPANION_EXIT_MS);
     }
 
@@ -849,96 +542,8 @@ export class TabbyOverlay {
     }
   }
 
-  private animateCatReaction(): void {
-    const cat = this.getCatElement();
-    if (!cat) {
-      return;
-    }
-
-    cat.classList.remove(CAT_REACT_CLASS);
-    void cat.offsetWidth;
-    cat.classList.add(CAT_REACT_CLASS);
-    window.setTimeout(() => {
-      cat.classList.remove(CAT_REACT_CLASS);
-    }, COMPANION_REACT_MS);
-  }
-
-  private applyRootPresentationClasses(root: HTMLElement, presentation: CatPresentation): void {
-    root.classList.add('tabby-root');
-    for (const stage of ['newborn', 'playful', 'adult'] as const) {
-      root.classList.toggle(`tabby-root--${stage}`, presentation.stage === stage);
-    }
-    root.classList.toggle('tabby-root--menu-open', this.hasOverlayChrome());
-    root.classList.toggle('tabby-root--intro', this.isIntroActive());
-    root.classList.toggle(
-      'tabby-root--ambient-sleeping',
-      presentation.ambientActivity === 'sleeping' && !presentation.speech,
-    );
-    root.classList.toggle(
-      'tabby-root--ambient-grooming',
-      presentation.ambientActivity === 'grooming' && !presentation.speech,
-    );
-    root.classList.toggle('tabby-root--mood-peek', presentation.mood === 'peek');
-    const placement = this.peekPlacement(presentation);
-    const peekEdge = placement.edge;
-    for (const edge of ['bottom', 'left', 'right'] as const) {
-      root.classList.toggle(
-        `tabby-root--peek-edge-${edge}`,
-        presentation.mood === 'peek' && peekEdge === edge,
-      );
-    }
-    if (presentation.mood === 'peek') {
-      const catSize = CAT_DISPLAY_SIZE[presentation.stage];
-      const visibleSize = peekVisibleSize(catSize);
-      const edge = peekEdge;
-      const surfaceLayout = peekCatSurfaceLayout(edge, catSize);
-      root.style.setProperty('--tabby-cat-size', `${catSize}px`);
-      root.style.setProperty('--tabby-peek-visible-size', `${visibleSize}px`);
-      root.style.setProperty(
-        '--tabby-peek-visible-ratio',
-        String(PEEK_VISIBLE_HEIGHT_RATIO),
-      );
-      this.applyPeekSurfaceLayout(surfaceLayout, root);
-    } else {
-      root.style.removeProperty('--tabby-cat-size');
-      root.style.removeProperty('--tabby-peek-visible-size');
-      root.style.removeProperty('--tabby-peek-visible-ratio');
-      this.applyPeekSurfaceLayout(null, root);
-    }
-  }
-
-  private applyPeekSurfaceLayout(
-    surface: ReturnType<typeof peekCatSurfaceLayout> | null,
-    root: HTMLElement | null = this.root,
-  ): void {
-    const catSurface = root?.querySelector('.tabby-cat-surface');
-    if (!(catSurface instanceof HTMLElement)) {
-      return;
-    }
-
-    if (!surface) {
-      catSurface.style.removeProperty('width');
-      catSurface.style.removeProperty('height');
-      catSurface.style.removeProperty('left');
-      catSurface.style.removeProperty('right');
-      catSurface.style.removeProperty('top');
-      catSurface.style.removeProperty('bottom');
-      catSurface.style.removeProperty('transform');
-      catSurface.style.removeProperty('transform-origin');
-      return;
-    }
-    catSurface.style.width = `${surface.width}px`;
-    catSurface.style.height = `${surface.height}px`;
-    catSurface.style.setProperty('left', surface.left, 'important');
-    catSurface.style.setProperty('right', surface.right, 'important');
-    catSurface.style.setProperty('top', surface.top, 'important');
-    catSurface.style.setProperty('bottom', surface.bottom, 'important');
-    catSurface.style.setProperty('transform', surface.transform, 'important');
-    catSurface.style.setProperty('transform-origin', surface.transformOrigin, 'important');
-  }
-
   private async revealFromPeek(): Promise<void> {
-    if (!this.isPeeking() || this.pendingReveal) {
+    if (!isPeeking(this.presentation) || this.pendingReveal) {
       return;
     }
 
@@ -947,7 +552,7 @@ export class TabbyOverlay {
       const next = await requestCareAction('reveal', location.href);
       // Restore the saved (pre-peek) position before applyPresentationUpdate's render, or
       // it would render one frame at the peek-edge position first.
-      await this.restorePeekSavedPosition();
+      await this.positioner.restorePeekSavedPosition();
       this.applyPresentationUpdate(next);
     } catch (error) {
       ignoreIfExtensionUnavailable('reveal from peek', error);
@@ -956,660 +561,50 @@ export class TabbyOverlay {
     }
   }
 
-  private async restorePeekSavedPosition(): Promise<void> {
-    const stored = await browser.storage.local.get(STORAGE_KEYS.peekRestorePosition);
-    const restore =
-      (stored[STORAGE_KEYS.peekRestorePosition] as OverlayPosition | undefined) ??
-      this.peekRestorePosition;
-    if (!restore) {
-      return;
-    }
-
-    this.position = restore;
-    this.peekRestorePosition = restore;
-    await browser.storage.local.set({
-      [STORAGE_KEYS.overlayPosition]: restore,
-    });
-    await browser.storage.local.remove(STORAGE_KEYS.peekRestorePosition);
-  }
-
-  private updateCatAnimation(
-    presentation: CatPresentation,
-    options: { animateMood?: boolean; reactToTrigger?: boolean } = {},
-  ): void {
-    const cat = this.getCatElement();
-    if (!cat || !this.catPlayer) {
-      return;
-    }
-
-    if (cat.dataset.sprite === presentation.sprite) {
-      if (options.reactToTrigger) {
-        this.animateCatReaction();
-      }
-      return;
-    }
-
-    if (options.animateMood) {
-      void this.transitionCatAnimation(presentation.sprite);
-      if (options.reactToTrigger) {
-        this.animateCatReaction();
-      }
-      return;
-    }
-
-    void this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
-    if (options.reactToTrigger) {
-      this.animateCatReaction();
-    }
-  }
-
-  private async transitionCatAnimation(assetPath: string): Promise<void> {
-    const cat = this.getCatElement();
-    if (!cat || !this.catPlayer) {
-      return;
-    }
-
-    const token = ++this.moodTransitionToken;
-
-    await preloadCompanionSprite(publicAnimationAssetUrl, assetPath);
-    if (token !== this.moodTransitionToken || !cat.isConnected) {
-      return;
-    }
-
-    cat.classList.remove(CAT_MOOD_IN_CLASS, CAT_MOOD_OUT_CLASS);
-    cat.classList.add(CAT_MOOD_OUT_CLASS);
-    await waitForOverlayAnimation(
-      cat,
-      COMPANION_MOOD_OUT_ANIMATION,
-      COMPANION_MOOD_OUT_MS,
-    );
-
-    if (token !== this.moodTransitionToken || !cat.isConnected || !this.catPlayer) {
-      return;
-    }
-
-    await this.catPlayer.load(publicAnimationAssetUrl, assetPath);
-    cat.classList.remove(CAT_MOOD_OUT_CLASS);
-    cat.classList.add(CAT_MOOD_IN_CLASS);
-    void cat.offsetWidth;
-    await waitForOverlayAnimation(
-      cat,
-      COMPANION_MOOD_IN_ANIMATION,
-      COMPANION_MOOD_IN_MS,
-    );
-
-    if (token !== this.moodTransitionToken || !cat.isConnected) {
-      return;
-    }
-
-    cat.classList.remove(CAT_MOOD_IN_CLASS);
-  }
-
-  private patchRoot(
-    presentation: CatPresentation,
-    options: { animateMenu?: boolean; reactToTrigger?: boolean; animateMood?: boolean } = {},
-  ): void {
-    const root = this.root;
-    if (!root) {
-      return;
-    }
-
-    this.applyRootPresentationClasses(root, presentation);
-
-    if (this.catPlayer) {
-      this.updateCatAnimation(presentation, {
-        animateMood: options.animateMood,
-        reactToTrigger: options.reactToTrigger,
-      });
-    }
-
-    for (const menu of root.querySelectorAll('.tabby-menu-area')) {
-      menu.remove();
-    }
-
-    if (!this.hasOverlayChrome()) {
-      delete root.dataset.menuPlacement;
-      return;
-    }
-
-    const panel = root.querySelector('.tabby-panel');
-    if (!(panel instanceof HTMLElement)) {
-      return;
-    }
-
-    panel.appendChild(
-      this.isIntroActive()
-        ? this.buildIntroMenuArea({ animate: options.animateMenu })
-        : this.buildOverlayChrome(presentation, { animate: options.animateMenu }),
-    );
-  }
-
-  private async buildRoot(
-    presentation: CatPresentation,
-    options: { animateMenu?: boolean } = {},
-  ): Promise<HTMLElement> {
-    const root = document.createElement('div');
-    root.id = ROOT_ID;
-    applyNodeLocale(root);
-
-    const panel = document.createElement('div');
-    panel.className = 'tabby-panel';
-
-    const catSurface = document.createElement('div');
-    catSurface.className = 'tabby-cat-surface';
-
-    this.catPlayer = new CompanionGifPlayer();
-    catSurface.appendChild(this.catPlayer.image);
-    await this.catPlayer.load(publicAnimationAssetUrl, presentation.sprite);
-
-    panel.appendChild(catSurface);
-    this.applyRootPresentationClasses(root, presentation);
-
-    if (this.hasOverlayChrome()) {
-      panel.appendChild(
-        this.isIntroActive()
-          ? this.buildIntroMenuArea({ animate: options.animateMenu })
-          : this.buildOverlayChrome(presentation, { animate: options.animateMenu }),
-      );
-    }
-
-    this.attachDragAndTapHandlers(root, catSurface, () => {
-      if (this.isIntroActive()) {
-        return;
-      }
-      if (this.isPeeking()) {
-        void this.revealFromPeek();
-        return;
-      }
-      if (this.isCareMoment(presentation)) {
-        return;
-      }
-      if (this.menuOpen) {
-        this.closeMenu();
-      } else {
-        this.openMenu();
-      }
-    });
-
-    root.appendChild(panel);
-    return root;
-  }
-
-  private buildIntroMenuArea(options: { animate?: boolean } = {}): HTMLElement {
-    const menuArea = document.createElement('div');
-    menuArea.className = 'tabby-menu-area tabby-menu-area--top';
-    if (options.animate) {
-      menuArea.classList.add(MENU_ENTER_CLASS);
-    }
-
-    const step = this.introStep ?? 0;
-
-    const controls = document.createElement('div');
-    controls.className = 'tabby-card tabby-card--actions tabby-card--intro';
-
-    const footer = document.createElement('div');
-    footer.className = 'tabby-intro-footer';
-
-    const progress = document.createElement('span');
-    progress.className = 'tabby-intro-step';
-    progress.textContent = `${step + 1} / ${introStepCount()}`;
-    footer.appendChild(progress);
-
-    const nextButton = document.createElement('button');
-    nextButton.type = 'button';
-    nextButton.className = 'tabby-btn tabby-btn--suggested';
-    nextButton.textContent = introNextLabel(step);
-    nextButton.addEventListener('click', (event) => {
-      event.stopPropagation();
-      this.advanceIntro();
-    });
-    footer.appendChild(nextButton);
-
-    const skipButton = document.createElement('button');
-    skipButton.type = 'button';
-    skipButton.className = 'tabby-btn tabby-btn--link';
-    skipButton.textContent = introSkipLabel();
-    skipButton.addEventListener('click', (event) => {
-      event.stopPropagation();
-      void this.completeIntro();
-    });
-    footer.appendChild(skipButton);
-
-    controls.appendChild(footer);
-    menuArea.appendChild(controls);
-    menuArea.appendChild(this.buildSpeechBubble(introStepText(step)));
-
-    return menuArea;
-  }
-
-  private buildOverlayChrome(
-    presentation: CatPresentation,
-    options: { animate?: boolean } = {},
-  ): HTMLElement {
-    const menuArea = document.createElement('div');
-    menuArea.className = 'tabby-menu-area tabby-menu-area--top';
-    if (options.animate) {
-      menuArea.classList.add(MENU_ENTER_CLASS);
-    }
-
-    if (this.menuOpen && !this.isCareMoment(presentation)) {
-      menuArea.appendChild(this.buildCareCard(presentation));
-    }
-
-    if (this.shouldShowSpeechBubble() && presentation.speech) {
-      menuArea.appendChild(
-        this.buildSpeechBubble(presentation.speech, { showClose: !this.menuOpen }),
-      );
-    }
-
-    return menuArea;
-  }
-
-  private buildCareCard(presentation: CatPresentation): HTMLElement {
-    const card = document.createElement('div');
-    card.className = 'tabby-card tabby-card--actions';
-
-    const closeButton = document.createElement('button');
-    closeButton.type = 'button';
-    closeButton.className = 'tabby-card-close';
-    closeButton.title = t('overlay.closeMenu');
-    closeButton.setAttribute('aria-label', t('overlay.closeMenu'));
-    closeButton.textContent = '×';
-    closeButton.addEventListener('click', (event) => {
-      event.stopPropagation();
-      this.closeMenu();
-    });
-    card.appendChild(closeButton);
-
-    const actions = document.createElement('div');
-    actions.className = 'tabby-actions';
-
-    for (const option of presentation.interactions) {
-      actions.appendChild(this.createActionButton(option));
-    }
-
-    const secondary = presentation.secondaryInteractions ?? [];
-    if (secondary.length > 0) {
-      const moreButton = document.createElement('button');
-      moreButton.type = 'button';
-      moreButton.className = 'tabby-btn tabby-btn--ghost';
-      moreButton.setAttribute('aria-expanded', this.moreOpen ? 'true' : 'false');
-      moreButton.textContent = this.moreOpen ? t('overlay.less') : t('overlay.more');
-      moreButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        this.moreOpen = !this.moreOpen;
-        this.render();
-        if (this.menuOpen) {
-          this.syncOutsideClickListener();
-        }
-      });
-      actions.appendChild(moreButton);
-
-      if (this.moreOpen) {
-        const secondaryActions = document.createElement('div');
-        secondaryActions.className = 'tabby-actions-secondary';
-
-        for (const option of secondary) {
-          secondaryActions.appendChild(
-            this.createActionButton(option, { secondary: true }),
-          );
-        }
-
-        actions.appendChild(secondaryActions);
-      }
-    }
-
-    card.appendChild(actions);
-
-    return card;
-  }
-
-  private buildSpeechBubble(
-    text: string,
-    options: { showClose?: boolean } = {},
-  ): HTMLElement {
-    const bubble = document.createElement('div');
-    bubble.className = 'tabby-speech-bubble';
-
-    if (options.showClose) {
-      bubble.classList.add('tabby-speech-bubble--dismissible');
-      const closeButton = document.createElement('button');
-      closeButton.type = 'button';
-      closeButton.className = 'tabby-speech-bubble-close';
-      closeButton.title = t('overlay.dismissSpeech');
-      closeButton.setAttribute('aria-label', t('overlay.dismissSpeech'));
-      closeButton.textContent = '×';
-      closeButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        this.dismissSpeechBubble();
-      });
-      bubble.appendChild(closeButton);
-    }
-
-    const bubbleText = document.createElement('p');
-    bubbleText.className = 'tabby-speech-bubble-text';
-    bubbleText.textContent = text;
-
-    bubble.appendChild(bubbleText);
-    return bubble;
-  }
-
-  private createActionButton(
-    option: {
-      action: InteractionAction;
-      label: string;
-      enabled: boolean;
-      primary?: boolean;
-    },
-    options: { secondary?: boolean } = {},
-  ): HTMLButtonElement {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'tabby-btn';
-    button.dataset.action = option.action;
-
-    const isPending = this.pendingAction === option.action;
-    const isActive = !isPending && this.highlightedAction === option.action;
-
-    if (option.primary && !isActive && !isPending) {
-      button.classList.add('tabby-btn--suggested');
-    }
-    if (options.secondary) {
-      button.classList.add('tabby-btn--danger');
-    }
-    if (isPending) {
-      button.classList.add('tabby-btn--pending');
-      button.setAttribute('aria-busy', 'true');
-    }
-    if (isActive) {
-      button.classList.add('tabby-btn--active');
-      button.setAttribute('aria-current', 'true');
-    }
-
-    button.textContent = isPending ? `${option.label}…` : option.label;
-    button.disabled = !option.enabled || isPending;
-    button.addEventListener('click', (event) => {
-      event.stopPropagation();
-      void this.handleInteraction(option.action);
-    });
-    return button;
-  }
-
-  private attachDragAndTapHandlers(
-    root: HTMLElement,
-    surface: HTMLElement,
-    onTap: () => void,
-  ): void {
-    let dragging = false;
-    let didDrag = false;
-    let offsetX = 0;
-    let offsetY = 0;
-    let downX = 0;
-    let downY = 0;
-    let pointerId: number | null = null;
-
-    const onPointerMove = (event: PointerEvent): void => {
-      if (!dragging || event.pointerId !== pointerId) {
-        return;
-      }
-
-      if (
-        !didDrag &&
-        Math.abs(event.clientX - downX) < DRAG_THRESHOLD_PX &&
-        Math.abs(event.clientY - downY) < DRAG_THRESHOLD_PX
-      ) {
-        return;
-      }
-
-      didDrag = true;
-      root.classList.add('tabby-root--dragging');
-
-      const catSize = this.presentation
-        ? CAT_DISPLAY_SIZE[this.presentation.stage]
-        : CAT_DISPLAY_SIZE.playful;
-      const viewport = readViewportBox();
-
-      const next = clampOverlayPosition(
-        {
-          x: event.clientX - offsetX - viewport.offsetX,
-          y: event.clientY - offsetY - viewport.offsetY,
-        },
-        viewport.width,
-        viewport.height,
-        catSize,
-        catSize,
-      );
-
-      this.position = next;
-      this.applyPosition();
-      event.preventDefault();
-    };
-
-    const onPointerUp = (event: PointerEvent): void => {
-      if (!dragging || event.pointerId !== pointerId) {
-        return;
-      }
-
-      dragging = false;
-      pointerId = null;
-      root.classList.remove('tabby-root--dragging');
-      surface.releasePointerCapture(event.pointerId);
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-      window.removeEventListener('pointercancel', onPointerUp);
-
-      if (didDrag) {
-        void this.savePosition();
-        return;
-      }
-
-      onTap();
-    };
-
-    surface.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) {
-        return;
-      }
-
-      if (this.isPeeking()) {
-        event.preventDefault();
-        event.stopPropagation();
-        const peekPointerId = event.pointerId;
-        const onPeekUp = (upEvent: PointerEvent): void => {
-          if (upEvent.pointerId !== peekPointerId) {
-            return;
-          }
-          window.removeEventListener('pointerup', onPeekUp);
-          window.removeEventListener('pointercancel', onPeekUp);
-          onTap();
-        };
-        window.addEventListener('pointerup', onPeekUp);
-        window.addEventListener('pointercancel', onPeekUp);
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      dragging = true;
-      didDrag = false;
-      pointerId = event.pointerId;
-      downX = event.clientX;
-      downY = event.clientY;
-
-      const rect = surface.getBoundingClientRect();
-      this.position = { x: rect.left, y: rect.top };
-      offsetX = event.clientX - rect.left;
-      offsetY = event.clientY - rect.top;
-
-      surface.setPointerCapture(event.pointerId);
-      window.addEventListener('pointermove', onPointerMove, { passive: false });
-      window.addEventListener('pointerup', onPointerUp);
-      window.addEventListener('pointercancel', onPointerUp);
-    });
-  }
-
   private applyPosition(): void {
     if (!this.root || !this.presentation) {
       return;
     }
-
-    const viewport = readViewportBox();
-    const catSize = CAT_DISPLAY_SIZE[this.presentation.stage];
-    const peeking = this.isPeeking();
-
-    if (peeking && !this.wasPeeking) {
-      this.peekRestorePosition = resolveCompanionLayoutPosition(
-        this.position,
-        viewport.width,
-        viewport.height,
-        catSize,
-      );
-      void browser.storage.local.set({
-        [STORAGE_KEYS.peekRestorePosition]: this.peekRestorePosition,
-      });
-    }
-
-    if (!peeking && this.wasPeeking && this.peekRestorePosition) {
-      this.position = this.peekRestorePosition;
-      void browser.storage.local.set({
-        [STORAGE_KEYS.overlayPosition]: this.peekRestorePosition,
-      });
-      void browser.storage.local.remove(STORAGE_KEYS.peekRestorePosition);
-      this.peekRestorePosition = null;
-    }
-
-    const resolved = peeking
-      ? resolvePeekLayout(
-          this.peekPlacement(),
-          viewport.width,
-          viewport.height,
-          catSize,
-        )
-      : {
-          position: resolveCompanionLayoutPosition(
-            this.position,
-            viewport.width,
-            viewport.height,
-            catSize,
-          ),
-          dimensions: { width: catSize, height: catSize },
-          surface: null,
-        };
-
-    this.root.style.left = `${Math.round(resolved.position.x + viewport.offsetX)}px`;
-    this.root.style.top = `${Math.round(resolved.position.y + viewport.offsetY)}px`;
-
-    if (peeking) {
-      this.root.style.width = `${resolved.dimensions.width}px`;
-      this.root.style.height = `${resolved.dimensions.height}px`;
-      this.root.style.maxWidth = `${resolved.dimensions.width}px`;
-      this.root.style.maxHeight = `${resolved.dimensions.height}px`;
-      if (resolved.surface) {
-        this.applyPeekSurfaceLayout(resolved.surface);
-      }
-    } else {
-      this.root.style.removeProperty('width');
-      this.root.style.removeProperty('height');
-      this.root.style.removeProperty('max-width');
-      this.root.style.removeProperty('max-height');
-      this.applyPeekSurfaceLayout(null);
-    }
-
-    if (!peeking && !isDefaultOverlayPosition(this.position)) {
-      this.position = resolved.position;
-    }
-
-    this.wasPeeking = peeking;
-    this.applyMenuPlacement(resolved.position, catSize, viewport);
-  }
-
-  private applyMenuPlacement(
-    catPosition: OverlayPosition,
-    catSize: number,
-    viewport = readViewportBox(),
-  ): void {
-    if (!this.root || !this.hasOverlayChrome()) {
-      return;
-    }
-
-    const menuArea = this.root.querySelector('.tabby-menu-area');
-    if (!(menuArea instanceof HTMLElement)) {
-      return;
-    }
-
-    const menuWidth = menuArea.offsetWidth || 220;
-    const menuHeight = menuArea.offsetHeight || 180;
-    const isPeek = this.presentation?.mood === 'peek';
-    const peekLayout = isPeek
-      ? resolvePeekLayout(
-          this.peekPlacement(),
-          viewport.width,
-          viewport.height,
-          catSize,
-        )
-      : null;
-    const layoutCatWidth = peekLayout?.dimensions.width ?? catSize;
-    const layoutCatHeight = peekLayout?.dimensions.height ?? catSize;
-    const layoutCatY = catPosition.y;
-
-    const layout = resolveMenuLayout({
-      catX: catPosition.x,
-      catY: layoutCatY,
-      catWidth: layoutCatWidth,
-      catHeight: layoutCatHeight,
-      menuWidth,
-      menuHeight,
-      viewportWidth: viewport.width,
-      viewportHeight: viewport.height,
-    });
-
-    menuArea.className = `tabby-menu-area tabby-menu-area--${layout.placement}`;
-    menuArea.style.setProperty('--tabby-menu-width', `${layout.width}px`);
-    menuArea.style.setProperty('--tabby-menu-offset-x', `${layout.offsetX}px`);
-    this.root.dataset.menuPlacement = layout.placement;
+    this.positioner.apply(this.root, this.presentation, this.hasOverlayChrome());
   }
 
   private async handleInteraction(action: InteractionAction): Promise<void> {
-    if (this.pendingAction) {
+    if (this.introMenu.getPendingAction()) {
       return;
     }
 
-    this.pendingAction = action;
+    this.introMenu.setPendingAction(action);
     const previousSprite = this.presentation?.sprite ?? null;
     this.render();
 
     try {
       const careAction = mapInteractionToCareAction(action);
       const next = this.assignPresentation(await requestCareAction(careAction, location.href));
-      this.applyCareMomentChromeState(next);
-      this.highlightedAction = action;
+      if (this.introMenu.syncForCareMoment(next)) {
+        this.syncOutsideClickListener();
+      }
+      this.introMenu.setHighlightedAction(action);
 
       if (action === 'dismiss') {
         await this.syncPageOverlayHidden();
-        this.menuOpen = false;
-        this.speechBubbleOpen = false;
-        this.moreOpen = false;
-        this.highlightedAction = null;
+        this.introMenu.dismissMenuAndSpeech();
         this.removeOutsideClickListener();
       } else if (action === 'dnd_30' || action === 'dnd_60' || action === 'dnd_today' || action === 'shoo') {
-        this.menuOpen = false;
-        this.moreOpen = false;
-        this.highlightedAction = null;
+        this.introMenu.closeMenuAfterAction();
         this.syncOutsideClickListener();
       }
     } finally {
-      this.pendingAction = null;
+      this.introMenu.setPendingAction(null);
       this.render({
         animateMood: shouldAnimateMoodTransition({
           previousSprite,
           nextSprite: this.presentation?.sprite ?? previousSprite ?? '',
           hasVisibleOverlay: Boolean(this.root?.isConnected),
         }),
-        animateMenu: this.speechBubbleOpen && !this.menuOpen,
+        animateMenu: this.introMenu.isSpeechBubbleOpen() && !this.introMenu.isMenuOpen(),
       });
 
-      if (this.menuOpen && action !== 'dismiss' && !this.isCareMoment()) {
+      if (this.introMenu.isMenuOpen() && action !== 'dismiss' && !this.isCareMoment()) {
         this.bindOutsideClickListener();
       }
     }
