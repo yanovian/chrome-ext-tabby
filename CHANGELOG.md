@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.0 (unreleased)
+## 2.4.0
 
 - Fixed Tabby's mood switching back unexpectedly when you change tabs.
 - Tabby stops **randomly disappearing** and talking too often.
