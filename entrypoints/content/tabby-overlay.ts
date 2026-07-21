@@ -370,6 +370,11 @@ export class TabbyOverlay {
       this.menuOpen = false;
       this.moreOpen = false;
       this.speechBubbleOpen = false;
+      // Same reset closeMenu() does: without it, whichever button was highlighted before
+      // this tab lost focus reappears as "active" the next time the menu reopens here,
+      // even though the user never touched it this time around.
+      this.pendingAction = null;
+      this.highlightedAction = null;
       this.removeOutsideClickListener();
       await this.exitOverlay(true);
       return;

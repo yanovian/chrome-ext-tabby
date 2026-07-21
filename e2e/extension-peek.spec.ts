@@ -262,6 +262,67 @@ test('closing the menu clears the active button highlight', async () => {
   }
 });
 
+test('switching tabs away and back clears the active button highlight', async () => {
+  // Two real tab switches with 8s settle waits each (see the sibling cross-tab tests below for
+  // why: a fresh --load-extension run's install bootstrap can occupy the background's task
+  // queue for several seconds) push this past the default 60s test timeout on a slower run.
+  test.setTimeout(90_000);
+  // Regression: gracefulDeactivate() reset menuOpen/moreOpen/speechBubbleOpen when a tab lost
+  // focus, but not highlightedAction (or pendingAction) — so whichever button was highlighted
+  // before the switch could reappear as "active" the next time the menu reopened on that tab,
+  // even though the user never touched it again.
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: false,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+        interactions: [
+          { action: 'ask', label: "What's up?", enabled: true },
+          { action: 'play', label: 'Play', enabled: true },
+          { action: 'pet', label: 'Pet', enabled: true },
+        ],
+      },
+    });
+
+    const pageA = await openOverlayPage(context);
+    const rootA = pageA.locator('#tabby-companion-root');
+    await expect(rootA).toBeVisible({ timeout: 20_000 });
+
+    await pageA.locator('.tabby-cat-surface').click();
+    const petButton = pageA.locator('[data-action="pet"]');
+    await expect(petButton).toBeVisible({ timeout: 20_000 });
+    await petButton.click();
+    await expect(petButton).toHaveClass(/tabby-btn--active/, { timeout: 20_000 });
+
+    const pageB = await context.newPage();
+    await pageB.goto('https://example.org/', { waitUntil: 'domcontentloaded' });
+    await pageB.bringToFront();
+    await pageB.waitForTimeout(8_000);
+
+    await pageA.bringToFront();
+    await pageA.waitForTimeout(8_000);
+
+    await expect(rootA).toBeVisible({ timeout: 20_000 });
+    await pageA.locator('.tabby-cat-surface').click();
+    await expect(pageA.locator('[data-action="pet"]')).toBeVisible({ timeout: 20_000 });
+    await expect(pageA.locator('[data-action="pet"]')).not.toHaveClass(/tabby-btn--active/);
+  } finally {
+    await context.close();
+  }
+});
+
 test('an ambient peek transition waits until the care menu is closed', async () => {
   const { context } = await launchExtensionContext();
   try {
