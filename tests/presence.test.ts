@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
-import { resolveCompanionPresence } from '../utils/presence';
+import { resolveCompanionPresence } from '../utils/cat';
 import { DEFAULT_SETTINGS, type CatPresentation } from '../utils/types';
 
 const NOW = Date.parse('2026-07-06T14:00:00.000Z');
@@ -157,6 +157,30 @@ describe('resolveCompanionPresence', () => {
     expect(result.recordAmbient).toBe(false);
   });
 
+  it('enters the duck gap when a still-visible peek visit expires (e.g. mid tab switch)', () => {
+    // Regression: switching tabs (or any other event that recomputes presentation)
+    // while a peek visit's timer has quietly expired must duck her away, not drop
+    // ambientActivity and fall back to whatever the underlying vitals-driven mood is.
+    // quietHoursStart/End forced to span all 24h so this doesn't depend on the
+    // local timezone the test happens to run in (isDaytime would otherwise mask
+    // the bug by re-peeking fresh instead of falling through to a full reset).
+    const result = resolve({
+      settings: { ...DEFAULT_SETTINGS, quietHoursStart: 0, quietHoursEnd: 24 },
+      lastPresentation: {
+        ...basePresentation,
+        mood: 'peek',
+        companionVisible: true,
+        ambientActivity: 'peeking',
+        ambientPeekUntil: NOW - 1,
+        peekEdge: 'left',
+      },
+    });
+
+    expect(result.ambientActivity).toBe('peeking');
+    expect(result.companionVisible).toBe(false);
+    expect(result.ambientPeekUntil).toBeGreaterThan(NOW);
+  });
+
   it('waits during an active peek duck gap', () => {
     const result = resolve({
       lastPresentation: {
@@ -265,7 +289,9 @@ describe('resolveCompanionPresence', () => {
     expect(result.ambientActivity).toBe('peeking');
   });
 
-  it('starts a hidden rest with sleeping or grooming, not peeking', () => {
+  it('starts a visible rest with sleeping or grooming, not peeking', () => {
+    // Napping/grooming is ambient flavor, not a reason to vanish — only the peek
+    // duck-gap (a separate, brief transition between peek corners) may hide her.
     const eligibleNow = Date.parse('2026-07-06T14:00:00.000Z');
     const cat = {
       ...createInitialCat(eligibleNow),
@@ -285,7 +311,7 @@ describe('resolveCompanionPresence', () => {
       lastPresentation: null,
     });
 
-    expect(result.companionVisible).toBe(false);
+    expect(result.companionVisible).toBe(true);
     expect(result.ambientActivity).not.toBe('peeking');
     expect(result.recordAmbient).toBe(true);
   });
@@ -387,5 +413,54 @@ describe('resolveCompanionPresence', () => {
 
     expect(result.companionVisible).toBe(true);
     expect(result.recordSpeech).toBe(false);
+  });
+
+  it('does not cancel an active peek cycle on a forced recompute (e.g. a tab regaining focus)', () => {
+    const result = resolve({
+      forceVisible: true,
+      lastPresentation: {
+        ...basePresentation,
+        mood: 'peek',
+        companionVisible: true,
+        ambientActivity: 'peeking',
+        ambientPeekUntil: NOW + 5_000,
+        peekEdge: 'left',
+        peekInset: 16,
+        peekCorner: 'left',
+      },
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.ambientActivity).toBe('peeking');
+    expect(result.ambientPeekUntil).toBe(NOW + 5_000);
+    expect(result.peekEdge).toBe('left');
+  });
+
+  it('still lets urgent speech interrupt a peek even on a forced recompute', () => {
+    const result = resolve({
+      forceVisible: true,
+      speechTrigger: {
+        shouldAppear: true,
+        mood: 'starving',
+        speechContext: {
+          kind: 'starving',
+          mood: 'starving',
+          stage: 'adult',
+          seed: NOW,
+        },
+        triggerKind: 'starving',
+      },
+      lastPresentation: {
+        ...basePresentation,
+        mood: 'peek',
+        companionVisible: true,
+        ambientActivity: 'peeking',
+        ambientPeekUntil: NOW + 5_000,
+      },
+    });
+
+    expect(result.companionVisible).toBe(true);
+    expect(result.recordSpeech).toBe(true);
+    expect(result.ambientActivity).toBeNull();
   });
 });

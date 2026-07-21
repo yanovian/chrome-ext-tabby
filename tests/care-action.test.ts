@@ -6,7 +6,7 @@ import {
   completePlayingIfDue,
   handleCareAction,
   persistPresentation,
-} from '../utils/orchestrator';
+} from '../utils/cat';
 import { pickFeedingDurationMs } from '../utils/feeding-moment';
 import { pickPlayingDurationMs } from '../utils/play-moment';
 import { pageOverlayKey } from '../utils/page-overlay';
@@ -191,6 +191,18 @@ describe('handleCareAction during peek', () => {
     expect(presentation.companionVisible).toBe(true);
     expect(presentation.mood).not.toBe('peek');
     expect(presentation.ambientActivity).toBe('grooming');
+  });
+
+  it('reveal with no prior presentation falls back to a fresh recompute', async () => {
+    // Regression guard: this branch used to call the public, re-serializing
+    // evaluateAndPresent() wrapper — but handleCareAction('reveal') already runs inside
+    // reduceCat's own queued task, so calling back into that same queue here would
+    // deadlock waiting for a slot that can't open until this task returns. It must call
+    // the internal, unqueued computation directly instead.
+    const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
+
+    expect(presentation).toBeTruthy();
+    expect(presentation.mood).not.toBe('peek');
   });
 
   it('reveal from dev peek preview restores auto mood', async () => {

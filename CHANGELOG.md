@@ -2,6 +2,12 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.0 (unreleased)
+
+- Fixed Tabby's mood switching back unexpectedly when you change tabs.
+- Tabby stops **randomly disappearing** and talking too often.
+- Refactor the cat logic to a central place.
+
 ## 2.3.3
 
 - Update packages (non-breaking)

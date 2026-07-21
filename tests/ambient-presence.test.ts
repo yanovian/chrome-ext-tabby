@@ -13,6 +13,7 @@ import {
   pickAmbientPeekVisitDurationMs,
   pickAmbientRestActivity,
   pickPeekPlacement,
+  pickStayVisibleAfterRevealMs,
   shouldStartAmbientRest,
   AMBIENT_PEEK_DUCK_GAP_MIN_MS,
   AMBIENT_PEEK_DUCK_GAP_MAX_MS,
@@ -20,6 +21,8 @@ import {
   PEEK_INSET_MAX,
   AMBIENT_PEEK_VISIT_MIN_MS,
   AMBIENT_PEEK_VISIT_MAX_MS,
+  STAY_VISIBLE_AFTER_REVEAL_MIN_MS,
+  STAY_VISIBLE_AFTER_REVEAL_MAX_MS,
 } from '../utils/ambient-presence';
 import { DEFAULT_SETTINGS } from '../utils/types';
 
@@ -146,6 +149,17 @@ describe('pickAmbientPeekDuckGapMs', () => {
 
     expect(duration).toBeGreaterThanOrEqual(AMBIENT_PEEK_DUCK_GAP_MIN_MS);
     expect(duration).toBeLessThanOrEqual(AMBIENT_PEEK_DUCK_GAP_MAX_MS);
+  });
+});
+
+describe('pickStayVisibleAfterRevealMs', () => {
+  it('stays within the 5-10 minute band, long enough to survive a normal tab switch', () => {
+    const cat = createInitialCat(NOW);
+    const duration = pickStayVisibleAfterRevealMs(DEFAULT_SETTINGS, NOW, cat.adoptedAt);
+
+    expect(duration).toBeGreaterThanOrEqual(STAY_VISIBLE_AFTER_REVEAL_MIN_MS);
+    expect(duration).toBeLessThanOrEqual(STAY_VISIBLE_AFTER_REVEAL_MAX_MS);
+    expect(STAY_VISIBLE_AFTER_REVEAL_MIN_MS).toBeGreaterThanOrEqual(5 * 60_000);
   });
 });
 

@@ -49,6 +49,7 @@ export async function seedExtensionStorage(
   input: {
     settings?: Record<string, unknown>;
     presentation?: Record<string, unknown>;
+    cat?: Record<string, unknown>;
   },
 ): Promise<void> {
   const worker = context.serviceWorkers()[0];
@@ -57,7 +58,7 @@ export async function seedExtensionStorage(
   }
 
   await worker.evaluate(
-    async ({ settings, presentation, storageKeys }) => {
+    async ({ settings, presentation, cat, storageKeys }) => {
       const now = Date.now();
       const dayKey = new Date(now).toISOString().slice(0, 10);
       const adoptedAt = now - 30 * 24 * 60 * 60 * 1000;
@@ -102,6 +103,7 @@ export async function seedExtensionStorage(
             lastAmbientAt: 0,
             ambientsToday: 0,
             ambientsDayKey: dayKey,
+            ...cat,
           });
           tx.oncomplete = () => {
             database.close();
@@ -186,6 +188,7 @@ export async function seedExtensionStorage(
     {
       settings: input.settings ?? {},
       presentation: input.presentation ?? {},
+      cat: input.cat ?? {},
       storageKeys: STORAGE_KEYS,
     },
   );

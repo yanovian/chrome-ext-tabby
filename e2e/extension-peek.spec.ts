@@ -366,3 +366,137 @@ test('extension overlay renders dev-forced peek on screen', async () => {
     await context.close();
   }
 });
+
+test('a real tab switch to an already-open tab does not cancel an active peek', async () => {
+  // Unlike the other tests here, this drives a real browser tab switch
+  // (page.bringToFront()) instead of the activateOverlayTab shortcut, so it
+  // actually exercises background.ts's chrome.tabs.onActivated handler —
+  // the one that recomputes presentation on every focus change. With
+  // devModeEnabled on, that recompute passes forceDevSpeech: true, which
+  // used to make resolveCompanionPresence's forced-visible branch drop the
+  // in-progress peek the instant an already-open tab regained focus.
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: true,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+        interactions: [
+          { action: 'ask', label: "What's up?", enabled: true },
+          { action: 'play', label: 'Play', enabled: true },
+          { action: 'pet', label: 'Pet', enabled: true },
+          { action: 'shoo', label: 'Go play by yourself', enabled: true },
+        ],
+      },
+    });
+
+    const pageA = await openOverlayPage(context);
+    const pageB = await context.newPage();
+    await pageB.goto('https://example.org/', { waitUntil: 'domcontentloaded' });
+    await pageA.bringToFront();
+    await pageA.waitForTimeout(300);
+
+    await pageA.locator('.tabby-cat-surface').click();
+    const shooButton = pageA.locator('[data-action="shoo"]');
+    await expect(shooButton).toBeVisible({ timeout: 20_000 });
+    await shooButton.click();
+
+    const worker = context.serviceWorkers()[0]!;
+    await expect
+      .poll(
+        async () => {
+          const stored = await worker.evaluate(async () => {
+            const result = await chrome.storage.local.get(['presentation']);
+            return result.presentation;
+          });
+          return stored?.mood;
+        },
+        { timeout: 20_000 },
+      )
+      .toBe('peek');
+
+    // Switch focus to the already-open tab B — a real chrome.tabs.onActivated,
+    // not the message-based shortcut the other tests use. The wait is generous
+    // because a fresh --load-extension launch runs its own install bootstrap
+    // (see seedExtensionStorage's comment) whose retryActiveOverlaySync loop
+    // alone can occupy the background's task queue for several seconds; this
+    // tab switch is queued behind it and won't run until that drains.
+    await pageB.bringToFront();
+    await pageB.waitForTimeout(8_000);
+
+    const stored = await worker.evaluate(async () => {
+      const result = await chrome.storage.local.get(['presentation']);
+      return result.presentation;
+    });
+    expect(stored?.mood).toBe('peek');
+    expect(stored?.ambientActivity).toBe('peeking');
+  } finally {
+    await context.close();
+  }
+});
+
+test('a real tab switch does not force ambient speech when none is owed (devModeEnabled on)', async () => {
+  // Regression: background.ts's refreshPresentationForActiveTab used to pass
+  // forceDevSpeech: IS_DEV_BUILD && settings.devModeEnabled on every single
+  // focus change, which bypassed the daily nudge cap/cooldown entirely and
+  // made Tabby speak on every tab switch whenever the user's own dev-mode
+  // toggle was on — regardless of whether she'd actually earned an ambient
+  // line. nudgesToday is seeded past the cap so no legitimate trigger could
+  // fire either; any speech appearing here can only be the forced bypass.
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: true,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      cat: {
+        nudgesToday: 999,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        speech: null,
+        triggerKind: null,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+      },
+    });
+
+    const pageA = await openOverlayPage(context);
+    const pageB = await context.newPage();
+    await pageB.goto('https://example.org/', { waitUntil: 'domcontentloaded' });
+
+    const worker = context.serviceWorkers()[0]!;
+
+    await pageA.bringToFront();
+    await pageA.waitForTimeout(8_000);
+    await pageB.bringToFront();
+    await pageB.waitForTimeout(8_000);
+
+    const stored = await worker.evaluate(async () => {
+      const result = await chrome.storage.local.get(['presentation']);
+      return result.presentation;
+    });
+    expect(stored?.speech).toBeNull();
+    expect(stored?.triggerKind).toBeNull();
+  } finally {
+    await context.close();
+  }
+});

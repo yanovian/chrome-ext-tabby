@@ -103,11 +103,11 @@ export function requestSyncActiveOverlay(): Promise<void> {
 export function requestSyncDevTemper(input: {
   simulation?: Partial<import('./mood-timers').TemperSimulation>;
   devForceMood?: import('./types').DevMoodOverride;
-}): Promise<import('./orchestrator').DevTemperPayload & { presentation: CatPresentation }> {
+}): Promise<import('./cat').DevTemperPayload & { presentation: CatPresentation }> {
   return sendMessage({ type: 'syncDevTemper', ...input });
 }
 
-export function requestDevTemperState(): Promise<import('./orchestrator').DevTemperPayload> {
+export function requestDevTemperState(): Promise<import('./cat').DevTemperPayload> {
   return sendMessage({ type: 'getDevTemper' });
 }
 

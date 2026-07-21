@@ -21,7 +21,7 @@ export interface PeekPlacement {
 export const PEEK_INSET_MIN = 8;
 export const PEEK_INSET_MAX = 32;
 
-/** How long hidden rest breaks last before Tabby may return. */
+/** How long a visible sleeping/grooming rest lasts before she's due for something else. */
 export const AMBIENT_PEEK_MIN_MS = 60_000;
 export const AMBIENT_PEEK_MAX_MS = 15 * 60_000;
 export const DEV_AMBIENT_PEEK_MIN_MS = 45_000;
@@ -35,9 +35,12 @@ export const AMBIENT_PEEK_VISIT_MAX_MS = 45_000;
 export const AMBIENT_PEEK_DUCK_GAP_MIN_MS = 5_000;
 export const AMBIENT_PEEK_DUCK_GAP_MAX_MS = 10_000;
 
-/** After the user taps a peek, Tabby stays fully on screen this long. */
-export const STAY_VISIBLE_AFTER_REVEAL_MIN_MS = 60_000;
-export const STAY_VISIBLE_AFTER_REVEAL_MAX_MS = 3 * 60_000;
+/** After the user taps a peek, Tabby stays fully on screen this long before she's eligible to
+ * start ambient peeking again on her own. Long enough that switching tabs to check on her
+ * doesn't race the window closing; explicitly asking her to "go play by yourself" still works
+ * immediately regardless of this timer. */
+export const STAY_VISIBLE_AFTER_REVEAL_MIN_MS = 5 * 60_000;
+export const STAY_VISIBLE_AFTER_REVEAL_MAX_MS = 10 * 60_000;
 
 /** Daytime = outside quiet hours (when Tabby stays mostly visible). */
 export function isDaytime(hour: number, settings: ExtensionSettings): boolean {
@@ -105,7 +108,7 @@ export function pickAmbientActivity(seed: number): AmbientActivity {
   return 'peeking';
 }
 
-/** Activity during a hidden rest break. Never peeking (that is a visible peek mood). */
+/** Activity during a visible rest break. Never peeking (that's its own ambient mode). */
 export function pickAmbientRestActivity(seed: number): AmbientActivity {
   return Math.abs(seed) % 2 === 0 ? 'sleeping' : 'grooming';
 }
@@ -122,7 +125,7 @@ function pickDurationMs(
   return minMs + roll;
 }
 
-/** Random hidden rest length between 1 and 15 minutes (shorter band in dev). */
+/** Random visible rest length between 1 and 15 minutes (shorter band in dev). */
 export function pickAmbientPeekDurationMs(
   settings: ExtensionSettings,
   now: number,
@@ -165,6 +168,30 @@ export function pickAmbientPeekDuckGapMs(
     AMBIENT_PEEK_DUCK_GAP_MIN_MS,
     AMBIENT_PEEK_DUCK_GAP_MAX_MS,
   );
+}
+
+export interface PeekDuckGapEntry {
+  ambientActivity: 'peeking';
+  ambientPeekUntil: number;
+}
+
+/**
+ * The single source of truth for what happens the moment a visible peek visit's timer runs
+ * out: she ducks into a hidden gap for a bit before peeking again from a new corner.
+ * getCurrentPresentation's fast-path read and resolveCompanionPresence's full recompute both
+ * call this rather than each rolling their own — they used to, and only one of them actually
+ * had this case, which is exactly how a tab switch landing mid-visit used to drop the peek
+ * entirely instead of continuing the cycle.
+ */
+export function enterPeekDuckGap(
+  now: number,
+  settings: ExtensionSettings,
+  adoptedAt: number,
+): PeekDuckGapEntry {
+  return {
+    ambientActivity: 'peeking',
+    ambientPeekUntil: now + pickAmbientPeekDuckGapMs(settings, now, adoptedAt),
+  };
 }
 
 /** How long Tabby stays fully visible after the user taps a peek. */

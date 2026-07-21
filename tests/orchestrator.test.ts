@@ -1,22 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createInitialCat } from '../utils/cat-sim';
 import {
-  cancelDoNotDisturb,
   clearCompanionSpeech,
   devForceCompanionHide,
   devForceCompanionShow,
-  enableDoNotDisturb,
   getCurrentPresentation,
+  handleCareAction,
   persistPresentation,
   presentOnActiveTab,
-  recordPageVisit,
   syncDevTemperControls,
-  runMinuteTick,
   restartIntroSession,
   settleAfterIntro,
   showOverlayOnPage,
+} from '../utils/cat';
+import {
+  cancelDoNotDisturb,
+  enableDoNotDisturb,
+  recordPageVisit,
+  runMinuteTick,
 } from '../utils/orchestrator';
-import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
+import { DEFAULT_SETTINGS, STORAGE_KEYS, type CatPresentation } from '../utils/types';
 
 const NOW = Date.parse('2026-07-05T14:00:00.000Z');
 
@@ -283,6 +286,14 @@ describe('getCurrentPresentation', () => {
   });
 
   it('clears an expired hidden rest without showing Tabby', async () => {
+    // Pinned to quiet hours: this now delegates to the full evaluateAndPresent recompute
+    // (like every other expiry case here) instead of a bespoke "just go idle" branch, and
+    // that recompute only settles fully idle rather than rolling straight into a fresh
+    // ambient moment when it's not daytime — so time must be pinned for a deterministic
+    // expectation instead of relying on whatever the local machine's wall-clock happens to be.
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, quietHoursStart: 0, quietHoursEnd: 24 };
     await persistPresentation({
       mood: 'sleepy',
       stage: 'adult',
@@ -316,6 +327,8 @@ describe('getCurrentPresentation', () => {
     expect(presentation.companionVisible).toBe(false);
     expect(presentation.ambientActivity).toBeNull();
     expect(presentation.ambientPeekUntil).toBeNull();
+
+    vi.useRealTimers();
   });
 
   it('ducks away when a visible peek visit expires', async () => {
@@ -353,6 +366,65 @@ describe('getCurrentPresentation', () => {
     expect(presentation.mood).toBe('peek');
     expect(presentation.ambientActivity).toBe('peeking');
     expect(presentation.ambientPeekUntil).toBeGreaterThan(NOW);
+  });
+
+  it('agrees with a full recompute on what a just-expired peek visit means', async () => {
+    // Regression: getCurrentPresentation's fast-path read and resolveCompanionPresence's
+    // full recompute (used by tab switches, via presentOnActiveTab) used to independently
+    // decide what an expired peek visit means, and only one of them actually ducked her
+    // away — the other dropped ambientActivity and reset to whatever the underlying vitals
+    // mood was. Both now share enterPeekDuckGap(); this pins that they can't quietly grow
+    // apart again.
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    store[STORAGE_KEYS.introCompleted] = true;
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, quietHoursStart: 0, quietHoursEnd: 24 };
+
+    const expiredPeek: CatPresentation = {
+      mood: 'peek',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/peek.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: false,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: 'peeking',
+      ambientPeekUntil: NOW - 1,
+      peekEdge: 'right',
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    };
+
+    await persistPresentation(expiredPeek);
+    const viaRead = await getCurrentPresentation();
+
+    await persistPresentation(expiredPeek);
+    const viaRecompute = await presentOnActiveTab(NOW, {
+      title: 'Any Page',
+      url: 'https://example.com/',
+    });
+
+    expect(viaRead.companionVisible).toBe(false);
+    expect(viaRead.mood).toBe('peek');
+    expect(viaRead.ambientActivity).toBe('peeking');
+
+    expect(viaRecompute.lastPresentation?.companionVisible).toBe(viaRead.companionVisible);
+    expect(viaRecompute.lastPresentation?.mood).toBe(viaRead.mood);
+    expect(viaRecompute.lastPresentation?.ambientActivity).toBe(viaRead.ambientActivity);
+
+    vi.useRealTimers();
   });
 
   it('carries the restore-to ambient activity into the duck gap', async () => {
@@ -618,6 +690,166 @@ describe('presentOnActiveTab', () => {
 
     expect(result.lastPresentation).not.toBeNull();
     expect(result.lastPresentation?.speech).not.toBe('Old line');
+  });
+
+  it('is not clobbered by a concurrent shoo care action racing the same tab switch', async () => {
+    // Regression: clicking "shoo" in tab A and then immediately switching to
+    // tab B both read-compute-persist the shared presentation. Without
+    // serializing them, the tab-switch recompute could read stale
+    // (pre-shoo) data and its write — landing after shoo's — would silently
+    // overwrite the peek she just entered.
+    store[STORAGE_KEYS.introCompleted] = true;
+    // Force non-daytime so the ambient system's own "start a fresh peek visit"
+    // default can't independently land on ambientActivity:'peeking' and mask
+    // a real clobber (which would otherwise show as a full reset, not a peek).
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, quietHoursStart: 0, quietHoursEnd: 24 };
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/idle.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    await Promise.all([
+      handleCareAction('shoo', NOW, {}),
+      presentOnActiveTab(NOW, { title: 'New Tab', url: 'https://new-tab.example/' }),
+    ]);
+
+    const stored = (await browser.storage.local.get([STORAGE_KEYS.presentation]))[
+      STORAGE_KEYS.presentation
+    ] as { mood?: string; ambientActivity?: string | null };
+
+    expect(stored.mood).toBe('peek');
+    expect(stored.ambientActivity).toBe('peeking');
+  });
+
+  it('preserves peek across a tab switch a few seconds after shoo, end to end', async () => {
+    // Same scenario, but sequential (no race) and running the full real chain:
+    // handleCareAction('shoo') -> the tab-switch-triggered presentOnActiveTab
+    // recompute -> getCurrentPresentation(), the exact call the content script
+    // makes to render tab B. Confirms the data itself stays correct once the
+    // race above is ruled out.
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    store[STORAGE_KEYS.introCompleted] = true;
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, quietHoursStart: 0, quietHoursEnd: 24 };
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/idle.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    await handleCareAction('shoo', NOW, {});
+
+    vi.setSystemTime(NOW + 2_500);
+    await presentOnActiveTab(NOW + 2_500, {
+      title: 'New Tab',
+      url: 'https://new-tab.example/',
+    });
+
+    const rendered = await getCurrentPresentation();
+    expect(rendered.mood).toBe('peek');
+    expect(rendered.ambientActivity).toBe('peeking');
+    expect(rendered.companionVisible).toBe(true);
+
+    vi.useRealTimers();
+  });
+
+  it('preserves peek across a forced tab-switch recompute (devModeEnabled reactivating an already-open tab)', async () => {
+    // Regression: background.ts's refreshPresentationForActiveTab passes
+    // forceDevSpeech: true on every focus change whenever the user's own
+    // devModeEnabled setting is on (independent of forcing a specific mood).
+    // resolveCompanionPresence's forceVisible branch used to short-circuit
+    // straight to a plain "show her, no ambient state" result, silently
+    // cancelling an in-progress peek the instant an already-open tab (or a
+    // refresh) regained focus — while a brand-new tab, which never runs this
+    // recompute at all, kept showing the peek untouched.
+    store[STORAGE_KEYS.introCompleted] = true;
+    store[STORAGE_KEYS.settings] = {
+      ...DEFAULT_SETTINGS,
+      devModeEnabled: true,
+      quietHoursStart: 0,
+      quietHoursEnd: 24,
+    };
+    await persistPresentation({
+      mood: 'content',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/idle.gif',
+      speech: null,
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: false,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: null,
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+    });
+
+    await handleCareAction('shoo', NOW, {});
+
+    const result = await presentOnActiveTab(
+      NOW + 2_500,
+      { title: 'Already Open Tab', url: 'https://already-open.example/' },
+      { forceDevSpeech: true },
+    );
+
+    expect(result.lastPresentation?.mood).toBe('peek');
+    expect(result.lastPresentation?.ambientActivity).toBe('peeking');
+    expect(result.lastPresentation?.companionVisible).toBe(true);
   });
 });
 

@@ -13,7 +13,6 @@ import {
 import { loadAppLocale, t, applyNodeLocale } from '../../utils/i18n';
 import {
   hasOverlayChrome,
-  hasUnpromptedSpeech,
   shouldOpenSpeechBubbleForUpdate,
   shouldShowSpeechBubble as shouldShowSpeechBubbleState,
 } from '../../utils/overlay-chrome';
@@ -94,6 +93,8 @@ export class TabbyOverlay {
   private root: HTMLElement | null = null;
   private outsideClickListener: ((event: Event) => void) | null = null;
   private storageListenerBound = false;
+  /** True only for the one tab (in the focused window) the background has designated as overlay host. */
+  private isCurrentOverlayTab = false;
   private showOverlayEnabled = true;
   private cachedSettings: ExtensionSettings | null = null;
   private exiting = false;
@@ -123,11 +124,10 @@ export class TabbyOverlay {
     }
   }
 
-  async initialize(): Promise<void> {
-    await pingBackground();
-    if (!this.isActiveInstance()) {
-      return;
-    }
+  /** Re-fetch every piece of state from the background/storage. Used on first init and whenever
+   * this tab regains overlay-host status, since state may have drifted while it was inactive
+   * (the storage listener is suspended for inactive tabs — see bindStorageListenerIfNeeded). */
+  private async resyncState(): Promise<void> {
     const settings = await requestSettings();
     this.cachedSettings = settings;
     if (!this.isActiveInstance()) {
@@ -138,7 +138,6 @@ export class TabbyOverlay {
 
     if (!this.showOverlayEnabled) {
       this.teardownOverlay();
-      this.bindStorageListenerIfNeeded();
       return;
     }
 
@@ -159,6 +158,14 @@ export class TabbyOverlay {
       return;
     }
     this.beginIntroIfNeeded();
+  }
+
+  async initialize(): Promise<void> {
+    await pingBackground();
+    if (!this.isActiveInstance()) {
+      return;
+    }
+    await this.resyncState();
 
     if (this.storageListenerBound) {
       return;
@@ -171,6 +178,9 @@ export class TabbyOverlay {
     if (!this.isActiveInstance()) {
       return;
     }
+    // Only the tab the background just told us is the current host may show anything.
+    const regainedHost = !this.isCurrentOverlayTab;
+    this.isCurrentOverlayTab = true;
 
     if (!this.storageListenerBound) {
       this.initPromise ??= this.initialize().finally(() => {
@@ -180,24 +190,36 @@ export class TabbyOverlay {
       return;
     }
 
-    if (!this.root?.isConnected) {
-      await this.refreshPresentation();
+    // While inactive, storage updates were ignored (see bindStorageListenerIfNeeded), so
+    // presentation may be stale — and the exit animation's teardown can still be pending,
+    // since browsers throttle timers/animations in hidden tabs. Always resync on regaining
+    // host status rather than trusting root.isConnected as a freshness signal.
+    if (regainedHost || !this.root?.isConnected) {
+      await this.resyncState();
       return;
     }
 
-    if (!this.isOverlayVisible() && this.root?.isConnected) {
+    if (!this.isOverlayVisible()) {
       void this.exitOverlay();
     }
   }
 
-  private bindStorageListenerIfNeeded(): void {
-    if (this.storageListenerBound) {
-      return;
-    }
-    this.storageListenerBound = true;
-
-    browser.storage.onChanged.addListener((changes, area) => {
+  /** Dev-mode content-script reloads re-execute this module over the same page without a
+   * full navigation, so an inline addListener callback here would leak: destroy() couldn't
+   * remove a listener it never kept a reference to, and every past injection's stale
+   * listener would keep reacting to storage changes forever. Storing it as a field lets
+   * destroy() remove exactly this one. */
+  private readonly onStorageChanged: Parameters<
+    typeof browser.storage.onChanged.addListener
+  >[0] = (changes, area) => {
       if (area !== 'local') {
+        return;
+      }
+      // Presentation/settings/etc. are shared across every tab and window via storage.local.
+      // Only the tab currently designated as overlay host should react — otherwise every
+      // window that ever hosted the cat would re-render (and re-show its speech bubble) in
+      // lockstep, even while unfocused. Reactivation triggers a full resyncState() instead.
+      if (!this.isCurrentOverlayTab) {
         return;
       }
       if ('presentation' in changes) {
@@ -212,71 +234,14 @@ export class TabbyOverlay {
         const entersPeekWhileMenuOpen =
           this.menuOpen && next?.mood === 'peek' && this.presentation?.mood !== 'peek';
         if (next && !entersPeekWhileMenuOpen && (!this.pendingAction || this.cachedSettings?.devModeEnabled)) {
-          const previousMood = this.presentation?.mood ?? null;
-          const previousSpeech = this.presentation?.speech ?? null;
-          const previousSprite = this.presentation?.sprite ?? null;
-          const previousEatingUntil = this.presentation?.eatingUntil ?? null;
-          const previousPlayingUntil = this.presentation?.playingUntil ?? null;
-          const applyUpdate = () => {
-            const settled = this.introJustFinished
-              ? { ...this.settlePresentation(next), speech: null, triggerKind: null }
-              : this.settlePresentation(next);
-            this.presentation = settled;
-            this.syncPeekChromeState(settled);
-            if (previousMood !== 'peek' && settled.mood === 'peek') {
-              this.wasPeeking = false;
-            }
-            if (previousMood === 'peek' && settled.mood !== 'peek') {
-              this.wasPeeking = true;
-            }
-            if (!this.introJustFinished) {
-              this.applyCareMomentChromeState(settled, {
-                eatingUntil: previousEatingUntil,
-                playingUntil: previousPlayingUntil,
-              });
-            }
-            const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
-              introJustFinished: this.introJustFinished,
-              isIntro: this.isIntroActive(),
-              previousSpeech,
-              nextSpeech: settled.speech,
-              triggerKind: settled.triggerKind,
-              speechBubbleOpen: this.speechBubbleOpen,
-            });
-            if (openSpeechBubble) {
-              this.speechBubbleOpen = true;
-              this.menuOpen = false;
-              this.moreOpen = false;
-              this.syncOutsideClickListener();
-            } else if (!settled.speech) {
-              this.speechBubbleOpen = false;
-            }
-            const shouldReact = shouldReactToSpeechTrigger({
-              previousSpeech,
-              nextSpeech: settled.speech,
-              triggerKind: settled.triggerKind,
-            });
-            this.render({
-              animateMenu: openSpeechBubble || this.menuOpen,
-              reactToTrigger: shouldReact,
-              animateMood: shouldAnimateMoodTransition({
-                previousSprite,
-                nextSprite: settled.sprite,
-                hasVisibleOverlay: Boolean(this.root?.isConnected),
-              }),
-            });
-            if (!this.introCompleted && !this.introJustFinished && this.isOverlayVisible() && this.introStep === null) {
-              this.beginIntroIfNeeded();
-            }
-          };
           if (!this.cachedSettings) {
             void requestSettings().then((settings) => {
               this.cachedSettings = settings;
-              applyUpdate();
+              this.applyPresentationUpdate(next);
             });
             return;
           }
-          applyUpdate();
+          this.applyPresentationUpdate(next);
         }
       }
       if (STORAGE_KEYS.hiddenPageKeys in changes) {
@@ -345,7 +310,15 @@ export class TabbyOverlay {
           });
         }
       }
-    });
+    };
+
+  private bindStorageListenerIfNeeded(): void {
+    if (this.storageListenerBound) {
+      return;
+    }
+    this.storageListenerBound = true;
+
+    browser.storage.onChanged.addListener(this.onStorageChanged);
 
     window.addEventListener('resize', this.onViewportChange);
     window.visualViewport?.addEventListener('resize', this.onViewportChange);
@@ -371,6 +344,8 @@ export class TabbyOverlay {
 
   /** Tear down UI and timers when the script is replaced during dev reload. */
   destroy(): void {
+    browser.storage.onChanged.removeListener(this.onStorageChanged);
+    this.storageListenerBound = false;
     window.removeEventListener('resize', this.onViewportChange);
     window.visualViewport?.removeEventListener('resize', this.onViewportChange);
     window.visualViewport?.removeEventListener('scroll', this.onViewportChange);
@@ -381,6 +356,7 @@ export class TabbyOverlay {
     this.menuOpen = false;
     this.moreOpen = false;
     this.speechBubbleOpen = false;
+    this.isCurrentOverlayTab = false;
   }
 
   /** Play the exit animation before tearing down (tab switch or hide). */
@@ -388,6 +364,7 @@ export class TabbyOverlay {
     if (!this.isActiveInstance()) {
       return;
     }
+    this.isCurrentOverlayTab = false;
     if (this.root?.isConnected && !this.exiting) {
       this.menuOpen = false;
       this.moreOpen = false;
@@ -441,41 +418,93 @@ export class TabbyOverlay {
     return settled;
   }
 
+  /**
+   * The single place that applies a freshly fetched or pushed CatPresentation to local UI
+   * state (peek chrome, speech bubble, menu) and renders it. The live storage listener and
+   * refreshPresentation (used whenever this tab (re)gains overlay-host status) both call
+   * this instead of each keeping their own partial copy of "settle it, then figure out
+   * peek/menu/speech-bubble state" — that divergence is exactly how a tab regaining host
+   * status mid-peek used to end up rendering inconsistently with one that received the same
+   * update live: refreshPresentation never called syncPeekChromeState or tracked wasPeeking.
+   */
+  private applyPresentationUpdate(next: CatPresentation): void {
+    const previousMood = this.presentation?.mood ?? null;
+    const previousSpeech = this.presentation?.speech ?? null;
+    const previousSprite = this.presentation?.sprite ?? null;
+    const previousEatingUntil = this.presentation?.eatingUntil ?? null;
+    const previousPlayingUntil = this.presentation?.playingUntil ?? null;
+
+    const settled = this.introJustFinished
+      ? { ...this.settlePresentation(next), speech: null, triggerKind: null }
+      : this.settlePresentation(next);
+    this.presentation = settled;
+    this.syncPeekChromeState(settled);
+    if (previousMood !== 'peek' && settled.mood === 'peek') {
+      this.wasPeeking = false;
+    }
+    if (previousMood === 'peek' && settled.mood !== 'peek') {
+      this.wasPeeking = true;
+    }
+    if (!this.introJustFinished) {
+      this.applyCareMomentChromeState(settled, {
+        eatingUntil: previousEatingUntil,
+        playingUntil: previousPlayingUntil,
+      });
+    }
+    const openSpeechBubble = shouldOpenSpeechBubbleForUpdate({
+      introJustFinished: this.introJustFinished,
+      isIntro: this.isIntroActive(),
+      previousSpeech,
+      nextSpeech: settled.speech,
+      triggerKind: settled.triggerKind,
+      speechBubbleOpen: this.speechBubbleOpen,
+    });
+    if (openSpeechBubble) {
+      this.speechBubbleOpen = true;
+      this.menuOpen = false;
+      this.moreOpen = false;
+      this.syncOutsideClickListener();
+    } else if (!settled.speech) {
+      this.speechBubbleOpen = false;
+    }
+    const shouldReact = shouldReactToSpeechTrigger({
+      previousSpeech,
+      nextSpeech: settled.speech,
+      triggerKind: settled.triggerKind,
+    });
+    this.render({
+      animateMenu: openSpeechBubble || this.menuOpen,
+      reactToTrigger: shouldReact,
+      animateMood: shouldAnimateMoodTransition({
+        previousSprite,
+        nextSprite: settled.sprite,
+        hasVisibleOverlay: Boolean(this.root?.isConnected),
+      }),
+    });
+    if (!this.introCompleted && !this.introJustFinished && this.isOverlayVisible() && this.introStep === null) {
+      this.beginIntroIfNeeded();
+    }
+  }
+
   private async refreshPresentation(): Promise<void> {
     if (!this.cachedSettings) {
       this.cachedSettings = await requestSettings();
     }
     const fetched = await requestPresentation();
-    this.presentation = fetched ? this.settlePresentation(fetched) : null;
-    if (this.presentation) {
-      await preloadCompanionSprite(publicAnimationAssetUrl, this.presentation.sprite);
+    if (fetched) {
+      await preloadCompanionSprite(publicAnimationAssetUrl, fetched.sprite);
     }
     if (!this.isActiveInstance()) {
       return;
     }
 
-    const openSpeechBubble = hasUnpromptedSpeech({
-      speech: this.presentation?.speech ?? null,
-      triggerKind: this.presentation?.triggerKind ?? null,
-    });
-    if (openSpeechBubble) {
-      this.speechBubbleOpen = true;
+    if (!fetched) {
+      this.presentation = null;
+      this.render();
+      return;
     }
 
-    this.render({
-      animateMenu: openSpeechBubble,
-      reactToTrigger: shouldReactToSpeechTrigger({
-        previousSpeech: null,
-        nextSpeech: this.presentation?.speech ?? null,
-        triggerKind: this.presentation?.triggerKind ?? null,
-      }),
-    });
-    if (openSpeechBubble) {
-      this.syncOutsideClickListener();
-    }
-    if (!this.introCompleted && !this.introJustFinished && this.isOverlayVisible() && this.introStep === null) {
-      this.beginIntroIfNeeded();
-    }
+    this.applyPresentationUpdate(fetched);
   }
 
   private isCareMoment(presentation = this.presentation): boolean {
@@ -685,6 +714,17 @@ export class TabbyOverlay {
       return;
     }
 
+    // Defensive backstop: never mount/keep DOM in a tab that isn't the current overlay host.
+    if (!this.isCurrentOverlayTab) {
+      this.removeOutsideClickListener();
+      if (this.root?.isConnected && !this.exiting) {
+        void this.exitOverlay(true);
+      } else if (!this.root?.isConnected) {
+        this.teardownOverlay();
+      }
+      return;
+    }
+
     if (!this.isOverlayVisible()) {
       this.removeOutsideClickListener();
       if (this.root?.isConnected && !this.exiting) {
@@ -887,11 +927,11 @@ export class TabbyOverlay {
 
     this.pendingReveal = true;
     try {
-      const next = this.assignPresentation(await requestCareAction('reveal', location.href));
-      this.syncPeekChromeState(next);
-      this.wasPeeking = true;
+      const next = await requestCareAction('reveal', location.href);
+      // Restore the saved (pre-peek) position before applyPresentationUpdate's render, or
+      // it would render one frame at the peek-edge position first.
       await this.restorePeekSavedPosition();
-      this.render({ animateMood: true });
+      this.applyPresentationUpdate(next);
     } catch (error) {
       ignoreIfExtensionUnavailable('reveal from peek', error);
     } finally {

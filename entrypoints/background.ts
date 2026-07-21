@@ -10,28 +10,29 @@ import {
 } from '../utils/active-overlay';
 import {
   ensureCatExists,
-  cancelDoNotDisturb,
   clearCompanionSpeech,
   devForceCompanionHide,
   devForceCompanionShow,
   getDevTemperState,
   syncDevTemperControls,
-  enableDoNotDisturb,
   completeFeedingIfDue,
   completePlayingIfDue,
   evaluateAndPresent,
   getCurrentPresentation,
-  getPageOverlayState,
   handleCareAction,
-  hideOverlayOnPage,
-  loadOrchestratorState,
   presentOnActiveTab,
-  recordPageVisit,
   restartIntroSession,
-  runMinuteTick,
   showOverlayOnPage,
   settleAfterIntro,
   type PageContext,
+} from '../utils/cat';
+import {
+  cancelDoNotDisturb,
+  enableDoNotDisturb,
+  getPageOverlayState,
+  hideOverlayOnPage,
+  recordPageVisit,
+  runMinuteTick,
 } from '../utils/orchestrator';
 import { getDoNotDisturbStatus } from '../utils/do-not-disturb';
 import { resolveCareActionPageUrl } from '../utils/care-action';
@@ -160,14 +161,16 @@ async function refreshPresentationForActiveTab(now = Date.now()): Promise<void> 
     return;
   }
 
-  await presentOnActiveTab(
-    now,
-    {
-      title: activeSnapshot.title || undefined,
-      url: activeSnapshot.url || undefined,
-    },
-    { forceDevSpeech: IS_DEV_BUILD && settings.devModeEnabled },
-  );
+  // No forceDevSpeech here: this runs on every tab focus change, not just when the user
+  // deliberately asked to preview something (the popup's "Force Tick" button, or a settings
+  // save). Forcing speech here would bypass the normal daily cap/cooldown on every single tab
+  // switch whenever devModeEnabled happens to be on for unrelated reasons (mood overrides,
+  // relaxed limits) — she should only talk because of an explicit interaction or the normal,
+  // rare ambient trigger, same as production.
+  await presentOnActiveTab(now, {
+    title: activeSnapshot.title || undefined,
+    url: activeSnapshot.url || undefined,
+  });
   await updateToolbarFromPresentation();
 }
 
@@ -471,12 +474,12 @@ export default defineBackground(() => {
               data.showOverlay &&
               (!message.skipPresent || settingsChangeRequiresPresent(before, data))
             ) {
-              const state = await loadOrchestratorState();
-              await evaluateAndPresent(
-                { ...state, settings: data },
-                Date.now(),
-                { forceDevSpeech: data.devModeEnabled, page: activePageContext() },
-              );
+              // saveSettings() above already persisted `data`, so evaluateAndPresent's own
+              // fresh state load picks it up — no need to load state here just to override it.
+              await evaluateAndPresent(Date.now(), {
+                forceDevSpeech: data.devModeEnabled,
+                page: activePageContext(),
+              });
             }
             await updateToolbarFromPresentation();
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
