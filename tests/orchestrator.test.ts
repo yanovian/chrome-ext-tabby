@@ -8,6 +8,7 @@ import {
   handleCareAction,
   persistPresentation,
   presentOnActiveTab,
+  recordInteractionPing,
   syncDevTemperControls,
   restartIntroSession,
   settleAfterIntro,
@@ -26,6 +27,7 @@ const NOW = Date.parse('2026-07-05T14:00:00.000Z');
 const store: Record<string, unknown> = {};
 
 beforeEach(() => {
+  savedCat = null;
   for (const key of Object.keys(store)) {
     delete store[key];
   }
@@ -56,9 +58,13 @@ beforeEach(() => {
   });
 });
 
+let savedCat: ReturnType<typeof createInitialCat> | null = null;
+
 vi.mock('../utils/db', () => ({
-  getCatState: async () => createInitialCat(NOW),
-  saveCatState: async () => {},
+  getCatState: async () => savedCat ?? createInitialCat(NOW),
+  saveCatState: async (cat: ReturnType<typeof createInitialCat>) => {
+    savedCat = cat;
+  },
   getMemories: async () => [],
   pickRecallCandidate: async () => null,
   recallMemory: async () => {},
@@ -851,6 +857,28 @@ describe('presentOnActiveTab', () => {
     expect(result.lastPresentation?.ambientActivity).toBe('peeking');
     expect(result.lastPresentation?.companionVisible).toBe(true);
   });
+
+  it('stays visible on the very next tick right after petting (does not vanish)', async () => {
+    // Regression: decideIdleAmbient's fix for "don't start ambient activity right after care"
+    // used presence({}) for the deferred case, which defaults companionVisible to false —
+    // she'd vanish outright on the next tick instead of just staying put. Forced always-daytime
+    // (quietHoursStart === quietHoursEnd) so this can't collide with the local machine's hour.
+    // nudgesToday is pinned past the daily cap so a happy-mood speech trigger from petting
+    // can't independently force companionVisible: true and mask the ambient-only bug.
+    store[STORAGE_KEYS.introCompleted] = true;
+    store[STORAGE_KEYS.settings] = { ...DEFAULT_SETTINGS, quietHoursStart: 0, quietHoursEnd: 0 };
+    savedCat = { ...createInitialCat(NOW), nudgesToday: 999 };
+
+    await handleCareAction('pet', NOW, {});
+
+    const result = await presentOnActiveTab(NOW + 60_000, {
+      title: 'Same Tab',
+      url: 'https://example.test/',
+    });
+
+    expect(result.lastPresentation?.companionVisible).toBe(true);
+    expect(result.lastPresentation?.ambientActivity).toBeNull();
+  });
 });
 
 describe('showOverlayOnPage', () => {
@@ -1211,5 +1239,14 @@ describe('devForceCompanionHide', () => {
 
     expect(presentation.companionVisible).toBe(false);
     expect(presentation.mood).toBe('peek');
+  });
+});
+
+describe('recordInteractionPing', () => {
+  it('marks the cat as just interacted with, without touching her presentation', async () => {
+    await recordInteractionPing(NOW);
+
+    const cat = await import('../utils/db').then((db) => db.getCatState());
+    expect(cat.lastCareAt).toBe(NOW);
   });
 });

@@ -63,6 +63,7 @@ import {
   requestCareAction,
   requestClearCompanionSpeech,
   requestPresentation,
+  requestRecordInteraction,
   requestSettleAfterIntro,
   requestSettings,
 } from '../../utils/runtime-client';
@@ -652,6 +653,7 @@ export class TabbyOverlay {
     this.moreOpen = false;
     this.pendingAction = null;
     this.highlightedAction = null;
+    this.pingInteraction();
     void this.dismissCompanionSpeech();
   }
 
@@ -663,8 +665,18 @@ export class TabbyOverlay {
       return;
     }
     this.menuOpen = true;
+    this.pingInteraction();
     this.render();
     this.syncOutsideClickListener();
+  }
+
+  /** Opening/closing the menu counts as an interaction even without a care action, so
+   * automatic ambient behavior (peek, rest) waits the same settle period it would after
+   * an actual pet/play/ask. Fire and forget: nothing on screen depends on this resolving. */
+  private pingInteraction(): void {
+    void requestRecordInteraction().catch((error) =>
+      ignoreIfExtensionUnavailable('record interaction', error),
+    );
   }
 
   private dismissSpeechBubble(): void {

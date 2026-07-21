@@ -66,6 +66,11 @@ export function requestClearCompanionSpeech(): Promise<CatPresentation> {
   return sendMessage<CatPresentation>({ type: 'clearCompanionSpeech' });
 }
 
+/** Opening or closing the care menu counts as an interaction, even without a care action. */
+export function requestRecordInteraction(): Promise<void> {
+  return sendMessage<void>({ type: 'recordInteraction' });
+}
+
 export function requestSettleAfterIntro(): Promise<CatPresentation> {
   return sendMessage<CatPresentation>({ type: 'settleAfterIntro' });
 }

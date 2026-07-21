@@ -21,6 +21,7 @@ import {
   getCurrentPresentation,
   handleCareAction,
   presentOnActiveTab,
+  recordInteractionPing,
   restartIntroSession,
   showOverlayOnPage,
   settleAfterIntro,
@@ -613,6 +614,11 @@ export default defineBackground(() => {
           case 'clearCompanionSpeech': {
             const data = await clearCompanionSpeech(Date.now());
             sendResponse({ ok: true, data } satisfies RuntimeResponse);
+            return;
+          }
+          case 'recordInteraction': {
+            await recordInteractionPing(Date.now());
+            sendResponse({ ok: true } satisfies RuntimeResponse);
             return;
           }
           case 'settleAfterIntro': {

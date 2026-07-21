@@ -300,6 +300,7 @@ export type RuntimeMessage =
   | { type: 'devForceCompanionHide' }
   | { type: 'clearCompanionSpeech' }
   | { type: 'settleAfterIntro' }
+  | { type: 'recordInteraction' }
   | { type: 'syncDevTemper'; simulation?: Partial<import('./mood-timers').TemperSimulation>; devForceMood?: DevMoodOverride }
   | { type: 'getDevTemper' }
   | { type: 'ping' };

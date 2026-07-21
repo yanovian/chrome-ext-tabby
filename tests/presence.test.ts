@@ -114,13 +114,28 @@ describe('resolveCompanionPresence', () => {
 
   it('peeks from an edge by default during daytime', () => {
     const result = resolve({
-      cat: { ...createInitialCat(NOW), lastAmbientAt: NOW },
+      cat: { ...createInitialCat(NOW), lastAmbientAt: NOW, lastCareAt: 0 },
     });
 
     expect(result.companionVisible).toBe(true);
     expect(result.ambientActivity).toBe('peeking');
     expect(['bottom', 'left', 'right']).toContain(result.peekEdge);
     expect(result.peekInset).toBeGreaterThan(0);
+  });
+
+  it('stays visible without starting a fresh peek right after a care interaction', () => {
+    // Regression: decideIdleAmbient's peek fallback had no settle period at all, unlike the
+    // rest fallback (which already checks isSleepDeferred) — she'd start a fresh peek visit
+    // the instant an interaction ended and the next tick happened to run. A second regression
+    // introduced while fixing that: deferring ambient activity must not hide her outright
+    // (presence({}) defaults to companionVisible: false) — she should stay exactly as visible
+    // as she already was, just without any new ambient activity starting.
+    const result = resolve({
+      cat: { ...createInitialCat(NOW), lastAmbientAt: NOW, lastCareAt: NOW - 60_000 },
+    });
+
+    expect(result.ambientActivity).not.toBe('peeking');
+    expect(result.companionVisible).toBe(true);
   });
 
   it('stays hidden at night when idle', () => {

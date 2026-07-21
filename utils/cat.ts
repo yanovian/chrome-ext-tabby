@@ -51,6 +51,7 @@ import {
 } from './do-not-disturb';
 import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood, resolveHungryMood } from './cat-interactions';
 import { isIntroCompleted, resetIntro } from './intro';
+import { isSleepDeferred } from './mood-grace';
 import { fallbackSpeech, previewRecoverySpeech } from './speech-fallback';
 import { getCatState, getMemories, recallMemory, saveCatState } from './db';
 import { evaluateEmotionalTrigger, type EmotionalTriggerResult } from './emotional-triggers';
@@ -950,6 +951,23 @@ export async function ensureCatExists(now: number): Promise<CatState> {
   return initial;
 }
 
+/**
+ * Marks "the user just did something with her" without changing what she looks like or her
+ * vitals — opening or closing the care menu counts as an interaction for the purpose of
+ * deferring automatic ambient behavior (see isSleepDeferred's use in decideIdleAmbient), even
+ * when it doesn't end in an actual care action. Queued alongside presentation writes so it
+ * can't race a concurrent care action's own read-modify-write of the same cat record.
+ */
+export function recordInteractionPing(now: number): Promise<void> {
+  return serializePresentationWrite(async () => {
+    const cat = await getCatState(now);
+    if (!cat) {
+      return;
+    }
+    await saveCatState({ ...cat, lastCareAt: now });
+  });
+}
+
 export function showOverlayOnPage(
   now: number,
   page: PageContext = {},
@@ -1589,10 +1607,22 @@ function decideIdleAmbient(input: {
       recordAmbient: true,
     });
   }
-  if (isDaytime(new Date(now).getHours(), settings)) {
-    return startPeekVisit({ cat, settings, now, recordAmbient: true });
+  if (!isDaytime(new Date(now).getHours(), settings)) {
+    // Nighttime idle stays hidden regardless of the care-grace period below — that period
+    // only ever holds off starting something new during the day, it never overrides "it's
+    // quiet hours, stay hidden."
+    return presence({});
   }
-  return presence({});
+  // shouldStartAmbientRest already defers a fresh rest until a bit after the last interaction
+  // (isSleepDeferred); a fresh peek visit needs that same settle period, or she'd start
+  // peeking the moment an interaction ends and the next tick happens to run (e.g. within a
+  // minute, via the periodic alarm) — nothing should start on its own right after the user
+  // just did something with her. She stays exactly as visible as she already was — deferring
+  // ambient activity must not be confused with hiding her (presence({}) defaults to hidden).
+  if (isSleepDeferred(cat, now)) {
+    return presence({ companionVisible: true });
+  }
+  return startPeekVisit({ cat, settings, now, recordAmbient: true });
 }
 
 export function resolveCompanionPresence(input: {
