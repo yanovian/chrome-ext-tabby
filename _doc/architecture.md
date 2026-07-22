@@ -21,6 +21,9 @@ This document explains how **Tabby** works internally.
 | Sprite sheets | Bundled **Lottie** JSON per life stage, played with dotLottie Web |
 | Growth from browsing | Life stage advances by **calendar days** since adoption, not tab count |
 
+See [`wellbeing-rationale.md`](./wellbeing-rationale.md) for the research behind
+treating long social/news sessions as draining and framing Tabby as a companion.
+
 ## Components
 
 ```mermaid
