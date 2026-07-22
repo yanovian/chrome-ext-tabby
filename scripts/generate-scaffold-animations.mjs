@@ -862,21 +862,23 @@ function buildFace(layout, face, blink, frames, options = {}) {
 function buildBodyRig(layout, motion, options = {}) {
   // dotLottie: first shape group in the layer draws in front. Torso always
   // goes first so the tail tucks behind the body instead of floating on top
-  // of it when the cat faces the viewer.
-  const parts = [buildTorso(layout, options.torsoOptions ?? {})];
-  if (!options.skipTail) {
-    parts.push(buildTailRigGroup(layout, motion, options.tailOptions ?? {}));
-  }
+  // of it when the cat faces the viewer, but batting paws need to read as
+  // reaching out in front of her, so they go even earlier than the torso.
+  const parts = [];
   if (options.batPaws) {
     parts.push(buildBatPawRig(motion.pawL, 'L', layout));
     parts.push(buildBatPawRig(motion.pawR, 'R', layout));
+  }
+  parts.push(buildTorso(layout, options.torsoOptions ?? {}));
+  if (!options.skipTail) {
+    parts.push(buildTailRigGroup(layout, motion, options.tailOptions ?? {}));
   }
   return group('BodyRig', parts, { p: staticValue([0, 0]) });
 }
 
 function buildBatPawRig(pawMotion, side, layoutRef) {
-  const spread = layoutRef.bodyW * 0.34;
-  const chestY = -layoutRef.bodyH * 0.22;
+  const spread = layoutRef.bodyW * 0.46;
+  const chestY = layoutRef.bodyH * 0.1;
   const anchorY = layoutRef.legH * 0.55;
   return group(
     side === 'L' ? 'PawBatL' : 'PawBatR',
@@ -884,6 +886,7 @@ function buildBatPawRig(pawMotion, side, layoutRef) {
     {
       p: offsetPos(pawMotion.p, side === 'L' ? -spread : spread, chestY),
       r: pawMotion.r,
+      s: staticValue([118, 118, 100]),
       a: staticValue([0, anchorY, 0]),
     },
   );
@@ -1049,11 +1052,12 @@ function buildBatPaw(layout, side) {
   return group(
     'BatPaw',
     [
-      ...painted(ellipse(pw, ph), COLORS.bodyDark, o, w * 0.7),
-      ...painted(ellipse(pw * 0.55, ph * 0.42), COLORS.pink, o, w * 0.25),
+      // Earlier items draw in front: toe beans over the palm pad, both over the base mitt.
       toePad(0),
       toePad(1),
       toePad(2),
+      ...painted(ellipse(pw * 0.55, ph * 0.42), COLORS.pink, o, w * 0.25),
+      ...painted(ellipse(pw, ph), COLORS.bodyDark, o, w * 0.7),
     ],
     {
       p: staticValue([0, layout.legH * 0.35]),

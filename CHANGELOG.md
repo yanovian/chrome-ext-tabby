@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.4 (unreleased)
+
+- Update the **playing** animation.
+
 ## 2.4.3
 
 - Fixed the **tail** position.
