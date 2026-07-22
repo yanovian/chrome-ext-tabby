@@ -7,19 +7,17 @@ MP4 is not used in the middle step because H.264 MP4 cannot keep a transparent b
 ## Quick use
 
 ```bash
-pnpm animations      # write lottie-json/
-pnpm gif:convert     # build image if needed → public/gif/
+make animations      # write lottie-json/
+make gif-convert     # build image if needed → public/gif/
 ```
 
-Makefile: `make animations`, then `make gif-convert`.
+Or both in one step: `make animations-ship`.
 
-Or both in one step: `pnpm animations:ship` / `make animations-ship`.
-
-**After JSON changes**, always run `gif:convert` (or `animations:ship`) so `public/gif/` matches `lottie-json/`.
+**After JSON changes**, always run `gif-convert` (or `animations-ship`) so `public/gif/` matches `lottie-json/`.
 
 ## Image
 
-Default: `tabby-lottie-gif:9`, built automatically on first `pnpm gif:convert`.
+Default: `tabby-lottie-gif:9`, built automatically on first `make gif-convert`.
 
 Rebuild:
 

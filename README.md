@@ -71,8 +71,8 @@ Privacy policy: [PRIVACY.md](./PRIVACY.md)
 ## Quick start (development)
 
 ```bash
-pnpm install
-pnpm dev
+make install
+make dev
 ```
 
 1. Open any normal web page. Tabby appears in the corner.
@@ -82,21 +82,21 @@ pnpm dev
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Dev server with hot reload |
-| `pnpm build` | Production build (Chrome) |
-| `pnpm zip` | Create Chrome Web Store zip |
-| `pnpm icons` | Regenerate icons from `scripts/generate-icons.py` |
-| `pnpm locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
-| `pnpm animations` | Regenerate Lottie JSON source clips in `lottie-json/` |
-| `pnpm gif:convert` | Docker Lottie→GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
-| `pnpm animations:ship` | Regenerate JSON and Docker GIF in one step |
+| `make dev` | Dev server with hot reload |
+| `make build` | Production build (Chrome) |
+| `make zip` | Create Chrome Web Store zip |
+| `make icons` | Regenerate icons from `scripts/generate-icons.py` |
+| `make locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
+| `make animations` | Regenerate Lottie JSON source clips in `lottie-json/` |
+| `make gif-convert` | Docker Lottie→GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
+| `make animations-ship` | Regenerate JSON and Docker GIF in one step |
 
-After **`pnpm animations`** (or `make animations`), run **`pnpm gif:convert`** (or `make gif-convert`) so shipped GIFs in `public/gif/` match the new JSON. Or use **`pnpm animations:ship`** / **`make animations-ship`** for both steps.
+After **`make animations`**, run **`make gif-convert`** so shipped GIFs in `public/gif/` match the new JSON. Or use **`make animations-ship`** for both steps.
 
-| `pnpm test` | Run unit tests |
-| `pnpm typecheck` | TypeScript check |
+| `make test` | Run unit tests |
+| `make typecheck` | TypeScript check |
 
-A `Makefile` wraps the same tasks (`make check`, `make gif-convert`, `make animations-ship`, `make package`, `make release-patch`, …).
+`make check` runs the full CI-style check (typecheck, lint, i18n lint, test, build). Run `make help` to see all available targets.
 
 ## Website
 
@@ -126,8 +126,8 @@ extension **name** stays "Tabby" everywhere (it's a brand).
 
 All translations live in a single source file, [`scripts/generate-locales.mjs`](./scripts/generate-locales.mjs)
 (the generated `public/_locales/` is git-ignored). It runs automatically before
-every `dev`/`build`/`zip` (via `pnpm assets`), so a package can never ship without
-its locale files. To add or edit a language, update the script and run `pnpm locales`.
+every `dev`/`build`/`zip` (via `make assets`), so a package can never ship without
+its locale files. To add or edit a language, update the script and run `make locales`.
 
 Thank you to everyone who takes the time to check a localization and fix wrong or
 awkward wording. The people who helped with each language are listed in
@@ -154,7 +154,7 @@ runtime: she works fully offline, and nothing about your browsing is uploaded an
 ## Tech stack
 
 - [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
-- Animated **GIF** cat clips (`public/gif/`), built with `pnpm gif:convert` (dotlottie-web + gifski in Docker)
+- Animated **GIF** cat clips (`public/gif/`), built with `make gif-convert` (dotlottie-web + gifski in Docker)
 - IndexedDB + `chrome.storage.local` — local cat state and settings
 - [Vitest](https://vitest.dev/) — unit tests
 - GitHub Actions — CI on PR/push, releases on version tags, website deploy

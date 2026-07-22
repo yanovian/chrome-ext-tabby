@@ -1,8 +1,6 @@
 # Browser E2E (Playwright)
 
 ```bash
-pnpm test:e2e
-# or
 make test-e2e
 ```
 

@@ -9,10 +9,10 @@ Companion clips ship as **GIF** in `public/gif/{stage}/`. Source Lottie JSON liv
 
 ## When animation JSON changes
 
-1. **`pnpm animations`** (or `make animations`) — regenerate `lottie-json/`
-2. **`pnpm gif:convert`** (or `make gif-convert`) — Docker converts JSON → `public/gif/` (overwrites shipped GIFs)
+1. **`make animations`** — regenerate `lottie-json/`
+2. **`make gif-convert`** — Docker converts JSON → `public/gif/` (overwrites shipped GIFs)
 
-Or one step: **`pnpm animations:ship`** / **`make animations-ship`**.
+Or one step: **`make animations-ship`**.
 
 Do **not** skip step 2 after step 1. The extension loads GIFs, not Lottie JSON.
 
@@ -24,7 +24,7 @@ Do **not** skip step 2 after step 1. The extension loads GIFs, not Lottie JSON.
 
 ## Not for GIF export
 
-`@lottiefiles/relottie-cli` only transforms Lottie **JSON** (AST). It does not render GIFs. Do not suggest it for `gif:convert`.
+`@lottiefiles/relottie-cli` only transforms Lottie **JSON** (AST). It does not render GIFs. Do not suggest it for `gif-convert`.
 
 ## peek_duck
 

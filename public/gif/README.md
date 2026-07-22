@@ -7,17 +7,14 @@ The extension loads these **animated GIFs** on web pages.
 **Two steps** when JSON changes: generate source clips, then convert to GIF.
 
 ```bash
-pnpm animations        # 1. write lottie-json/{stage}/
-pnpm gif:convert       # 2. Docker → public/gif/{stage}/ (150×150, transparent)
+make animations    # 1. write lottie-json/{stage}/
+make gif-convert   # 2. Docker → public/gif/{stage}/ (150×150, transparent)
 ```
-
-Makefile equivalents: `make animations`, then `make gif-convert`.
 
 **One command** for both steps:
 
 ```bash
-pnpm animations:ship
-# or: make animations-ship
+make animations-ship
 ```
 
 Docker runs **dotlottie-web** (transparent PNG frames) then **gifski** (temporal palette, less color flicker). See `docker/lottie-gif/README.md`.
@@ -31,7 +28,7 @@ Docker runs **dotlottie-web** (transparent PNG frames) then **gifski** (temporal
 
 The extension **scales by age in CSS** (`COMPANION_DISPLAY_SIZE` in `utils/companion-animation.ts`).
 
-`pnpm gif:convert` **overwrites** `public/gif/`. Requires Docker.
+`make gif-convert` **overwrites** `public/gif/`. Requires Docker.
 
 ## Required files
 

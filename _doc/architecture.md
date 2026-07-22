@@ -240,9 +240,9 @@ Content scripts also listen for `overlayActivate` and `overlayDeactivate` (not i
 
 [WXT](https://wxt.dev/) generates `manifest.json` from `wxt.config.ts` and file-based entrypoints.
 
-- `pnpm dev`: hot reload to `.output/chrome-mv3-dev`
-- `pnpm build` / `pnpm zip`: production output to `.output/chrome-mv3/`
-- `pnpm assets`: regenerate `_locales` and Lottie scaffold animations before build
+- `make dev`: hot reload to `.output/chrome-mv3-dev`
+- `make build` / `make zip`: production output to `.output/chrome-mv3/`
+- `make assets`: regenerate `_locales` and Lottie scaffold animations before build
 - `scripts/verify-build-output.mjs`: rejects forbidden legacy asset dirs (`sprites`, `models`, `ort`)
 
 `web_accessible_resources` exposes `animations/*/*.json` for Lottie fetch from content scripts.

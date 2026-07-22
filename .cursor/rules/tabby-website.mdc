@@ -29,7 +29,7 @@ Prefer **Makefile** from repo root:
 
 | Command | Purpose |
 |---------|---------|
-| `make website-install` | `pnpm install` in `website/` |
+| `make website-install` | Install dependencies in `website/` |
 | `make website-dev` | Hot reload at `http://localhost:5173/` |
 | `make website-build` | Production build to `website/dist/` |
 | `make website-preview` | Build + preview at `http://localhost:4173/chrome-ext-tabby/` |
@@ -38,21 +38,19 @@ Prefer **Makefile** from repo root:
 | `make website-lint-i18n-fix` | Add missing keys as `""` in other locales (prints warnings) |
 | `make website-og-images` | Regenerate committed OG share images (`static/og/*.png`) |
 
-Equivalent: `cd website && pnpm dev|build|preview`.
-
 ## Assets
 
 Icons, GIFs, and **Lottie JSON** are not duplicated in git. `website/scripts/copy-assets.mjs` copies from extension `public/` and `lottie-json/` on `predev` and `prebuild`.
 
 - **Marketing animations:** use Lottie via `TabbyLottie` (`@lottiefiles/dotlottie-web`, canvas). Tabby JSON is authored for DotLottie, not `lottie-web`.
-- **SEO / sharing:** `@unhead/react` + `@unhead/schema-org` in `SiteHead.tsx` (route + locale aware). Strings in `src/locales/*/seo.json`. Committed share images in `static/og-image.png` and `static/og/*.png` (copied to `public/` on build). Regenerate with `make website-og-images` or `pnpm og-images` when SEO copy changes. `scripts/prerender-locale-html.mjs` writes static HTML per locale and route for GitHub Pages view-source.
+- **SEO / sharing:** `@unhead/react` + `@unhead/schema-org` in `SiteHead.tsx` (route + locale aware). Strings in `src/locales/*/seo.json`. Committed share images in `static/og-image.png` and `static/og/*.png` (copied to `public/` on build). Regenerate with `make website-og-images` when SEO copy changes. `scripts/prerender-locale-html.mjs` writes static HTML per locale and route for GitHub Pages view-source.
 - **i18n:** committed JSON in `website/src/locales/<locale>/` (39 languages, same set as the Chrome Web Store). `website/src/i18n/locales.ts` lists codes, native labels, and RTL (`ar`, `fa`). Language picker in the top bar; choice saved in `localStorage`. Legal page body stays English (`PRIVACY.md` / `TERMS.md`); UI chrome is translated. Vite bundles these files via `import.meta.glob` (shipped in the production JS). **No locale generators.** Edit JSON by hand.
 
 After changing `src/locales/en/`:
 
-1. `cd website && pnpm lint-i18n-fix` to add empty keys to other locales (warns which locale/key).
+1. `make website-lint-i18n-fix` to add empty keys to other locales (warns which locale/key).
 2. Fill translations in each locale folder.
-3. `cd website && pnpm lint-i18n` (also runs before `pnpm build` / `make website-build`).
+3. `make website-lint-i18n` (also runs before `make website-build`).
 
 `lint-i18n` fails if any locale has missing or extra keys compared to `en`.
 
@@ -61,7 +59,7 @@ After changing extension GIFs, icons, or Lottie source clips, rebuild or restart
 ## Extension repo isolation
 
 - `website/` has its own `package.json` and `pnpm-lock.yaml`
-- Root `pnpm check` does **not** build the website; extension typecheck excludes `website/` (see `scripts/patch-wxt-tsconfig.mjs`)
+- Root `make check` does **not** build the website; extension typecheck excludes `website/` (see `scripts/patch-wxt-tsconfig.mjs`)
 - ESLint ignores `website/**`
 - Deploy: `.github/workflows/pages.yml` (Node 24, `configure-pages@v5`, `upload-pages-artifact@v5`, `deploy-pages@v5`). Not `ci.yml`.
 - **Pages must be enabled** in repo Settings with source **GitHub Actions**, or deploy returns HTTP 404.

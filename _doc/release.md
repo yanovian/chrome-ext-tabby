@@ -25,16 +25,9 @@ Example on ship: `## 2.0.1 (unreleased)` becomes `## 2.0.1`, then add `## 2.0.2 
 ## Local build & zip
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm check          # typecheck + lint + test
-pnpm zip            # assets + build + zip + verify output
-```
-
-Or use the Makefile:
-
-```bash
-make check
-make package        # same as pnpm zip
+make install
+make check          # typecheck + lint + test
+make package         # assets + build + zip + verify output
 ```
 
 Artifacts appear in `.output/`:
@@ -101,7 +94,7 @@ git commit -m "Prepare release vX.Y.Z"   # if changelog changed
 make release-patch   # or release-minor / release-major
 ```
 
-**Option B: manual**
+**Option B: manual** (skips the check suite that `make release-patch` runs first)
 
 ```bash
 git checkout master
@@ -118,9 +111,9 @@ The release workflow publishes the zip automatically.
 ### Prerequisites
 
 1. [Chrome Web Store Developer account](https://chrome.google.com/webstore/devconsole) ($5 one-time fee)
-2. A green CI build or local `pnpm zip` artifact
+2. A green CI build or local `make zip` artifact
 3. Store listing assets:
-   - Icon 128×128 (`public/icon/128.png`; run `pnpm icons` to regenerate)
+   - Icon 128×128 (`public/icon/128.png`; run `make icons` to regenerate)
    - Screenshots (1280×800 recommended; see `_doc/tutorial.md`)
    - Short and detailed descriptions (`_doc/store-listing.md`, ~40 languages via `_locales`)
 4. Privacy policy URL: [PRIVACY.md](https://github.com/yanovian/chrome-ext-tabby/blob/master/PRIVACY.md)

@@ -9,7 +9,7 @@ alwaysApply: true
 
 Before finishing any task that changes code or behavior:
 
-1. Run **`pnpm check`** (`typecheck` + `lint` + `test`). Fix failures.
+1. Run **`make check`** (`typecheck` + `lint` + `test`). Fix failures.
 2. Update **`CHANGELOG.md`** under the top **`## X.Y.Z (unreleased)`** section (see below).
 3. Update **`PRIVACY.md`** (with **Last updated** date) if permissions or data read/stored changed.
 4. Update **`README.md`** if user-facing behavior or permissions changed.
@@ -26,7 +26,7 @@ Scripts created only to **bootstrap, bulk-migrate, or batch-fix** data (e.g. loc
 **Before finishing the task:**
 
 1. If the script is **not** wired into `package.json`, CI, or `postinstall`, and its output is already committed, **delete the script**.
-2. Keep only **ongoing** tooling (e.g. `scripts/lint-extension-i18n.mjs` in `pnpm check`, `scripts/generate-locales.mjs` for Chrome `_locales/`).
+2. Keep only **ongoing** tooling (e.g. `scripts/lint-extension-i18n.mjs` in `make check`, `scripts/generate-locales.mjs` for Chrome `_locales/`).
 3. Do not leave dead `scripts/*.mjs` that future agents might re-run and undo hand-polished work.
 
 **Source of truth** for in-app UI strings: `locales/*.json`, edited directly or with tests. Brand names: `LOCALE_BRANDS` in `utils/locale-registry.ts`.

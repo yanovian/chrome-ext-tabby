@@ -5,8 +5,7 @@ Tabby mood animations as **Lottie JSON** for editing and export.
 ## Regenerate JSON
 
 ```bash
-pnpm animations
-# or: make animations
+make animations
 ```
 
 Writes `lottie-json/{newborn,playful,adult}/*.json`.
@@ -18,8 +17,7 @@ Lottie canvas sizes per stage: newborn **140**, playful **180**, adult **220** (
 If you changed or regenerated JSON, run GIF conversion **next** so `public/gif/` stays in sync:
 
 ```bash
-pnpm gif:convert
-# or: make gif-convert
+make gif-convert
 ```
 
 Uses Docker image `tabby-lottie-gif:9` (dotlottie-web + gifski). See [`public/gif/README.md`](../public/gif/README.md) and `docker/lottie-gif/README.md`.
@@ -29,8 +27,7 @@ Uses Docker image `tabby-lottie-gif:9` (dotlottie-web + gifski). See [`public/gi
 ### Both steps
 
 ```bash
-pnpm animations:ship
-# or: make animations-ship
+make animations-ship
 ```
 
-Runs `animations` then `gif:convert` in order.
+Runs `animations` then `gif-convert` in order.
