@@ -1,4 +1,4 @@
-# Privacy Policy — Tabby
+# Privacy Policy: Tabby
 
 **Last updated:** July 10, 2026
 
@@ -15,7 +15,7 @@ body text, never reads your browsing history, and never uploads anything.
 
 ## What Tabby reads
 
-- **Active tab title and URL** — when a tab is in the foreground (`tabs` permission)
+- **Active tab title and URL**: when a tab is in the foreground (`tabs` permission)
 - **Not read:** page HTML or visible text, browsing history, bookmarks, closed tabs,
   clipboard, or form fields
 
@@ -24,16 +24,16 @@ at least one minute. Tabby's lines come from curated speech, not from reading pa
 
 ## What Tabby stores locally
 
-- **Cat state** — hunger, happiness, stress, energy, age, mood (IndexedDB)
-- **Browsing observations** — title, URL, hostname, local category (IndexedDB). No page body text.
-- **Recent visit keys** — last 10 page paths for dedup (`chrome.storage.local`)
-- **Memories** — topic summaries Tabby can recall (IndexedDB)
-- **Settings** — quiet hours, appearance limits (`chrome.storage.local`)
-- **Per-page hide list** — pages where you chose Hide Tabby (`chrome.storage.local`)
-- **Do not disturb** — timer end and chosen duration (`chrome.storage.local`)
-- **Intro tour** — whether you finished the first-meeting tour (`chrome.storage.local`)
-- **Overlay position** — where you dragged Tabby (`chrome.storage.local`)
-- **Presentation cache** — last mood and speech snapshot for the floating cat (`chrome.storage.local`)
+- **Cat state**: hunger, happiness, stress, energy, age, mood (IndexedDB)
+- **Browsing observations**: title, URL, hostname, local category (IndexedDB). No page body text.
+- **Recent visit keys**: last 10 page paths for dedup (`chrome.storage.local`)
+- **Memories**: topic summaries Tabby can recall (IndexedDB)
+- **Settings**: quiet hours, appearance limits (`chrome.storage.local`)
+- **Per-page hide list**: pages where you chose Hide Tabby (`chrome.storage.local`)
+- **Do not disturb**: timer end and chosen duration (`chrome.storage.local`)
+- **Intro tour**: whether you finished the first-meeting tour (`chrome.storage.local`)
+- **Overlay position**: where you dragged Tabby (`chrome.storage.local`)
+- **Presentation cache**: last mood and speech snapshot for the floating cat (`chrome.storage.local`)
 
 Remove Tabby's data by uninstalling the extension or clearing its storage in Chrome
 (`chrome://extensions` → Tabby → Details → Clear data).
@@ -44,14 +44,14 @@ Remove Tabby's data by uninstalling the extension or clearing its storage in Chr
 - Read Chrome browsing history
 - Operate a backend that receives browsing data
 - Use cloud AI or send pages to third parties
-- Sell data — we never receive it
+- Sell data, since we never receive it
 - Use remote code at runtime
 
 ## Permissions
 
 | Permission | Why |
 |------------|-----|
-| `tabs` | Active tab title and URL only — not history |
+| `tabs` | Active tab title and URL only, not history |
 | `storage` | Cat state, visit dedup, settings |
 | `alarms` | Once-per-minute care tick, plus short feeding and play timers |
 | `scripting` | Best-effort inject into already-open tabs |

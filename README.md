@@ -35,15 +35,15 @@ page or on every page whenever you want the screen to yourself.
 
 ## Features
 
-- **Floating cat** — Tabby appears on pages you visit. Drag her anywhere.
-- **Care menu** — tap Tabby to pet, feed, play, or ask what's up. She answers in a speech bubble.
-- **Moods and needs** — hungry, happy, stressed, sleepy, and more, each with matching animations.
-- **Feeding and play moments** — short scenes when you treat or play with her.
-- **Three life stages** — newborn kitten, playful kitten, then adult cat, each with its own animation set.
-- **Peeks and speech** — she may wander in from the edge or murmur a quiet line while you browse.
-- **Memories** — places you visit together can echo back in things she says later.
-- **Quiet hours** — unprompted speech stays off during the hours you choose.
-- **Show / hide** — per page, on every page, or do not disturb for 30 minutes, 1 hour, or until end of today.
+- **Floating cat**: Tabby appears on pages you visit. Drag her anywhere.
+- **Care menu**: tap Tabby to pet, feed, play, or ask what's up. She answers in a speech bubble.
+- **Moods and needs**: hungry, happy, stressed, sleepy, and more, each with matching animations.
+- **Feeding and play moments**: short scenes when you treat or play with her.
+- **Three life stages**: newborn kitten, playful kitten, then adult cat, each with its own animation set.
+- **Peeks and speech**: she may wander in from the edge or murmur a quiet line while you browse.
+- **Memories**: places you visit together can echo back in things she says later.
+- **Quiet hours**: unprompted speech stays off during the hours you choose.
+- **Show / hide**: per page, on every page, or do not disturb for 30 minutes, 1 hour, or until end of today.
 
 ## Permissions
 
@@ -88,15 +88,15 @@ make dev
 | `make icons` | Regenerate icons from `scripts/generate-icons.py` |
 | `make locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
 | `make animations` | Regenerate Lottie JSON source clips in `lottie-json/` |
-| `make gif-convert` | Docker Lottie→GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
+| `make gif-convert` | Docker Lottie to GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
 | `make animations-ship` | Regenerate JSON and Docker GIF in one step |
-
-After **`make animations`**, run **`make gif-convert`** so shipped GIFs in `public/gif/` match the new JSON. Or use **`make animations-ship`** for both steps.
-
 | `make test` | Run unit tests |
 | `make typecheck` | TypeScript check |
+| `make check` | Full CI-style check: typecheck, lint, i18n lint, test, build |
 
-`make check` runs the full CI-style check (typecheck, lint, i18n lint, test, build). Run `make help` to see all available targets.
+After `make animations`, run `make gif-convert` so shipped GIFs in `public/gif/` match the new JSON, or use `make animations-ship` for both steps in one command.
+
+Run `make help` to see all available targets.
 
 ## Website
 
@@ -138,10 +138,10 @@ Seeing weird text in a translation? Feel free to contribute:
 
 ## How it works
 
-1. **Appear** — a content script renders Tabby on the active tab when she is not hidden. She does not run on some sensitive sites (see `utils/overlay-excluded-hosts/`).
-2. **Notice** — the background worker reads only the **title and URL** of the page you are on.
-3. **React** — after about a minute on a page, her mood shifts; pet, feed, and play can trigger short animation moments.
-4. **Grow** — life stage advances by calendar days since adoption; memories from earlier visits can surface in speech.
+1. **Appear**: a content script renders Tabby on the active tab when she is not hidden. She does not run on some sensitive sites (see `utils/overlay-excluded-hosts/`).
+2. **Notice**: the background worker reads only the **title and URL** of the page you are on.
+3. **React**: after about a minute on a page, her mood shifts. Pet, feed, and play can trigger short animation moments.
+4. **Grow**: life stage advances by calendar days since adoption. Memories from earlier visits can surface in speech.
 
 See [`_doc/architecture.md`](./_doc/architecture.md) for the full technical design.
 
@@ -153,12 +153,12 @@ runtime: she works fully offline, and nothing about your browsing is uploaded an
 
 ## Tech stack
 
-- [WXT](https://wxt.dev/) — Manifest V3 extension framework (TypeScript + Vite)
+- [WXT](https://wxt.dev/): Manifest V3 extension framework (TypeScript + Vite)
 - Animated **GIF** cat clips (`public/gif/`), built with `make gif-convert` (dotlottie-web + gifski in Docker)
-- IndexedDB + `chrome.storage.local` — local cat state and settings
-- [Vitest](https://vitest.dev/) — unit tests
-- GitHub Actions — CI on PR/push, releases on version tags, website deploy
-- [`website/`](./website/) — Vite + React landing page on GitHub Pages
+- IndexedDB + `chrome.storage.local`: local cat state and settings
+- [Vitest](https://vitest.dev/): unit tests
+- GitHub Actions: CI on PR/push, releases on version tags, website deploy
+- [`website/`](./website/): Vite + React landing page on GitHub Pages
 
 ## License
 

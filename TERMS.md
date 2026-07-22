@@ -1,4 +1,4 @@
-# Terms of Service — Tabby
+# Terms of Service: Tabby
 
 **Last updated:** July 12, 2026
 
