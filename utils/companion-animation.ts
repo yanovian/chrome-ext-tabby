@@ -9,6 +9,7 @@ export type CompanionAnimationState =
   | 'happy'
   | 'curious'
   | 'eat'
+  | 'starving'
   | 'feeding'
   | 'stress'
   | 'sleep'
@@ -93,8 +94,9 @@ export function moodToAnimationState(mood: CatMood): CompanionAnimationState {
     case 'curious':
       return 'curious';
     case 'hungry':
-    case 'starving':
       return 'eat';
+    case 'starving':
+      return 'starving';
     case 'stressed':
       return 'stress';
     case 'sleepy':
@@ -170,6 +172,7 @@ export function allCompanionAnimationPaths(): string[] {
     'happy',
     'curious',
     'eat',
+    'starving',
     'feeding',
     'stress',
     'sleep',

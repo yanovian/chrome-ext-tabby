@@ -26,6 +26,21 @@ const COLORS = {
   white: [1, 1, 1],
 };
 
+/** Washed-out "gone without a meal too long" fur, for the starving mood. */
+const STARVING_PALETTE = {
+  body: [0.91, 0.88, 0.83],
+  bodyDark: [0.72, 0.68, 0.62],
+  belly: [0.98, 0.97, 0.95],
+  bone: [0.98, 0.96, 0.9],
+  outline: [0.46, 0.4, 0.36],
+};
+
+function paletteFor(pale) {
+  return pale
+    ? STARVING_PALETTE
+    : { body: COLORS.body, bodyDark: COLORS.bodyDark, belly: COLORS.belly, outline: COLORS.outline };
+}
+
 const STAGES = {
   newborn: {
     size: 140,
@@ -59,7 +74,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'starving', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -189,6 +204,21 @@ function motionFor(state, frames) {
           [0, -6, 0],
         ]),
         face: 'worry',
+        blink: false,
+      };
+    case 'starving':
+      return {
+        body: breathe(frames, 1),
+        bodyR: loopKeys(frames, [-2, 2, -2]),
+        tailBase: staticValue(78),
+        tail: loopKeys(frames, [4, -4, 4]),
+        headR: loopKeys(frames, [-4, 8, -4]),
+        headP: loopKeys(frames, [
+          [0, 6, 0],
+          [0, 9, 0],
+          [0, 6, 0],
+        ]),
+        face: 'weary',
         blink: false,
       };
     case 'feeding':
@@ -386,39 +416,91 @@ function rigPositions(layout, size) {
   return { cx, footY, torsoY, headOffsetY };
 }
 
-function buildTorso(layout) {
-  const o = COLORS.outline;
+/**
+ * Pinched-waist "hourglass" outline for the starving silhouette. The head sits low
+ * enough to cover the upper torso, so only the lower half (around y=0 downward) is
+ * ever visible: that's where the waist must visibly cinch in for the gag to read.
+ */
+function buildThinTorsoOutline(bw, bh) {
+  const points = [
+    { y: -bh * 0.52, w: bw * 0.5 },
+    { y: -bh * 0.2, w: bw * 0.46 },
+    { y: 0, w: bw * 0.26 },
+    { y: bh * 0.18, w: bw * 0.32 },
+    { y: bh * 0.4, w: bw * 0.4 },
+    { y: bh * 0.58, w: bw * 0.28 },
+  ];
+  const right = points.map((p) => [p.w, p.y]);
+  const left = [...points].reverse().map((p) => [-p.w, p.y]);
+  return path([...right, ...left], true);
+}
+
+/** Bold ivory "visible ribs" arcs placed in the belly's visible lower half. */
+function buildRibArcs(bw, bh, strokeWidth, boneColor) {
+  const arcs = [
+    { y: bh * 0.02, half: bw * 0.22 },
+    { y: bh * 0.17, half: bw * 0.27 },
+  ];
+  return arcs.map((r, i) =>
+    group(
+      `Rib${i}`,
+      [
+        path([[-r.half, r.y], [0, r.y + bh * 0.07], [r.half, r.y]]),
+        stroke(boneColor, strokeWidth * 0.6),
+      ],
+      { p: staticValue([0, 0]) },
+    ),
+  );
+}
+
+function buildTorso(layout, options = {}) {
+  const thin = options.thin ?? false;
+  const c = paletteFor(thin);
+  const o = c.outline;
   const w = layout.stroke;
-  const bw = layout.bodyW;
-  const bh = layout.bodyH;
+  const bw = layout.bodyW * (thin ? 0.68 : 1);
+  const bh = layout.bodyH * (thin ? 0.88 : 1);
 
   const paw = (x) =>
     group(
       'Paw',
-      painted(ellipse(layout.legW * 1.2, layout.legH * 0.85), COLORS.bodyDark, o, w * 0.65),
+      painted(
+        ellipse(layout.legW * (thin ? 0.7 : 1.2), layout.legH * (thin ? 0.48 : 0.85)),
+        c.bodyDark,
+        o,
+        w * 0.65,
+      ),
       { p: staticValue([x, bh * 0.34]) },
     );
 
-  return group(
-    'Torso',
-    [
-      ...painted(ellipse(bw * 1.08, bh * 1.05), COLORS.body, o, w),
-      ...painted(ellipse(bw * 0.55, bh * 0.45), COLORS.belly, o, w * 0.25),
-      group(
-        'FlankPatch',
-        painted(ellipse(bw * 0.22, bh * 0.18), COLORS.bodyDark, o, w * 0.2),
-        { p: staticValue([bw * 0.28, -bh * 0.05]) },
-      ),
-      buildCollarBand(layout),
-      paw(-bw * 0.2),
-      paw(bw * 0.2),
-    ],
-    { p: staticValue([0, 0]) },
-  );
+  const midsection = thin
+    ? [...buildRibArcs(bw, bh, w, STARVING_PALETTE.bone)]
+    : [
+        group(
+          'FlankPatch',
+          painted(ellipse(bw * 0.22, bh * 0.18), c.bodyDark, o, w * 0.2),
+          { p: staticValue([bw * 0.28, -bh * 0.05]) },
+        ),
+      ];
+
+  const outline = thin ? buildThinTorsoOutline(bw, bh) : ellipse(bw * 1.08, bh * 1.05);
+  const bellySize = ellipse(bw * (thin ? 0.34 : 0.55), bh * (thin ? 0.24 : 0.45));
+  const belly = thin
+    ? [group('Belly', painted(bellySize, c.belly, o, w * 0.25), { p: staticValue([0, bh * 0.1]) })]
+    : painted(bellySize, c.belly, o, w * 0.25);
+  const base = painted(outline, c.body, o, w);
+  const collar = buildCollarBand(layout, { pale: thin });
+  const paws = [paw(-bw * 0.2), paw(bw * 0.2)];
+
+  // Detail shapes must come before the base silhouette: this renderer draws earlier
+  // items in front, so a base fill listed first would otherwise hide everything after it.
+  const parts = thin ? [...belly, ...midsection, collar, ...paws, ...base] : [...base, ...belly, ...midsection, collar, ...paws];
+
+  return group('Torso', parts, { p: staticValue([0, 0]) });
 }
 
-function buildCollarBand(layout) {
-  const o = COLORS.outline;
+function buildCollarBand(layout, options = {}) {
+  const o = paletteFor(options.pale).outline;
   const w = layout.stroke;
   const bw = layout.bodyW;
 
@@ -439,8 +521,9 @@ function headLayerTransform(motion, cx, headY) {
   };
 }
 
-function buildHeadShell(layout) {
-  const o = COLORS.outline;
+function buildHeadShell(layout, options = {}) {
+  const c = paletteFor(options.pale);
+  const o = c.outline;
   const w = layout.stroke;
   const r = layout.headR;
 
@@ -459,7 +542,7 @@ function buildHeadShell(layout) {
             ],
             true,
           ),
-          COLORS.body,
+          c.body,
           o,
           w,
         ),
@@ -486,7 +569,7 @@ function buildHeadShell(layout) {
     );
 
   return [
-    ...painted(ellipse(r * 2, r * 2), COLORS.body, o, w),
+    ...painted(ellipse(r * 2, r * 2), c.body, o, w),
     ear('L'),
     ear('R'),
     group(
@@ -523,6 +606,13 @@ function kawaiiMouth(face, y, o, w) {
     return group(
       'Mouth',
       [path([[-4, y + 2], [0, y], [4, y + 2]]), stroke(o, w * 0.85)],
+      { p: staticValue([0, 0]) },
+    );
+  }
+  if (face === 'weary') {
+    return group(
+      'Mouth',
+      [path([[-6, y + 4], [0, y - 1], [6, y + 4]]), stroke(o, w)],
       { p: staticValue([0, 0]) },
     );
   }
@@ -682,11 +772,11 @@ function overwhelmedEyeScaleKeys(frames) {
   };
 }
 
-function buildFace(layout, face, blink, frames) {
-  const o = COLORS.outline;
+function buildFace(layout, face, blink, frames, options = {}) {
+  const o = paletteFor(options.pale).outline;
   const w = layout.stroke;
   const r = layout.headR;
-  const wide = face === 'wide' || face === 'overwhelmed';
+  const wide = face === 'wide' || face === 'overwhelmed' || face === 'weary';
   const eyeY = r * 0.06;
   const gap = face === 'overwhelmed' ? r * 0.26 : r * 0.3;
   const eyeW = (face === 'overwhelmed' ? 0.64 : wide ? 0.56 : 0.5) * r;
@@ -773,7 +863,7 @@ function buildBodyRig(layout, motion, options = {}) {
   // dotLottie: first shape group in the layer draws in front. Torso always
   // goes first so the tail tucks behind the body instead of floating on top
   // of it when the cat faces the viewer.
-  const parts = [buildTorso(layout)];
+  const parts = [buildTorso(layout, options.torsoOptions ?? {})];
   if (!options.skipTail) {
     parts.push(buildTailRigGroup(layout, motion, options.tailOptions ?? {}));
   }
@@ -810,6 +900,7 @@ function buildTailRigGroup(layout, motion, options = {}) {
 
   const tipRigChildren = [tail.tip];
   if (options.whipTip && motion.tailTip) {
+    const whipColors = paletteFor(options.pale);
     tipRigChildren.push(
       group(
         'TailWhipRig',
@@ -825,7 +916,7 @@ function buildTailRigGroup(layout, motion, options = {}) {
                 ],
                 false,
               ),
-              stroke(COLORS.bodyDark, layout.stroke * (options.thickScale ?? 2.2) * 0.82),
+              stroke(whipColors.bodyDark, layout.stroke * (options.thickScale ?? 2.2) * 0.82),
               path(
                 [
                   [0, 0],
@@ -834,7 +925,7 @@ function buildTailRigGroup(layout, motion, options = {}) {
                 ],
                 false,
               ),
-              stroke(COLORS.body, layout.stroke * (options.thickScale ?? 2.2) * 0.68),
+              stroke(whipColors.body, layout.stroke * (options.thickScale ?? 2.2) * 0.68),
             ],
             { p: staticValue([0, 0]), r: staticValue(0) },
           ),
@@ -865,6 +956,7 @@ function buildTailRigGroup(layout, motion, options = {}) {
 }
 
 function buildTail(layout, options = {}) {
+  const c = paletteFor(options.pale);
   const len = layout.tailLen * (options.lengthScale ?? 1);
   const thick = layout.stroke * (options.thickScale ?? 2.2);
   const baseLen = len * 0.45;
@@ -883,7 +975,7 @@ function buildTail(layout, options = {}) {
         ],
         false,
       ),
-      stroke(COLORS.bodyDark, thick),
+      stroke(c.bodyDark, thick),
       path(
         [
           [0, 0],
@@ -893,7 +985,7 @@ function buildTail(layout, options = {}) {
         ],
         false,
       ),
-      stroke(COLORS.body, thick * 0.8),
+      stroke(c.body, thick * 0.8),
     ],
     { p: staticValue([0, 0]), r: baseRotation },
   );
@@ -910,7 +1002,7 @@ function buildTail(layout, options = {}) {
         ],
         false,
       ),
-      stroke(COLORS.bodyDark, thick),
+      stroke(c.bodyDark, thick),
       path(
         [
           [0, 0],
@@ -920,7 +1012,7 @@ function buildTail(layout, options = {}) {
         ],
         false,
       ),
-      stroke(COLORS.body, thick * 0.8),
+      stroke(c.body, thick * 0.8),
     ],
     { p: staticValue([0, 0]), r: staticValue(0) },
   );
@@ -1204,11 +1296,17 @@ function buildCat(stageKey, state) {
           },
           batPaws: true,
         }
-      : {};
+      : state === 'starving'
+        ? {
+            torsoOptions: { thin: true },
+            tailOptions: { lengthScale: 0.7, thickScale: 1.5, pale: true },
+          }
+        : {};
 
+  const pale = state === 'starving';
   const headShapes = [
-    group('Face', buildFace(layout, motion.face, motion.blink, frames), { p: staticValue([0, 0]) }),
-    group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
+    group('Face', buildFace(layout, motion.face, motion.blink, frames, { pale }), { p: staticValue([0, 0]) }),
+    group('HeadShell', buildHeadShell(layout, { pale }), { p: staticValue([0, 0]) }),
   ];
 
   // dotLottie: first shape group in the layer draws in front (Face before HeadShell).

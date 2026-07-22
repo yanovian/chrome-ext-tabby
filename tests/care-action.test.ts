@@ -356,7 +356,7 @@ describe('handleCareAction treat while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'gif/adult/eat.gif',
+      sprite: 'gif/adult/starving.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -440,7 +440,7 @@ describe('handleCareAction treat while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'gif/adult/eat.gif',
+      sprite: 'gif/adult/starving.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -495,7 +495,7 @@ describe('handleCareAction ask while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'gif/adult/eat.gif',
+      sprite: 'gif/adult/starving.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -521,7 +521,7 @@ describe('handleCareAction ask while hungry', () => {
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('starving');
-    expect(presentation.sprite).toContain('eat.gif');
+    expect(presentation.sprite).toContain('starving.gif');
     expect(presentation.speech).toMatch(/hungry|feed|tummy|starv|mew/i);
   });
 });
@@ -581,7 +581,7 @@ describe('handleCareAction pet while hungry', () => {
       mood: 'starving',
       stage: 'adult',
       stageLabel: 'Adult',
-      sprite: 'gif/adult/eat.gif',
+      sprite: 'gif/adult/starving.gif',
       speech: null,
       triggerKind: null,
       overlayHidden: false,
@@ -607,7 +607,7 @@ describe('handleCareAction pet while hungry', () => {
     const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('starving');
-    expect(presentation.sprite).toContain('eat.gif');
+    expect(presentation.sprite).toContain('starving.gif');
     expect(presentation.speech).toMatch(/f\*{3}|d\*{3}|s\*{2,}/i);
     expect(presentation.speech).toMatch(/feed|hungry|starv|food|bowl|tummy/i);
     expect(presentation.speech).not.toMatch(/purrr|that was nice|purr motor/i);

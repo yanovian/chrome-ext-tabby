@@ -23,8 +23,11 @@ describe('resolveCompanionAnimation', () => {
     expect(resolveCompanionAnimation({ stage: 'adult', mood: 'happy' })).toBe(
       'gif/adult/happy.gif',
     );
-    expect(resolveCompanionAnimation({ stage: 'playful', mood: 'starving' })).toBe(
+    expect(resolveCompanionAnimation({ stage: 'playful', mood: 'hungry' })).toBe(
       'gif/playful/eat.gif',
+    );
+    expect(resolveCompanionAnimation({ stage: 'playful', mood: 'starving' })).toBe(
+      'gif/playful/starving.gif',
     );
   });
 

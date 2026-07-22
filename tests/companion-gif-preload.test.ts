@@ -22,7 +22,7 @@ describe('warmCompanionGifCache', () => {
     await warmCompanionGifCache();
     const fetchMock = vi.mocked(fetch);
     expect(fetchMock).toHaveBeenCalled();
-    expect(fetchMock.mock.calls.length).toBe(39);
+    expect(fetchMock.mock.calls.length).toBe(42);
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('gif/adult/idle.gif'))).toBe(
       true,
     );

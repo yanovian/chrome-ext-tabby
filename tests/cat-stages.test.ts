@@ -43,7 +43,7 @@ describe('resolveCompanionAnimation', () => {
       'gif/playful/stress.gif',
     );
     expect(resolveCompanionAnimation({ stage: 'adult', mood: 'starving' })).toBe(
-      'gif/adult/eat.gif',
+      'gif/adult/starving.gif',
     );
   });
 
