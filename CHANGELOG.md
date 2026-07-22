@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.3 (unreleased)
+## 2.4.3
 
 - Fixed the **tail** position.
 - **Starving** now looks pale and thin.
