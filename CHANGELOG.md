@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.2 (unreleased)
+## 2.4.2
 
 - Update the list of stressful and neutral websites.
 
