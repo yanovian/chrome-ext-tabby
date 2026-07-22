@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.3 (unreleased)
+
+- Fixed the **tail** position.
+
 ## 2.4.2
 
 - Update the list of stressful and neutral websites.

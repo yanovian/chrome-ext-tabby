@@ -770,15 +770,12 @@ function buildFace(layout, face, blink, frames) {
 }
 
 function buildBodyRig(layout, motion, options = {}) {
-  const parts = [];
-  if (options.torsoFirst) {
-    parts.push(buildTorso(layout));
-  }
+  // dotLottie: first shape group in the layer draws in front. Torso always
+  // goes first so the tail tucks behind the body instead of floating on top
+  // of it when the cat faces the viewer.
+  const parts = [buildTorso(layout)];
   if (!options.skipTail) {
     parts.push(buildTailRigGroup(layout, motion, options.tailOptions ?? {}));
-  }
-  if (!options.torsoFirst) {
-    parts.push(buildTorso(layout));
   }
   if (options.batPaws) {
     parts.push(buildBatPawRig(motion.pawL, 'L', layout));
@@ -1200,7 +1197,6 @@ function buildCat(stageKey, state) {
   const playingBodyOptions =
     state === 'playing'
       ? {
-          torsoFirst: true,
           tailOptions: {
             lengthScale: 1.4,
             thickScale: 2.4,
