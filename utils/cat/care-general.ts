@@ -3,9 +3,12 @@ import { explainCurrentMood, mapCareActionToInteraction, resolveAskMood, resolve
 import { fallbackSpeech } from '../speech-fallback';
 import { saveCatState } from '../db';
 import {
+  applyCareRecoveryCredit,
   isDrainingSessionOverwhelmed,
   isInDrainingRecovery,
   pendingRecoveryNudge,
+  writeDrainingSessionState,
+  type CareRecoveryAction,
   type DrainingSessionState,
 } from '../draining-session';
 import { feedingMunchSpeech, pickFeedingDurationMs, scheduleFeedingCompleteAlarm, shouldStartFeedingMoment } from '../feeding-moment';
@@ -23,6 +26,10 @@ import { persistPresentation } from './state-io';
  * union and pretend to handle cases that can't reach them. */
 type GeneralCareAction = 'pet' | 'treat' | 'play' | 'ask' | 'dismiss';
 
+function recoveryCreditAction(action: GeneralCareAction): CareRecoveryAction | null {
+  return action === 'pet' || action === 'play' ? action : null;
+}
+
 /** The pet/treat/play/ask/dismiss branch of a care action — everything that isn't a
  * do-not-disturb, reveal, or shoo short-circuit (see care-actions.ts). Split into resolving
  * "what happened" (resolveCareOutcome) and "what she looks like now" (applyCareOutcome). */
@@ -33,8 +40,15 @@ export async function computeGeneralCareState(
   page: PageContext,
   drainingSession: DrainingSessionState,
 ): Promise<OrchestratorState> {
-  const outcome = await resolveCareOutcome(state, action, now, page, drainingSession);
-  return applyCareOutcome(state, action, now, outcome, drainingSession);
+  const recoveryAction = recoveryCreditAction(action);
+  const creditedSession = recoveryAction
+    ? applyCareRecoveryCredit(drainingSession, recoveryAction, state.settings)
+    : drainingSession;
+  if (creditedSession !== drainingSession) {
+    await writeDrainingSessionState(creditedSession);
+  }
+  const outcome = await resolveCareOutcome(state, action, now, page, creditedSession);
+  return applyCareOutcome(state, action, now, outcome, creditedSession);
 }
 
 function careSpeechKind(action: GeneralCareAction): SpeechContext['kind'] | null {

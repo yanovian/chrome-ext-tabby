@@ -7,6 +7,20 @@ export const DEV_DRAINING_SESSION_THRESHOLD_MS = 3 * 60_000;
 export const RECOVERY_THANKS_THRESHOLD_MS = 60_000;
 export const DEV_RECOVERY_THANKS_THRESHOLD_MS = 15_000;
 
+export type CareRecoveryAction = 'pet' | 'play';
+
+/** Comfort chipped off an active draining session per care action (never clears it outright). */
+export const CARE_RECOVERY_CREDIT_MS: Record<CareRecoveryAction, number> = {
+  pet: 5 * 60_000,
+  play: 10 * 60_000,
+};
+
+/** Comfort added to "time away" progress once recovery has already started. */
+export const CARE_RECOVERY_AWAY_CREDIT_MS: Record<CareRecoveryAction, number> = {
+  pet: 15_000,
+  play: 30_000,
+};
+
 export type DrainingRecoveryNudge = 'easing' | 'thanks';
 
 export interface DrainingSessionState {
@@ -144,6 +158,32 @@ function advanceRecoveryAway(
     return { ...next, pendingRecoveryNudge: 'thanks' };
   }
   return next;
+}
+
+/** Petting or playing chips away at a long draining session: while still on the draining tab
+ * it knocks time off the accumulated total, and once recovery has started (tab already left)
+ * it adds to the "time away" progress. Matches the "step away" nudge by never clearing a
+ * session outright, only speeding it up. */
+export function applyCareRecoveryCredit(
+  state: DrainingSessionState,
+  action: CareRecoveryAction,
+  settings: ExtensionSettings,
+): DrainingSessionState {
+  if (isInDrainingRecovery(state)) {
+    return advanceRecoveryAway(
+      state,
+      CARE_RECOVERY_AWAY_CREDIT_MS[action],
+      recoveryThanksThresholdMs(settings),
+    );
+  }
+  if (!state.kind || state.accumulatedMs <= 0) {
+    return state;
+  }
+  const accumulatedMs = Math.max(0, state.accumulatedMs - CARE_RECOVERY_CREDIT_MS[action]);
+  if (accumulatedMs === state.accumulatedMs) {
+    return state;
+  }
+  return { ...state, accumulatedMs };
 }
 
 /** Update session when the active tab changes (leave or return to social/news). */

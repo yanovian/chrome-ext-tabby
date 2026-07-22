@@ -5,6 +5,7 @@ Updates for people who use Tabby. Newest first.
 ## 2.4.1 (unreleased)
 
 - Fixed asking Tabby "why so fussy?" sometimes answering happy instead of explaining the fuss.
+- Petting and playing now help **ease a long stressed or overwhelmed spell**, not just a quick check-in.
 
 ## 2.4.0
 

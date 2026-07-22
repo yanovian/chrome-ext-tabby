@@ -11,6 +11,11 @@ import { pickFeedingDurationMs } from '../utils/feeding-moment';
 import { pickPlayingDurationMs } from '../utils/play-moment';
 import { pageOverlayKey } from '../utils/page-overlay';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../utils/types';
+import {
+  CARE_RECOVERY_CREDIT_MS,
+  DRAINING_SESSION_THRESHOLD_MS,
+  EMPTY_DRAINING_SESSION,
+} from '../utils/draining-session';
 
 const NOW = Date.parse('2026-07-05T14:00:00.000Z');
 const PAGE_URL = 'https://example.com/article';
@@ -606,6 +611,34 @@ describe('handleCareAction pet while hungry', () => {
     expect(presentation.speech).toMatch(/f\*{3}|d\*{3}|s\*{2,}/i);
     expect(presentation.speech).toMatch(/feed|hungry|starv|food|bowl|tummy/i);
     expect(presentation.speech).not.toMatch(/purrr|that was nice|purr motor/i);
+  });
+});
+
+describe('handleCareAction pet during an active draining session', () => {
+  beforeEach(() => {
+    catForTests = {
+      ...createInitialCat(NOW),
+      vitals: {
+        ...createInitialCat(NOW).vitals,
+        hunger: 30,
+        happiness: 45,
+        stress: 40,
+        energy: 55,
+      },
+    };
+  });
+
+  it('chips away at the accumulated session time instead of leaving it stuck', async () => {
+    store[STORAGE_KEYS.drainingSession] = {
+      ...EMPTY_DRAINING_SESSION,
+      kind: 'social',
+      accumulatedMs: DRAINING_SESSION_THRESHOLD_MS,
+    };
+
+    await handleCareAction('pet', NOW, { url: PAGE_URL });
+
+    const saved = store[STORAGE_KEYS.drainingSession] as { accumulatedMs: number };
+    expect(saved.accumulatedMs).toBe(DRAINING_SESSION_THRESHOLD_MS - CARE_RECOVERY_CREDIT_MS.pet);
   });
 });
 

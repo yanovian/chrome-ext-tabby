@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CARE_RECOVERY_AWAY_CREDIT_MS,
+  CARE_RECOVERY_CREDIT_MS,
   DRAINING_SESSION_THRESHOLD_MS,
   RECOVERY_THANKS_THRESHOLD_MS,
   advanceDrainingSession,
   acknowledgeDrainingNudge,
   acknowledgeRecoveryEasing,
+  applyCareRecoveryCredit,
   applyDrainingSessionPageChange,
   EMPTY_DRAINING_SESSION,
   isDrainingSessionStressed,
@@ -189,5 +192,69 @@ describe('advanceDrainingSession', () => {
     });
     expect(afterMore.pendingNudgeKind).toBeNull();
     expect(afterMore.lastNudgedAt).toBe(3_000);
+  });
+});
+
+describe('applyCareRecoveryCredit', () => {
+  it('knocks time off an active session on pet, but does not clear it outright', () => {
+    const session = {
+      ...EMPTY_DRAINING_SESSION,
+      kind: 'social' as const,
+      accumulatedMs: DRAINING_SESSION_THRESHOLD_MS,
+    };
+    const credited = applyCareRecoveryCredit(session, 'pet', DEFAULT_SETTINGS);
+    expect(credited.accumulatedMs).toBe(
+      DRAINING_SESSION_THRESHOLD_MS - CARE_RECOVERY_CREDIT_MS.pet,
+    );
+    expect(credited.kind).toBe('social');
+  });
+
+  it('play knocks off more than pet', () => {
+    const session = {
+      ...EMPTY_DRAINING_SESSION,
+      kind: 'news' as const,
+      accumulatedMs: DRAINING_SESSION_THRESHOLD_MS,
+    };
+    const credited = applyCareRecoveryCredit(session, 'play', DEFAULT_SETTINGS);
+    expect(credited.accumulatedMs).toBe(
+      DRAINING_SESSION_THRESHOLD_MS - CARE_RECOVERY_CREDIT_MS.play,
+    );
+  });
+
+  it('floors accumulatedMs at zero instead of going negative', () => {
+    const session = {
+      ...EMPTY_DRAINING_SESSION,
+      kind: 'social' as const,
+      accumulatedMs: 60_000,
+    };
+    const credited = applyCareRecoveryCredit(session, 'play', DEFAULT_SETTINGS);
+    expect(credited.accumulatedMs).toBe(0);
+  });
+
+  it('does nothing when there is no active session', () => {
+    const credited = applyCareRecoveryCredit(EMPTY_DRAINING_SESSION, 'pet', DEFAULT_SETTINGS);
+    expect(credited).toBe(EMPTY_DRAINING_SESSION);
+  });
+
+  it('adds to recovery-away progress once recovery has already started', () => {
+    const session = {
+      ...EMPTY_DRAINING_SESSION,
+      recoveryStartedAt: 1_000,
+      recoveryAwayMs: 10_000,
+      recoveryEasingAckedAt: 1_000,
+    };
+    const credited = applyCareRecoveryCredit(session, 'pet', DEFAULT_SETTINGS);
+    expect(credited.recoveryAwayMs).toBe(10_000 + CARE_RECOVERY_AWAY_CREDIT_MS.pet);
+  });
+
+  it('queues the thanks nudge once recovery-away credit reaches the threshold', () => {
+    const session = {
+      ...EMPTY_DRAINING_SESSION,
+      recoveryStartedAt: 1_000,
+      recoveryAwayMs: RECOVERY_THANKS_THRESHOLD_MS - CARE_RECOVERY_AWAY_CREDIT_MS.play,
+      recoveryEasingAckedAt: 1_000,
+    };
+    const credited = applyCareRecoveryCredit(session, 'play', DEFAULT_SETTINGS);
+    expect(credited.pendingRecoveryNudge).toBe('thanks');
   });
 });
