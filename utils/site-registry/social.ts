@@ -41,4 +41,33 @@ export const SOCIAL_SITE_RULES: readonly SiteRule[] = [
     drainingKind: 'social',
     topic: 'Social',
   },
+  {
+    // Same doomscroll/outrage-feed shape as Twitter/X, Facebook, Reddit above:
+    // an algorithmic or reverse-chronological feed built for high engagement.
+    hosts: [
+      'mastodon.social',
+      'truthsocial.com',
+      'gab.com',
+      'parler.com',
+      'gettr.com',
+      'myspace.com',
+      'bereal.com',
+      'ok.ru',
+      '4chan.org',
+      '4channel.org',
+    ],
+    category: 'draining',
+    drainingKind: 'social',
+    topic: 'Social',
+  },
+  {
+    // Documented for unpredictable, chaotic, and frequently toxic or
+    // harassment-focused content, not just generic engagement. Encyclopedia
+    // Dramatica is nominally a wiki but is specifically known for this, unlike
+    // the generic wiki hosts kept neutral (see neutral.ts).
+    hosts: ['8kun.top', 'kiwifarms.net', 'encyclopediadramatica.online'],
+    category: 'draining',
+    drainingKind: 'social',
+    topic: 'Social',
+  },
 ];

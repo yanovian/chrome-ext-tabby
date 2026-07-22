@@ -1,6 +1,7 @@
 import type { SiteRule } from './types';
 
-/** Movies and TV series streaming — positive entertainment that refreshes mood. */
+/** Movies, TV, and music streaming — positive entertainment that refreshes mood
+ * rather than draining it. */
 export const NOURISHING_STREAMING_RULES: readonly SiteRule[] = [
   {
     hosts: [
@@ -20,5 +21,21 @@ export const NOURISHING_STREAMING_RULES: readonly SiteRule[] = [
     ],
     category: 'nourishing',
     topic: 'Streaming',
+  },
+  {
+    hosts: [
+      'last.fm',
+      'spotify.com',
+      'open.spotify.com',
+      'music.apple.com',
+      'music.youtube.com',
+      'soundcloud.com',
+      'deezer.com',
+      'tidal.com',
+      'pandora.com',
+      'bandcamp.com',
+    ],
+    category: 'nourishing',
+    topic: 'Music',
   },
 ];

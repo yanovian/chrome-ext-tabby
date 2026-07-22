@@ -96,6 +96,38 @@ describe('matchDrainingSessionKind', () => {
     ).toBeNull();
     expect(matchDrainingSessionKind('Example', 'https://example.com/')).toBeNull();
   });
+
+  it('detects newer doomscroll/outrage-feed social hosts', () => {
+    expect(matchDrainingSessionKind('Feed', 'https://mastodon.social/home')).toBe('social');
+    expect(matchDrainingSessionKind('Truth Social', 'https://truthsocial.com/')).toBe('social');
+    expect(matchDrainingSessionKind('Gab', 'https://gab.com/')).toBe('social');
+    expect(matchDrainingSessionKind('Parler', 'https://parler.com/')).toBe('social');
+    expect(matchDrainingSessionKind('BeReal', 'https://bereal.com/')).toBe('social');
+    expect(matchDrainingSessionKind('MySpace', 'https://myspace.com/')).toBe('social');
+    expect(matchDrainingSessionKind('Odnoklassniki', 'https://ok.ru/')).toBe('social');
+    expect(matchDrainingSessionKind('4chan', 'https://boards.4chan.org/g/')).toBe('social');
+  });
+
+  it('detects sites known for toxic or harassment-focused content', () => {
+    expect(matchDrainingSessionKind('8kun', 'https://8kun.top/')).toBe('social');
+    expect(matchDrainingSessionKind('Kiwi Farms', 'https://kiwifarms.net/')).toBe('social');
+    expect(
+      matchDrainingSessionKind('ED', 'https://encyclopediadramatica.online/'),
+    ).toBe('social');
+  });
+
+  it('does not flag blogging platforms, generic wikis, or hospitality exchanges by host alone', () => {
+    expect(matchDrainingSessionKind('My Post', 'https://wordpress.com/post/1')).toBeNull();
+    expect(matchDrainingSessionKind('A Blog', 'https://myname.blogspot.com/')).toBeNull();
+    expect(matchDrainingSessionKind('Some Wiki', 'https://community.fandom.com/wiki/Page')).toBeNull();
+    expect(matchDrainingSessionKind('Host a cyclist', 'https://www.warmshowers.org/')).toBeNull();
+    expect(matchDrainingSessionKind('Find a couch', 'https://www.couchsurfing.com/')).toBeNull();
+  });
+
+  it('treats music streaming as nourishing, not draining', () => {
+    expect(matchDrainingSessionKind('Last.fm', 'https://www.last.fm/')).toBeNull();
+    expect(matchDrainingSessionKind('Spotify', 'https://open.spotify.com/')).toBeNull();
+  });
 });
 
 describe('matchSiteRule', () => {

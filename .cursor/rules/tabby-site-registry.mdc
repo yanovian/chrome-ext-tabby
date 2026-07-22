@@ -15,7 +15,7 @@ Known hosts live in `utils/site-registry/` (one file per region or category). En
 | `news-gossip.ts` | Western majors, gossip, international broadcasters |
 | `news-europe.ts`, `news-asia.ts`, `news-americas.ts`, … | Regional news hosts |
 | `news-armenia.ts`, `news-iran.ts`, `news-nordic.ts` | Focus regions |
-| `nourishing.ts`, `neutral.ts` | Dev docs, errands, streaming |
+| `nourishing.ts`, `neutral.ts` | Dev docs, errands, streaming, blogs, generic wikis, hospitality exchange |
 | `path-hints.ts` | High-confidence news path fallbacks only |
 | `title-hints.ts` | Known outlet names in titles |
 | `match.ts` | `matchSiteRule`, `matchDrainingSessionKind` |
@@ -40,7 +40,17 @@ Prefer **listing the host** (e.g. `bbcpersian.com`, `iranintl.com`) over path gu
 
 ## Neutral hosts and video titles
 
-**Movie/TV streaming** (Netflix, Disney+, etc.) is **nourishing** in `utils/site-registry/nourishing-streaming.ts`.
+**Generic content platforms** (blogging platforms like WordPress/Medium, wiki-hosting
+platforms like Fandom) host anything from tutorials to outrage bait. List them as
+**neutral** in `neutral.ts`, not draining or nourishing, and let the title keyword
+classifier decide (`utils/title-keywords.ts`). Reserve draining for a host only when
+the platform itself is confidently and specifically known for toxic or harassment-
+focused content (e.g. Encyclopedia Dramatica, despite being a wiki), not merely
+"could host anything."
+
+**Movie/TV and music streaming** (Netflix, Disney+, Spotify, Last.fm, etc.) is
+**nourishing** in `utils/site-registry/nourishing-streaming.ts`: entertainment that
+refreshes mood, not a doomscroll feed.
 
 **Video platforms** (YouTube, Rutube, Vimeo, Bilibili, Twitch, …) use title + path via `utils/video-platform-classifier.ts`. Shorts/clips paths are draining; tutorials and books in titles are nourishing; TikTok-style titles are draining.
 

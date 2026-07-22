@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.2 (unreleased)
+
+- Update the list of stressful and neutral websites.
+
 ## 2.4.1
 
 - Fixed asking Tabby "why so fussy?" sometimes answering happy instead of explaining the fuss.
