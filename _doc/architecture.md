@@ -165,6 +165,10 @@ Nourishing visits with a `topic` create or update a `MemorySeed` for later recal
 | `resolveLifeStage` | `newborn` (≤14d), `playful` (≤120d), `adult` thereafter |
 | `recordAppearance` | Increment daily nudge counter when Tabby speaks unprompted |
 
+See [`mood-system.md`](./mood-system.md) for the full mood logic: exact vital deltas,
+grace timers, the draining-session sticky-mood tracker, ask-mood resolution, and the
+final display-mood priority order.
+
 ## Orchestration (`utils/orchestrator.ts`)
 
 Central coordinator. Loads cat + settings, runs the presentation pipeline:
