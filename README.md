@@ -88,7 +88,7 @@ make dev
 | `make icons` | Regenerate icons from `scripts/generate-icons.py` |
 | `make locales` | Regenerate `_locales/*/messages.json` from `scripts/generate-locales.mjs` |
 | `make animations` | Regenerate Lottie JSON source clips in `lottie-json/` |
-| `make gif-convert` | Docker Lottie to GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
+| `make gif-convert` | Docker Lottie → GIF via dotlottie-web + gifski (see `public/gif/README.md`) |
 | `make animations-ship` | Regenerate JSON and Docker GIF in one step |
 | `make test` | Run unit tests |
 | `make typecheck` | TypeScript check |

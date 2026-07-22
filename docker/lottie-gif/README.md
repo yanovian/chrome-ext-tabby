@@ -27,8 +27,8 @@ docker build -t tabby-lottie-gif:9 -f docker/lottie-gif/Dockerfile .
 
 ## Pipeline (inside the container)
 
-1. **dotlottie-web** + canvas — Lottie JSON → `frame-0001.png`, … at 150×150 with transparent background
-2. **gifski** — PNG sequence → GIF with a shared temporal palette
+1. **dotlottie-web** + canvas: Lottie JSON → `frame-0001.png`, … at 150×150 with transparent background
+2. **gifski**: PNG sequence → GIF with a shared temporal palette
 
 ## Options
 
