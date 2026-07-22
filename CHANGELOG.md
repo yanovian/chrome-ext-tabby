@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.1 (unreleased)
+
+- Fixed asking Tabby "why so fussy?" sometimes answering happy instead of explaining the fuss.
+
 ## 2.4.0
 
 - Fixed Tabby's mood switching back unexpectedly when you change tabs.

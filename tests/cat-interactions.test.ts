@@ -229,6 +229,24 @@ describe('resolveAskMood', () => {
     expect(line).toMatch(/bored|fun|quiet/i);
   });
 
+  it('still answers the fussy question when stress decayed just below the threshold by click time', () => {
+    const now = Date.now();
+    const cat = {
+      ...createInitialCat(now),
+      happyUntil: now + 20 * 60_000,
+    };
+
+    expect(
+      resolveAskMood(
+        { hunger: 30, happiness: 40, stress: 68, energy: 55 },
+        'content',
+        'stressed',
+        cat,
+        now,
+      ),
+    ).toBe('stressed');
+  });
+
   it('reads happy after a check-in when grace is active', () => {
     const now = Date.now();
     const cat = {

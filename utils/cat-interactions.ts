@@ -98,7 +98,7 @@ export function resolveAskMood(
   if (displayMood === 'overwhelmed') {
     return 'overwhelmed';
   }
-  if (derivedMood === 'stressed') {
+  if (displayMood === 'stressed' || derivedMood === 'stressed') {
     return 'stressed';
   }
   if (cat && now !== undefined && cat.happyUntil > now) {
