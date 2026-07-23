@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.4 (unreleased)
+## 2.4.4
 
 - Update the **playing** animation.
 - **Starving** is calmer and more pleading.
