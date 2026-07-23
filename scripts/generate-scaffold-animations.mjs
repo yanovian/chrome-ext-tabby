@@ -207,16 +207,20 @@ function motionFor(state, frames) {
         blink: false,
       };
     case 'starving':
+      // Low-energy and pleading: mostly still, with one slow hopeful head-lift
+      // toward the viewer (as if begging "please...") before sagging back down.
       return {
-        body: breathe(frames, 1),
-        bodyR: loopKeys(frames, [-2, 2, -2]),
-        tailBase: staticValue(78),
-        tail: loopKeys(frames, [4, -4, 4]),
-        headR: loopKeys(frames, [-4, 8, -4]),
+        body: breathe(frames, 0.6),
+        tailBase: staticValue(82),
+        tail: loopKeys(frames, [2, -2, 2]),
+        headR: loopKeys(frames, [0, 0, -7, -7, 2, 0]),
         headP: loopKeys(frames, [
-          [0, 6, 0],
           [0, 9, 0],
-          [0, 6, 0],
+          [0, 9, 0],
+          [0, -3, 0],
+          [0, -3, 0],
+          [0, 9, 0],
+          [0, 9, 0],
         ]),
         face: 'weary',
         blink: false,
