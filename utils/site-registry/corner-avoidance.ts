@@ -38,6 +38,24 @@ const BLOCKED_SLOTS: Readonly<Record<string, readonly AvoidToken[]>> = {
   'facebook.com': ['l', 'br', 'rb'], // nav menu on the left, chat bottom-right corner
   'canva.com': ['l'], // nav menu runs the full left side
   'mail.google.com': ['l'], // Gmail's left menu/chat rail
+
+  // Full-height left sidebar is the whole layout, not a widget on top of the page —
+  // same treatment as Gmail/Canva above.
+  'drive.google.com': ['l'],
+  'calendar.google.com': ['l'],
+  'notion.so': ['l'],
+  'slack.com': ['l'], // workspace runs at app.slack.com, a subdomain of this
+  'discord.com': ['l'], // server rail + channel list
+  'web.whatsapp.com': ['l'], // chat list panel
+  'twitter.com': ['l'],
+  'x.com': ['l'],
+  'instagram.com': ['l'],
+  'dropbox.com': ['l'],
+  'airtable.com': ['l'],
+  'asana.com': ['l'],
+  'monday.com': ['l'],
+  'figma.com': ['l'], // layers/file panel in the editor
+  'atlassian.net': ['l'], // Jira/Confluence on *.atlassian.net
 };
 
 const NO_BLOCKED_SLOTS: ReadonlySet<PeekSlot> = new Set();

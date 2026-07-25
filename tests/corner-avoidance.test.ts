@@ -29,6 +29,13 @@ describe('blockedCornersForHost', () => {
     );
   });
 
+  it('matches an arbitrary subdomain, not just www., for wildcard-style hosts', () => {
+    // A Slack workspace lives at <workspace>.slack.com, and a Jira/Confluence site at
+    // <org>.atlassian.net — hostMatches' subdomain-suffix check covers these for free.
+    expect(blockedCornersForHost('my-team.slack.com')).toEqual(new Set(['bl', 'lb', 'lt']));
+    expect(blockedCornersForHost('acme-corp.atlassian.net')).toEqual(new Set(['bl', 'lb', 'lt']));
+  });
+
   it('returns an empty set for an unknown host', () => {
     expect(blockedCornersForHost('example.com')).toEqual(new Set());
   });
