@@ -181,6 +181,7 @@ export function buildPresentation(input: {
   eatingUntil?: number | null;
   playingUntil?: number | null;
   pettingUntil?: number | null;
+  talkUntil?: number | null;
   drainingSession?: DrainingSessionState;
   hostname?: string;
 }): CatPresentation {
@@ -208,6 +209,7 @@ export function buildPresentation(input: {
   const eatingUntil = input.eatingUntil ?? null;
   const playingUntil = input.playingUntil ?? null;
   const pettingUntil = input.pettingUntil ?? null;
+  const talkUntil = input.talkUntil ?? null;
   const feedingActive = isFeedingActive(eatingUntil, input.now);
   const playingActive = isPlayingActive(playingUntil, input.now);
   const pettingActive = isPettingActive(pettingUntil, input.now);
@@ -234,6 +236,8 @@ export function buildPresentation(input: {
       eatingUntil,
       playingUntil,
       pettingUntil,
+      talkUntil,
+      speech: input.speech,
       now: input.now,
     }),
     speech: input.speech,
@@ -268,6 +272,7 @@ export function buildPresentation(input: {
     eatingUntil,
     playingUntil,
     pettingUntil,
+    talkUntil,
   };
 }
 
@@ -327,6 +332,8 @@ export function patchPresentationForDevForce(
       eatingUntil: presentation.eatingUntil,
       playingUntil: presentation.playingUntil,
       pettingUntil: presentation.pettingUntil,
+      talkUntil: presentation.talkUntil,
+      speech: presentation.speech,
       now,
     }),
     canPet: !peeking,

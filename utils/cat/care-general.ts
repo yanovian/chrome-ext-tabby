@@ -14,6 +14,7 @@ import {
 import { feedingMunchSpeech, pickFeedingDurationMs, scheduleFeedingCompleteAlarm, shouldStartFeedingMoment } from '../feeding-moment';
 import { pickPlayingDurationMs, playingWildSpeech, schedulePlayingCompleteAlarm } from '../play-moment';
 import { pickPettingDurationMs, schedulePettingCompleteAlarm } from '../pet-moment';
+import { pickTalkDurationMs, scheduleTalkCompleteAlarm } from '../talk-moment';
 import { hidePageOverlay } from '../page-overlay';
 import { buildPresentation } from '../presentation';
 import type { SpeechContext } from '../speech-types';
@@ -78,6 +79,7 @@ interface CareOutcome {
   eatingUntil: number | null;
   playingUntil: number | null;
   pettingUntil: number | null;
+  talkUntil: number | null;
   stage: CatLifeStage;
   startFeedingMoment: boolean;
   startPlayingMoment: boolean;
@@ -159,6 +161,7 @@ async function resolveCareOutcome(
   let eatingUntil: number | null = null;
   let playingUntil: number | null = null;
   let pettingUntil: number | null = null;
+  let talkUntil: number | null = null;
 
   if (startFeedingMoment) {
     eatingUntil = now + pickFeedingDurationMs(state.settings, now);
@@ -175,6 +178,12 @@ async function resolveCareOutcome(
   if (startPettingMoment) {
     pettingUntil = now + pickPettingDurationMs(state.settings, now);
   }
+  if (action === 'ask') {
+    // Capped so she doesn't talk forever if the bubble is never dismissed — works the same
+    // in any mood, unlike petting, since talking just explains whatever she's already
+    // feeling rather than visually claiming a mood of its own.
+    talkUntil = now + pickTalkDurationMs(state.settings, now);
+  }
 
   return {
     cat,
@@ -185,6 +194,7 @@ async function resolveCareOutcome(
     eatingUntil,
     playingUntil,
     pettingUntil,
+    talkUntil,
     stage,
     startFeedingMoment,
     startPlayingMoment,
@@ -266,6 +276,7 @@ async function applyCareOutcome(
     eatingUntil,
     playingUntil,
     pettingUntil,
+    talkUntil,
     startFeedingMoment,
     startPlayingMoment,
     endsAmbientVisit,
@@ -302,6 +313,7 @@ async function applyCareOutcome(
     eatingUntil,
     playingUntil,
     pettingUntil,
+    talkUntil,
     drainingSession,
   });
 
@@ -313,6 +325,9 @@ async function applyCareOutcome(
   }
   if (pettingUntil) {
     await schedulePettingCompleteAlarm(pettingUntil);
+  }
+  if (talkUntil) {
+    await scheduleTalkCompleteAlarm(talkUntil);
   }
 
   await persistPresentation(presentation);

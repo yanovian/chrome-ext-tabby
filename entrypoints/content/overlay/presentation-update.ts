@@ -37,6 +37,8 @@ export function applyPresentationUpdate(next: CatPresentation, ctx: Presentation
   const previousSprite = current?.sprite ?? null;
   const previousEatingUntil = current?.eatingUntil ?? null;
   const previousPlayingUntil = current?.playingUntil ?? null;
+  const previousPettingUntil = current?.pettingUntil ?? null;
+  const previousTalkUntil = current?.talkUntil ?? null;
 
   const introJustFinished = ctx.introMenu.isIntroJustFinished();
   const settled = introJustFinished
@@ -54,6 +56,8 @@ export function applyPresentationUpdate(next: CatPresentation, ctx: Presentation
       ctx.introMenu.syncForCareMoment(settled, {
         eatingUntil: previousEatingUntil,
         playingUntil: previousPlayingUntil,
+        pettingUntil: previousPettingUntil,
+        talkUntil: previousTalkUntil,
       })
     ) {
       ctx.syncOutsideClickListener();

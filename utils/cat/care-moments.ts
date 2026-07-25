@@ -7,6 +7,7 @@ import {
 } from '../feeding-moment';
 import { clearPlayingCompleteAlarm, playingMomentDue, playingThanksSpeech, playingWildSpeech } from '../play-moment';
 import { clearPettingCompleteAlarm, pettingMomentDue } from '../pet-moment';
+import { clearTalkCompleteAlarm, talkMomentDue } from '../talk-moment';
 import { buildPresentation } from '../presentation';
 import type { CatPresentation } from '../types';
 import type { OrchestratorState } from './types';
@@ -209,6 +210,48 @@ export function completePettingIfDue(now: number): Promise<CatPresentation | nul
       return null;
     }
     const next = await completePettingPresentation(state, now);
+    return next.lastPresentation;
+  });
+}
+
+/** Stop talking and drop back to her normal mood-driven look once the 5-second cap runs
+ * out — same as dismissing the speech bubble by hand (see computeClearSpeechState), just
+ * triggered by the timer instead of the user. */
+export async function completeTalkPresentation(
+  state: OrchestratorState,
+  now: number,
+): Promise<OrchestratorState> {
+  await clearTalkCompleteAlarm();
+  const presentation = buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: null,
+    triggerKind: null,
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    lastCareAction: null,
+    companionVisible: state.lastPresentation?.companionVisible ?? false,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil: null,
+    playingUntil: null,
+    pettingUntil: null,
+    talkUntil: null,
+  });
+  await persistPresentation(presentation);
+  return { ...state, lastPresentation: presentation };
+}
+
+/** Finish talking when its 5-second timer ends. */
+export function completeTalkIfDue(now: number): Promise<CatPresentation | null> {
+  return serializePresentationWrite(async () => {
+    const state = await loadOrchestratorState();
+    if (!talkMomentDue(state.lastPresentation?.talkUntil, now)) {
+      return null;
+    }
+    const next = await completeTalkPresentation(state, now);
     return next.lastPresentation;
   });
 }

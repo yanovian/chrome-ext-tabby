@@ -91,6 +91,65 @@ describe('resolveCompanionAnimation', () => {
     ).toBe('gif/adult/feeding.gif');
   });
 
+  it('talks while a speech bubble from asking is showing and within its 10s window, in any mood', () => {
+    const now = 1_000_000;
+    const talkUntil = now + 5_000;
+    expect(
+      resolveCompanionAnimationState({
+        mood: 'happy',
+        lastCareAction: 'ask',
+        speech: "Just vibing, why do you ask?",
+        talkUntil,
+        now,
+      }),
+    ).toBe('talk');
+    expect(
+      resolveCompanionAnimationState({
+        mood: 'starving',
+        lastCareAction: 'ask',
+        speech: 'My tummy is EMPTY.',
+        talkUntil,
+        now,
+      }),
+    ).toBe('talk');
+    expect(
+      resolveCompanionAnimation({
+        stage: 'adult',
+        mood: 'happy',
+        lastCareAction: 'ask',
+        speech: "Just vibing, why do you ask?",
+        talkUntil,
+        now,
+      }),
+    ).toBe('gif/adult/talk.gif');
+  });
+
+  it('stops talking once the speech bubble is dismissed, even with the same lastCareAction and an unexpired timer', () => {
+    const now = 1_000_000;
+    expect(
+      resolveCompanionAnimationState({
+        mood: 'happy',
+        lastCareAction: 'ask',
+        speech: null,
+        talkUntil: now + 5_000,
+        now,
+      }),
+    ).toBe('happy');
+  });
+
+  it('stops talking once the 10-second cap runs out, even if the bubble is still showing', () => {
+    const now = 1_000_000;
+    expect(
+      resolveCompanionAnimationState({
+        mood: 'happy',
+        lastCareAction: 'ask',
+        speech: "Just vibing, why do you ask?",
+        talkUntil: now - 1,
+        now,
+      }),
+    ).toBe('happy');
+  });
+
   it('uses feeding while eatingUntil is active', () => {
     const now = 1_000_000;
     expect(

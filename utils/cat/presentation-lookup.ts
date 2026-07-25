@@ -12,6 +12,7 @@ import { fallbackSpeech } from '../speech-fallback';
 import { getCatState, saveCatState } from '../db';
 import { feedingMomentDue } from '../feeding-moment';
 import { playingMomentDue } from '../play-moment';
+import { clearTalkCompleteAlarm } from '../talk-moment';
 import { showPageOverlay } from '../page-overlay';
 import { buildPresentation, patchPresentationForDevForce } from '../presentation';
 import { readDrainingSessionState } from '../draining-session';
@@ -272,7 +273,37 @@ export async function computeClearSpeechState(now: number): Promise<Orchestrator
   const state = await loadOrchestratorState();
   const last = state.lastPresentation;
   if (last) {
-    const cleared = { ...last, speech: null, triggerKind: null };
+    // Rebuilt through buildPresentation, not a raw field spread: sprite depends on speech
+    // now ('talk' only shows while there's something to say — see resolveCompanionAnimationState),
+    // so dismissing speech has to recompute it, not just null out the two speech fields.
+    // Also cancels any pending 5-second talk timer — dismissed by hand means it's done
+    // early, the timer doesn't need to fire and re-clear an already-cleared presentation.
+    await clearTalkCompleteAlarm();
+    const cleared = buildPresentation({
+      cat: state.cat,
+      vitals: state.cat.vitals,
+      settings: state.settings,
+      now,
+      isUserIdle: state.isUserIdle,
+      speech: null,
+      triggerKind: null,
+      overlayHidden: last.overlayHidden,
+      moodOverride: last.mood,
+      lastCareAction: last.lastCareAction,
+      companionVisible: last.companionVisible,
+      ambientActivity: last.ambientActivity,
+      ambientPeekUntil: last.ambientPeekUntil,
+      peekEdge: last.peekEdge,
+      peekInset: last.peekInset,
+      peekCorner: last.peekCorner,
+      peekRestoreAmbientActivity: last.peekRestoreAmbientActivity,
+      peekRestoreAmbientUntil: last.peekRestoreAmbientUntil,
+      stayVisibleUntil: last.stayVisibleUntil,
+      eatingUntil: last.eatingUntil,
+      playingUntil: last.playingUntil,
+      pettingUntil: last.pettingUntil,
+      talkUntil: null,
+    });
     await persistPresentation(cleared);
     return { ...state, lastPresentation: cleared };
   }

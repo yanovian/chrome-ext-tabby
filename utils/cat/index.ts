@@ -32,7 +32,12 @@ export {
 } from './state-io';
 
 export { handleCareAction } from './care-actions';
-export { completeFeedingIfDue, completePlayingIfDue, completePettingIfDue } from './care-moments';
+export {
+  completeFeedingIfDue,
+  completePlayingIfDue,
+  completePettingIfDue,
+  completeTalkIfDue,
+} from './care-moments';
 
 export {
   presentOnActiveTab,

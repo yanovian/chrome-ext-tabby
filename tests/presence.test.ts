@@ -30,7 +30,9 @@ const basePresentation: CatPresentation = {
   stayVisibleUntil: null,
   eatingUntil: null,
   playingUntil: null,
-  pettingUntil: null,};
+  pettingUntil: null,
+  talkUntil: null,
+};
 
 const idleTrigger = {
   shouldAppear: false,

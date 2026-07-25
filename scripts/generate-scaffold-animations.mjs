@@ -74,7 +74,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'starving', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed', 'pet'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'starving', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed', 'pet', 'talk'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -198,6 +198,26 @@ function motionFor(state, frames, layout) {
         ]),
         face: 'happy',
         blink: false,
+      };
+    case 'talk':
+      // Explaining herself when asked "what's up?": upright and attentive (normal round
+      // eyes, not closed or narrowed like the reaction moods), a small side-to-side head
+      // tilt as if gesturing mid-sentence, and a chattering mouth (see kawaiiMouth's 'talk'
+      // branch) — the loop runs for as long as her speech bubble is up, however long that
+      // ends up being, so it has to read as "talking" on every pass, not just the first.
+      return {
+        body: breathe(frames, 2),
+        tail: loopKeys(frames, [-12, 12, -8, 10, -12]),
+        headR: loopKeys(frames, [-3, 4, -5, 3, -3]),
+        headP: loopKeys(frames, [
+          [0, 0, 0],
+          [0, -2, 0],
+          [0, 1, 0],
+          [0, -2, 0],
+          [0, 0, 0],
+        ]),
+        face: 'talk',
+        blink: true,
       };
     case 'curious':
       return {
@@ -663,6 +683,15 @@ function kawaiiMouth(face, y, o, w, frames) {
     return group('Mouth', painted(ellipse(6, 5), COLORS.pink, o, w * 0.4), {
       p: staticValue([0, y]),
       s: loopKeys(frames, chewScale),
+    });
+  }
+  if (face === 'talk') {
+    // Quick, irregular open/close flaps (unlike chewing's slower, more uniform dips) —
+    // varied heights and closer-together beats read as chatter, not eating.
+    const talkScale = [15, 130, 20, 150, 15, 110, 25, 140, 15, 100, 15].map((h) => [100, h]);
+    return group('Mouth', painted(ellipse(6, 5), COLORS.pink, o, w * 0.4), {
+      p: staticValue([0, y]),
+      s: loopKeys(frames, talkScale),
     });
   }
   if (face === 'worry') {

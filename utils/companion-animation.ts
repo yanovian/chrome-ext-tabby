@@ -3,6 +3,7 @@ import type { InteractionAction } from './cat-interactions';
 import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
 import { isPettingActive } from './pet-moment';
+import { isTalkActive } from './talk-moment';
 import type { CatLifeStage, CatMood } from './types';
 
 export type CompanionAnimationState =
@@ -19,7 +20,8 @@ export type CompanionAnimationState =
   | 'playing'
   | 'peek'
   | 'overwhelmed'
-  | 'pet';
+  | 'pet'
+  | 'talk';
 
 /** Lottie composition size per life stage (`lottie-json/` only). */
 export const COMPANION_CANVAS_SIZE: Record<CatLifeStage, number> = {
@@ -119,6 +121,11 @@ export function resolveCompanionAnimationState(input: {
   eatingUntil?: number | null;
   playingUntil?: number | null;
   pettingUntil?: number | null;
+  talkUntil?: number | null;
+  /** Her current speech bubble text, if any — talk needs both this AND an active talkUntil:
+   * the timer caps how long she talks even if the bubble is never dismissed, and dismissing
+   * the bubble (nulling this) ends it early even if the timer hasn't run out yet. */
+  speech?: string | null;
   now?: number;
 }): CompanionAnimationState {
   if (input.eatingUntil != null && input.now != null && isFeedingActive(input.eatingUntil, input.now)) {
@@ -132,6 +139,15 @@ export function resolveCompanionAnimationState(input: {
   // urgent one (hungry, stressed, sleepy...) never reaches this check at all.
   if (input.pettingUntil != null && input.now != null && isPettingActive(input.pettingUntil, input.now)) {
     return 'pet';
+  }
+  if (
+    input.lastCareAction === 'ask' &&
+    input.speech != null &&
+    input.talkUntil != null &&
+    input.now != null &&
+    isTalkActive(input.talkUntil, input.now)
+  ) {
+    return 'talk';
   }
   if (input.ambientActivity === 'sleeping') {
     return 'sleep';
@@ -169,6 +185,8 @@ export function resolveCompanionAnimation(input: {
   eatingUntil?: number | null;
   playingUntil?: number | null;
   pettingUntil?: number | null;
+  talkUntil?: number | null;
+  speech?: string | null;
   now?: number;
 }): string {
   const state = resolveCompanionAnimationState(input);
@@ -192,6 +210,7 @@ export function allCompanionAnimationPaths(): string[] {
     'peek',
     'overwhelmed',
     'pet',
+    'talk',
   ];
   return stages.flatMap((stage) =>
     states.map((state) => companionAnimationPath(stage, state)),

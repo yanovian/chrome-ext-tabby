@@ -210,14 +210,28 @@ export class IntroMenuController {
 
   syncForCareMoment(
     presentation: CatPresentation,
-    previous: { eatingUntil?: number | null; playingUntil?: number | null } = {},
+    previous: {
+      eatingUntil?: number | null;
+      playingUntil?: number | null;
+      pettingUntil?: number | null;
+      talkUntil?: number | null;
+    } = {},
   ): boolean {
     const now = Date.now();
+    // Only feeding/playing force the menu closed while their moment runs — they're the two
+    // full physical "moments" (munching, wild paws). Petting and talking are quick/read-at-
+    // your-pace reactions that must NOT yank the menu out from under the user; they only need
+    // their button's highlight cleared once done, via justFinished below.
     const active =
       isFeedingActive(presentation.eatingUntil, now) || isPlayingActive(presentation.playingUntil, now);
     const justFinished =
       (previous.eatingUntil != null && presentation.eatingUntil == null) ||
-      (previous.playingUntil != null && presentation.playingUntil == null);
+      (previous.playingUntil != null && presentation.playingUntil == null) ||
+      (previous.pettingUntil != null && presentation.pettingUntil == null) ||
+      (previous.talkUntil != null && presentation.talkUntil == null);
+    if (justFinished) {
+      this.highlightedAction = null;
+    }
     if (!active && !(justFinished && presentation.speech && presentation.triggerKind)) {
       return false;
     }

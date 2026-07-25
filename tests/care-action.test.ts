@@ -5,6 +5,7 @@ import {
   completeFeedingIfDue,
   completePettingIfDue,
   completePlayingIfDue,
+  completeTalkIfDue,
   handleCareAction,
   persistPresentation,
 } from '../utils/cat';
@@ -148,8 +149,9 @@ describe('handleCareAction during peek', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).not.toBe('peek');
@@ -190,8 +192,9 @@ describe('handleCareAction during peek', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
     expect(presentation.companionVisible).toBe(true);
@@ -242,8 +245,9 @@ describe('handleCareAction during peek', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).not.toBe('peek');
@@ -284,8 +288,9 @@ describe('handleCareAction shoo', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('shoo', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('peek');
@@ -324,7 +329,9 @@ describe('handleCareAction shoo', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    };
+      pettingUntil: null,
+      talkUntil: null,
+    };
     await persistPresentation(alreadyPeeking);
 
     const presentation = await handleCareAction('shoo', NOW, { url: PAGE_URL });
@@ -365,8 +372,9 @@ describe('handleCareAction shoo', () => {
         stayVisibleUntil: null,
         eatingUntil: null,
         playingUntil: null,
-        pettingUntil: null,      });
-
+        pettingUntil: null,
+        talkUntil: null,
+      });
       const presentation = await handleCareAction('shoo', NOW, { url: 'https://pooyan.info/' });
 
       expect(presentation.ambientActivity).toBe('peeking');
@@ -421,8 +429,9 @@ describe('handleCareAction treat while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
 
     expect(presentation.sprite).toContain('feeding.gif');
@@ -464,8 +473,9 @@ describe('handleCareAction treat while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const completed = await completeFeedingIfDue(eatingUntil);
 
     expect(completed?.mood).toBe('happy');
@@ -505,8 +515,9 @@ describe('handleCareAction treat while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).not.toBe('hungry');
@@ -560,12 +571,13 @@ describe('handleCareAction ask while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('starving');
-    expect(presentation.sprite).toContain('starving.gif');
+    expect(presentation.sprite).toContain('talk.gif');
     expect(presentation.speech).toMatch(/hungry|feed|tummy|starv|mew/i);
   });
 });
@@ -597,12 +609,31 @@ describe('handleCareAction ask while content', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('happy');
-    expect(presentation.sprite).toContain('happy.gif');
+    expect(presentation.sprite).toContain('talk.gif');
+  });
+
+  it('caps the talking look at 5 seconds', async () => {
+    const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
+
+    expect(presentation.talkUntil).toBe(NOW + 5_000);
+  });
+
+  it('settles back to her normal look once the 5-second cap ends', async () => {
+    const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
+    const talkUntil = presentation.talkUntil!;
+
+    const completed = await completeTalkIfDue(talkUntil);
+
+    expect(completed?.talkUntil).toBeNull();
+    expect(completed?.speech).toBeNull();
+    expect(completed?.lastCareAction).toBeNull();
+    expect(completed?.sprite).not.toContain('talk.gif');
   });
 });
 
@@ -646,8 +677,9 @@ describe('handleCareAction pet while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
 
     expect(presentation.mood).toBe('starving');
@@ -754,8 +786,9 @@ describe('handleCareAction play', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await handleCareAction('play', NOW, { url: PAGE_URL });
 
     expect(presentation.sprite).toContain('playing.gif');
@@ -798,7 +831,7 @@ describe('handleCareAction play', () => {
       eatingUntil: null,
       playingUntil,
       pettingUntil: null,
-    });
+      talkUntil: null,    });
 
     const completed = await completePlayingIfDue(playingUntil);
 

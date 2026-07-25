@@ -5,6 +5,7 @@ Updates for people who use Tabby. Newest first.
 ## 2.4.6 [unreleased]
 
 - **Petting** has a dedicated reaction.
+- Shows her actually talking.
 
 ## 2.4.5
 

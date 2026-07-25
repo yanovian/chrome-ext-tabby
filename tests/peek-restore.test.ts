@@ -27,7 +27,9 @@ const base: CatPresentation = {
   stayVisibleUntil: null,
   eatingUntil: null,
   playingUntil: null,
-  pettingUntil: null,};
+  pettingUntil: null,
+  talkUntil: null,
+};
 
 describe('peek restore', () => {
   it('detects the first peek in a cycle', () => {

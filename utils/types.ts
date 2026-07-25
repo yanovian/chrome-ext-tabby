@@ -137,6 +137,8 @@ export interface CatPresentation {
   playingUntil: number | null;
   /** While set and in the future, Tabby is in her brief petting reaction. */
   pettingUntil: number | null;
+  /** While set and in the future, Tabby is talking through her answer to "what's up?". */
+  talkUntil: number | null;
 }
 
 /** Saved position for the draggable overlay (pixels from top-left). */
@@ -248,6 +250,7 @@ export const ALARM_NAMES = {
   feedingComplete: 'tabby-feeding-complete',
   playingComplete: 'tabby-playing-complete',
   pettingComplete: 'tabby-petting-complete',
+  talkComplete: 'tabby-talk-complete',
 } as const;
 
 export type CareAction =

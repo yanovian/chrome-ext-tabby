@@ -1,5 +1,10 @@
 import { markIntroCompleted } from '../utils/intro';
-import { completeFeedingIfDue, completePlayingIfDue, completePettingIfDue } from '../utils/cat';
+import {
+  completeFeedingIfDue,
+  completePlayingIfDue,
+  completePettingIfDue,
+  completeTalkIfDue,
+} from '../utils/cat';
 import { recordDrainingSessionElapsed } from '../utils/draining-session';
 import { getSettings } from '../utils/settings';
 import { runMinuteTick } from '../utils/orchestrator';
@@ -61,6 +66,14 @@ export default defineBackground(() => {
     if (alarm.name === ALARM_NAMES.pettingComplete) {
       enqueueTask(async () => {
         await completePettingIfDue(Date.now());
+        await updateToolbarFromPresentation();
+      });
+      return;
+    }
+
+    if (alarm.name === ALARM_NAMES.talkComplete) {
+      enqueueTask(async () => {
+        await completeTalkIfDue(Date.now());
         await updateToolbarFromPresentation();
       });
       return;

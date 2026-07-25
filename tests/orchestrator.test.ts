@@ -105,8 +105,9 @@ describe('recordPageVisit', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     await recordPageVisit({
       title: 'Docs',
       url: 'https://example.com/docs',
@@ -171,8 +172,9 @@ describe('runMinuteTick', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     await runMinuteTick(NOW, { present: false });
 
     const cached = (await browser.storage.local.get([STORAGE_KEYS.presentation]))[
@@ -210,8 +212,9 @@ describe('runMinuteTick', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const state = await runMinuteTick(NOW, { forceTick: true });
 
     expect(state.lastPresentation?.companionVisible).toBe(true);
@@ -247,8 +250,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await getCurrentPresentation();
 
     expect(presentation.companionVisible).toBe(true);
@@ -283,8 +287,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-    store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
+      pettingUntil: null,
+      talkUntil: null,
+    });    store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
 
     const presentation = await getCurrentPresentation();
 
@@ -329,8 +334,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-    store[STORAGE_KEYS.introCompleted] = true;
+      pettingUntil: null,
+      talkUntil: null,
+    });    store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
 
@@ -367,8 +373,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-    store[STORAGE_KEYS.introCompleted] = true;
+      pettingUntil: null,
+      talkUntil: null,
+    });    store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
 
@@ -415,7 +422,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    };
+      pettingUntil: null,
+      talkUntil: null,
+    };
 
     await persistPresentation(expiredPeek);
     const viaRead = await getCurrentPresentation();
@@ -467,8 +476,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-    store[STORAGE_KEYS.introCompleted] = true;
+      pettingUntil: null,
+      talkUntil: null,
+    });    store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
 
@@ -506,8 +516,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-    store[STORAGE_KEYS.introCompleted] = true;
+      pettingUntil: null,
+      talkUntil: null,
+    });    store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
 
@@ -551,8 +562,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: NOW + 120_000,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await getCurrentPresentation();
 
     expect(presentation.mood).toBe('peek');
@@ -592,8 +604,9 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: NOW + 120_000,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const state = await runMinuteTick(NOW);
 
     expect(state.lastPresentation?.mood).toBe('peek');
@@ -634,8 +647,9 @@ describe('syncDevTemperControls', () => {
       stayVisibleUntil: NOW + 120_000,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const result = await syncDevTemperControls({ devForceMood: 'peek' });
 
     expect(result.presentation.mood).toBe('peek');
@@ -691,8 +705,9 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const result = await presentOnActiveTab(NOW, {
       title: 'News',
       url: 'https://example.com/news',
@@ -738,8 +753,9 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     await Promise.all([
       handleCareAction('shoo', NOW, {}),
       presentOnActiveTab(NOW, { title: 'New Tab', url: 'https://new-tab.example/' }),
@@ -788,8 +804,9 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     await handleCareAction('shoo', NOW, {});
 
     vi.setSystemTime(NOW + 2_500);
@@ -847,8 +864,9 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     await handleCareAction('shoo', NOW, {});
 
     const result = await presentOnActiveTab(
@@ -916,8 +934,9 @@ describe('showOverlayOnPage', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await showOverlayOnPage(NOW, {
       title: 'Example',
       url: 'https://example.com/page',
@@ -978,8 +997,9 @@ describe('cancelDoNotDisturb', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await cancelDoNotDisturb(NOW);
 
     expect(store[STORAGE_KEYS.doNotDisturbUntil]).toBeUndefined();
@@ -1053,12 +1073,57 @@ describe('clearCompanionSpeech', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await clearCompanionSpeech(NOW);
 
     expect(presentation.speech).toBeNull();
     expect(presentation.triggerKind).toBeNull();
+  });
+
+  it('recomputes the sprite, not just the speech, when dismissing mid-talk', async () => {
+    // Regression: a bare `{ ...last, speech: null }` spread would null out the speech but
+    // leave the stale 'talk.gif' sprite behind, since sprite depends on speech now (see
+    // resolveCompanionAnimationState's 'talk' branch).
+    await persistPresentation({
+      mood: 'happy',
+      stage: 'adult',
+      stageLabel: 'Adult',
+      sprite: 'gif/adult/talk.gif',
+      speech: 'Just vibing, why do you ask?',
+      triggerKind: null,
+      overlayHidden: false,
+      canPet: true,
+      canTreat: false,
+      canPlay: true,
+      interactions: [],
+      secondaryInteractions: [],
+      lastCareAction: 'ask',
+      companionVisible: true,
+      ambientActivity: null,
+      ambientPeekUntil: null,
+      peekEdge: null,
+      peekInset: null,
+      peekCorner: null,
+      peekRestoreAmbientActivity: null,
+      peekRestoreAmbientUntil: null,
+      stayVisibleUntil: null,
+      eatingUntil: null,
+      playingUntil: null,
+      pettingUntil: null,
+      talkUntil: NOW + 5_000,
+    });
+
+    const presentation = await clearCompanionSpeech(NOW);
+
+    expect(presentation.speech).toBeNull();
+    expect(presentation.sprite).not.toContain('talk.gif');
+    expect(presentation.sprite).toContain('happy.gif');
+    // Dismissed early, well before the 5-second cap — the pending auto-complete
+    // alarm has to be cancelled along with clearing talkUntil, or it'd later fire and
+    // stomp whatever unrelated state has replaced this one by then.
+    expect(presentation.talkUntil).toBeNull();
   });
 });
 
@@ -1090,8 +1155,9 @@ describe('restartIntroSession', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await restartIntroSession(NOW);
 
     expect(store[STORAGE_KEYS.introCompleted]).toBeUndefined();
@@ -1126,8 +1192,9 @@ describe('settleAfterIntro', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-    store[STORAGE_KEYS.introCompleted] = true;
+      pettingUntil: null,
+      talkUntil: null,
+    });    store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await settleAfterIntro(NOW);
 
@@ -1162,8 +1229,9 @@ describe('settleAfterIntro', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await settleAfterIntro(NOW);
 
     expect(presentation.companionVisible).toBe(true);
@@ -1202,8 +1270,9 @@ describe('devForceCompanionHide', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await devForceCompanionHide(NOW);
 
     expect(presentation.companionVisible).toBe(false);
@@ -1237,8 +1306,9 @@ describe('devForceCompanionHide', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-      pettingUntil: null,    });
-
+      pettingUntil: null,
+      talkUntil: null,
+    });
     const presentation = await devForceCompanionHide(NOW);
 
     expect(presentation.companionVisible).toBe(false);
