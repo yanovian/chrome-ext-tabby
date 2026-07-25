@@ -40,7 +40,7 @@ export const featureDefs = [
   { id: 'care', key: 'Care', lottie: 'lottie/happy.json' },
   { id: 'feeding', key: 'Feeding', lottie: 'lottie/feeding.json' },
   { id: 'play', key: 'Play', lottie: 'lottie/playing.json' },
-  { id: 'peek', key: 'Peek', lottie: 'lottie/peek.json' },
+  { id: 'peek', key: 'Peek', lottie: ['lottie/peek.json', 'lottie/peek_duck.json'] },
   { id: 'grow', key: 'Grow', lottie: 'lottie/newborn.json' },
 ] as const;
 

@@ -16,12 +16,15 @@ const GIF_FALLBACK: Record<string, string> = {
   'lottie/feeding.json': 'gif/feeding.gif',
   'lottie/playing.json': 'gif/playing.gif',
   'lottie/peek.json': 'gif/peek.gif',
+  'lottie/peek_duck.json': 'gif/peek_duck.gif',
   'lottie/newborn.json': 'gif/newborn.gif',
   'lottie/curious.json': 'gif/curious.gif',
 };
 
 type TabbyLottieProps = {
-  src: string;
+  /** One clip, or several to play back to back in one continuous loop (e.g. peek-in
+   * then duck-out) instead of each clip snapping back to its own start on repeat. */
+  src: string | readonly string[];
   className?: string;
   size?: TabbyLottieSize;
   alt?: string;
@@ -47,6 +50,8 @@ export function TabbyLottie({
   const [useFallback, setUseFallback] = useState(false);
   const [motionOk, setMotionOk] = useState(true);
   const dimension = SIZES[size];
+  const clips = Array.isArray(src) ? src : [src as string];
+  const sequenceKey = clips.join('|');
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -67,27 +72,49 @@ export function TabbyLottie({
     playerRef.current?.destroy();
     playerRef.current = null;
 
-    fetch(assetUrl(src))
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load ${src}`);
-        }
-        return response.text();
-      })
-      .then((data) => {
+    Promise.all(
+      clips.map((clip) =>
+        fetch(assetUrl(clip)).then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to load ${clip}`);
+          }
+          return response.text();
+        }),
+      ),
+    )
+      .then((clipData) => {
         if (cancelled) {
           return;
         }
 
         setupCanvas(canvas, dimension);
+        // A single clip keeps looping itself, exactly as before. Multiple clips play
+        // once each in order, then the sequence as a whole repeats — that's what makes
+        // "peek in, then duck out" read as one continuous loop instead of each clip
+        // snapping back to its own frame 0.
+        const sequenced = clipData.length > 1;
         const player = new DotLottie({
           canvas,
-          data,
+          data: clipData[0],
           autoplay: motionOk,
-          loop: motionOk,
+          loop: sequenced ? false : motionOk,
           useFrameInterpolation: true,
         });
         playerRef.current = player;
+
+        if (sequenced && motionOk) {
+          let nextIndex = 1 % clipData.length;
+          const onComplete = () => {
+            player.load({
+              data: clipData[nextIndex],
+              autoplay: true,
+              loop: false,
+              useFrameInterpolation: true,
+            });
+            nextIndex = (nextIndex + 1) % clipData.length;
+          };
+          player.addEventListener('complete', onComplete);
+        }
 
         if (!motionOk) {
           const onLoad = () => {
@@ -109,9 +136,11 @@ export function TabbyLottie({
       playerRef.current?.destroy();
       playerRef.current = null;
     };
-  }, [src, dimension, motionOk]);
+    // `clips` isn't listed below: it's derived fresh from `src` every render, always in
+    // sync with `sequenceKey`, which is.
+  }, [sequenceKey, dimension, motionOk]);
 
-  const fallbackSrc = GIF_FALLBACK[src];
+  const fallbackSrc = GIF_FALLBACK[clips[0]];
 
   return (
     <div

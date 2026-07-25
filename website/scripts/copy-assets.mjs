@@ -16,6 +16,7 @@ const gifAssets = [
   ['gif/adult/feeding.gif', 'gif/feeding.gif'],
   ['gif/playful/playing.gif', 'gif/playing.gif'],
   ['gif/newborn/peek.gif', 'gif/peek.gif'],
+  ['gif/newborn/peek_duck.gif', 'gif/peek_duck.gif'],
   ['gif/newborn/idle.gif', 'gif/newborn.gif'],
   ['gif/adult/curious.gif', 'gif/curious.gif'],
 ];
@@ -27,6 +28,7 @@ const lottieAssets = [
   ['adult/feeding.json', 'lottie/feeding.json'],
   ['playful/playing.json', 'lottie/playing.json'],
   ['newborn/peek.json', 'lottie/peek.json'],
+  ['newborn/peek_duck.json', 'lottie/peek_duck.json'],
   ['newborn/idle.json', 'lottie/newborn.json'],
   ['adult/curious.json', 'lottie/curious.json'],
 ];
