@@ -317,6 +317,12 @@ function stroke(color, width) {
   };
 }
 
+/** Butt (flat) line caps instead of round — round caps on a short thin stroke (like a
+ * whisker) blob up into a fat capsule instead of a crisp line. */
+function crispStroke(color, width) {
+  return { ...stroke(color, width), lc: 1 };
+}
+
 function ellipse(w, h) {
   return { ty: 'el', p: staticValue([0, 0]), s: staticValue([w, h]), d: 1 };
 }
@@ -594,24 +600,24 @@ function buildHeadShell(layout, options = {}) {
   ];
 }
 
-/** Three strands fanning from one point near the muzzle, each with a slight bend —
- * a real cat's whiskers, not one flat line. */
+/** Two straight strands starting right beside the mouth (a real whisker pad sits next
+ * to the muzzle, not out by the cheek/eye) and reaching out past the head silhouette.
+ * This renders at 150px, often viewed even smaller — simple straight lines with a
+ * moderate width read clearly there; thin curved ones just blur into stubs. */
 function whiskerOnCheek(o, w, r, side) {
-  const originX = side * r * 0.5;
-  const originY = r * 0.32;
-  const reach = r * 0.62; // tips clear the head silhouette instead of stopping at the edge
-  const spreads = [-0.6, -0.05, 0.55];
+  const originX = side * r * 0.2;
+  const originY = r * 0.42;
+  const reach = r * 0.9;
+  const tilts = [-0.22, 0.26];
 
   return group(
     `Whisker${side}`,
-    spreads.map((spread, i) => {
+    tilts.map((tilt, i) => {
       const endX = originX + side * reach;
-      const endY = originY + spread * r * 0.18;
-      const midX = originX + side * reach * 0.55;
-      const midY = originY + spread * r * 0.06;
+      const endY = originY + tilt * r * 0.18;
       return group(
         `WhiskerStrand${i}`,
-        [path([[originX, originY], [midX, midY], [endX, endY]]), stroke(o, w * 0.4)],
+        [path([[originX, originY], [endX, endY]]), crispStroke(o, w * 0.4)],
         { p: staticValue([0, 0]) },
       );
     }),
@@ -644,18 +650,12 @@ function kawaiiMouth(face, y, o, w) {
       { p: staticValue([0, 0]) },
     );
   }
+  // Plain content smile — a single gentle dip. The old default shape doubled back on
+  // itself into a small "w", which read as fussy instead of calm on the most common
+  // faces (idle, curious, playing).
   return group(
     'Mouth',
-    [
-      path([
-        [-4, y],
-        [-1.5, y + 3],
-        [0, y + 1],
-        [1.5, y + 3],
-        [4, y],
-      ]),
-      stroke(o, w * 0.9),
-    ],
+    [path([[-3.5, y], [0, y + 2.5], [3.5, y]]), stroke(o, w * 0.85)],
     { p: staticValue([0, 0]) },
   );
 }
@@ -862,9 +862,17 @@ function buildFace(layout, face, blink, frames, options = {}) {
           painted(ellipse(eyeW * 0.18, eyeH * 0.2), COLORS.white, COLORS.white, 0),
           { p: staticValue([-eyeW * 0.16, -eyeH * 0.2]) },
         ),
-        // Vertical slit, not a pupil filling most of the eye — the one shape cue that
-        // reads as an actual cat eye rather than a generic round cartoon eye.
-        ...painted(ellipse(eyeW * 0.32, eyeH * 0.86), COLORS.pupil, COLORS.pupil, 0),
+        // 'worry'/'weary' (hungry, stressed, starving) get a narrow alert slit — the
+        // real cat-eye cue fits the tension. Everything else (idle, curious, playing,
+        // feeding) gets a big round pupil instead: warm and cute, not on-edge.
+        ...painted(
+          face === 'worry' || face === 'weary'
+            ? ellipse(eyeW * 0.32, eyeH * 0.86)
+            : ellipse(eyeH * 0.62, eyeH * 0.62),
+          COLORS.pupil,
+          COLORS.pupil,
+          0,
+        ),
         ...painted(ellipse(eyeW, eyeH), COLORS.eye, o, w * 0.45),
       ],
       {
