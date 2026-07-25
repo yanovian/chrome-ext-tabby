@@ -573,9 +573,9 @@ function buildHeadShell(layout, options = {}) {
     );
 
   return [
-    ...painted(ellipse(r * 2, r * 2), c.body, o, w),
-    ear('L'),
-    ear('R'),
+    // Earlier items draw in front: cheeks and whiskers sit on top of the fur. Ears go
+    // *after* the head fill on purpose — their root tucks behind the head silhouette
+    // seamlessly, only the pointed tip (which already extends past the circle) shows.
     group(
       'CheekL',
       painted(ellipse(r * 0.28, r * 0.2), COLORS.blush, o, 0),
@@ -588,16 +588,33 @@ function buildHeadShell(layout, options = {}) {
     ),
     whiskerOnCheek(o, w, r, -1),
     whiskerOnCheek(o, w, r, 1),
+    ...painted(ellipse(r * 2, r * 2), c.body, o, w),
+    ear('L'),
+    ear('R'),
   ];
 }
 
+/** Three strands fanning from one point near the muzzle, each with a slight bend —
+ * a real cat's whiskers, not one flat line. */
 function whiskerOnCheek(o, w, r, side) {
-  const cheekY = r * 0.34;
-  const startX = side * r * 0.54;
-  const endX = side * r * 0.96;
+  const originX = side * r * 0.5;
+  const originY = r * 0.32;
+  const reach = r * 0.62; // tips clear the head silhouette instead of stopping at the edge
+  const spreads = [-0.6, -0.05, 0.55];
+
   return group(
     `Whisker${side}`,
-    [path([[startX, cheekY], [endX, cheekY - r * 0.02]]), stroke(o, w * 0.72)],
+    spreads.map((spread, i) => {
+      const endX = originX + side * reach;
+      const endY = originY + spread * r * 0.18;
+      const midX = originX + side * reach * 0.55;
+      const midY = originY + spread * r * 0.06;
+      return group(
+        `WhiskerStrand${i}`,
+        [path([[originX, originY], [midX, midY], [endX, endY]]), stroke(o, w * 0.4)],
+        { p: staticValue([0, 0]) },
+      );
+    }),
     { p: staticValue([0, 0]) },
   );
 }
@@ -813,13 +830,15 @@ function buildFace(layout, face, blink, frames, options = {}) {
       return group(
         `Eye${side}`,
         [
-          ...painted(ellipse(eyeW, eyeH), COLORS.eye, o, w * 0.45),
-          ...painted(ellipse(eyeW * 0.3, eyeH * 0.34), COLORS.pupil, COLORS.pupil, 0),
+          // Earlier items draw in front: pupil and shine sit on top of the base iris fill,
+          // not hidden behind it.
           group(
             'ShineBig',
             painted(ellipse(eyeW * 0.14, eyeH * 0.16), COLORS.white, COLORS.white, 0),
             { p: staticValue([-eyeW * 0.12, -eyeH * 0.22]) },
           ),
+          ...painted(ellipse(eyeW * 0.3, eyeH * 0.34), COLORS.pupil, COLORS.pupil, 0),
+          ...painted(ellipse(eyeW, eyeH), COLORS.eye, o, w * 0.45),
         ],
         {
           p: staticValue([x, eyeY]),
@@ -831,18 +850,22 @@ function buildFace(layout, face, blink, frames, options = {}) {
     return group(
       `Eye${side}`,
       [
-        ...painted(ellipse(eyeW, eyeH), COLORS.eye, o, w * 0.45),
-        ...painted(ellipse(eyeW * 0.78, eyeH * 0.82), COLORS.pupil, COLORS.pupil, 0),
-        group(
-          'ShineBig',
-          painted(ellipse(eyeW * 0.18, eyeH * 0.2), COLORS.white, COLORS.white, 0),
-          { p: staticValue([-eyeW * 0.16, -eyeH * 0.2]) },
-        ),
+        // Earlier items draw in front: shines and the pupil slit sit on top of the base
+        // iris fill, not hidden behind it.
         group(
           'ShineSmall',
           painted(ellipse(eyeW * 0.08, eyeH * 0.09), COLORS.white, COLORS.white, 0),
           { p: staticValue([eyeW * 0.14, eyeH * 0.08]) },
         ),
+        group(
+          'ShineBig',
+          painted(ellipse(eyeW * 0.18, eyeH * 0.2), COLORS.white, COLORS.white, 0),
+          { p: staticValue([-eyeW * 0.16, -eyeH * 0.2]) },
+        ),
+        // Vertical slit, not a pupil filling most of the eye — the one shape cue that
+        // reads as an actual cat eye rather than a generic round cartoon eye.
+        ...painted(ellipse(eyeW * 0.32, eyeH * 0.86), COLORS.pupil, COLORS.pupil, 0),
+        ...painted(ellipse(eyeW, eyeH), COLORS.eye, o, w * 0.45),
       ],
       {
         p: staticValue([x, eyeY]),
