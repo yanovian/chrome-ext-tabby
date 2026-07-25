@@ -1,5 +1,6 @@
 import { isQuietHour } from './settings';
 import { isSleepDeferred } from './mood-grace';
+import { blockedCornersForHost, type PeekSlot } from './site-registry/corner-avoidance';
 import type { CatState, ExtensionSettings } from './types';
 
 export type AmbientActivity = 'sleeping' | 'grooming' | 'peeking';
@@ -238,13 +239,42 @@ export function isStayVisibleAfterRevealExpired(
   );
 }
 
-export function pickPeekPlacement(seed: number): PeekPlacement {
-  const edgeSlot = Math.abs(seed) % 3;
-  const edge: PeekEdge = edgeSlot === 0 ? 'bottom' : edgeSlot === 1 ? 'left' : 'right';
+/** Every edge/corner combination, paired with its short-form slot code (see
+ * `site-registry/corner-avoidance.ts` for what each one means). */
+const PEEK_PLACEMENT_CANDIDATES: ReadonlyArray<{ edge: PeekEdge; corner: PeekCorner; slot: PeekSlot }> = [
+  { edge: 'bottom', corner: 'left', slot: 'bl' },
+  { edge: 'bottom', corner: 'right', slot: 'br' },
+  { edge: 'left', corner: 'left', slot: 'lb' },
+  { edge: 'left', corner: 'right', slot: 'lt' },
+  { edge: 'right', corner: 'left', slot: 'rb' },
+  { edge: 'right', corner: 'right', slot: 'rt' },
+];
+
+const NO_AVOIDED_SLOTS: ReadonlySet<PeekSlot> = new Set();
+
+/** Random edge/corner/inset, skipping any slot in `avoidSlots` (e.g. a site's own chat
+ * launcher or menu — see `site-registry/corner-avoidance.ts`). Never leaves her with
+ * nowhere to peek from: falls back to every placement if all of them happen to be blocked. */
+export function pickPeekPlacement(
+  seed: number,
+  avoidSlots: ReadonlySet<PeekSlot> = NO_AVOIDED_SLOTS,
+): PeekPlacement {
   const insetSpread = PEEK_INSET_MAX - PEEK_INSET_MIN + 1;
   const inset = PEEK_INSET_MIN + (Math.abs(seed >> 3) % insetSpread);
-  const corner: PeekCorner = Math.abs(seed >> 11) % 2 === 0 ? 'left' : 'right';
-  return { edge, inset, corner };
+
+  const allowed = PEEK_PLACEMENT_CANDIDATES.filter((c) => !avoidSlots.has(c.slot));
+  const pool = allowed.length > 0 ? allowed : PEEK_PLACEMENT_CANDIDATES;
+  const { edge, corner } = pool[Math.abs(seed) % pool.length]!;
+  return { edge, corner, inset };
+}
+
+/** `pickPeekPlacement`, looking up `hostname`'s blocked slots itself. Every "roll a fresh peek
+ * placement" call site should go through this (not `pickPeekPlacement` + a separate
+ * `blockedCornersForHost` lookup) — a second copy of that pairing is exactly how the ambient
+ * ticker and the direct care-action path (e.g. "go play by yourself") drifted out of sync
+ * before: one got updated with avoidance, the other didn't. */
+export function pickPeekPlacementForHost(seed: number, hostname?: string): PeekPlacement {
+  return pickPeekPlacement(seed, blockedCornersForHost(hostname));
 }
 
 export interface AmbientRestInput {

@@ -5,6 +5,7 @@ import { readDrainingSessionState, type DrainingSessionState } from '../draining
 import { buildPresentation, isPeekPresentation } from '../presentation';
 import { resolvePeekRestoreAmbient } from '../peek-restore';
 import { saveSettings } from '../settings';
+import { hostnameFromUrl } from '../site-registry';
 import type { CareAction, CatPresentation, DoNotDisturbDuration } from '../types';
 import { IS_DEV_BUILD, type OrchestratorState, type PageContext } from './types';
 import { loadOrchestratorState, persistPresentation, reduceCat } from './state-io';
@@ -37,9 +38,9 @@ export async function computeCareActionState(
 
   switch (action) {
     case 'reveal':
-      return computeRevealCareState(state, now, drainingSession);
+      return computeRevealCareState(state, now, drainingSession, page);
     case 'shoo':
-      return computeShooCareState(state, now, drainingSession);
+      return computeShooCareState(state, now, drainingSession, page);
     case 'dnd_30':
     case 'dnd_60':
     case 'dnd_today':
@@ -87,6 +88,7 @@ async function computeRevealCareState(
   state: OrchestratorState,
   now: number,
   drainingSession: DrainingSessionState,
+  page: PageContext,
 ): Promise<OrchestratorState> {
   const last = state.lastPresentation;
   // Check the whole peek cycle (ambientActivity), not just the visible
@@ -142,6 +144,7 @@ async function computeRevealCareState(
     eatingUntil: last.eatingUntil,
     playingUntil: last.playingUntil,
     drainingSession,
+    hostname: page.url ? hostnameFromUrl(page.url) : undefined,
   });
   await persistPresentation(presentation);
   return { ...state, lastPresentation: presentation };
@@ -151,6 +154,7 @@ async function computeShooCareState(
   state: OrchestratorState,
   now: number,
   drainingSession: DrainingSessionState,
+  page: PageContext,
 ): Promise<OrchestratorState> {
   const last = state.lastPresentation;
   if (last && isPeekPresentation(last)) {
@@ -174,6 +178,7 @@ async function computeShooCareState(
     peekRestoreAmbientUntil: restore.peekRestoreAmbientUntil,
     moodOverride: 'peek',
     drainingSession,
+    hostname: page.url ? hostnameFromUrl(page.url) : undefined,
   });
   await persistPresentation(presentation);
   return { ...state, lastPresentation: presentation };

@@ -17,7 +17,7 @@ import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
 import { lifeStageLabel } from './sprites';
 import {
-  pickPeekPlacement,
+  pickPeekPlacementForHost,
   type AmbientActivity,
   type PeekCorner,
   type PeekEdge,
@@ -115,11 +115,12 @@ function keepOrPickPeekPlacement(
   peekInset: number | null | undefined,
   peekCorner: PeekCorner | null | undefined,
   seed: number,
+  hostname?: string,
 ): PeekPlacement {
   if (peekEdge) {
     return { edge: peekEdge, inset: peekInset ?? 16, corner: peekCorner ?? 'left' };
   }
-  return pickPeekPlacement(seed);
+  return pickPeekPlacementForHost(seed, hostname);
 }
 
 /** Shared peek placement for dev preview and production ambient peeks. */
@@ -129,11 +130,18 @@ export function resolvePeekPlacementForBuild(input: {
   peekInset?: number | null;
   peekCorner?: PeekCorner | null;
   seed: number;
+  hostname?: string;
 }): PeekPlacement | null {
   if (!input.isPeeking) {
     return null;
   }
-  return keepOrPickPeekPlacement(input.peekEdge, input.peekInset, input.peekCorner, input.seed);
+  return keepOrPickPeekPlacement(
+    input.peekEdge,
+    input.peekInset,
+    input.peekCorner,
+    input.seed,
+    input.hostname,
+  );
 }
 
 /** Peek placement for layout when mood is peek but edge fields were cleared. */
@@ -172,6 +180,7 @@ export function buildPresentation(input: {
   eatingUntil?: number | null;
   playingUntil?: number | null;
   drainingSession?: DrainingSessionState;
+  hostname?: string;
 }): CatPresentation {
   const derivedMood = deriveMoodFromVitals({
     vitals: input.vitals,
@@ -205,6 +214,7 @@ export function buildPresentation(input: {
     peekInset: input.peekInset,
     peekCorner: input.peekCorner,
     seed: input.now + input.cat.adoptedAt,
+    hostname: input.hostname,
   });
   const ambientActivity = isPeeking ? ('peeking' as const) : (input.ambientActivity ?? null);
 

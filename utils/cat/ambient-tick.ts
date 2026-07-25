@@ -17,6 +17,7 @@ import { isPlayingActive, playingMomentDue } from '../play-moment';
 import { buildPresentation, moodOverrideWhileHiding } from '../presentation';
 import { isEnteringPeekCycle, resolvePeekRestoreAmbient } from '../peek-restore';
 import { isDevMoodForced } from '../settings';
+import { hostnameFromUrl } from '../site-registry';
 import type { CatPresentation, ExtensionSettings, MemorySeed } from '../types';
 import type { OrchestratorState, PageContext } from './types';
 import { loadOrchestratorState, persistPresentation, reduceCat } from './state-io';
@@ -136,8 +137,15 @@ async function computeAmbientTickState(
   ]);
   const recentMemory = await pickRecallCandidate(memories, now, activeState.settings);
   const drainingSession = await readDrainingSessionState();
+  const hostname = options.page?.url ? hostnameFromUrl(options.page.url) : undefined;
   if (isDevMoodForced(activeState.settings)) {
-    const presentation = buildDevPreviewPresentation(activeState, activeState.settings, drainingSession, now);
+    const presentation = buildDevPreviewPresentation(
+      activeState,
+      activeState.settings,
+      drainingSession,
+      now,
+      hostname,
+    );
     await persistPresentation(presentation);
     return { ...activeState, lastPresentation: presentation };
   }
@@ -165,6 +173,7 @@ async function computeAmbientTickState(
     introCompleted,
     lastPresentation: activeState.lastPresentation,
     forceVisible: options.forceTick === true || options.forceDevSpeech === true,
+    hostname,
   });
 
   let cat = activeState.cat;

@@ -19,6 +19,8 @@ Known hosts live in `utils/site-registry/` (one file per region or category). En
 | `path-hints.ts` | High-confidence news path fallbacks only |
 | `title-hints.ts` | Known outlet names in titles |
 | `match.ts` | `matchSiteRule`, `matchDrainingSessionKind` |
+| `host-match.ts` | Shared `normalizeHostname`/`hostMatches` host comparison, used by `match.ts` and `corner-avoidance.ts` |
+| `corner-avoidance.ts` | `blockedCornersForHost` — short-form peek slots (`bl`/`br`/`lb`/`lt`/`rb`/`rt`, or the `l`/`r`/`b` group shortcut) a site's own chat/menu/modal occupies, so ambient peek skips them |
 
 Add new hosts to the **regional file**, not a monolithic list.
 

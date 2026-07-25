@@ -13,6 +13,7 @@ import {
   pickAmbientPeekVisitDurationMs,
   pickAmbientRestActivity,
   pickPeekPlacement,
+  pickPeekPlacementForHost,
   pickStayVisibleAfterRevealMs,
   shouldStartAmbientRest,
   AMBIENT_PEEK_DUCK_GAP_MIN_MS,
@@ -129,6 +130,64 @@ describe('pickPeekPlacement', () => {
     expect(placement.inset).toBeGreaterThanOrEqual(PEEK_INSET_MIN);
     expect(placement.inset).toBeLessThanOrEqual(PEEK_INSET_MAX);
     expect(['left', 'right']).toContain(placement.corner);
+  });
+
+  it('never lands on a slot in avoidSlots', () => {
+    // 'bl'/'br' = peeking up from the bottom edge; skip both, so the bottom edge
+    // never gets picked, but the side edges (lb/lt/rb/rt) remain fair game.
+    const avoid = new Set<'bl' | 'br' | 'lb' | 'lt' | 'rb' | 'rt'>(['bl', 'br']);
+    for (let seed = 0; seed < 20; seed += 1) {
+      const placement = pickPeekPlacement(seed, avoid);
+      expect(placement.edge).not.toBe('bottom');
+    }
+  });
+
+  it('distinguishes the bottom-hugging-left slot from the left-edge-low slot', () => {
+    // 'bl' (bottom edge, left corner) and 'lb' (left edge, low) both read as
+    // "bottom-left" but are different placements — blocking only 'bl' must still
+    // allow 'lb' to come up.
+    const avoid = new Set<'bl'>(['bl']);
+    const edges = new Set<string>();
+    for (let seed = 0; seed < 40; seed += 1) {
+      const placement = pickPeekPlacement(seed, avoid);
+      if (placement.edge === 'bottom') {
+        expect(placement.corner).toBe('right'); // 'bl' excluded, 'br' still allowed
+      }
+      edges.add(`${placement.edge}:${placement.corner}`);
+    }
+    expect(edges.has('left:left')).toBe(true); // 'lb' still reachable
+  });
+
+  it('falls back to every placement rather than leaving her nowhere to peek from', () => {
+    const avoid = new Set<'bl' | 'br' | 'lb' | 'lt' | 'rb' | 'rt'>([
+      'bl',
+      'br',
+      'lb',
+      'lt',
+      'rb',
+      'rt',
+    ]);
+    const placement = pickPeekPlacement(0, avoid);
+    expect(['bottom', 'left', 'right']).toContain(placement.edge);
+  });
+});
+
+describe('pickPeekPlacementForHost', () => {
+  it('is the one place that pairs blockedCornersForHost with pickPeekPlacement', () => {
+    // Every "roll a fresh peek placement" call site should go through this, not
+    // pickPeekPlacement + a separate blockedCornersForHost lookup of its own — see the
+    // doc comment on pickPeekPlacementForHost for why that pairing drifted out of sync before.
+    for (let offset = 0; offset < 20; offset += 1) {
+      const placement = pickPeekPlacementForHost(offset, 'linkedin.com');
+      const isBottomRight = placement.edge === 'bottom' && placement.corner === 'right';
+      const isSideBottomRight = placement.edge === 'right' && placement.corner === 'left';
+      expect(isBottomRight || isSideBottomRight).toBe(false);
+    }
+  });
+
+  it('rolls freely with no hostname', () => {
+    const placement = pickPeekPlacementForHost(0);
+    expect(['bottom', 'left', 'right']).toContain(placement.edge);
   });
 });
 

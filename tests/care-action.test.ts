@@ -331,6 +331,49 @@ describe('handleCareAction shoo', () => {
     expect(presentation.peekEdge).toBe('left');
     expect(presentation.peekInset).toBe(12);
   });
+
+  it('never sends her to a corner the current site occupies with its own UI', async () => {
+    // pooyan.info blocks 'br' (edge:bottom/corner:right) and 'rb' (edge:right/corner:left) —
+    // its cookie consent modal sits at that corner either way.
+    for (let offset = 0; offset < 20; offset += 1) {
+      // Plain per-ms offset, not a multiple of the 6-slot pool size (unlike a round number of
+      // minutes/hours), so `seed % 6` actually varies from one iteration to the next.
+      catForTests = { ...createInitialCat(NOW), adoptedAt: NOW - offset };
+      await persistPresentation({
+        mood: 'content',
+        stage: 'adult',
+        stageLabel: 'Adult',
+        sprite: '/gif/adult/idle.gif',
+        speech: null,
+        triggerKind: null,
+        overlayHidden: false,
+        canPet: true,
+        canTreat: false,
+        canPlay: false,
+        interactions: [],
+        secondaryInteractions: [],
+        lastCareAction: null,
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        peekInset: null,
+        peekCorner: null,
+        peekRestoreAmbientActivity: null,
+        peekRestoreAmbientUntil: null,
+        stayVisibleUntil: null,
+        eatingUntil: null,
+        playingUntil: null,
+      });
+
+      const presentation = await handleCareAction('shoo', NOW, { url: 'https://pooyan.info/' });
+
+      expect(presentation.ambientActivity).toBe('peeking');
+      const isBottomRight = presentation.peekEdge === 'bottom' && presentation.peekCorner === 'right';
+      const isSideBottomRight = presentation.peekEdge === 'right' && presentation.peekCorner === 'left';
+      expect(isBottomRight || isSideBottomRight).toBe(false);
+    }
+  });
 });
 
 describe('handleCareAction treat while hungry', () => {

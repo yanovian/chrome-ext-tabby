@@ -20,7 +20,7 @@ import {
   pickAmbientPeekDurationMs,
   pickAmbientPeekVisitDurationMs,
   pickAmbientRestActivity,
-  pickPeekPlacement,
+  pickPeekPlacementForHost,
   shouldStartAmbientRest,
   type AmbientActivity,
   type PeekCorner,
@@ -78,8 +78,9 @@ function startPeekVisit(input: {
   settings: ExtensionSettings;
   now: number;
   recordAmbient: boolean;
+  hostname?: string;
 }): ResolvedPresence {
-  const placement = pickPeekPlacement(input.now + input.cat.adoptedAt);
+  const placement = pickPeekPlacementForHost(input.now + input.cat.adoptedAt, input.hostname);
   return presence({
     companionVisible: true,
     ambientActivity: 'peeking',
@@ -125,8 +126,9 @@ function advanceAmbientPhase(input: {
   settings: ExtensionSettings;
   now: number;
   last: CatPresentation | null;
+  hostname?: string;
 }): ResolvedPresence {
-  const { cat, settings, now, last } = input;
+  const { cat, settings, now, last, hostname } = input;
   const previousUntil = last?.ambientPeekUntil ?? null;
   const previousActivity = last?.ambientActivity ?? null;
 
@@ -145,7 +147,7 @@ function advanceAmbientPhase(input: {
         // Grace window over: always resume the normal ambient cycle from a fresh peek,
         // regardless of what reveal had restored — that's the intended landing spot, not a
         // fallback (see "returns to peeking after stay-visible ends" in presence.test.ts).
-        return startPeekVisit({ cat, settings, now, recordAmbient: false });
+        return startPeekVisit({ cat, settings, now, recordAmbient: false, hostname });
       }
       return presence({});
     }
@@ -170,7 +172,7 @@ function advanceAmbientPhase(input: {
         return presence({ ambientActivity: 'peeking', ambientPeekUntil: previousUntil });
       }
       // Duck gap over: peek again from a fresh corner.
-      return startPeekVisit({ cat, settings, now, recordAmbient: false });
+      return startPeekVisit({ cat, settings, now, recordAmbient: false, hostname });
 
     case 'resting':
       if (isAmbientPeekActive(previousUntil, now)) {
@@ -184,12 +186,12 @@ function advanceAmbientPhase(input: {
       // fresh peek immediately; a hidden one defers to the same "what should ambient do right
       // now" decision idle uses below — it must not keep showing the just-expired timer.
       if (last!.companionVisible) {
-        return startPeekVisit({ cat, settings, now, recordAmbient: false });
+        return startPeekVisit({ cat, settings, now, recordAmbient: false, hostname });
       }
-      return decideIdleAmbient({ cat, settings, now, restUntil: previousUntil });
+      return decideIdleAmbient({ cat, settings, now, restUntil: previousUntil, hostname });
 
     case 'idle':
-      return decideIdleAmbient({ cat, settings, now, restUntil: previousUntil });
+      return decideIdleAmbient({ cat, settings, now, restUntil: previousUntil, hostname });
   }
 }
 
@@ -202,8 +204,9 @@ function decideIdleAmbient(input: {
   settings: ExtensionSettings;
   now: number;
   restUntil: number | null;
+  hostname?: string;
 }): ResolvedPresence {
-  const { cat, settings, now, restUntil } = input;
+  const { cat, settings, now, restUntil, hostname } = input;
   if (
     shouldStartAmbientRest({ cat, settings, now, speechWouldAppear: false, restUntil })
   ) {
@@ -232,7 +235,7 @@ function decideIdleAmbient(input: {
   if (isSleepDeferred(cat, now)) {
     return presence({ companionVisible: true });
   }
-  return startPeekVisit({ cat, settings, now, recordAmbient: true });
+  return startPeekVisit({ cat, settings, now, recordAmbient: true, hostname });
 }
 
 export function resolveCompanionPresence(input: {
@@ -245,6 +248,7 @@ export function resolveCompanionPresence(input: {
   introCompleted: boolean;
   lastPresentation: CatPresentation | null;
   forceVisible?: boolean;
+  hostname?: string;
 }): ResolvedPresence {
   if (isDoNotDisturbActive(input.doNotDisturb, input.now)) {
     return presence({});
@@ -272,6 +276,7 @@ export function resolveCompanionPresence(input: {
         settings: input.settings,
         now: input.now,
         last: input.lastPresentation,
+        hostname: input.hostname,
       });
     }
     return presence({
@@ -302,5 +307,6 @@ export function resolveCompanionPresence(input: {
     settings: input.settings,
     now: input.now,
     last: input.lastPresentation,
+    hostname: input.hostname,
   });
 }

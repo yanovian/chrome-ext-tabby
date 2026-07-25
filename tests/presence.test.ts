@@ -123,6 +123,29 @@ describe('resolveCompanionPresence', () => {
     expect(result.peekInset).toBeGreaterThan(0);
   });
 
+  it('never peeks from a corner the current site occupies with its own UI', () => {
+    // linkedin.com blocks slots 'br' (edge:bottom/corner:right) and 'rb'
+    // (edge:right/corner:left) — its chat launcher sits at that corner either way.
+    // Plain per-ms offset, not a multiple of the 6-slot pool size (unlike a round number
+    // of minutes/hours), so `seed % 6` actually varies from one iteration to the next.
+    for (let offset = 0; offset < 20; offset += 1) {
+      const result = resolve({
+        cat: {
+          ...createInitialCat(NOW),
+          lastAmbientAt: NOW,
+          lastCareAt: 0,
+          adoptedAt: NOW - offset,
+        },
+        hostname: 'linkedin.com',
+      });
+
+      expect(result.ambientActivity).toBe('peeking');
+      const isBottomRight = result.peekEdge === 'bottom' && result.peekCorner === 'right';
+      const isSideBottomRight = result.peekEdge === 'right' && result.peekCorner === 'left';
+      expect(isBottomRight || isSideBottomRight).toBe(false);
+    }
+  });
+
   it('stays visible without starting a fresh peek right after a care interaction', () => {
     // Regression: decideIdleAmbient's peek fallback had no settle period at all, unlike the
     // rest fallback (which already checks isSleepDeferred) — she'd start a fresh peek visit

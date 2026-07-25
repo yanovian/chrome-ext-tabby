@@ -1,16 +1,9 @@
 import type { DrainingSessionKind } from '../types';
 import type { SiteRule } from './types';
+import { hostMatches, hostnameFromUrl, normalizeHostname } from './host-match';
 import { HIGH_CONFIDENCE_NEWS_PATH_HINTS } from './path-hints';
 import { NEWS_TITLE_HINTS } from './title-hints';
 import { SITE_RULES } from './rules';
-
-function parseHostname(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return '';
-  }
-}
 
 function parsePath(url: string): string {
   try {
@@ -21,13 +14,11 @@ function parsePath(url: string): string {
 }
 
 export function matchSiteRule(hostname: string, path: string): SiteRule | null {
-  const normalizedHost = hostname.replace(/^www\./, '').toLowerCase();
+  const normalizedHost = normalizeHostname(hostname);
   const normalizedPath = path.toLowerCase();
 
   for (const rule of SITE_RULES) {
-    const hostMatch = rule.hosts.some(
-      (host) => normalizedHost === host || normalizedHost.endsWith(`.${host}`),
-    );
+    const hostMatch = rule.hosts.some((host) => hostMatches(normalizedHost, host));
     if (!hostMatch) {
       continue;
     }
@@ -54,7 +45,7 @@ export function matchDrainingSessionKind(
     return null;
   }
 
-  const hostname = parseHostname(url);
+  const hostname = hostnameFromUrl(url);
   const path = parsePath(url);
   const siteRule = matchSiteRule(hostname, path);
 

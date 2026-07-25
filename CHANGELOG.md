@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.5 (unreleased)
+
+- Tabby steers clear of the corner where a site's own chat bubble, menu, or cookie banner lives, on sites where we know about it.
+
 ## 2.4.4
 
 - Update the **playing** animation.

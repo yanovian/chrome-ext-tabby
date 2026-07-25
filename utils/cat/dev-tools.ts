@@ -59,6 +59,7 @@ export function buildDevPreviewPresentation(
   settings: ExtensionSettings,
   drainingSession: DrainingSessionState,
   now = Date.now(),
+  hostname?: string,
 ): CatPresentation {
   const moodOverride = isDevMoodForced(settings) ? settings.devForceMood : undefined;
   const last = state.lastPresentation;
@@ -85,6 +86,7 @@ export function buildDevPreviewPresentation(
     stayVisibleUntil: moodOverride ? null : (last?.stayVisibleUntil ?? null),
     drainingSession,
     moodOverride,
+    hostname,
   });
 }
 
