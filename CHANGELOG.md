@@ -7,6 +7,7 @@ Updates for people who use Tabby. Newest first.
 - Tabby steers clear of the corner where a site's own chat bubble, menu, or cookie banner lives, on sites where we know about it.
 - Newborn Tabby looks like an actual kitten now: bigger eyes and ears, smaller body.
 - More **realistic eyes** and **whiskers**.
+- Feeding's eating is now more realistic.
 
 ## 2.4.4
 

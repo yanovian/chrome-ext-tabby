@@ -103,7 +103,7 @@ function breathe(frames, amount = 2) {
   };
 }
 
-function motionFor(state, frames) {
+function motionFor(state, frames, layout) {
   switch (state) {
     case 'happy':
       return {
@@ -225,21 +225,30 @@ function motionFor(state, frames) {
         face: 'weary',
         blink: false,
       };
-    case 'feeding':
+    case 'feeding': {
+      // Three quick dips down into the bowl, not one slow bob — that's what actually
+      // reads as "eating" instead of "nodding off". Dip distance scales with the stage's
+      // head size: a fixed pixel dip that looks right on the adult is a wild head-bang
+      // on the much smaller newborn.
+      const dip = layout ? layout.headR / STAGES.adult.headR : 1;
+      const dipPoint = (x, y) => [x * dip, y * dip, 0];
       return {
-        body: breathe(frames, 2.5),
+        body: breathe(frames, 1.5),
         tail: loopKeys(frames, [6, 12, 6, 10, 6]),
-        headR: loopKeys(frames, [10, 20, 12, 22, 10]),
+        headR: loopKeys(frames, [0, -6, 2, -8, 2, -6, 0]),
         headP: loopKeys(frames, [
-          [0, 0, 0],
-          [6, 14, 0],
-          [2, 10, 0],
-          [8, 16, 0],
-          [0, 0, 0],
+          dipPoint(0, 2),
+          dipPoint(-3, 34),
+          dipPoint(2, 4),
+          dipPoint(-3, 36),
+          dipPoint(2, 4),
+          dipPoint(-3, 34),
+          dipPoint(0, 2),
         ]),
         face: 'open',
         blink: false,
       };
+    }
     case 'stress':
       return {
         body: staticValue([100, 100, 100]),
@@ -625,9 +634,17 @@ function whiskerOnCheek(o, w, r, side) {
   );
 }
 
-function kawaiiMouth(face, y, o, w) {
+function kawaiiMouth(face, y, o, w, frames) {
   if (face === 'open') {
-    return group('Mouth', painted(ellipse(6, 5), COLORS.pink, o, w * 0.4), { p: staticValue([0, y]) });
+    // Chewing: closed by default (including at rest, head up and away from the bowl) and
+    // only opens at the exact moments the head dips down to the food — matches headP's
+    // [rest, dip, lift, dip, lift, dip, rest] beats exactly, so "mouth open" only ever
+    // lines up with "head down at the bowl", never with head-up rest.
+    const chewScale = [15, 165, 15, 175, 15, 165, 15].map((h) => [100, h]);
+    return group('Mouth', painted(ellipse(6, 5), COLORS.pink, o, w * 0.4), {
+      p: staticValue([0, y]),
+      s: loopKeys(frames, chewScale),
+    });
   }
   if (face === 'worry') {
     return group(
@@ -847,6 +864,11 @@ function buildFace(layout, face, blink, frames, options = {}) {
       );
     }
 
+    // Feeding: pupil and shine shift toward the bottom of the eye so she's visibly
+    // looking down at the bowl, not staring straight ahead while her head just happens
+    // to be lower. Kept just inside the iris so it doesn't clip past the eye outline.
+    const gazeY = face === 'open' ? eyeH * 0.14 : 0;
+
     return group(
       `Eye${side}`,
       [
@@ -855,23 +877,27 @@ function buildFace(layout, face, blink, frames, options = {}) {
         group(
           'ShineSmall',
           painted(ellipse(eyeW * 0.08, eyeH * 0.09), COLORS.white, COLORS.white, 0),
-          { p: staticValue([eyeW * 0.14, eyeH * 0.08]) },
+          { p: staticValue([eyeW * 0.14, eyeH * 0.08 + gazeY]) },
         ),
         group(
           'ShineBig',
           painted(ellipse(eyeW * 0.18, eyeH * 0.2), COLORS.white, COLORS.white, 0),
-          { p: staticValue([-eyeW * 0.16, -eyeH * 0.2]) },
+          { p: staticValue([-eyeW * 0.16, -eyeH * 0.2 + gazeY]) },
         ),
         // 'worry'/'weary' (hungry, stressed, starving) get a narrow alert slit — the
         // real cat-eye cue fits the tension. Everything else (idle, curious, playing,
         // feeding) gets a big round pupil instead: warm and cute, not on-edge.
-        ...painted(
-          face === 'worry' || face === 'weary'
-            ? ellipse(eyeW * 0.32, eyeH * 0.86)
-            : ellipse(eyeH * 0.62, eyeH * 0.62),
-          COLORS.pupil,
-          COLORS.pupil,
-          0,
+        group(
+          'Pupil',
+          painted(
+            face === 'worry' || face === 'weary'
+              ? ellipse(eyeW * 0.32, eyeH * 0.86)
+              : ellipse(eyeH * 0.62, eyeH * 0.62),
+            COLORS.pupil,
+            COLORS.pupil,
+            0,
+          ),
+          { p: staticValue([0, gazeY]) },
         ),
         ...painted(ellipse(eyeW, eyeH), COLORS.eye, o, w * 0.45),
       ],
@@ -894,7 +920,7 @@ function buildFace(layout, face, blink, frames, options = {}) {
     ];
   }
 
-  return [eye('L'), eye('R'), kawaiiMouth(face, mouthY, o, w)];
+  return [eye('L'), eye('R'), kawaiiMouth(face, mouthY, o, w, frames)];
 }
 
 function buildBodyRig(layout, motion, options = {}) {
@@ -1295,6 +1321,38 @@ function buildOverwhelmedCat(stageKey) {
   };
 }
 
+/** Food bowl with visible kibble, not just an empty dish. Earlier items draw in front,
+ * so the kibble and food base go before the rim, or the rim would hide them. */
+function buildFoodBowl(layout) {
+  const o = COLORS.outline;
+  const w = layout.stroke;
+  const kibbleColor = COLORS.bodyDark;
+  const kibbleSpots = [
+    [-10, -1.5],
+    [-3, 1.5],
+    [4, -2],
+    [10.5, 1],
+    [0.5, -3.5],
+  ];
+  const kibble = kibbleSpots.map(([kx, ky], i) =>
+    group(
+      `Kibble${i}`,
+      painted(ellipse(5, 4), kibbleColor, o, w * 0.25),
+      { p: staticValue([kx, ky]) },
+    ),
+  );
+
+  return group(
+    'BowlShape',
+    [
+      ...kibble,
+      ...painted(ellipse(30, 9), COLORS.belly, o, w * 0.4),
+      ...painted(ellipse(40, 14), COLORS.collar, o, w * 0.65),
+    ],
+    { p: staticValue([0, 0]) },
+  );
+}
+
 function buildCat(stageKey, state) {
   if (state === 'peek') {
     return buildPeekCat(stageKey);
@@ -1307,7 +1365,7 @@ function buildCat(stageKey, state) {
   const { cx, footY, torsoY, headOffsetY } = rigPositions(layout, size);
   const headY = torsoY + headOffsetY;
   const frames = state === 'stress' ? 48 : 96;
-  const motion = motionFor(state, frames);
+  const motion = motionFor(state, frames, layout);
   const headPose = headLayerTransform(motion, cx, headY);
   const bodyTransform = {
     p: motion.bodyP ? offsetPos(motion.bodyP, cx, torsoY) : staticValue([cx, torsoY, 0]),
@@ -1379,17 +1437,10 @@ function buildCat(stageKey, state) {
       shapeLayer(
         'Bowl',
         3,
-        { p: staticValue([cx, footY + 8, 0]) },
-        [
-          group(
-            'BowlShape',
-            [
-              ...painted(ellipse(34, 12), COLORS.collar, COLORS.outline, layout.stroke * 0.65),
-              ...painted(ellipse(22, 6), COLORS.belly, COLORS.outline, layout.stroke * 0.45),
-            ],
-            { p: staticValue([0, 0]) },
-          ),
-        ],
+        // Clearly below and separate from the shadow (footY + 6), not stacked right on
+        // top of it where the two used to blend into one purple smudge.
+        { p: staticValue([cx, footY + 20, 0]) },
+        [buildFoodBowl(layout)],
         frames,
       ),
     );
