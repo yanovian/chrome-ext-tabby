@@ -38,9 +38,6 @@ const BLOCKED_SLOTS: Readonly<Record<string, readonly AvoidToken[]>> = {
   'facebook.com': ['l', 'br', 'rb'], // nav menu on the left, chat bottom-right corner
   'canva.com': ['l'], // nav menu runs the full left side
   'mail.google.com': ['l'], // Gmail's left menu/chat rail
-
-  // Full-height left sidebar is the whole layout, not a widget on top of the page —
-  // same treatment as Gmail/Canva above.
   'drive.google.com': ['l'],
   'calendar.google.com': ['l'],
   'notion.so': ['l'],
