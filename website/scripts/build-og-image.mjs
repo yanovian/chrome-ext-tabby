@@ -6,7 +6,8 @@ import sharp from 'sharp';
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
 const RTL_LOCALES = new Set(['ar', 'fa']);
-/** LTR locales with wide scripts that need embedded fonts and tighter wrapping. */
+/** LTR locales with wide scripts that need tighter wrapping (tall diacritics/conjuncts
+ * eat more vertical room than Latin text does). */
 const WIDE_TEXT_LOCALES = new Set(['hy']);
 
 const websiteRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -20,38 +21,63 @@ const catGifPath = join(publicRoot, 'gif', 'happy.gif');
 const iconPath = join(publicRoot, 'icon.png');
 
 const CAT_LEFT = 100;
-const TEXT_FONT =
-  "'Noto Sans', 'Noto Sans Arabic', 'Noto Sans CJK SC', 'Noto Sans Devanagari', system-ui, sans-serif";
-const ARMENIAN_FONT_FAMILY = "'Tabby Noto Armenian', 'Noto Sans Armenian', sans-serif";
+const TEXT_FONT = "'Noto Sans', 'Noto Sans CJK SC', system-ui, sans-serif";
 
-const armenianFontRegular = readFileSync(
-  join(fontsDir, 'NotoSansArmenian-Regular.woff2'),
-).toString('base64');
-const armenianFontBold = readFileSync(join(fontsDir, 'NotoSansArmenian-Bold.woff2')).toString(
-  'base64',
-);
+/**
+ * This script rasterizes SVG with sharp (librsvg), which resolves font-family names
+ * against whatever fonts happen to be installed on the machine that runs it — there is
+ * no guarantee that machine has, say, Tamil glyph coverage. Rather than gamble on the
+ * build machine (a laptop today, maybe a different one next time — this always builds
+ * locally, see website/README.md), every non-Latin script embeds its own font directly
+ * in the SVG as base64, exactly like Armenian did before this comment existed. Add a
+ * new script by dropping its variable-font woff2 in static/fonts/ and adding a row here.
+ */
+const LOCALE_FONTS = {
+  hy: {
+    family: 'Tabby Noto Armenian',
+    faces: [
+      { file: 'NotoSansArmenian-Regular.woff2', weight: '400 500' },
+      { file: 'NotoSansArmenian-Bold.woff2', weight: '700 800' },
+    ],
+  },
+  ar: { family: 'Tabby Noto Arabic', faces: [{ file: 'NotoSansArabic-Variable.woff2', weight: '100 900' }] },
+  fa: { family: 'Tabby Noto Arabic', faces: [{ file: 'NotoSansArabic-Variable.woff2', weight: '100 900' }] },
+  hi: { family: 'Tabby Noto Devanagari', faces: [{ file: 'NotoSansDevanagari-Variable.woff2', weight: '100 900' }] },
+  bn: { family: 'Tabby Noto Bengali', faces: [{ file: 'NotoSansBengali-Variable.woff2', weight: '100 900' }] },
+  ta: { family: 'Tabby Noto Tamil', faces: [{ file: 'NotoSansTamil-Variable.woff2', weight: '100 900' }] },
+  th: { family: 'Tabby Noto Thai', faces: [{ file: 'NotoSansThai-Variable.woff2', weight: '100 900' }] },
+};
+
+const fontFileBase64Cache = new Map();
+function loadFontBase64(file) {
+  if (!fontFileBase64Cache.has(file)) {
+    fontFileBase64Cache.set(file, readFileSync(join(fontsDir, file)).toString('base64'));
+  }
+  return fontFileBase64Cache.get(file);
+}
 
 function fontFamilyFor(locale) {
-  return WIDE_TEXT_LOCALES.has(locale) ? ARMENIAN_FONT_FAMILY : TEXT_FONT;
+  const entry = LOCALE_FONTS[locale];
+  return entry ? `'${entry.family}', sans-serif` : TEXT_FONT;
 }
 
 function svgFontDefs(locale) {
-  if (!WIDE_TEXT_LOCALES.has(locale)) {
+  const entry = LOCALE_FONTS[locale];
+  if (!entry) {
     return '';
   }
 
-  return `<style>
+  const faces = entry.faces
+    .map(
+      ({ file, weight }) => `
     @font-face {
-      font-family: 'Tabby Noto Armenian';
-      font-weight: 400 500;
-      src: url('data:font/woff2;base64,${armenianFontRegular}') format('woff2');
-    }
-    @font-face {
-      font-family: 'Tabby Noto Armenian';
-      font-weight: 700 800;
-      src: url('data:font/woff2;base64,${armenianFontBold}') format('woff2');
-    }
-  </style>`;
+      font-family: '${entry.family}';
+      font-weight: ${weight};
+      src: url('data:font/woff2;base64,${loadFontBase64(file)}') format('woff2');
+    }`,
+    )
+    .join('');
+  return `<style>${faces}\n  </style>`;
 }
 
 function escapeXml(value) {
