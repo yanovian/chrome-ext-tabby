@@ -44,13 +44,13 @@ function paletteFor(pale) {
 const STAGES = {
   newborn: {
     size: 140,
-    headR: 34,
-    bodyW: 38,
-    bodyH: 30,
-    legH: 8,
-    legW: 9,
-    tailLen: 26,
-    stroke: 3.2,
+    headR: 30,
+    bodyW: 26,
+    bodyH: 20,
+    legH: 6,
+    legW: 6,
+    tailLen: 20,
+    stroke: 2.8,
   },
   playful: {
     size: 180,
@@ -783,8 +783,11 @@ function buildFace(layout, face, blink, frames, options = {}) {
   const wide = face === 'wide' || face === 'overwhelmed' || face === 'weary';
   const eyeY = r * 0.06;
   const gap = face === 'overwhelmed' ? r * 0.26 : r * 0.3;
-  const eyeW = (face === 'overwhelmed' ? 0.64 : wide ? 0.56 : 0.5) * r;
-  const eyeH = (face === 'overwhelmed' ? 0.74 : wide ? 0.64 : 0.58) * r;
+  // Kitten eyes: bigger relative to the head than the grown-up stages, for that
+  // naughty-baby-animal look (big eyes, big head, tiny body).
+  const babyBoost = options.babyEyes ? 1.2 : 1;
+  const eyeW = (face === 'overwhelmed' ? 0.64 : wide ? 0.56 : 0.5) * r * babyBoost;
+  const eyeH = (face === 'overwhelmed' ? 0.74 : wide ? 0.64 : 0.58) * r * babyBoost;
   const mouthY = r * 0.36;
 
   const eye = (side) => {
@@ -1095,7 +1098,7 @@ function buildPeekCat(stageKey) {
       r: loopKeys(frames, [-7, 7, -7]),
     },
     [
-      group('Face', buildFace(layout, 'wide', true, frames), { p: staticValue([0, 0]) }),
+      group('Face', buildFace(layout, 'wide', true, frames, { babyEyes: stageKey === 'newborn' }), { p: staticValue([0, 0]) }),
       group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
     ],
     frames,
@@ -1158,7 +1161,7 @@ function buildPeekDuckCat(stageKey) {
       r: staticValue(0),
     },
     [
-      group('Face', buildFace(layout, 'wide', false, frames), { p: staticValue([0, 0]) }),
+      group('Face', buildFace(layout, 'wide', false, frames, { babyEyes: stageKey === 'newborn' }), { p: staticValue([0, 0]) }),
       group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
     ],
     frames,
@@ -1213,7 +1216,7 @@ function buildOverwhelmedCat(stageKey) {
     2,
     headPose,
     [
-      group('Face', buildFace(layout, 'overwhelmed', false, frames), { p: staticValue([0, 0]) }),
+      group('Face', buildFace(layout, 'overwhelmed', false, frames, { babyEyes: stageKey === 'newborn' }), { p: staticValue([0, 0]) }),
       group('HeadShell', buildHeadShell(layout), { p: staticValue([0, 0]) }),
     ],
     frames,
@@ -1312,8 +1315,9 @@ function buildCat(stageKey, state) {
         : {};
 
   const pale = state === 'starving';
+  const babyEyes = stageKey === 'newborn';
   const headShapes = [
-    group('Face', buildFace(layout, motion.face, motion.blink, frames, { pale }), { p: staticValue([0, 0]) }),
+    group('Face', buildFace(layout, motion.face, motion.blink, frames, { pale, babyEyes }), { p: staticValue([0, 0]) }),
     group('HeadShell', buildHeadShell(layout, { pale }), { p: staticValue([0, 0]) }),
   ];
 
