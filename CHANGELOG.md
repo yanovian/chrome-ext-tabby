@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.5 (unreleased)
+## 2.4.5
 
 - Tabby steers clear of the corner where a site's own chat bubble, menu, or cookie banner lives, on sites where we know about it.
 - Newborn Tabby looks like an actual kitten now: bigger eyes and ears, smaller body.
