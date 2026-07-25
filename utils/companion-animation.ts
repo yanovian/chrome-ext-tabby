@@ -2,6 +2,7 @@ import type { AmbientActivity } from './ambient-presence';
 import type { InteractionAction } from './cat-interactions';
 import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
+import { isPettingActive } from './pet-moment';
 import type { CatLifeStage, CatMood } from './types';
 
 export type CompanionAnimationState =
@@ -17,7 +18,8 @@ export type CompanionAnimationState =
   | 'play'
   | 'playing'
   | 'peek'
-  | 'overwhelmed';
+  | 'overwhelmed'
+  | 'pet';
 
 /** Lottie composition size per life stage (`lottie-json/` only). */
 export const COMPANION_CANVAS_SIZE: Record<CatLifeStage, number> = {
@@ -116,6 +118,7 @@ export function resolveCompanionAnimationState(input: {
   lastCareAction?: InteractionAction | null;
   eatingUntil?: number | null;
   playingUntil?: number | null;
+  pettingUntil?: number | null;
   now?: number;
 }): CompanionAnimationState {
   if (input.eatingUntil != null && input.now != null && isFeedingActive(input.eatingUntil, input.now)) {
@@ -123,6 +126,12 @@ export function resolveCompanionAnimationState(input: {
   }
   if (input.playingUntil != null && input.now != null && isPlayingActive(input.playingUntil, input.now)) {
     return 'playing';
+  }
+  // No mood guard needed here, unlike lastCareAction === 'pet' further down: care-general.ts
+  // only ever opens a pettingUntil window for a calm/positive mood in the first place, so an
+  // urgent one (hungry, stressed, sleepy...) never reaches this check at all.
+  if (input.pettingUntil != null && input.now != null && isPettingActive(input.pettingUntil, input.now)) {
+    return 'pet';
   }
   if (input.ambientActivity === 'sleeping') {
     return 'sleep';
@@ -159,6 +168,7 @@ export function resolveCompanionAnimation(input: {
   lastCareAction?: InteractionAction | null;
   eatingUntil?: number | null;
   playingUntil?: number | null;
+  pettingUntil?: number | null;
   now?: number;
 }): string {
   const state = resolveCompanionAnimationState(input);
@@ -181,6 +191,7 @@ export function allCompanionAnimationPaths(): string[] {
     'playing',
     'peek',
     'overwhelmed',
+    'pet',
   ];
   return stages.flatMap((stage) =>
     states.map((state) => companionAnimationPath(stage, state)),

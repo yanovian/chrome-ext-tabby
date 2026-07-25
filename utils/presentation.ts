@@ -15,6 +15,7 @@ import {
 import { resolveCompanionAnimation } from './companion-animation';
 import { isFeedingActive } from './feeding-moment';
 import { isPlayingActive } from './play-moment';
+import { isPettingActive } from './pet-moment';
 import { lifeStageLabel } from './sprites';
 import {
   pickPeekPlacementForHost,
@@ -179,6 +180,7 @@ export function buildPresentation(input: {
   stayVisibleUntil?: number | null;
   eatingUntil?: number | null;
   playingUntil?: number | null;
+  pettingUntil?: number | null;
   drainingSession?: DrainingSessionState;
   hostname?: string;
 }): CatPresentation {
@@ -205,8 +207,10 @@ export function buildPresentation(input: {
   );
   const eatingUntil = input.eatingUntil ?? null;
   const playingUntil = input.playingUntil ?? null;
+  const pettingUntil = input.pettingUntil ?? null;
   const feedingActive = isFeedingActive(eatingUntil, input.now);
   const playingActive = isPlayingActive(playingUntil, input.now);
+  const pettingActive = isPettingActive(pettingUntil, input.now);
   const isPeeking = isPeekPresentation({ mood, companionVisible: input.companionVisible });
   const peekPlacement = resolvePeekPlacementForBuild({
     isPeeking,
@@ -229,12 +233,13 @@ export function buildPresentation(input: {
       lastCareAction: input.lastCareAction,
       eatingUntil,
       playingUntil,
+      pettingUntil,
       now: input.now,
     }),
     speech: input.speech,
     triggerKind: input.triggerKind,
     overlayHidden: input.overlayHidden,
-    canPet: !isPeeking,
+    canPet: !isPeeking && !pettingActive,
     canTreat: !isPeeking && !feedingActive && (mood === 'hungry' || mood === 'starving'),
     canPlay: !isPeeking && !playingActive && mood !== 'sleepy' && input.vitals.happiness < 70,
     interactions: buildInteractionOptions(mood, input.vitals, stage),
@@ -262,6 +267,7 @@ export function buildPresentation(input: {
           : (input.stayVisibleUntil ?? null),
     eatingUntil,
     playingUntil,
+    pettingUntil,
   };
 }
 
@@ -320,6 +326,7 @@ export function patchPresentationForDevForce(
       lastCareAction: presentation.lastCareAction,
       eatingUntil: presentation.eatingUntil,
       playingUntil: presentation.playingUntil,
+      pettingUntil: presentation.pettingUntil,
       now,
     }),
     canPet: !peeking,

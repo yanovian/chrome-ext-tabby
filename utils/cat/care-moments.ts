@@ -6,6 +6,7 @@ import {
   feedingThanksSpeech,
 } from '../feeding-moment';
 import { clearPlayingCompleteAlarm, playingMomentDue, playingThanksSpeech, playingWildSpeech } from '../play-moment';
+import { clearPettingCompleteAlarm, pettingMomentDue } from '../pet-moment';
 import { buildPresentation } from '../presentation';
 import type { CatPresentation } from '../types';
 import type { OrchestratorState } from './types';
@@ -168,6 +169,46 @@ export function completePlayingIfDue(now: number): Promise<CatPresentation | nul
       return null;
     }
     const next = await completePlayingPresentation(state, now);
+    return next.lastPresentation;
+  });
+}
+
+/** Quietly drop back to her normal mood-driven look once the petting reaction's short
+ * window ends — no thank-you line needed, the purr from the initial pet already said it. */
+export async function completePettingPresentation(
+  state: OrchestratorState,
+  now: number,
+): Promise<OrchestratorState> {
+  await clearPettingCompleteAlarm();
+  const presentation = buildPresentation({
+    cat: state.cat,
+    vitals: state.cat.vitals,
+    settings: state.settings,
+    now,
+    isUserIdle: state.isUserIdle,
+    speech: null,
+    triggerKind: null,
+    overlayHidden: state.lastPresentation?.overlayHidden ?? false,
+    lastCareAction: null,
+    companionVisible: state.lastPresentation?.companionVisible ?? false,
+    ambientActivity: null,
+    ambientPeekUntil: null,
+    eatingUntil: null,
+    playingUntil: null,
+    pettingUntil: null,
+  });
+  await persistPresentation(presentation);
+  return { ...state, lastPresentation: presentation };
+}
+
+/** Finish the petting reaction when its short timer ends. */
+export function completePettingIfDue(now: number): Promise<CatPresentation | null> {
+  return serializePresentationWrite(async () => {
+    const state = await loadOrchestratorState();
+    if (!pettingMomentDue(state.lastPresentation?.pettingUntil, now)) {
+      return null;
+    }
+    const next = await completePettingPresentation(state, now);
     return next.lastPresentation;
   });
 }

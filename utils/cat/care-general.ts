@@ -13,6 +13,7 @@ import {
 } from '../draining-session';
 import { feedingMunchSpeech, pickFeedingDurationMs, scheduleFeedingCompleteAlarm, shouldStartFeedingMoment } from '../feeding-moment';
 import { pickPlayingDurationMs, playingWildSpeech, schedulePlayingCompleteAlarm } from '../play-moment';
+import { pickPettingDurationMs, schedulePettingCompleteAlarm } from '../pet-moment';
 import { hidePageOverlay } from '../page-overlay';
 import { buildPresentation } from '../presentation';
 import type { SpeechContext } from '../speech-types';
@@ -76,6 +77,7 @@ interface CareOutcome {
   speech: string | null;
   eatingUntil: number | null;
   playingUntil: number | null;
+  pettingUntil: number | null;
   stage: CatLifeStage;
   startFeedingMoment: boolean;
   startPlayingMoment: boolean;
@@ -120,6 +122,10 @@ async function resolveCareOutcome(
     cat,
     now,
   );
+  // Only give her the brief petting reaction over a calm mood — a hungry pet needs to keep
+  // reading as hungry (see the frustrated "pet while hungry" speech below), not be masked by
+  // a content little animation.
+  const startPettingMoment = action === 'pet' && !hungryBeforeCare;
 
   if (action === 'dismiss') {
     await hidePageOverlay(page.url);
@@ -152,6 +158,7 @@ async function resolveCareOutcome(
   let speech: string | null = null;
   let eatingUntil: number | null = null;
   let playingUntil: number | null = null;
+  let pettingUntil: number | null = null;
 
   if (startFeedingMoment) {
     eatingUntil = now + pickFeedingDurationMs(state.settings, now);
@@ -165,6 +172,10 @@ async function resolveCareOutcome(
     speech = resolveCareSpeech(action, mood, hungryBeforeCare, stage, now, page, speechKind, cat);
   }
 
+  if (startPettingMoment) {
+    pettingUntil = now + pickPettingDurationMs(state.settings, now);
+  }
+
   return {
     cat,
     mood,
@@ -173,6 +184,7 @@ async function resolveCareOutcome(
     speech,
     eatingUntil,
     playingUntil,
+    pettingUntil,
     stage,
     startFeedingMoment,
     startPlayingMoment,
@@ -253,6 +265,7 @@ async function applyCareOutcome(
     moodOverride,
     eatingUntil,
     playingUntil,
+    pettingUntil,
     startFeedingMoment,
     startPlayingMoment,
     endsAmbientVisit,
@@ -288,6 +301,7 @@ async function applyCareOutcome(
         : null,
     eatingUntil,
     playingUntil,
+    pettingUntil,
     drainingSession,
   });
 
@@ -296,6 +310,9 @@ async function applyCareOutcome(
   }
   if (playingUntil) {
     await schedulePlayingCompleteAlarm(playingUntil);
+  }
+  if (pettingUntil) {
+    await schedulePettingCompleteAlarm(pettingUntil);
   }
 
   await persistPresentation(presentation);

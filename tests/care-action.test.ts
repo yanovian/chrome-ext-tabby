@@ -3,6 +3,7 @@ import { resolveCareActionPageUrl } from '../utils/care-action';
 import { createInitialCat } from '../utils/cat-sim';
 import {
   completeFeedingIfDue,
+  completePettingIfDue,
   completePlayingIfDue,
   handleCareAction,
   persistPresentation,
@@ -147,7 +148,7 @@ describe('handleCareAction during peek', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
@@ -189,7 +190,7 @@ describe('handleCareAction during peek', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
@@ -241,7 +242,7 @@ describe('handleCareAction during peek', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('reveal', NOW, { url: PAGE_URL });
 
@@ -283,7 +284,7 @@ describe('handleCareAction shoo', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('shoo', NOW, { url: PAGE_URL });
 
@@ -323,7 +324,7 @@ describe('handleCareAction shoo', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    };
+      pettingUntil: null,    };
     await persistPresentation(alreadyPeeking);
 
     const presentation = await handleCareAction('shoo', NOW, { url: PAGE_URL });
@@ -364,7 +365,7 @@ describe('handleCareAction shoo', () => {
         stayVisibleUntil: null,
         eatingUntil: null,
         playingUntil: null,
-      });
+        pettingUntil: null,      });
 
       const presentation = await handleCareAction('shoo', NOW, { url: 'https://pooyan.info/' });
 
@@ -420,7 +421,7 @@ describe('handleCareAction treat while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
 
@@ -463,7 +464,7 @@ describe('handleCareAction treat while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const completed = await completeFeedingIfDue(eatingUntil);
 
@@ -504,7 +505,7 @@ describe('handleCareAction treat while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('treat', NOW, { url: PAGE_URL });
 
@@ -559,7 +560,7 @@ describe('handleCareAction ask while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
 
@@ -596,7 +597,7 @@ describe('handleCareAction ask while content', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('ask', NOW, { url: PAGE_URL });
 
@@ -645,7 +646,7 @@ describe('handleCareAction pet while hungry', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
 
@@ -654,6 +655,30 @@ describe('handleCareAction pet while hungry', () => {
     expect(presentation.speech).toMatch(/f\*{3}|d\*{3}|s\*{2,}/i);
     expect(presentation.speech).toMatch(/feed|hungry|starv|food|bowl|tummy/i);
     expect(presentation.speech).not.toMatch(/purrr|that was nice|purr motor/i);
+  });
+});
+
+describe('handleCareAction pet', () => {
+  it('shows a distinct petting reaction when mood is calm', async () => {
+    const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
+
+    expect(presentation.mood).not.toBe('hungry');
+    expect(presentation.mood).not.toBe('starving');
+    expect(presentation.sprite).toContain('pet.gif');
+    expect(presentation.lastCareAction).toBe('pet');
+  });
+
+  it('settles back to her normal look once the brief reaction window ends', async () => {
+    const presentation = await handleCareAction('pet', NOW, { url: PAGE_URL });
+    const pettingUntil = presentation.pettingUntil!;
+    expect(pettingUntil).toBeGreaterThan(NOW);
+    expect(pettingUntil - NOW).toBeLessThan(pickPlayingDurationMs(DEFAULT_SETTINGS, NOW));
+
+    const completed = await completePettingIfDue(pettingUntil);
+
+    expect(completed?.pettingUntil).toBeNull();
+    expect(completed?.lastCareAction).toBeNull();
+    expect(completed?.sprite).not.toContain('pet.gif');
   });
 });
 
@@ -729,7 +754,7 @@ describe('handleCareAction play', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await handleCareAction('play', NOW, { url: PAGE_URL });
 
@@ -772,6 +797,7 @@ describe('handleCareAction play', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil,
+      pettingUntil: null,
     });
 
     const completed = await completePlayingIfDue(playingUntil);

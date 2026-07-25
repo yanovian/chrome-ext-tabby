@@ -55,6 +55,10 @@ beforeEach(() => {
         },
       },
     },
+    alarms: {
+      clear: async () => {},
+      create: async () => {},
+    },
   });
 });
 
@@ -101,7 +105,7 @@ describe('recordPageVisit', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     await recordPageVisit({
       title: 'Docs',
@@ -167,7 +171,7 @@ describe('runMinuteTick', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     await runMinuteTick(NOW, { present: false });
 
@@ -206,7 +210,7 @@ describe('runMinuteTick', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const state = await runMinuteTick(NOW, { forceTick: true });
 
@@ -243,7 +247,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await getCurrentPresentation();
 
@@ -279,7 +283,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
     store[STORAGE_KEYS.doNotDisturbUntil] = NOW + 30 * 60_000;
 
     const presentation = await getCurrentPresentation();
@@ -325,7 +329,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
     store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
@@ -363,7 +367,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
     store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
@@ -411,7 +415,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    };
+      pettingUntil: null,    };
 
     await persistPresentation(expiredPeek);
     const viaRead = await getCurrentPresentation();
@@ -463,7 +467,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
     store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
@@ -502,7 +506,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
     store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await getCurrentPresentation();
@@ -547,7 +551,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: NOW + 120_000,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await getCurrentPresentation();
 
@@ -588,7 +592,7 @@ describe('getCurrentPresentation', () => {
       stayVisibleUntil: NOW + 120_000,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const state = await runMinuteTick(NOW);
 
@@ -630,7 +634,7 @@ describe('syncDevTemperControls', () => {
       stayVisibleUntil: NOW + 120_000,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const result = await syncDevTemperControls({ devForceMood: 'peek' });
 
@@ -687,7 +691,7 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const result = await presentOnActiveTab(NOW, {
       title: 'News',
@@ -734,7 +738,7 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     await Promise.all([
       handleCareAction('shoo', NOW, {}),
@@ -784,7 +788,7 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     await handleCareAction('shoo', NOW, {});
 
@@ -843,7 +847,7 @@ describe('presentOnActiveTab', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     await handleCareAction('shoo', NOW, {});
 
@@ -912,7 +916,7 @@ describe('showOverlayOnPage', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await showOverlayOnPage(NOW, {
       title: 'Example',
@@ -974,7 +978,7 @@ describe('cancelDoNotDisturb', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await cancelDoNotDisturb(NOW);
 
@@ -1049,7 +1053,7 @@ describe('clearCompanionSpeech', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await clearCompanionSpeech(NOW);
 
@@ -1086,7 +1090,7 @@ describe('restartIntroSession', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await restartIntroSession(NOW);
 
@@ -1122,7 +1126,7 @@ describe('settleAfterIntro', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
     store[STORAGE_KEYS.introCompleted] = true;
 
     const presentation = await settleAfterIntro(NOW);
@@ -1158,7 +1162,7 @@ describe('settleAfterIntro', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await settleAfterIntro(NOW);
 
@@ -1198,7 +1202,7 @@ describe('devForceCompanionHide', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await devForceCompanionHide(NOW);
 
@@ -1233,7 +1237,7 @@ describe('devForceCompanionHide', () => {
       stayVisibleUntil: null,
       eatingUntil: null,
       playingUntil: null,
-    });
+      pettingUntil: null,    });
 
     const presentation = await devForceCompanionHide(NOW);
 

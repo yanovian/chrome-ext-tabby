@@ -1,28 +1,16 @@
 import type { ExtensionSettings, CatLifeStage, CatMood } from './types';
 import { fallbackSpeech } from './speech-fallback';
 import { ALARM_NAMES } from './types';
+import { createMomentTimer } from './care-moment-timer';
 
-const FEEDING_MIN_MS = 5_000;
-const FEEDING_MAX_MS = 10_000;
+const feedingTimer = createMomentTimer(ALARM_NAMES.feedingComplete, 5_000, 10_000);
 
 export function pickFeedingDurationMs(_settings: ExtensionSettings, seed: number): number {
-  const span = FEEDING_MAX_MS - FEEDING_MIN_MS + 1;
-  return FEEDING_MIN_MS + (Math.abs(seed) % span);
+  return feedingTimer.pickDurationMs(seed);
 }
 
-export function isFeedingActive(
-  eatingUntil: number | null | undefined,
-  now: number,
-): boolean {
-  return eatingUntil != null && now < eatingUntil;
-}
-
-export function feedingMomentDue(
-  eatingUntil: number | null | undefined,
-  now: number,
-): boolean {
-  return eatingUntil != null && now >= eatingUntil;
-}
+export const isFeedingActive = feedingTimer.isActive;
+export const feedingMomentDue = feedingTimer.momentDue;
 
 export function wasHungryEnoughForFeedingMoment(mood: CatMood): boolean {
   return mood === 'hungry' || mood === 'starving';
@@ -61,11 +49,5 @@ export function feedingThanksSpeech(
   });
 }
 
-export async function scheduleFeedingCompleteAlarm(whenMs: number): Promise<void> {
-  await browser.alarms.clear(ALARM_NAMES.feedingComplete);
-  await browser.alarms.create(ALARM_NAMES.feedingComplete, { when: whenMs });
-}
-
-export async function clearFeedingCompleteAlarm(): Promise<void> {
-  await browser.alarms.clear(ALARM_NAMES.feedingComplete);
-}
+export const scheduleFeedingCompleteAlarm = feedingTimer.scheduleCompleteAlarm;
+export const clearFeedingCompleteAlarm = feedingTimer.clearCompleteAlarm;

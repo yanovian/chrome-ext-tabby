@@ -74,7 +74,7 @@ const STAGES = {
   },
 };
 
-const STATES = ['idle', 'happy', 'curious', 'eat', 'starving', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed'];
+const STATES = ['idle', 'happy', 'curious', 'eat', 'starving', 'feeding', 'stress', 'sleep', 'groom', 'play', 'playing', 'peek', 'overwhelmed', 'pet'];
 
 function staticValue(value) {
   return { a: 0, k: value };
@@ -179,6 +179,25 @@ function motionFor(state, frames, layout) {
         },
         face: 'wide',
         blink: true,
+      };
+    case 'pet':
+      // Leaning into the pet: head tilts and nuzzles toward one side and holds there
+      // (a one-directional lean, not the symmetric side-to-side wiggle idle/happy use),
+      // eyes closed the whole time in contentment rather than blinking, slow satisfied
+      // tail curl — reads as "being touched" at a glance, not just "happy".
+      return {
+        body: breathe(frames, 2.5),
+        tail: loopKeys(frames, [10, 22, 14, 24, 10]),
+        headR: loopKeys(frames, [0, -14, -18, -14, 0]),
+        headP: loopKeys(frames, [
+          [0, 0, 0],
+          [-3, 4, 0],
+          [-4, 6, 0],
+          [-3, 4, 0],
+          [0, 0, 0],
+        ]),
+        face: 'happy',
+        blink: false,
       };
     case 'curious':
       return {
@@ -1364,7 +1383,11 @@ function buildCat(stageKey, state) {
   const size = layout.size;
   const { cx, footY, torsoY, headOffsetY } = rigPositions(layout, size);
   const headY = torsoY + headOffsetY;
-  const frames = state === 'stress' ? 48 : 96;
+  // Pet's on-screen window is capped short (utils/pet-moment.ts) to read as an obvious quick
+  // reaction, not a lingering one — a shorter loop (like stress's) means it reliably finishes
+  // its lean-in/lean-out before the presentation cuts back to normal, instead of always being
+  // caught mid-motion.
+  const frames = state === 'stress' || state === 'pet' ? 48 : 96;
   const motion = motionFor(state, frames, layout);
   const headPose = headLayerTransform(motion, cx, headY);
   const bodyTransform = {

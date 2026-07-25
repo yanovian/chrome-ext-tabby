@@ -1,28 +1,16 @@
 import type { ExtensionSettings, CatLifeStage, CatMood } from './types';
 import { fallbackSpeech } from './speech-fallback';
 import { ALARM_NAMES } from './types';
+import { createMomentTimer } from './care-moment-timer';
 
-const PLAYING_MIN_MS = 5_000;
-const PLAYING_MAX_MS = 10_000;
+const playingTimer = createMomentTimer(ALARM_NAMES.playingComplete, 5_000, 10_000);
 
 export function pickPlayingDurationMs(_settings: ExtensionSettings, seed: number): number {
-  const span = PLAYING_MAX_MS - PLAYING_MIN_MS + 1;
-  return PLAYING_MIN_MS + (Math.abs(seed) % span);
+  return playingTimer.pickDurationMs(seed);
 }
 
-export function isPlayingActive(
-  playingUntil: number | null | undefined,
-  now: number,
-): boolean {
-  return playingUntil != null && now < playingUntil;
-}
-
-export function playingMomentDue(
-  playingUntil: number | null | undefined,
-  now: number,
-): boolean {
-  return playingUntil != null && now >= playingUntil;
-}
+export const isPlayingActive = playingTimer.isActive;
+export const playingMomentDue = playingTimer.momentDue;
 
 export function playingWildSpeech(
   mood: CatMood,
@@ -44,11 +32,5 @@ export function playingThanksSpeech(
   });
 }
 
-export async function schedulePlayingCompleteAlarm(whenMs: number): Promise<void> {
-  await browser.alarms.clear(ALARM_NAMES.playingComplete);
-  await browser.alarms.create(ALARM_NAMES.playingComplete, { when: whenMs });
-}
-
-export async function clearPlayingCompleteAlarm(): Promise<void> {
-  await browser.alarms.clear(ALARM_NAMES.playingComplete);
-}
+export const schedulePlayingCompleteAlarm = playingTimer.scheduleCompleteAlarm;
+export const clearPlayingCompleteAlarm = playingTimer.clearCompleteAlarm;
