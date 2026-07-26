@@ -43,6 +43,7 @@ export const REAL_CAT_PHOTOS: readonly RealCatPhoto[] = [
   { file: 'funny-cat-b-8.png', token: 'b', scale: 1.2 },
   { file: 'funny-cat-b-9.png', token: 'b', holdMs: 4_000, scale: 1.6 },
   { file: 'funny-cat-b-10.png', token: 'b', scale: 2.6 },
+  { file: 'funny-cat-b-11.png', token: 'b', holdMs: 8_000, scale: 1.2 },
 ];
 
 export function realCatAssetPath(file: string): string {
