@@ -2,6 +2,12 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.7
+
+- More real cat photos.
+- Real cats have different sizes and different times to stay.
+- Real cat photo style is fixed.
+
 ## 2.4.6
 
 - **Petting** has a dedicated reaction.
