@@ -26,6 +26,13 @@ interface CameoContext {
    * whatever the latest presentation already says — actually renders, instead of leaving
    * whatever the last unrelated render happened to mount. */
   render: () => void;
+  /** Called once whenever a preview-triggered cameo ends, however it ends (clicked away, or
+   * left to run out on its own) — picking a specific photo in the dev panel forces her into
+   * peek pose alongside it (see settings-form.ts), and once that one-shot preview is over, that
+   * forced pick has served its purpose and shouldn't linger and keep forcing the same photo on
+   * every future duck gap. Never called for the natural shoo/duck path (isPreview is only ever
+   * true here), which doesn't touch devForceRealCat at all. */
+  resetDevForceRealCat: () => void;
 }
 
 /** Anchors the cameo to the same screen edge her own peek would use for that slot — a plain
@@ -72,6 +79,9 @@ export class RealCatCameoController {
    * cancel() only un-hides her when this controller is the one that hid her in the first
    * place, never as a side effect of cancelling a merely-scheduled, not-yet-shown timer. */
   private unhide: (() => void) | null = null;
+  /** Captured alongside unhide, for the same reason — only meaningful (and only ever called)
+   * while isPreview is true. */
+  private resetDevForceRealCat: (() => void) | null = null;
   /** True while the currently-showing cameo was started via preview() rather than the natural
    * shoo/duck path. A dev preview deliberately forces her mood to 'peek' alongside it (see
    * settings-form.ts), which makes the backend recompute and republish a presentation with
@@ -129,6 +139,7 @@ export class RealCatCameoController {
     this.isPreview = isPreview;
     context.setCompanionHidden(true);
     this.unhide = () => context.setCompanionHidden(false);
+    this.resetDevForceRealCat = () => context.resetDevForceRealCat();
 
     const enterFrom = enterTransformFor(placement.slot, placement.token);
     const size = Math.round(SIZE_PX * placement.scale);
@@ -165,17 +176,15 @@ export class RealCatCameoController {
       img.style.opacity = '0';
       img.style.transform = enterFrom;
       this.timer = setTimeout(() => {
-        img.remove();
-        if (this.element === img) {
-          this.element = null;
-        }
-        context.setCompanionHidden(false);
-        this.unhide = null;
-        this.isPreview = false;
-        // Nothing else triggers a render at this exact moment (unlike cancel(), which is
-        // always called from inside an applyPresentationUpdate that renders right after) — so
-        // this has to ask for one itself, or whatever she should be doing right now (pop back
-        // up, keep ducking) just doesn't happen until some unrelated update happens to arrive.
+        // cancel() owns every bit of "a cameo just ended" cleanup — including, if this was a
+        // preview, un-forcing devForceRealCat — so this doesn't have to separately remember to
+        // do any of that itself.
+        this.cancel();
+        // Nothing else triggers a render at this exact moment (unlike sync()'s own cancel-on-
+        // visible call, which always happens from inside an applyPresentationUpdate that renders
+        // right after) — so this has to ask for one itself, or whatever she should be doing
+        // right now (pop back up, keep ducking) just doesn't happen until some unrelated update
+        // happens to arrive.
         context.render();
       }, EXIT_MS);
     }, ENTER_MS + placement.holdMs);
@@ -191,6 +200,10 @@ export class RealCatCameoController {
     this.scheduledForPeekUntil = null;
     this.unhide?.();
     this.unhide = null;
+    if (this.isPreview) {
+      this.resetDevForceRealCat?.();
+    }
+    this.resetDevForceRealCat = null;
     this.isPreview = false;
   }
 }

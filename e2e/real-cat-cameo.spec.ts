@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { DEFAULT_REAL_CAT_HOLD_MS } from '../utils/real-cats';
-import { launchExtensionContext, openOverlayPage, seedExtensionStorage } from './helpers/extension';
+import { launchExtensionContext, openOverlayPage, readStoredSettings, seedExtensionStorage } from './helpers/extension';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -263,7 +263,7 @@ test('picking a specific real cat in the dev panel also forces peek pose, and st
 });
 
 test('clicking the real cat cameo dismisses it and reveals her, same as tapping a peek', async () => {
-  const { context } = await launchExtensionContext();
+  const { context, extensionId } = await launchExtensionContext();
   try {
     await seedExtensionStorage(context, {
       settings: {
@@ -306,6 +306,18 @@ test('clicking the real cat cameo dismisses it and reveals her, same as tapping 
 
     await expect(cameo).toHaveCount(0, { timeout: 5_000 });
     await expect(root).not.toHaveClass(/tabby-root--cameo-active/, { timeout: 5_000 });
+
+    // The dev panel's photo picker must not keep forcing the same photo forever after its
+    // one-shot preview is over — both in storage and, since the popup listens for exactly this,
+    // in the dropdown itself (opened fresh here specifically to prove it reads the post-reset
+    // value, not just that a stale popup instance happened to already be showing it).
+    await expect
+      .poll(async () => (await readStoredSettings(context)).devForceRealCat)
+      .toBe('auto');
+
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`, { waitUntil: 'load' });
+    await expect(popup.locator('#dev-force-real-cat')).toHaveValue('auto', { timeout: 10_000 });
   } finally {
     await context.close();
   }
@@ -360,8 +372,27 @@ test('once a preview cameo naturally finishes, her sprite is left visible again 
 
     // Let it run all the way out on its own — no click, no other storage write.
     await expect(cameo).toHaveCount(0, { timeout: 10_000 });
-    await expect(root).toBeVisible({ timeout: 5_000 });
-    await expect(root).not.toHaveClass(/tabby-root--cameo-active/);
+    // Not a plain toBeVisible(): devModeEnabled's sped-up ambient timers can legitimately duck
+    // her away again for reasons unrelated to the cameo during this wait, tearing the root down
+    // entirely — that's fine. What isn't fine is the cameo-active hide class surviving on a
+    // root that's still there, which is the one shape that means the fix didn't work.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            document
+              .getElementById('tabby-companion-root')
+              ?.classList.contains('tabby-root--cameo-active') ?? false,
+        ),
+      )
+      .toBe(false);
+
+    // Un-forcing devForceRealCat isn't just a click-time thing — letting the preview run out on
+    // its own has to un-force it too, or the dev panel forces the same photo forever the next
+    // time devForceRealCat happens to matter.
+    await expect
+      .poll(async () => (await readStoredSettings(context)).devForceRealCat)
+      .toBe('auto');
   } finally {
     await context.close();
   }

@@ -131,6 +131,21 @@ export function shouldSyncDevForceMoodUi(
   );
 }
 
+/**
+ * Popup: whether the dev real-cat dropdown should refresh from storage.
+ *
+ * Same situation as devForceMood above: a real cat cameo un-forces devForceRealCat back to
+ * "auto" on its own once its one-shot preview ends (see RealCatCameoController.cancel), with no
+ * involvement from this popup. Without this check the dropdown keeps showing the forced photo,
+ * so re-picking that same visible option fires no `change` event and the dev menu looks stuck.
+ */
+export function shouldSyncDevForceRealCatUi(
+  displayedDevForceRealCat: string,
+  nextSettings: Pick<ExtensionSettings, 'devModeEnabled' | 'devForceRealCat'>,
+): boolean {
+  return nextSettings.devModeEnabled && displayedDevForceRealCat !== nextSettings.devForceRealCat;
+}
+
 /** Load simulation values from settings + live draining session (if any). */
 export function temperSimulationFromSession(
   settings: ExtensionSettings,

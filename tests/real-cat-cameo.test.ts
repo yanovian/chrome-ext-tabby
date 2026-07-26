@@ -56,6 +56,7 @@ const context = {
   setCompanionHidden: vi.fn(),
   onReveal: vi.fn(),
   render: vi.fn(),
+  resetDevForceRealCat: vi.fn(),
 };
 
 describe('RealCatCameoController.sync', () => {

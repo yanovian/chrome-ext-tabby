@@ -5,7 +5,7 @@ import {
   requestResetIntro,
   requestSettings,
 } from '../../utils/runtime-client';
-import { shouldSyncDevForceMoodUi } from '../../utils/dev-temper';
+import { shouldSyncDevForceMoodUi, shouldSyncDevForceRealCatUi } from '../../utils/dev-temper';
 import { t } from '../../utils/i18n';
 import type { CatPresentation, ExtensionSettings, RuntimeResponse } from '../../utils/types';
 import { IS_DEV_BUILD } from './env';
@@ -161,6 +161,9 @@ function bindDevOnlyControls(): void {
     const displayed = fields.devForceMood.value as ExtensionSettings['devForceMood'];
     if (shouldSyncDevForceMoodUi(displayed, next, isSyncingTemper())) {
       void refreshDevTemperUi();
+    }
+    if (shouldSyncDevForceRealCatUi(fields.devForceRealCat.value, next)) {
+      fields.devForceRealCat.value = next.devForceRealCat;
     }
   });
 }

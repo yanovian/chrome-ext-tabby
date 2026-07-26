@@ -3,6 +3,7 @@ import {
   applyDevMoodToTemper,
   applyTemperSimulation,
   shouldSyncDevForceMoodUi,
+  shouldSyncDevForceRealCatUi,
 } from '../utils/dev-temper';
 import { MOOD_TIMER_DEV_DEFAULTS } from '../utils/mood-timers';
 import { DEFAULT_SETTINGS } from '../utils/types';
@@ -155,5 +156,25 @@ describe('shouldSyncDevForceMoodUi', () => {
   it('does nothing while dev mode is off', () => {
     const settings = { ...DEFAULT_SETTINGS, devModeEnabled: false, devForceMood: 'auto' as const };
     expect(shouldSyncDevForceMoodUi('peek', settings, false)).toBe(false);
+  });
+});
+
+describe('shouldSyncDevForceRealCatUi', () => {
+  // Regression: a cameo un-forces devForceRealCat back to "auto" behind the popup's back once
+  // its preview ends. The dropdown must notice and refresh, or re-picking the same still-
+  // displayed photo fires no `change` event and the dev menu looks stuck.
+  it('refreshes when storage settled on a different photo than the dropdown shows', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceRealCat: 'auto' };
+    expect(shouldSyncDevForceRealCatUi('funny-cat-b-1.png', settings)).toBe(true);
+  });
+
+  it('does nothing when the dropdown already matches storage', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: true, devForceRealCat: 'funny-cat-b-1.png' };
+    expect(shouldSyncDevForceRealCatUi('funny-cat-b-1.png', settings)).toBe(false);
+  });
+
+  it('does nothing while dev mode is off', () => {
+    const settings = { ...DEFAULT_SETTINGS, devModeEnabled: false, devForceRealCat: 'auto' };
+    expect(shouldSyncDevForceRealCatUi('funny-cat-b-1.png', settings)).toBe(false);
   });
 });

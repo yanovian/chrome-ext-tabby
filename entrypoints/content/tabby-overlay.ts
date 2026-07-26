@@ -22,6 +22,7 @@ import {
   requestClearCompanionSpeech,
   requestPresentation,
   requestRecordInteraction,
+  requestSaveSettings,
   requestSettleAfterIntro,
   requestSettings,
 } from '../../utils/runtime-client';
@@ -121,6 +122,15 @@ export class TabbyOverlay {
     this.root?.classList.toggle('tabby-root--cameo-active', hidden);
   }
 
+  /** The one place that un-forces devForceRealCat — called by RealCatCameoController exactly
+   * once whenever a preview-triggered cameo ends, however it ends, so the dev panel's picker
+   * doesn't keep forcing the same photo indefinitely after its one-shot preview is over.
+   * skipPresent: true since whatever should render next is already handled by the cameo
+   * controller's own render()/reveal call, not this settings write. */
+  private resetDevForceRealCat(): void {
+    void requestSaveSettings({ devForceRealCat: 'auto' }, { skipPresent: true });
+  }
+
   /** Dev-only: picking a specific real cat photo in the dev panel shows it right away,
    * bypassing the shoo/duck wait — see RealCatCameoController.preview. */
   private previewRealCatCameo(): void {
@@ -135,6 +145,7 @@ export class TabbyOverlay {
       setCompanionHidden: (hidden) => this.setCompanionHiddenForCameo(hidden),
       onReveal: () => void this.revealFromCameo(),
       render: () => this.render(),
+      resetDevForceRealCat: () => this.resetDevForceRealCat(),
     });
   }
 
@@ -309,6 +320,7 @@ export class TabbyOverlay {
       resolveUrl: publicAssetUrl,
       setCompanionHidden: (hidden) => this.setCompanionHiddenForCameo(hidden),
       onRevealFromCameo: () => void this.revealFromCameo(),
+      resetDevForceRealCat: () => this.resetDevForceRealCat(),
       syncOutsideClickListener: () => this.syncOutsideClickListener(),
       render: (options) => this.render(options),
       isOverlayVisible: () => this.isOverlayVisible(),

@@ -198,6 +198,15 @@ export async function seedExtensionStorage(
   );
 }
 
+export async function readStoredSettings(context: BrowserContext): Promise<Record<string, unknown>> {
+  const worker = context.serviceWorkers()[0];
+  if (!worker) {
+    throw new Error('Extension service worker not available');
+  }
+  const { settings } = await worker.evaluate(() => chrome.storage.local.get(['settings']));
+  return settings;
+}
+
 export async function openOverlayPage(context: BrowserContext): Promise<Page> {
   const page = await context.newPage();
   await page.goto('https://example.com/', { waitUntil: 'domcontentloaded' });
