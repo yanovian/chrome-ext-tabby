@@ -133,6 +133,8 @@ export class TabbyOverlay {
       stage: this.presentation.stage,
       resolveUrl: publicAssetUrl,
       setCompanionHidden: (hidden) => this.setCompanionHiddenForCameo(hidden),
+      onReveal: () => void this.revealFromCameo(),
+      render: () => this.render(),
     });
   }
 
@@ -306,6 +308,7 @@ export class TabbyOverlay {
       hostname: hostnameFromUrl(location.href),
       resolveUrl: publicAssetUrl,
       setCompanionHidden: (hidden) => this.setCompanionHiddenForCameo(hidden),
+      onRevealFromCameo: () => void this.revealFromCameo(),
       syncOutsideClickListener: () => this.syncOutsideClickListener(),
       render: (options) => this.render(options),
       isOverlayVisible: () => this.isOverlayVisible(),
@@ -581,7 +584,22 @@ export class TabbyOverlay {
     if (!isPeeking(this.presentation) || this.pendingReveal) {
       return;
     }
+    await this.performReveal();
+  }
 
+  /** Clicking the real cat cameo dismisses it and reveals her previous (pre-shoo) mood, same
+   * as tapping her while she's peeking — except she's never "peeking" by isPeeking's definition
+   * during the cameo (companionVisible is false the whole time it's up), so this skips that
+   * guard and just cancels the cameo (which un-hides her sprite) before revealing. */
+  private async revealFromCameo(): Promise<void> {
+    if (this.pendingReveal) {
+      return;
+    }
+    this.realCatCameo.cancel();
+    await this.performReveal();
+  }
+
+  private async performReveal(): Promise<void> {
     this.pendingReveal = true;
     try {
       const next = await requestCareAction('reveal', location.href);

@@ -18,6 +18,14 @@ interface CameoContext {
    * cameo's duration, however she got there (a natural shoo duck, or a dev preview fired
    * while she's still fully visible on screen). */
   setCompanionHidden: (hidden: boolean) => void;
+  /** Clicking the cameo dismisses it and reveals her previous (pre-shoo) mood, same as tapping
+   * her while she's peeking. */
+  onReveal: () => void;
+  /** Called once the cameo naturally finishes (its own hold timer, not an interruption from a
+   * new presentation) so whatever she should be doing right now — pop back up, keep ducking,
+   * whatever the latest presentation already says — actually renders, instead of leaving
+   * whatever the last unrelated render happened to mount. */
+  render: () => void;
 }
 
 /** Anchors the cameo to the same screen edge her own peek would use for that slot — a plain
@@ -100,13 +108,7 @@ export class RealCatCameoController {
    * wait entirely — the point is to be able to check each corner mapping on demand. She may
    * still be fully visible when this fires (unlike the natural shoo path), so show() still
    * has to hide her itself rather than assume she already is. */
-  preview(context: {
-    settings: ExtensionSettings;
-    hostname?: string;
-    stage: CatPresentation['stage'];
-    resolveUrl: (path: string) => string;
-    setCompanionHidden: (hidden: boolean) => void;
-  }): void {
+  preview(context: { stage: CatPresentation['stage'] } & CameoContext): void {
     this.show(context.stage, context, true);
   }
 
@@ -141,11 +143,12 @@ export class RealCatCameoController {
       objectFit: 'contain',
       zIndex: '2147483646',
       opacity: '0',
-      pointerEvents: 'none',
+      cursor: 'pointer',
       transform: enterFrom,
       transition: `transform ${ENTER_MS}ms ease-out, opacity ${ENTER_MS}ms ease-out`,
       ...SLOT_STYLE[placement.slot],
     });
+    img.addEventListener('click', () => context.onReveal());
 
     document.body.appendChild(img);
     this.element = img;
@@ -169,6 +172,11 @@ export class RealCatCameoController {
         context.setCompanionHidden(false);
         this.unhide = null;
         this.isPreview = false;
+        // Nothing else triggers a render at this exact moment (unlike cancel(), which is
+        // always called from inside an applyPresentationUpdate that renders right after) — so
+        // this has to ask for one itself, or whatever she should be doing right now (pop back
+        // up, keep ducking) just doesn't happen until some unrelated update happens to arrive.
+        context.render();
       }, EXIT_MS);
     }, ENTER_MS + placement.holdMs);
   }

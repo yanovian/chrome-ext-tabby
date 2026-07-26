@@ -17,6 +17,7 @@ export interface PresentationUpdateContext {
   hostname: string | undefined;
   resolveUrl: (path: string) => string;
   setCompanionHidden: (hidden: boolean) => void;
+  onRevealFromCameo: () => void;
   syncOutsideClickListener: () => void;
   render: (options: PatchOptions) => void;
   isOverlayVisible: () => boolean;
@@ -69,6 +70,8 @@ export function applyPresentationUpdate(next: CatPresentation, ctx: Presentation
         hostname: ctx.hostname,
         resolveUrl: ctx.resolveUrl,
         setCompanionHidden: ctx.setCompanionHidden,
+        onReveal: ctx.onRevealFromCameo,
+        render: () => ctx.render({}),
       },
     );
   }

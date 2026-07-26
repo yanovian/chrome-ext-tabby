@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test';
+import { DEFAULT_REAL_CAT_HOLD_MS } from '../utils/real-cats';
 import { launchExtensionContext, openOverlayPage, seedExtensionStorage } from './helpers/extension';
 
 test.describe.configure({ mode: 'serial' });
 
 test('dev-forced real cat photo previews immediately, without waiting for a shoo', async () => {
+  test.setTimeout(DEFAULT_REAL_CAT_HOLD_MS + 30_000);
   const { context } = await launchExtensionContext();
   try {
     await seedExtensionStorage(context, {
@@ -65,11 +67,12 @@ test('dev-forced real cat photo previews immediately, without waiting for a shoo
       )
       .toMatch(/^(matrix\(1, 0, 0, 1, 0, 0\)|none)$/);
 
-    // Holds (6s) then slides back out (500ms) — the hide class comes off once it's gone.
-    // Read via evaluate rather than a locator assertion: devModeEnabled's sped-up ambient
-    // timers can legitimately tear the whole root down for unrelated reasons during a ~7s
-    // wait, and that's fine here — either the class is gone or the root is, both mean the
-    // cameo's restore isn't stuck leaving her wrongly hidden.
+    // Holds (bl-1 has no holdMs override, so DEFAULT_REAL_CAT_HOLD_MS) then slides back out
+    // (500ms) — the hide class comes off once it's gone. Read via evaluate rather than a
+    // locator assertion: devModeEnabled's sped-up ambient timers can legitimately tear the
+    // whole root down for unrelated reasons during this wait, and that's fine here — either
+    // the class is gone or the root is, both mean the cameo's restore isn't stuck leaving her
+    // wrongly hidden.
     await expect
       .poll(
         () =>
@@ -79,7 +82,7 @@ test('dev-forced real cat photo previews immediately, without waiting for a shoo
                 .getElementById('tabby-companion-root')
                 ?.classList.contains('tabby-root--cameo-active') ?? false,
           ),
-        { timeout: 10_000 },
+        { timeout: DEFAULT_REAL_CAT_HOLD_MS + 5_000 },
       )
       .toBe(false);
   } finally {
@@ -254,6 +257,111 @@ test('picking a specific real cat in the dev panel also forces peek pose, and st
 
     // The cameo itself must still actually preview, not just the mood forcing.
     await expect(overlay.locator('#tabby-real-cat-cameo')).toBeVisible({ timeout: 20_000 });
+  } finally {
+    await context.close();
+  }
+});
+
+test('clicking the real cat cameo dismisses it and reveals her, same as tapping a peek', async () => {
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: true,
+        devForceMood: 'auto',
+        devForceRealCat: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+      },
+    });
+
+    const page = await openOverlayPage(context);
+    await expect(page.locator('#tabby-companion-root')).toBeVisible({ timeout: 20_000 });
+
+    const worker = context.serviceWorkers()[0]!;
+    await worker.evaluate(async () => {
+      const { settings } = await chrome.storage.local.get(['settings']);
+      // funny-cat-bl-1.png has no holdMs override (30s default) — clicking has to be what ends
+      // this, not a coincidental natural timeout landing in the same window.
+      await chrome.storage.local.set({
+        settings: { ...settings, devForceRealCat: 'funny-cat-bl-1.png' },
+      });
+    });
+
+    const root = page.locator('#tabby-companion-root');
+    const cameo = page.locator('#tabby-real-cat-cameo');
+    await expect(cameo).toBeVisible({ timeout: 20_000 });
+    await expect(root).toHaveClass(/tabby-root--cameo-active/);
+
+    await cameo.click();
+
+    await expect(cameo).toHaveCount(0, { timeout: 5_000 });
+    await expect(root).not.toHaveClass(/tabby-root--cameo-active/, { timeout: 5_000 });
+  } finally {
+    await context.close();
+  }
+});
+
+test('once a preview cameo naturally finishes, her sprite is left visible again (not stuck hidden)', async () => {
+  // Regression: the cameo's own natural-end timer only used to toggle the hide class, with
+  // nothing forcing a re-render afterward — fine when nothing else needed to change, but if her
+  // root was still the very same one this controller hid (as it is here: she was fully visible
+  // when the preview started, so nothing else tears her root down in between), toggling the
+  // class was the only thing standing between her and staying invisible. This forces exactly
+  // that shape: preview while visible, let it run all the way to its own natural end untouched.
+  test.setTimeout(60_000);
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: true,
+        devForceMood: 'auto',
+        devForceRealCat: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'content',
+        stage: 'adult',
+        sprite: 'gif/adult/idle.gif',
+        companionVisible: true,
+        ambientActivity: null,
+        ambientPeekUntil: null,
+        peekEdge: null,
+        stayVisibleUntil: null,
+      },
+    });
+
+    const page = await openOverlayPage(context);
+    await expect(page.locator('#tabby-companion-root')).toBeVisible({ timeout: 20_000 });
+
+    const worker = context.serviceWorkers()[0]!;
+    await worker.evaluate(async () => {
+      const { settings } = await chrome.storage.local.get(['settings']);
+      // funny-cat-b-5-fast.png: holdMs 2_000 — short enough to let this run to its natural end
+      // rather than dismissing it, without ballooning the test's runtime.
+      await chrome.storage.local.set({
+        settings: { ...settings, devForceRealCat: 'funny-cat-b-5-fast.png' },
+      });
+    });
+
+    const root = page.locator('#tabby-companion-root');
+    const cameo = page.locator('#tabby-real-cat-cameo');
+    await expect(cameo).toBeVisible({ timeout: 20_000 });
+    await expect(root).toHaveClass(/tabby-root--cameo-active/);
+
+    // Let it run all the way out on its own — no click, no other storage write.
+    await expect(cameo).toHaveCount(0, { timeout: 10_000 });
+    await expect(root).toBeVisible({ timeout: 5_000 });
+    await expect(root).not.toHaveClass(/tabby-root--cameo-active/);
   } finally {
     await context.close();
   }

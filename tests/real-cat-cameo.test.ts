@@ -54,6 +54,8 @@ const context = {
   hostname: undefined,
   resolveUrl: (path: string) => path,
   setCompanionHidden: vi.fn(),
+  onReveal: vi.fn(),
+  render: vi.fn(),
 };
 
 describe('RealCatCameoController.sync', () => {
