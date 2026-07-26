@@ -139,7 +139,6 @@ export class RealCatCameoController {
       width: `${size}px`,
       height: `${size}px`,
       borderRadius: '14px',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
       objectFit: 'cover',
       zIndex: '2147483646',
       opacity: '0',
