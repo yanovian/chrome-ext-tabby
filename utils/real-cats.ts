@@ -6,7 +6,7 @@ export const REAL_CATS_BASE_PATH = 'real-cats/';
 
 /** How long a cameo stays up (fully slid in, before it slides back out) when its own row
  * below doesn't say otherwise. */
-export const DEFAULT_REAL_CAT_HOLD_MS = 14_000;
+export const DEFAULT_REAL_CAT_HOLD_MS = 30_000;
 
 export interface RealCatPhoto {
   file: string;
@@ -36,6 +36,10 @@ export const REAL_CAT_PHOTOS: readonly RealCatPhoto[] = [
   { file: 'funny-cat-b-2.png', token: 'b', scale: 1.2 },
   { file: 'funny-cat-b-3.png', token: 'b', holdMs: 4_000, scale: 0.8 },
   { file: 'funny-cat-bl-1.png', token: 'bl', scale: 1.8 },
+  { file: 'funny-cat-b-4.png', token: 'b' },
+  { file: 'funny-cat-b-5-fast.png', token: 'b', holdMs: 2_000, scale: 1.6 },
+  { file: 'funny-cat-br-6.png', token: 'br', scale: 1.3 },
+  { file: 'funny-cat-b-7.png', token: 'br', scale: 2.1 },
 ];
 
 export function realCatAssetPath(file: string): string {

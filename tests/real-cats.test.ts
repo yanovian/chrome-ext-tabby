@@ -15,13 +15,12 @@ describe('REAL_CAT_PHOTOS manifest', () => {
     }
   });
 
-  it('gives funny-cat-b-3 the shortest hold of the four, the rest the (much longer) default', () => {
-    const b3 = REAL_CAT_PHOTOS.find((photo) => photo.file === 'funny-cat-b-3.png')!;
-    const others = REAL_CAT_PHOTOS.filter((photo) => photo.file !== 'funny-cat-b-3.png');
+  it('gives photos with their own holdMs a shorter hold than the (much longer) default', () => {
+    const overridden = REAL_CAT_PHOTOS.filter((photo) => photo.holdMs !== undefined);
 
-    expect(b3.holdMs).toBeDefined();
-    for (const photo of others) {
-      expect(photo.holdMs ?? DEFAULT_REAL_CAT_HOLD_MS).toBeGreaterThan(b3.holdMs!);
+    expect(overridden.length).toBeGreaterThan(0);
+    for (const photo of overridden) {
+      expect(photo.holdMs!).toBeLessThan(DEFAULT_REAL_CAT_HOLD_MS);
     }
   });
 
