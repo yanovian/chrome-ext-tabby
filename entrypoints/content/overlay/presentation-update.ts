@@ -1,8 +1,9 @@
 import { shouldOpenSpeechBubbleForUpdate } from '../../../utils/overlay-chrome';
 import { shouldAnimateMoodTransition, shouldReactToSpeechTrigger } from '../../../utils/overlay-entrance';
-import type { CatPresentation } from '../../../utils/types';
+import type { CatPresentation, ExtensionSettings } from '../../../utils/types';
 import type { OverlayPositioner } from './positioner';
 import type { IntroMenuController } from './intro-menu';
+import type { RealCatCameoController } from './real-cat-cameo';
 import type { PatchOptions } from './renderer';
 
 export interface PresentationUpdateContext {
@@ -11,6 +12,11 @@ export interface PresentationUpdateContext {
   settlePresentation: (presentation: CatPresentation) => CatPresentation;
   positioner: OverlayPositioner;
   introMenu: IntroMenuController;
+  realCatCameo: RealCatCameoController;
+  getSettings: () => ExtensionSettings | null;
+  hostname: string | undefined;
+  resolveUrl: (path: string) => string;
+  setCompanionHidden: (hidden: boolean) => void;
   syncOutsideClickListener: () => void;
   render: (options: PatchOptions) => void;
   isOverlayVisible: () => boolean;
@@ -39,6 +45,8 @@ export function applyPresentationUpdate(next: CatPresentation, ctx: Presentation
   const previousPlayingUntil = current?.playingUntil ?? null;
   const previousPettingUntil = current?.pettingUntil ?? null;
   const previousTalkUntil = current?.talkUntil ?? null;
+  const previousCompanionVisible = current?.companionVisible ?? false;
+  const previousAmbientPeekUntil = current?.ambientPeekUntil ?? null;
 
   const introJustFinished = ctx.introMenu.isIntroJustFinished();
   const settled = introJustFinished
@@ -50,6 +58,20 @@ export function applyPresentationUpdate(next: CatPresentation, ctx: Presentation
     ctx.syncOutsideClickListener();
   }
   ctx.positioner.syncPeekTransition(previousMood, settled.mood);
+
+  const settings = ctx.getSettings();
+  if (settings) {
+    ctx.realCatCameo.sync(
+      settled,
+      { companionVisible: previousCompanionVisible, ambientPeekUntil: previousAmbientPeekUntil },
+      {
+        settings,
+        hostname: ctx.hostname,
+        resolveUrl: ctx.resolveUrl,
+        setCompanionHidden: ctx.setCompanionHidden,
+      },
+    );
+  }
 
   if (!introJustFinished) {
     if (

@@ -6,6 +6,7 @@ Updates for people who use Tabby. Newest first.
 
 - **Petting** has a dedicated reaction.
 - Shows her actually talking.
+- Random real cat photo cameo.
 
 ## 2.4.5
 

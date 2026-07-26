@@ -17,6 +17,7 @@ import { isPageOverlayHidden } from '../../utils/page-overlay';
 import {
   pingBackground,
   publicAnimationAssetUrl,
+  publicAssetUrl,
   requestCareAction,
   requestClearCompanionSpeech,
   requestPresentation,
@@ -25,11 +26,13 @@ import {
   requestSettings,
 } from '../../utils/runtime-client';
 import { ignoreIfExtensionUnavailable } from '../../utils/extension-errors';
+import { hostnameFromUrl } from '../../utils/site-registry';
 import type { CatPresentation, ExtensionSettings } from '../../utils/types';
 import { isPeeking } from './overlay/peek-state';
 import { OverlayPositioner } from './overlay/positioner';
 import { OverlayTransitions } from './overlay/transitions';
 import { IntroMenuController, type MenuBuildHandlers } from './overlay/intro-menu';
+import { RealCatCameoController } from './overlay/real-cat-cameo';
 import { OverlaySync, createOverlaySyncHost } from './overlay/sync';
 import { applyPresentationUpdate } from './overlay/presentation-update';
 import { OutsideClickWatcher } from './overlay/outside-click';
@@ -54,6 +57,7 @@ export class TabbyOverlay {
   private readonly positioner = new OverlayPositioner();
   private readonly transitions = new OverlayTransitions();
   private readonly introMenu = new IntroMenuController();
+  private readonly realCatCameo = new RealCatCameoController();
   private readonly outsideClick = new OutsideClickWatcher();
   private readonly sync: OverlaySync;
 
@@ -104,8 +108,32 @@ export class TabbyOverlay {
         syncOutsideClickListener: () => this.syncOutsideClickListener(),
         positioner: this.positioner,
         introMenu: this.introMenu,
+        previewRealCatCameo: () => this.previewRealCatCameo(),
       }),
     );
+  }
+
+  /** She and a real cat cameo must never show at once — this is the one place that hides
+   * her own sprite for the cameo's duration (see RealCatCameoController), regardless of
+   * whether it started from a natural shoo/duck or a dev preview fired while she was still
+   * fully on screen. */
+  private setCompanionHiddenForCameo(hidden: boolean): void {
+    this.root?.classList.toggle('tabby-root--cameo-active', hidden);
+  }
+
+  /** Dev-only: picking a specific real cat photo in the dev panel shows it right away,
+   * bypassing the shoo/duck wait — see RealCatCameoController.preview. */
+  private previewRealCatCameo(): void {
+    if (!this.cachedSettings || !this.presentation) {
+      return;
+    }
+    this.realCatCameo.preview({
+      settings: this.cachedSettings,
+      hostname: hostnameFromUrl(location.href),
+      stage: this.presentation.stage,
+      resolveUrl: publicAssetUrl,
+      setCompanionHidden: (hidden) => this.setCompanionHiddenForCameo(hidden),
+    });
   }
 
   private isActiveInstance(): boolean {
@@ -217,6 +245,7 @@ export class TabbyOverlay {
     this.teardownOverlay();
     this.presentation = null;
     this.introMenu.resetMenuAndSpeechState();
+    this.realCatCameo.cancel();
     this.isCurrentOverlayTab = false;
   }
 
@@ -226,6 +255,7 @@ export class TabbyOverlay {
       return;
     }
     this.isCurrentOverlayTab = false;
+    this.realCatCameo.cancel();
     if (this.root?.isConnected && !this.exiting) {
       // Same reset closeMenu() does: without it, whichever button was highlighted before
       // this tab lost focus reappears as "active" the next time the menu reopens here,
@@ -271,6 +301,11 @@ export class TabbyOverlay {
       settlePresentation: (presentation) => this.settlePresentation(presentation),
       positioner: this.positioner,
       introMenu: this.introMenu,
+      realCatCameo: this.realCatCameo,
+      getSettings: () => this.cachedSettings,
+      hostname: hostnameFromUrl(location.href),
+      resolveUrl: publicAssetUrl,
+      setCompanionHidden: (hidden) => this.setCompanionHiddenForCameo(hidden),
       syncOutsideClickListener: () => this.syncOutsideClickListener(),
       render: (options) => this.render(options),
       isOverlayVisible: () => this.isOverlayVisible(),

@@ -11,6 +11,11 @@
   -webkit-user-select: none;
 }
 
+/* She and a real cat cameo (see real-cat-cameo.ts) must never show at once. */
+#tabby-companion-root.tabby-root--cameo-active {
+  display: none;
+}
+
 @keyframes tabby-cat-enter {
   from {
     opacity: 0;

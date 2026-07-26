@@ -24,6 +24,7 @@ export interface OverlaySyncHost {
   applyDevForcedPresentation(): void;
   applyShowOverlaySetting(enabled: boolean): void;
   applyIntroCompletedChange(completed: boolean): void;
+  previewRealCatCameo(): void;
 }
 
 type StorageChangeListener = Parameters<typeof browser.storage.onChanged.addListener>[0];
@@ -66,6 +67,19 @@ function handleSettingsChange(changes: StorageChanges, host: OverlaySyncHost): v
 
   if (prev?.locale !== next.locale) {
     void loadAppLocale(next.locale).then(() => host.finishLocaleChange());
+  }
+
+  // Dev-only preview: picking a specific real cat photo triggers it immediately, the same
+  // way a mood override previews immediately below — no need to actually shoo her first.
+  // Checked before the mood-forced early return below: picking a photo also forces her into
+  // peek pose (see readPartialSettings) in the very same settings write, and that must not
+  // swallow this check the way it would if it came after the return.
+  if (
+    next.devModeEnabled &&
+    next.devForceRealCat !== 'auto' &&
+    prev?.devForceRealCat !== next.devForceRealCat
+  ) {
+    host.previewRealCatCameo();
   }
 
   const devForced = isDevMoodForced(next);
@@ -176,6 +190,7 @@ export interface OverlaySyncCallbacks {
   syncOutsideClickListener: () => void;
   positioner: OverlayPositioner;
   introMenu: IntroMenuController;
+  previewRealCatCameo: () => void;
 }
 
 export function createOverlaySyncHost(callbacks: OverlaySyncCallbacks): OverlaySyncHost {
@@ -235,5 +250,6 @@ export function createOverlaySyncHost(callbacks: OverlaySyncCallbacks): OverlayS
         });
       }
     },
+    previewRealCatCameo: callbacks.previewRealCatCameo,
   };
 }

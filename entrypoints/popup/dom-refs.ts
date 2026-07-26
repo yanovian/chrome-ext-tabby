@@ -12,6 +12,7 @@ export const fields = {
   devMinTabMs: document.getElementById('dev-min-tab-ms') as HTMLInputElement,
   devForceLifeStage: document.getElementById('dev-force-life-stage') as HTMLSelectElement,
   devForceMood: document.getElementById('dev-force-mood') as HTMLSelectElement,
+  devForceRealCat: document.getElementById('dev-force-real-cat') as HTMLSelectElement,
 };
 
 export const temperFields = {

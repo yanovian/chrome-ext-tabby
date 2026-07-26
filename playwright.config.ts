@@ -19,7 +19,7 @@ export default defineConfig({
     },
     {
       name: 'extension',
-      testMatch: '**/extension-peek.spec.ts',
+      testMatch: ['**/extension-peek.spec.ts', '**/real-cat-cameo.spec.ts'],
       use: {
         browserName: 'chromium',
         // MV3 extension overlays need a real browser profile (headed + Xvfb on CI).

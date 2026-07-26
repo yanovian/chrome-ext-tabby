@@ -183,6 +183,9 @@ export interface ExtensionSettings {
   devSimulatedDrainingMs: number;
   /** Dev-only: simulated time away during recovery (ms). */
   devSimulatedRecoveryAwayMs: number;
+  /** Dev-only: force a specific real cat cameo photo (by filename) instead of a random one
+   * the next time she's shooed, or 'auto' for the normal random pick. */
+  devForceRealCat: string;
   /** Show the floating cat overlay on web pages. */
   showOverlay: boolean;
   /** In-app UI language (Chrome store has separate manifest locales). */
@@ -209,6 +212,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   devTemperScenario: 'on_feed',
   devSimulatedDrainingMs: 0,
   devSimulatedRecoveryAwayMs: 0,
+  devForceRealCat: 'auto',
   showOverlay: true,
   locale: 'en',
 };

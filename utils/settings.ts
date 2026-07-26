@@ -1,6 +1,7 @@
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from './types';
 import { MOOD_TIMER_DEV_DEFAULTS, MOOD_TIMER_SLIDER_BOUNDS } from './mood-timers';
 import { normalizeLocaleTag } from './locale-registry';
+import { REAL_CAT_PHOTOS } from './real-cats';
 import type {
   CatMood,
   DevLifeStageOverride,
@@ -68,6 +69,13 @@ function clampTemperMs(
 
 function parseDevTemperScenario(value: unknown): DevTemperScenario {
   return value === 'away_from_feed' ? 'away_from_feed' : 'on_feed';
+}
+
+function parseDevForceRealCat(value: unknown): string {
+  if (value === 'auto' || REAL_CAT_PHOTOS.some((photo) => photo.file === value)) {
+    return value as string;
+  }
+  return DEFAULT_SETTINGS.devForceRealCat;
 }
 
 /** Merge stored (possibly partial) settings with defaults. */
@@ -146,6 +154,7 @@ export function mergeSettings(
       DEFAULT_SETTINGS.devSimulatedRecoveryAwayMs,
       MOOD_TIMER_SLIDER_BOUNDS.simulatedRecoveryAwayMs,
     ),
+    devForceRealCat: parseDevForceRealCat(raw.devForceRealCat),
     showOverlay:
       typeof raw.showOverlay === 'boolean'
         ? raw.showOverlay

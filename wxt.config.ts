@@ -68,7 +68,7 @@ export default defineConfig({
     },
     web_accessible_resources: [
       {
-        resources: ['gif/*/*.gif'],
+        resources: ['gif/*/*.gif', 'real-cats/*.png'],
         matches: ['<all_urls>'],
       },
     ],

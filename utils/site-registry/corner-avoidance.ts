@@ -24,6 +24,13 @@ function isGroup(token: AvoidToken): token is AvoidGroup {
   return token === 'l' || token === 'r' || token === 'b';
 }
 
+/** Expands a single slot or group shortcut into the concrete slot(s) it covers. Shared by
+ * `blockedCornersForHost` below and anything else (real cat cameo placement) that needs to
+ * turn "which corner(s) is this thing allowed at" into actual `PeekSlot`s. */
+export function slotsForToken(token: AvoidToken): readonly PeekSlot[] {
+  return isGroup(token) ? GROUP_SLOTS[token] : [token];
+}
+
 /**
  * Hosts with their own fixed-position chat launcher, menu, or modal, so ambient
  * peek never lands on top of it. One row per site, using short slot codes or the
@@ -65,7 +72,7 @@ export function blockedCornersForHost(hostname: string | undefined): ReadonlySet
   const normalizedHost = normalizeHostname(hostname);
   for (const [host, tokens] of Object.entries(BLOCKED_SLOTS)) {
     if (hostMatches(normalizedHost, host)) {
-      return new Set(tokens.flatMap((token) => (isGroup(token) ? GROUP_SLOTS[token] : [token])));
+      return new Set(tokens.flatMap(slotsForToken));
     }
   }
   return NO_BLOCKED_SLOTS;
