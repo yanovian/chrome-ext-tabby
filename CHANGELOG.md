@@ -2,6 +2,11 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.8 [unreleased]
+
+- 3rd cat is enhanced.
+- More real cats added.
+
 ## 2.4.7
 
 - More real cat photos.
