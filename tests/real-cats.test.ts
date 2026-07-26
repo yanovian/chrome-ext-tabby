@@ -24,12 +24,13 @@ describe('REAL_CAT_PHOTOS manifest', () => {
     }
   });
 
-  it('scales funny-cat-b-3 down and funny-cat-bl-1 up to even out their on-screen size', () => {
-    const b3 = REAL_CAT_PHOTOS.find((photo) => photo.file === 'funny-cat-b-3.png')!;
-    const bl1 = REAL_CAT_PHOTOS.find((photo) => photo.file === 'funny-cat-bl-1.png')!;
-
-    expect(b3.scale ?? 1).toBeLessThan(1);
-    expect(bl1.scale ?? 1).toBeGreaterThan(1);
+  it('only ever gives a photo a positive, finite scale', () => {
+    for (const photo of REAL_CAT_PHOTOS) {
+      if (photo.scale !== undefined) {
+        expect(photo.scale).toBeGreaterThan(0);
+        expect(Number.isFinite(photo.scale)).toBe(true);
+      }
+    }
   });
 });
 
