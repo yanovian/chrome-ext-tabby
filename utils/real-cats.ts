@@ -34,7 +34,7 @@ export interface RealCatPhoto {
 export const REAL_CAT_PHOTOS: readonly RealCatPhoto[] = [
   { file: 'funny-cat-b-1.png', token: 'b' },
   { file: 'funny-cat-b-2.png', token: 'b', scale: 1.2 },
-  { file: 'funny-cat-b-3.png', token: 'b', holdMs: 4_000, scale: 0.8 },
+  { file: 'funny-cat-b-3.png', token: 'b', holdMs: 6_000, scale: 1.4 },
   { file: 'funny-cat-bl-1.png', token: 'bl', scale: 1.8 },
   { file: 'funny-cat-b-4.png', token: 'b' },
   { file: 'funny-cat-b-5-fast.png', token: 'b', holdMs: 2_000, scale: 1.6 },
