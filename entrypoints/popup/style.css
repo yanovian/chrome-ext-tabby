@@ -1,3 +1,14 @@
+/* Chrome measures the popup window's size from html/body, not from .settings — with no
+ * explicit width here, some Chrome versions get that measurement wrong once async content
+ * (locale/photo dropdowns, settings-driven fields) changes the page after first paint, leaving
+ * a popup window much wider than .settings itself (see crbug.com/40391360, crbug.com/428044).
+ * Pinning html/body to the content's own width keeps the window request unambiguous. */
+html,
+body {
+  margin: 0;
+  width: max-content;
+}
+
 .settings {
   width: 360px;
   padding: 16px;
