@@ -6,6 +6,7 @@ Updates for people who use Tabby. Newest first.
 
 - Tap a real cat cameo to dismiss it and bring her back.
 - Fix her sometimes not coming back after a real cat cameo.
+- Fix the popup sometimes showing with extra blank space.
 
 ## 2.4.8
 
