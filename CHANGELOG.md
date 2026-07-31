@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.9 (unreleased)
+## 2.4.9
 
 - Tap a real cat cameo to dismiss it and bring her back.
 - Fix sometimes not coming back after a real cat cameo.
