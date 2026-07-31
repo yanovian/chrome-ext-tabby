@@ -2,11 +2,12 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.9 [unreleased]
+## 2.4.9 (unreleased)
 
 - Tap a real cat cameo to dismiss it and bring her back.
-- Fix her sometimes not coming back after a real cat cameo.
-- Fix the popup sometimes showing with extra blank space.
+- Fix sometimes not coming back after a real cat cameo.
+- Fix the popup extra blank space.
+- Real cat cameo photos load faster and use less memory.
 
 ## 2.4.8
 

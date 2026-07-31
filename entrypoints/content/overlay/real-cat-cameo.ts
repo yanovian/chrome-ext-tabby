@@ -196,8 +196,16 @@ export class RealCatCameoController {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    this.element?.remove();
-    this.element = null;
+    if (this.element) {
+      // Removing the element alone doesn't reliably release its decoded bitmap right away —
+      // clearing src first tells the browser this photo's decode can be dropped now rather
+      // than lingering in memory on the chance it's needed again. removeAttribute, not
+      // `src = ''`: an empty string src resolves to this page's own URL in some browsers and
+      // fires a pointless request for it.
+      this.element.removeAttribute('src');
+      this.element.remove();
+      this.element = null;
+    }
     this.scheduledForPeekUntil = null;
     this.unhide?.();
     this.unhide = null;
