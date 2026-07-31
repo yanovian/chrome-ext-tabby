@@ -145,6 +145,7 @@ export class RealCatCameoController {
     const size = Math.round(SIZE_PX * placement.scale);
     const img = document.createElement('img');
     img.id = ELEMENT_ID;
+    img.decoding = 'async';
     img.src = context.resolveUrl(realCatAssetPath(placement.file));
     img.alt = '';
     Object.assign(img.style, {
