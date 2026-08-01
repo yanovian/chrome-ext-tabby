@@ -30,6 +30,7 @@ jobs:
         with:
           update-strategy: breaking
           create-pull-request: true
+          min-release-age-days: 30
           github-token: ${{ secrets.PAT_TOKEN }}
 
       - name: Regenerate companion animations and GIFs
