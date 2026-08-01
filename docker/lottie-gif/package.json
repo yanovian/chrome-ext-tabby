@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@lottiefiles/dotlottie-web": "0.55.0",
-    "@napi-rs/canvas": "0.1.81"
+    "@lottiefiles/dotlottie-web": "0.78.2",
+    "@napi-rs/canvas": "1.0.3"
   }
 }
