@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { CatPresentation } from '../utils/types';
 import {
   launchExtensionContext,
   openOverlayPage,
@@ -34,7 +35,7 @@ test('dev peek override beats stay-visible stickiness in storage', async () => {
       .poll(
         async () => {
           const stored = await worker.evaluate(async () => {
-            const result = await chrome.storage.local.get(['presentation']);
+            const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
             return result.presentation;
           });
           return stored?.mood;
@@ -44,7 +45,7 @@ test('dev peek override beats stay-visible stickiness in storage', async () => {
       .toBe('peek');
 
     const stored = await worker.evaluate(async () => {
-      const result = await chrome.storage.local.get(['presentation']);
+      const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       return result.presentation;
     });
     expect(stored?.stayVisibleUntil).toBeNull();
@@ -94,7 +95,7 @@ test('extension overlay renders dev-forced left peek with rotated surface', asyn
     const matrix = transform.transform.match(/matrix\(([^)]+)\)/)?.[1];
     expect(matrix).toBeTruthy();
     const [ , b, c] = matrix!.split(',').map((part) => Number(part.trim()));
-    expect(Math.abs(b) + Math.abs(c)).toBeGreaterThan(0.1);
+    expect(Math.abs(b!) + Math.abs(c!)).toBeGreaterThan(0.1);
   } finally {
     await context.close();
   }
@@ -137,7 +138,7 @@ test('clicking a peeking Tabby reveals her previous real mood', async () => {
       .poll(
         async () => {
           const stored = await worker.evaluate(async () => {
-            const result = await chrome.storage.local.get(['presentation']);
+            const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
             return result.presentation;
           });
           return stored?.mood;
@@ -147,7 +148,7 @@ test('clicking a peeking Tabby reveals her previous real mood', async () => {
       .not.toBe('peek');
 
     const stored = await worker.evaluate(async () => {
-      const result = await chrome.storage.local.get(['presentation']);
+      const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       return result.presentation;
     });
     expect(stored?.ambientActivity).toBe('grooming');
@@ -199,7 +200,7 @@ test('"Go play by yourself" sends Tabby into an edge peek', async () => {
 
     const worker = context.serviceWorkers()[0]!;
     const stored = await worker.evaluate(async () => {
-      const result = await chrome.storage.local.get(['presentation']);
+      const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       return result.presentation;
     });
     expect(stored?.mood).toBe('peek');
@@ -358,7 +359,7 @@ test('an ambient peek transition waits until the care menu is closed', async () 
     const worker = context.serviceWorkers()[0]!;
     await worker.evaluate(async () => {
       const now = Date.now();
-      const result = await chrome.storage.local.get(['presentation']);
+      const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       const current = result.presentation;
       await chrome.storage.local.set({
         presentation: {
@@ -478,7 +479,7 @@ test('a real tab switch to an already-open tab does not cancel an active peek', 
       .poll(
         async () => {
           const stored = await worker.evaluate(async () => {
-            const result = await chrome.storage.local.get(['presentation']);
+            const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
             return result.presentation;
           });
           return stored?.mood;
@@ -497,7 +498,7 @@ test('a real tab switch to an already-open tab does not cancel an active peek', 
     await pageB.waitForTimeout(8_000);
 
     const stored = await worker.evaluate(async () => {
-      const result = await chrome.storage.local.get(['presentation']);
+      const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       return result.presentation;
     });
     expect(stored?.mood).toBe('peek');
@@ -552,7 +553,7 @@ test('a real tab switch does not force ambient speech when none is owed (devMode
     await pageB.waitForTimeout(8_000);
 
     const stored = await worker.evaluate(async () => {
-      const result = await chrome.storage.local.get(['presentation']);
+      const result = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       return result.presentation;
     });
     expect(stored?.speech).toBeNull();

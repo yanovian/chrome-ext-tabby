@@ -1,7 +1,9 @@
+/// <reference types="chrome" />
 import { chromium, type BrowserContext, type Page } from '@playwright/test';
 import { existsSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { ExtensionSettings } from '../../utils/types';
 
 const BUILD_DIRS = ['.output/chrome-mv3-dev', '.output/chrome-mv3'];
 
@@ -198,12 +200,14 @@ export async function seedExtensionStorage(
   );
 }
 
-export async function readStoredSettings(context: BrowserContext): Promise<Record<string, unknown>> {
+export async function readStoredSettings(context: BrowserContext): Promise<ExtensionSettings> {
   const worker = context.serviceWorkers()[0];
   if (!worker) {
     throw new Error('Extension service worker not available');
   }
-  const { settings } = await worker.evaluate(() => chrome.storage.local.get(['settings']));
+  const { settings } = await worker.evaluate(() =>
+    chrome.storage.local.get<{ settings: ExtensionSettings }>(['settings']),
+  );
   return settings;
 }
 
