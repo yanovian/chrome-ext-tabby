@@ -145,8 +145,8 @@ function rankFittingPlacements(
   const candidates: Array<{ placement: MenuPlacement; score: number }> = [];
 
   for (const placement of ['top', 'bottom', 'left', 'right'] as const) {
-    let fits = false;
-    let surplus = 0;
+    let fits: boolean;
+    let surplus: number;
 
     if (placement === 'top' || placement === 'bottom') {
       fits = verticalPlacementFits(placement, input, spaces, margin);

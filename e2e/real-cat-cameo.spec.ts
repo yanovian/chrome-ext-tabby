@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { DEFAULT_REAL_CAT_HOLD_MS } from '../utils/real-cats';
+import type { CatPresentation, ExtensionSettings } from '../utils/types';
 import { launchExtensionContext, openOverlayPage, readStoredSettings, seedExtensionStorage } from './helpers/extension';
 
 test.describe.configure({ mode: 'serial' });
@@ -39,7 +40,7 @@ test('dev-forced real cat photo previews immediately, without waiting for a shoo
     // simulates picking a photo from the dev panel after the overlay is already up.
     const worker = context.serviceWorkers()[0]!;
     await worker.evaluate(async () => {
-      const { settings } = await chrome.storage.local.get(['settings']);
+      const { settings } = await chrome.storage.local.get<{ settings: ExtensionSettings }>(['settings']);
       await chrome.storage.local.set({
         settings: { ...settings, devForceRealCat: 'funny-cat-bl-1.png' },
       });
@@ -129,7 +130,7 @@ test('shoo sends her into a duck gap, then a real cat cameo slides in and back o
 
     const worker = context.serviceWorkers()[0]!;
     await worker.evaluate(async () => {
-      const { presentation } = await chrome.storage.local.get(['presentation']);
+      const { presentation } = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       await chrome.storage.local.set({
         presentation: {
           ...presentation,
@@ -187,7 +188,7 @@ test('an ordinary ambient duck gap (never shooed) never shows a cameo', async ()
 
     const worker = context.serviceWorkers()[0]!;
     await worker.evaluate(async () => {
-      const { presentation } = await chrome.storage.local.get(['presentation']);
+      const { presentation } = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
       await chrome.storage.local.set({
         presentation: {
           ...presentation,
@@ -248,7 +249,7 @@ test('picking a specific real cat in the dev panel also forces peek pose, and st
     await expect
       .poll(
         async () => {
-          const { settings } = await worker.evaluate(() => chrome.storage.local.get(['settings']));
+          const { settings } = await worker.evaluate(() => chrome.storage.local.get<{ settings: ExtensionSettings }>(['settings']));
           return settings.devForceMood;
         },
         { timeout: 10_000 },
@@ -289,7 +290,7 @@ test('clicking the real cat cameo dismisses it and reveals her, same as tapping 
 
     const worker = context.serviceWorkers()[0]!;
     await worker.evaluate(async () => {
-      const { settings } = await chrome.storage.local.get(['settings']);
+      const { settings } = await chrome.storage.local.get<{ settings: ExtensionSettings }>(['settings']);
       // funny-cat-bl-1.png has no holdMs override (30s default) — clicking has to be what ends
       // this, not a coincidental natural timeout landing in the same window.
       await chrome.storage.local.set({
@@ -357,7 +358,7 @@ test('once a preview cameo naturally finishes, her sprite is left visible again 
 
     const worker = context.serviceWorkers()[0]!;
     await worker.evaluate(async () => {
-      const { settings } = await chrome.storage.local.get(['settings']);
+      const { settings } = await chrome.storage.local.get<{ settings: ExtensionSettings }>(['settings']);
       // funny-cat-b-5-fast.png: holdMs 2_000 — short enough to let this run to its natural end
       // rather than dismissing it, without ballooning the test's runtime.
       await chrome.storage.local.set({
