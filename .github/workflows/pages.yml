@@ -35,7 +35,15 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: website/pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            website/pnpm-lock.yaml
+
+      # Root tsconfig.json extends .wxt/tsconfig.json, which `wxt prepare`
+      # generates. This job builds only the website, so it skips the
+      # extension's own postinstall and generates just that one file.
+      - name: Prepare WXT types
+        run: make website-prepare
 
       - name: Install website dependencies
         working-directory: website
