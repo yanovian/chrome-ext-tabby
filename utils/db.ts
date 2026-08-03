@@ -14,8 +14,8 @@ const IS_DEV_BUILD = import.meta.env.DEV;
 
 // Observations are appended on nearly every qualifying page visit and never read back in bulk
 // (getMemories() is the long-term record) — without a cap this store just grows forever for as
-// long as the extension stays installed.
-const OBSERVATION_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+// long as the extension stays installed. Kept short since nothing needs it past a week.
+const OBSERVATION_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 let databasePromise: Promise<IDBDatabase> | null = null;
 
