@@ -2,7 +2,7 @@
 
 Updates for people who use Tabby. Newest first.
 
-## 2.4.10 (unreleased)
+## 2.4.10
 
 - Fix a memory buildup to improve performance on the long run.
 
