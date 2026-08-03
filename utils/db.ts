@@ -12,6 +12,11 @@ import { getSettings } from './settings';
 
 const IS_DEV_BUILD = import.meta.env.DEV;
 
+// Observations are appended on nearly every qualifying page visit and never read back in bulk
+// (getMemories() is the long-term record) — without a cap this store just grows forever for as
+// long as the extension stays installed.
+const OBSERVATION_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
 let databasePromise: Promise<IDBDatabase> | null = null;
 
 function openDatabase(): Promise<IDBDatabase> {
@@ -68,6 +73,27 @@ function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
   });
 }
 
+/** Deletes every observation older than the retention window, via the existing observedAt
+ * index (a cursor over just the expired rows, not a full-table scan). Runs on every append, so
+ * there's usually nothing to delete and this is a cheap no-op. */
+function pruneOldObservations(database: IDBDatabase, now: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const request = objectStore(database, DB.stores.observations, 'readwrite')
+      .index(DB.indexes.observedAt)
+      .openCursor(IDBKeyRange.upperBound(now - OBSERVATION_RETENTION_MS));
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) {
+        resolve();
+        return;
+      }
+      cursor.delete();
+      cursor.continue();
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
 export async function getCatState(now = Date.now()): Promise<CatState> {
   const database = await openDatabase();
   const raw = await promisifyRequest(
@@ -114,6 +140,7 @@ export async function appendObservation(
   await promisifyRequest(
     objectStore(database, DB.stores.observations, 'readwrite').put(observation),
   );
+  await pruneOldObservations(database, observation.observedAt);
 
   if (observation.topic && observation.category === 'nourishing') {
     await upsertMemoryFromObservation(observation);
@@ -196,16 +223,4 @@ export async function clearAllData(): Promise<void> {
       objectStore(database, DB.stores.cat, 'readwrite').clear(),
     ),
   ]);
-}
-
-export async function getRecentObservations(
-  limit: number,
-): Promise<TabObservation[]> {
-  const database = await openDatabase();
-  const raw = await promisifyRequest(
-    objectStore(database, DB.stores.observations, 'readonly').getAll(),
-  );
-  return (raw as TabObservation[])
-    .sort((left, right) => right.observedAt - left.observedAt)
-    .slice(0, limit);
 }

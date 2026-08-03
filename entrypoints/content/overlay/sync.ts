@@ -133,6 +133,9 @@ export function createStorageChangeListener(host: OverlaySyncHost): StorageChang
 export class OverlaySync {
   private bound = false;
   private readonly listener: StorageChangeListener;
+  /** Remembered so unbind() can remove the exact same listener bind() added — the caller
+   * passes a fresh arrow function each call, so unbind() can't just be handed another one. */
+  private pagehideListener: (() => void) | null = null;
 
   constructor(host: OverlaySyncHost) {
     this.listener = createStorageChangeListener(host);
@@ -147,6 +150,7 @@ export class OverlaySync {
       return;
     }
     this.bound = true;
+    this.pagehideListener = onPagehide;
     browser.storage.onChanged.addListener(this.listener);
     window.addEventListener('resize', onViewportChange);
     window.visualViewport?.addEventListener('resize', onViewportChange);
@@ -160,6 +164,10 @@ export class OverlaySync {
     window.removeEventListener('resize', onViewportChange);
     window.visualViewport?.removeEventListener('resize', onViewportChange);
     window.visualViewport?.removeEventListener('scroll', onViewportChange);
+    if (this.pagehideListener) {
+      window.removeEventListener('pagehide', this.pagehideListener);
+      this.pagehideListener = null;
+    }
   }
 }
 

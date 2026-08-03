@@ -2,6 +2,10 @@
 
 Updates for people who use Tabby. Newest first.
 
+## 2.4.10 (unreleased)
+
+- Fix a memory buildup to improve performance on the long run.
+
 ## 2.4.9
 
 - Tap a real cat cameo to dismiss it and bring her back.
