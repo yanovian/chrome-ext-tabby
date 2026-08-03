@@ -38,6 +38,9 @@ jobs:
       - name: Lint locale files
         run: pnpm lint:extension-i18n
 
+      - name: Check real cat photos are optimized
+        run: pnpm real-cats:check
+
       - name: Run tests
         run: pnpm test
 

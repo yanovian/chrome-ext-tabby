@@ -1,5 +1,6 @@
 .PHONY: help install prepare animations gif-convert animations-ship assets dev build zip icons locales lint-extension-i18n test test-watch test-e2e \
 	typecheck lint lint-fix check package clean release-patch release-minor release-major \
+	real-cats-optimize real-cats-check \
 	website-install website-prepare website-dev website-build website-preview website-clean website-lint-i18n website-lint-i18n-fix \
 	website-og-images
 
@@ -51,6 +52,12 @@ locales: ## Regenerate Chrome Web Store locale files (public/_locales/)
 lint-extension-i18n: ## Validate in-app locale JSON (locales/*.json)
 	$(PNPM) lint:extension-i18n
 
+real-cats-optimize: ## Compress public/real-cats/*.png and record the result (run after adding/changing a photo)
+	$(PNPM) real-cats:optimize
+
+real-cats-check: ## Verify public/real-cats/*.png are already optimized (CI gate)
+	$(PNPM) real-cats:check
+
 test: ## Run unit tests once
 	$(PNPM) test
 
@@ -69,7 +76,7 @@ lint: ## ESLint
 lint-fix: ## ESLint with auto-fix
 	$(PNPM) lint:fix
 
-check: typecheck lint lint-extension-i18n test build ## CI-style check: typecheck, lint, i18n lint, test, build
+check: typecheck lint lint-extension-i18n real-cats-check test build ## CI-style check: typecheck, lint, i18n lint, real cat photo check, test, build
 
 package: zip ## Build and zip for Chrome Web Store
 
