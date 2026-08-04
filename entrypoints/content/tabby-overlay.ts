@@ -528,6 +528,13 @@ export class TabbyOverlay {
           node.remove();
         }
       }
+      // A pending exitOverlay() can still be mid-animation when a fresh "she should be visible"
+      // update lands here instead — this keeps the root rather than tearing it down, but the
+      // exit class's animation has fill-mode: both, so it'd otherwise hold the cat pinned at its
+      // faded-out end state forever even though the root is staying. Clearing it here (the one
+      // place that always runs when we're about to show a kept, connected root) covers that
+      // regardless of exactly how the race lands.
+      this.root.classList.remove(OVERLAY_EXIT_CLASS);
       patchRoot(this.root, this.presentation!, options, this.renderContext(this.presentation!));
       this.applyPosition();
       if (this.hasOverlayChrome()) {

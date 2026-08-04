@@ -5,6 +5,7 @@ Updates for people who use Tabby. Newest first.
 ## 2.4.11 (unreleased)
 
 - Ensure real cat cameo photos are small.
+- Fix sometimes staying invisible after ducking away to peek.
 
 ## 2.4.10
 

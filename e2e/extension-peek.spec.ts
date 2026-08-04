@@ -562,3 +562,73 @@ test('a real tab switch does not force ambient speech when none is owed (devMode
     await context.close();
   }
 });
+
+test('coming back visible mid-duck-exit-animation does not leave her stuck invisible', async () => {
+  // Regression: exitOverlay() adds the exit class, then awaits the duck/exit animation before
+  // deciding whether to tear the root down. If a fresh "she's visible again" update lands
+  // during that window, render() correctly keeps and patches the existing root instead of
+  // tearing it down — but the exit class's animation has fill-mode: both, so unless something
+  // clears it, the cat surface stays pinned at its faded-out end state forever even though the
+  // root never went away. This is the ordinary ambient duck-gap path, not a contrived one.
+  test.setTimeout(90_000);
+  const { context } = await launchExtensionContext();
+  try {
+    await seedExtensionStorage(context, {
+      settings: {
+        devModeEnabled: false,
+        devForceMood: 'auto',
+        showOverlay: true,
+      },
+      presentation: {
+        mood: 'peek',
+        stage: 'adult',
+        sprite: 'gif/adult/peek.gif',
+        companionVisible: true,
+        ambientActivity: 'peeking',
+        ambientPeekUntil: Date.now() + 60_000,
+        peekEdge: 'bottom',
+        peekInset: 16,
+        peekCorner: 'left',
+        stayVisibleUntil: null,
+      },
+    });
+
+    const page = await openOverlayPage(context);
+    const root = page.locator('#tabby-companion-root');
+    await expect(root).toHaveClass(/tabby-root--mood-peek/, { timeout: 20_000 });
+
+    const worker = context.serviceWorkers()[0]!;
+    // Starts the duck-gap exit (exitOverlay() begins its ~540ms await right about now).
+    await worker.evaluate(async () => {
+      const { presentation } = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
+      await chrome.storage.local.set({
+        presentation: { ...presentation, companionVisible: false, ambientPeekUntil: Date.now() + 30_000 },
+      });
+    });
+
+    // Lands well inside that window — the race this test exists to catch.
+    await page.waitForTimeout(200);
+    await worker.evaluate(async () => {
+      const { presentation } = await chrome.storage.local.get<{ presentation: CatPresentation }>(['presentation']);
+      await chrome.storage.local.set({
+        presentation: { ...presentation, companionVisible: true },
+      });
+    });
+
+    // Past the duck exit's own animation window either way. Checked via evaluate rather than a
+    // locator assertion up front: devModeEnabled off means nothing else is about to touch her,
+    // so this converges quickly and stays put once it does.
+    await page.waitForTimeout(1_000);
+
+    await expect(root).not.toHaveClass(/tabby-root--exiting/);
+    // Not asserting a specific opacity value here — mood-peek styling can legitimately read
+    // under 1. What the bug this guards against actually does is pin her at fully transparent
+    // (the exit animation's faded-out end state, held forever by fill-mode: both).
+    const surfaceOpacity = await page
+      .locator('.tabby-cat-surface')
+      .evaluate((node) => Number(getComputedStyle(node).opacity));
+    expect(surfaceOpacity).toBeGreaterThan(0.5);
+  } finally {
+    await context.close();
+  }
+});
