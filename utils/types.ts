@@ -247,6 +247,10 @@ export const STORAGE_KEYS = {
   doNotDisturbDuration: 'doNotDisturbDuration',
   /** Continuous social/news dwell time for overwhelmed nudges. */
   drainingSession: 'drainingSession',
+  /** Mirrors CatState.adoptedAt into chrome.storage.local (a separate backend from the
+   * IndexedDB record it's normally read from) so her age survives even if that record is
+   * ever lost — getCatState restores it here instead of starting over at day one. */
+  catAdoptedAt: 'catAdoptedAt',
 } as const;
 
 export const ALARM_NAMES = {

@@ -6,7 +6,7 @@ import {
   resolveLifeStage,
   normalizeCatState,
 } from './cat-sim';
-import { DB } from './types';
+import { DB, STORAGE_KEYS } from './types';
 import type { CatState, MemorySeed, TabObservation } from './types';
 import { getSettings } from './settings';
 
@@ -100,11 +100,24 @@ export async function getCatState(now = Date.now()): Promise<CatState> {
     objectStore(database, DB.stores.cat, 'readonly').get('Tabby'),
   );
   if (!raw) {
-    const initial = createInitialCat(now);
+    // The IndexedDB record itself is gone, but her age may still be backed up in
+    // chrome.storage.local (a separate storage backend) — restore it instead of starting
+    // over at day one, if it's there.
+    const backedUpAdoptedAt = await getBackedUpAdoptedAt();
+    const initial =
+      backedUpAdoptedAt !== null
+        ? { ...createInitialCat(now), adoptedAt: backedUpAdoptedAt }
+        : createInitialCat(now);
     await saveCatState(initial);
     return initial;
   }
   return normalizeCatState(raw as CatState, now);
+}
+
+async function getBackedUpAdoptedAt(): Promise<number | null> {
+  const result = await browser.storage.local.get([STORAGE_KEYS.catAdoptedAt]);
+  const value = result[STORAGE_KEYS.catAdoptedAt];
+  return typeof value === 'number' ? value : null;
 }
 
 export async function saveCatState(cat: CatState): Promise<void> {
@@ -121,6 +134,7 @@ export async function saveCatState(cat: CatState): Promise<void> {
   await promisifyRequest(
     objectStore(database, DB.stores.cat, 'readwrite').put(withStage),
   );
+  await browser.storage.local.set({ [STORAGE_KEYS.catAdoptedAt]: cat.adoptedAt });
 }
 
 export async function appendObservation(

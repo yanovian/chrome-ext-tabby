@@ -6,6 +6,7 @@ Updates for people who use Tabby. Newest first.
 
 - Ensure real cat cameo photos are small.
 - Fix sometimes staying invisible after ducking away to peek.
+- Fix her age sometimes resetting back to day one.
 
 ## 2.4.10
 
