@@ -13,7 +13,7 @@
     "preview": "vite preview --host --base /chrome-ext-tabby/"
   },
   "dependencies": {
-    "@lottiefiles/dotlottie-web": "0.78.2",
+    "@lottiefiles/dotlottie-web": "0.80.0",
     "@unhead/react": "^3.4.1",
     "@unhead/schema-org": "^3.4.1",
     "country-flag-icons": "^1.6.20",
@@ -31,7 +31,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "sharp": "^0.35.4",
     "typescript": "^7.0.2",
-    "vite": "8.2.0-beta.0",
+    "vite": "8.2.2",
     "vite-plugin-html": "^3.2.2"
   }
 }
